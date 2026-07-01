@@ -79,6 +79,12 @@ class BuildArgvTest(unittest.TestCase):
         argv = a.build_argv("P", env_source={})
         self.assertEqual(argv[-3:], ["--foo", "bar", "P"])
 
+    def test_ignore_user_config_can_be_disabled_for_older_codex(self):
+        a = _agent(model="m", raw={"runner": "codex", "ignore_user_config": False})
+        argv = a.build_argv("P", env_source={})
+        self.assertNotIn("--ignore-user-config", argv)
+        self.assertIn("-m", argv)
+
 
     def test_interactive_argv_uses_tui_entrypoint(self):
         argv = _agent(model="m", effort="xhigh").build_interactive_argv(
@@ -123,6 +129,10 @@ class ResolveCodexBinTest(unittest.TestCase):
         with patch("archon.agents.codex.shutil.which", return_value="/usr/bin/codex"):
             env = _agent(model="m").build_env()
         self.assertEqual(env["ARCHON_CODEX_BIN"], "/usr/bin/codex")
+
+    def test_build_env_can_pin_codex_home(self):
+        env = _agent(model="m", raw={"codex_home": "/project/.archon/codex-home"}).build_env()
+        self.assertEqual(env["CODEX_HOME"], "/project/.archon/codex-home")
 
     def test_build_env_omits_stamp_when_codex_unresolvable(self):
         with patch("archon.agents.codex.shutil.which", return_value=None):

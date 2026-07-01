@@ -34,7 +34,7 @@ flag, so unlike the claude-code path (which registers the server at
 this runner's argv.
 
 The invocation mirrors the FormalQualBench reference runner:
-``codex exec --json --skip-git-repo-check --ignore-user-config
+``codex exec --json --skip-git-repo-check [--ignore-user-config]
 [-m <model>] [-c model_reasoning_effort="<effort>"] --sandbox <sandbox>
 --ephemeral [gateway -c …] [mcp -c …] [extra] <prompt>``.
 """
@@ -567,7 +567,7 @@ class CodexAgent:
     ) -> list[str]:
         """Build the full ``codex exec`` argv (no subprocess spawned).
 
-        ``codex exec --json --skip-git-repo-check --ignore-user-config
+        ``codex exec --json --skip-git-repo-check [--ignore-user-config]
           [-m <model>] [-c model_reasoning_effort="<effort>"]
           [-o <last_message_path>] [gateway -c …] [mcp -c …]
           --sandbox <sandbox> --ephemeral [extra] <prompt>``.
@@ -583,8 +583,9 @@ class CodexAgent:
             "exec",
             "--json",
             "--skip-git-repo-check",
-            "--ignore-user-config",
         ]
+        if self.descriptor.raw.get("ignore_user_config", True):
+            argv.append("--ignore-user-config")
         if self.model:
             argv += ["-m", self.model]
         if self.effort:
@@ -836,6 +837,9 @@ class CodexAgent:
         env = os.environ.copy()
         if env_overrides:
             env.update(env_overrides)
+        codex_home = self.descriptor.raw.get("codex_home")
+        if isinstance(codex_home, str) and codex_home:
+            env["CODEX_HOME"] = codex_home
         _ensure_archon_on_path(env)
         _stamp_archon_cli(env)
         # Propagate the resolved codex/uv paths so a nested subagent dispatch
