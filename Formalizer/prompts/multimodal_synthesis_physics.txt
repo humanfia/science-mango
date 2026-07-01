@@ -1,0 +1,66 @@
+You are an expert in **physics formalization**.
+Your task is to fuse visual data with the original question into a **minimalist, physically dense** problem statement.
+
+{{Objective}}
+Output a statement optimized for a "Symbolic Physics Solver".
+It must reflect the **Original Text's structure**, only using the image to fill in missing parameters or specify geometric types.
+
+{{Strict Compression Rules}}
+1.  **Text Fidelity (CRITICAL)**:
+    -   Keep the narrative structure of the Original Question.
+    -   **DO NOT** add meta-labels or container nouns like "System:", "Scenario:", "Setup:", "Problem:", or "Field Configuration:".
+    -   *Bad*: "System: A block on a plane."
+    -   *Good*: "A block on a plane."
+
+2.  **Visual Injection (Fill-in-the-Blanks)**:
+    -   Use the image *only* to extract missing values, specific shapes, or directions.
+    -   **Inject values directly**: If text says "a resistor" and image labels it "10Ω", output "a resistor (10Ω)".
+    -   **Specify shapes**: If text says "a loop" and image shows a square, output "a square loop".
+    -   **Specify directions**: If text says "B-field" and image shows crosses, output "B-field (into page)".
+    -   **Visible-label checklist**: Before writing the final statement, identify all visible symbolic labels, named points, arrows, and dimension annotations in the image. The final statement must preserve them as setup/context even if the current sub-question only uses some of them.
+    -   For the charged-ring figure, do not omit `B` or `r` merely because A.1 asks for `Phi(z)` at point `A`; write that the figure also marks point `B` in the ring plane at radial offset `r`.
+
+3.  **Text-Image Conflict Policy (CRITICAL)**:
+    -   The Original Text is authoritative when it states an idealization or limiting assumption.
+    -   If the text says "negligible thickness", "thin", "ideal", "point-like", "massless", "frictionless", or a similar approximation, preserve that approximation exactly.
+    -   Do not let a schematic drawing override such text. In particular, if a ring is described as having negligible thickness, do not convert it into an annulus, torus, finite-width strip, or object with inner/outer radii just because the image is drawn with visible width.
+    -   Still preserve visible labels such as A, B, r, R, z, q, and 2a as contextual geometric parameters or approximations. For example, "thickness 2a ≪ R, neglected for this subpart" is correct; silently dropping 2a is not.
+    -   Use visible widths, thicknesses, or drawing offsets as context when the Original Text marks them negligible; use them as active model parameters only when the Original Text asks for them.
+
+4.  **No Interpretive Fluff**:
+    -   **DO NOT** explain the physics.
+    -   *Bad*: "A mass m is pulled by gravity..."
+    -   *Good*: "A mass m."
+    -   **DO NOT** describe the drawing style.
+
+5.  **Merge Parameters**:
+    -   Attach attributes directly to the noun they describe.
+    -   *Bad*: "There is a current I. The diagram shows it is clockwise."
+    -   *Good*: "A clockwise current I."
+
+{{Examples}}
+
+Input Text: "Find the acceleration."
+Input Image: [Block M (5kg) on incline (30 deg).]
+Output:
+A block M (5kg) on an incline (30°). Goal: Find acceleration.
+
+Input Text: "Calculate the total flux."
+Input Image: [Square loop side a=2m, B=5T perpendicular.]
+Output:
+A square loop (side a=2m) in a perpendicular magnetic field (B=5T). Goal: Calculate total flux.
+
+Input Text: "What is the equivalent resistance?"
+Input Image: [R1=10, R2=20 in parallel.]
+Output:
+Resistors R1 (10Ω) and R2 (20Ω) in parallel. Goal: Find equivalent resistance.
+
+Input Text: "A uniformly charged ring of radius R and total charge q has negligible thickness. Find Phi(z) on its axis."
+Input Image: [Ring drawn with labels A, B, R, r, z, q, and thickness 2a.]
+Output:
+A uniformly charged thin ring (radius R, total charge q, thickness 2a ≪ R neglected for this subpart) lies in the xy-plane. Point A is on the z-axis at distance z from the center; the figure also marks point B in the ring plane at radial offset r. Goal: Find Phi(z) at A.
+
+Original Question:
+{question}
+
+Enhanced Problem Statement:

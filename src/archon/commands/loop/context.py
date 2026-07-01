@@ -1,0 +1,186 @@
+"""Shared state for the loop command.
+
+`LoopOptions` is the immutable bundle of CLI flags resolved against
+`.archon/config.json`. `LoopContext` carries the live state that flows
+between phases within an iteration (paths, current stage, sorry counts,
+background services, …).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+from archon.agent import ClaudeBackend
+
+if TYPE_CHECKING:
+    from archon.commands.tooling.blueprint import BlueprintServer
+
+
+@dataclass
+class LoopOptions:
+    """User-facing knobs (CLI flags, resolved against project config)."""
+
+    project_path: Path
+    max_iterations: int
+    max_parallel: int
+    max_objectives: int
+    block_on_blocked_deps: bool
+    parallel: bool
+    verbose_logs: bool
+    no_review: bool
+    no_finalize: bool
+    no_git_commit: bool
+    no_lake_build: bool
+    no_blueprint_web: bool
+    dry_run: bool
+    no_dashboard: bool
+    blueprint_server_flag: bool
+    open_browser: bool
+    model: str
+    force_stage: str | None
+    skip_first_iter: set[str]
+    from_phase: str | None
+
+    multilane_execute: bool
+    multilane_preview: bool
+    multilane_cfg: dict[str, Any]
+
+    debug_feedback: bool = False
+    resume: bool = False
+    backend: ClaudeBackend = field(default_factory=ClaudeBackend)
+
+    @property
+    def do_git(self) -> bool:
+        return not self.no_finalize and not self.no_git_commit
+
+    @property
+    def do_lake(self) -> bool:
+        return not self.no_finalize and not self.no_lake_build
+
+    @property
+    def do_bp_web(self) -> bool:
+        return not self.no_finalize and not self.no_blueprint_web
+
+    @property
+    def has_finalize(self) -> bool:
+        return self.do_git or self.do_lake or self.do_bp_web
+
+
+@dataclass
+class LoopContext:
+    """Live state shared across phases.
+
+    Phase classes mutate this in place — paths and resolved values are
+    set up once at bootstrap, while `current_stage` / `prev_sorry` /
+    `iter_*` fields are refreshed each iteration.
+    """
+
+    options: LoopOptions
+
+    project_path: Path
+    project_name: str
+    state_dir: Path
+    progress_file: Path
+    log_dir: Path
+
+    iter_index: int = 0
+    iter_num: int = 0
+    iter_dir: Path | None = None
+    iter_meta: Path | None = None
+    current_stage: str = ""
+    skip_now: set[str] = field(default_factory=set)
+    # Resolved AFTER iter-dir reuse: either copied from
+    # options.from_phase (when --from was passed) or auto-detected from
+    # the prior iter's meta.json (when --resume was passed without
+    # --from). Stays None on iters >= 1. Phases consult
+    # :pyattr:`resume_phase` rather than reading this directly.
+    resolved_resume_phase: str | None = None
+
+    dashboard_url: str | None = None
+    blueprint_url: str | None = None
+    blueprint_server: "BlueprintServer | None" = None
+
+    initial_sorry: int | None = None
+    prev_sorry: int | None = None
+    sorry_after: int | None = None
+
+    @property
+    def model(self) -> str:
+        return self.options.model
+
+    @property
+    def backend(self) -> ClaudeBackend:
+        return self.options.backend
+
+    def harness_descriptor_for(self, role: str):
+        """Resolve the full :class:`HarnessDescriptor` for a loop role.
+
+        Loads the descriptor (not just the name) so codex's model / effort
+        / gateway env names travel with it — the descriptor is frozen and
+        picklable, so the prover phase can hand it straight to the process
+        pool worker and the worker rebuilds a fully-configured runner via
+        :func:`~archon.agent.build_runner`. Returns the built-in
+        ``"claude-code"`` descriptor for an unconfigured project, so the
+        default path is unchanged. Reads config fresh each call (cheap, and
+        matches the rest of the loop, which re-reads config per phase).
+        """
+        from archon.commands.tooling.project_config import (
+            load_harness_descriptor,
+            load_project_config,
+            resolve_role_harness,
+        )
+
+        cfg = load_project_config(self.project_path)
+        name = resolve_role_harness(cfg, role)
+        return load_harness_descriptor(cfg, name)
+
+    def make_agent(self, role: str, *, model: str | None = None):
+        """Build the :class:`~archon.agent.AgentRunner` for a role.
+
+        Routes through :func:`~archon.agent.build_runner` so plan/review
+        pick up any per-role harness override, while still threading the
+        loop-wide claude :attr:`backend` (claude-p / vscode / …). With no
+        harness override this is exactly the legacy
+        ``ClaudeAgent(model=ctx.model, role=role, backend=ctx.backend)``.
+        """
+        from archon.agent import build_runner
+        from archon.commands.tooling.project_config import load_project_config
+
+        cfg = load_project_config(self.project_path)
+        return build_runner(
+            role=role,
+            model=model if model is not None else self.model,
+            cfg=cfg,
+            backend=self.backend,
+        )
+
+    @property
+    def verbose_logs(self) -> bool:
+        return self.options.verbose_logs
+
+    @property
+    def dry_run(self) -> bool:
+        return self.options.dry_run
+
+    def force_stage(self) -> str | None:
+        return self.options.force_stage
+
+    @property
+    def resume_phase(self) -> str | None:
+        """Phase whose stored session id should be resumed this iter.
+
+        Returns ``None`` when ``--resume`` is off or when the current
+        iteration isn't iter 0. Otherwise returns the resolved target —
+        either the explicit ``--from <phase>`` value or the phase
+        auto-detected from the prior iter's meta.json by
+        :func:`commands.loop.resume.detect_last_interrupted_phase`.
+        Phases compare this against their own ``skip_token`` to decide
+        whether to pass ``--resume <id>``.
+        """
+        if not self.options.resume:
+            return None
+        if self.iter_index != 0:
+            return None
+        return self.resolved_resume_phase

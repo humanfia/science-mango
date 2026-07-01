@@ -1,0 +1,125 @@
+You are a Lean 4 expert. Your task is to analyze search results and identify the **SINGLE BEST** Lean definition that matches the concept '{concept_name}'.
+
+**Goal: Select the most useful snippet based on Semantic Context and Type Role, avoiding homonyms from wrong domains.**
+
+I am looking for the most useful and relevant Lean snippet for '{concept_name}'.
+LeanSearch provides the following candidate list:
+{candidates_text}
+
+---
+**STEP 1: SEMANTIC CONTEXT ANALYSIS (The "Homonym" Test)**
+
+Many mathematical terms are **polysemous** (have multiple meanings). You must determine if the candidate fits the User's Context: **Euclidean Geometry, Linear Algebra, or Real Analysis**.
+
+**Logic to Apply:**
+1.  **Read the Description**: Does it describe a geometric shape, space, vector, or distance? Or does it describe abstract algebra, category theory, or compiler internals?
+2.  **Disambiguate Homonyms**:
+    * **"Right"**: In Geometry, it means "Perpendicular" or "90 degrees". In Algebra/Categories, it often means "Right-hand side" (e.g., Right Module, Right Derived Functor).
+        * *Action*: If input is "RightPrism", REJECT candidates discussing "Right Multiplication" or "Right Adjoints".
+    * **"Face"**: In Geometry, it's a 2D boundary of a polyhedron. In Integration/Analysis, it might be a "face of a box" for integrals. In Categories, it's a "face map".
+        * *Action*: Select the one describing a geometric boundary.
+    * **"Regular"**: In Geometry, it means equal sides/angles. In Topology, it refers to separation axioms.
+    * **"Point"**: In Geometry, it's a spatial location. In Category Theory, "Pointed" is a type class for objects with a base point.
+        * *Action*: Reject abstract algebraic "Pointed" structures if the user wants a geometric point.
+3. **PRIMITIVE & TYPE ALIAS RELAXATION (Crucial for Basic Types)**:
+   - **Context**: Basic concepts like `Point`, `Vector`, `Real` often do NOT have a `structure` definition. They are defined as `abbrev` or derived from generic spaces.
+   - **Action**: You MUST ACCEPT a candidate if it represents the **canonical underlying type** or **implementation** of the concept, even if the name is different.
+   - **Specific Mappings to ACCEPT**:
+     - Input: `Point` -> Candidate: `EuclideanSpace` (ACCEPT).
+     - Input: `Point` -> Candidate: `InnerProductSpace` (ACCEPT).
+     - Input: `Vector` -> Candidate: `Module` or `AddCommGroup` (ACCEPT).
+     - Input: `Real`   -> Candidate: `Data.Real.Basic` (ACCEPT).
+   - **Criterion**: If the search result shows *how to import/use* the concept in a geometric context, marking it as `MATCH` is better than `NO_MATCH`.
+
+**Decision Rule**: If the candidate's description implies a domain completely unrelated to Geometry (e.g., purely abstract Category Theory, Compiler Metaprogramming, or Integration Theory), **REJECT** it, regardless of the namespace.
+
+---
+**STEP 2: TYPE ROLE COMPATIBILITY (Structure vs Theorem)**
+
+Determine if we need a **Definition** (to construct something) or just **Context** (to use something).
+
+**CASE A: Complex Objects (e.g., "Hexagon", "Prism", "Polygon")**
+* **Goal**: We likely need to instantiate this object.
+* **Requirement**: Look for a **Definition** (`structure`, `class`, `inductive`, `def`).
+* **Strictness**: Do NOT accept a random `theorem` or `lemma` as the primary match for a complex shape, unless it is a "construction" definition.
+    * *Example*: For "Hexagon", reject a theorem about sine values (`sin_pi_div_six`). If no definition is found, return **NO_MATCH**.
+
+**CASE B: Primitives & Properties (e.g., "Point", "Line", "Finite", "IsRegular")**
+* **Goal**: We need to know how to use or constrain these basic concepts.
+* **Requirement**: Be flexible.
+* **Accept**:
+    * Definitions (`def`, `class`).
+    * **Representative Theorems**: If a theorem clearly shows how the concept is used in a geometric context (e.g., `mem_segment_iff` for "Segment"), **ACCEPT** it. This provides the necessary namespace/context for the synthesizer.
+
+---
+**FEW-SHOT EXAMPLES (Reasoning Style)**
+
+**Input**: "RightPrism"
+**Candidates**:
+### [1] Candidate: RightCancelMonoid
+   Type: class ...
+   Desc: A monoid with the right cancellation property.
+   **Reasoning**: "Right" here refers to algebraic cancellation, not geometric orthogonality. Semantic mismatch. REJECT.
+### [2] Candidate: Prism
+   Type: structure ...
+   Desc: A geometric prism defined by a base and translation.
+   **Reasoning**: Describes a geometric shape. Matches context. ACCEPT.
+
+**Input**: "Hexagon"
+**Candidates**:
+### [1] Candidate: CategoryTheory.BraidedCategory.hexagon
+   Desc: The hexagon axiom in braided monoidal categories.
+   **Reasoning**: Context is Category Theory (abstract algebra), not Geometry. Semantic mismatch. REJECT.
+### [2] Candidate: Real.sin_pi_div_six
+   Type: theorem
+   **Reasoning**: This is a theorem about numbers, not the definition of the Hexagon structure. REJECT.
+**Output**: NO_MATCH (Correct! Synthesizer will infer it or Planner will decompose it).
+
+**Input**: "Point"
+**Candidates**:
+### [1] Candidate: EuclideanSpace
+   Type: abbrev
+   Def: `abbrev EuclideanSpace (𝕜 : Type u_1) [NontriviallyNormedField 𝕜] (n : Type u_2) [Fintype n] : Type (max u_1 u_2)`
+   **Reasoning**: EuclideanSpace is the standard Mathlib implementation for geometric points. This is a semantic match.
+   **Label**: MATCH
+
+**Input**: "Vector"
+**Candidates**:
+### [1] Candidate: Mathlib.Data.Vector
+   Def: `def Vector (α : Type u) (n : ℕ) := {{ l : List α // l.length = n }}`
+   **Reasoning**: This is a list-based vector definition.
+   **Label**: MATCH
+### [2] Candidate: Module
+   **Reasoning**: In affine geometry, vectors are elements of a Module.
+   **Label**: MATCH
+
+**Input**: "Geometry Regular"
+**Candidates**:
+### [1] Candidate: Affine.Simplex.Regular
+   Def: `def Regular (s : Simplex 𝕜 P n) : Prop := ...`
+   **Reasoning**: This is the correct geometric definition of regularity using isometries.
+   **Label**: MATCH
+
+---
+**TASK:**
+
+Analyze the candidates for '{concept_name}'.
+1. **Semantic Check**: Does the description fit the world of Euclidean Geometry/Vectors? (Filter out homonyms).
+2. **Type Check**:
+   - If it's a **Complex Shape**, demand a Definition.
+   - If it's a **Primitive**, accept Context/Theorems.
+3. Select the **SINGLE BEST** match.
+
+**CRITICAL OUTPUT RULES:**
+1. You must perform the "Semantic Check" and "Type Check" internally.
+2. **DO NOT** output the "Reasoning" or "Label" steps in your final response.
+3. **DO NOT** use Markdown code blocks (like ```python).
+4. Output **ONLY** the result.
+
+**Expected Output Format:**
+FOUND:'Mathlib.Geometry.Euclidean.Basic'
+**If NO match is found:**
+NO_MATCH
+
+
+**Output:**

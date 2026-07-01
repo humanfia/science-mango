@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archon"
+version = "0.3.1"
+description = "Autonomous Lean 4 formalization system"
+requires-python = ">=3.10"
+dependencies = [
+    "typer",
+    "click",
+    "pydantic",
+    "PyYAML",
+    "openai",
+    "Pillow",
+    "lean-explore",
+    "leandag @ git+https://github.com/AxelDlv00/LeanDAG.git@v0.1.0",
+    "claude-p @ git+https://github.com/AxelDlv00/claude-p.git@v0.1.5",
+]
+
+[project.scripts]
+archon = "archon.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["archon*"]
+
+[tool.setuptools.package-data]
+"archon" = [".archon-src/**/*",
+            ".archon-src/**/.*",
+            "ui/**/*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

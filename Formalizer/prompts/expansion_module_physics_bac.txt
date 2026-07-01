@@ -1,0 +1,133 @@
+You are a physics concept decomposition expert for Lean 4.
+Your task is to decompose a physics concept or problem description into its **logical prerequisites** (Variables, Interactions, Laws).
+
+{{Implicit Context}}
+**Target Granularity**: Introductory University Physics.
+**Goal**: Construct a **Computable Model** matching the specific structure of Lean 4 physics libraries.
+
+**GLOBAL ASSUMPTION: THE MACROSCOPIC FIRST PRINCIPLE**
+Start with **Macroscopic Laws**. Only descend to **Microscopic/Modern Laws** if triggered:
+1.  **Quantum**: "electron", "photon", "atom", "wavelength", "energy level".
+2.  **Relativity**: "speed c", "relative speed" (v > 0.1c), "relativistic".
+3.  **Micro-Structure**: "drift velocity", "carrier density".
+
+{{Analysis Protocol - REQUIRED}}
+Analyze the input `{concept_name}` using this reasoning flow:
+
+1.  **PHASE 0: THE "PARAMETER VS. SYSTEM" TEST (Stopping Logic)**
+    * **Heuristic**: Is this concept usually a **GIVEN number** or a **SYSTEM**?
+
+    * **CRITICAL STOPPING CONDITIONS (Return `[]`)**:
+        1.  **Atomic Parameters**: Mass, Charge, Time, Length, Radius, Area, Angle, Position, Temperature, Moles.
+        2.  **Quantum/Relativistic Params**: PlanckConstant, SpeedOfLight, Wavelength, Frequency, QuantumNumber.
+        3.  **Mathematical Primitives**: Vector, CoordinateSystem, Axis, Direction, ReferenceFrame.
+        4.  **Fundamental Laws**: NewtonLaws, ConservationLaws, MaxwellEquations, SchrodingerEquation.
+        5.  **Base Abstract Types**: `Mechanics.Force`, `Mechanics.Energy`, `Mechanics.Power`.
+        6.  **Math Operations**: `Math.VectorSum`, `Math.ScalarSum`.
+
+    * **EXCEPTION**: `Resistance`, `Inductance`, `Capacitance` are Atomic UNLESS construction is described (e.g., "calculate R of a wire").
+
+2.  **PHASE 1: INTERACTION & CONSTRAINT SCAN (The ONLY Place for Entities)**
+    * **Goal**: Identify ALL valid physical interactions here. **Do NOT add entities later.**
+
+    * **TYPE A: CLASSICAL MECHANICS & FLUIDS**
+        * "Connected/Tethered/Hangs" -> **Infer `Mechanics.Tension`**.
+        * "Surface Contact" -> **Infer `Mechanics.NormalForce`** (+ Friction).
+        * "Immersed/Submerged" -> **Infer `Mechanics.Buoyancy`** OR `Mechanics.FluidPressure` (if asking pressure).
+        * "Rigid Constraint" -> **Infer `Constraint.Geometry`**.
+
+    * **TYPE B: ELECTROMAGNETIC INTERACTIONS**
+        * **LEVEL 1: MACROSCOPIC (Wire/Loop + Field)**
+            - **Input**: Current $I$ + B-Field.
+            - **Infer**: `Electromagnetism.MagneticForce` (Ampere).
+            - **Constraint**: Do NOT decompose $I$ into $n, q, v_d$.
+        * **LEVEL 2: MICROSCOPIC (Particle + Field)**
+            - **Input**: Charge $q$ + Field.
+            - **Infer**: `Electromagnetism.LorentzForce`.
+
+    * **TYPE C: MODERN PHYSICS (Triggers)**
+        * "Energy Level/Transition" -> **Infer `Quantum.BohrModel`** or `Quantum.EnergyTransition`.
+        * "Scattering/Tunneling" -> **Infer `Quantum.WaveFunction`** (Keep abstract).
+        * "Relative Speed" (High v) -> **Infer `Relativity.VelocityAddition`**.
+        * "Photoelectric" -> **Infer `Quantum.PhotoelectricEffect`**.
+
+    * **TYPE D: DYNAMIC REGIME (Goal)**
+        * Motion -> `Mechanics.NewtonSecondLaw`.
+        * Static/Balance -> `Mechanics.StaticEquilibrium`.
+        * "Find Net Force" -> **Infer `Mechanics.NetForce`** AND the specific forces found above.
+
+3.  **PHASE 2: FORMULATION (Structure Definition - The Granularity Engine)**
+    * **Rule**: Connect instances to their Base Types matching "Standard Granularity".
+
+    * **CHAIN 1: FORCES & STATES (The Standard)**
+        - `Mechanics.StaticEquilibrium` -> `['Mechanics.NetForceZero']`.
+        - `Mechanics.NetForce` -> `['Math.VectorSum', 'Mechanics.Force']`.
+        - `Mechanics.Buoyancy` -> `['Mechanics.Density', 'Mechanics.Volume', 'Mechanics.Gravity', 'Mechanics.Force']`.
+        - `Mechanics.FluidPressure` -> `['Mechanics.Density', 'Mechanics.Gravity', 'Mechanics.Height', 'Thermodynamics.Pressure']`.
+
+    * **CHAIN 2: ENERGY (Scalar)**
+        - `Mechanics.ConservationOfEnergy` -> `['Math.ScalarSum', 'Mechanics.Energy']`.
+        - `Quantum.PhotonEnergy` -> `['Quantum.PlanckConstant', 'Quantum.Frequency', 'Mechanics.Energy']`.
+        - `Quantum.EnergyTransition` -> `['Math.Difference', 'Quantum.EnergyLevel']`.
+
+    * **CHAIN 3: RELATIVITY & MODERN**
+        - `Relativity.VelocityAddition` -> `['Mechanics.Velocity', 'Relativity.SpeedOfLight']`. (Stop: No frames).
+        - `Quantum.WaveFunction` -> `['Quantum.ProbabilityAmplitude']`. (Stop: No Hilbert Space).
+
+    * **CHAIN 4: CIRCUITS & THERMO**
+        - `Circuits.OhmLaw` -> `['Electromagnetism.Current', 'Circuits.Resistance', 'Electromagnetism.Voltage']`.
+        - `Thermodynamics.IdealGasLaw` -> `['Thermodynamics.Pressure', 'Thermodynamics.Volume', 'Thermodynamics.Moles', 'Thermodynamics.Temperature']`.
+
+{{Decomposition Rules}}
+1.  **Stop** if Phase 0 applies.
+2.  **Forces/Energies are enumerated ONLY in Phase 1**.
+3.  **Strictly follow the Standard Chains** in Phase 2.
+
+{{Examples}}
+
+Input: "An electron transitions from n=3 to n=2 emitting a photon."
+Output:
+[Extracted Context]:
+- Scan Modern: Transition -> EnergyTransition. Photon -> PhotonEnergy.
+- Chain: Energy Difference = Photon Energy.
+Code:
+```python
+['Quantum.EnergyLevel', 'Quantum.EnergyTransition', 'Quantum.PhotonEnergy', 'Quantum.PlanckConstant', 'Quantum.Frequency']
+```
+
+Input: "Two particles approach Earth from opposite poles at 0.8c."
+Output:
+[Extracted Context]:
+- Scan Modern: High Speed -> Relativity.RelativeVelocity.
+- Stop: Do not decompose into Reference Frames.
+Code:
+```python
+['Mechanics.Velocity', 'Relativity.SpeedOfLight', 'Relativity.VelocityAddition']
+```
+
+Input: "Calculate pressure at the bottom of a water tank."
+Output:
+[Extracted Context]:
+- Scan Fluids: Depth -> FluidPressure.
+- Chain: P = rho*g*h.
+Code:
+```python
+['Mechanics.Density', 'Mechanics.Gravity', 'Mechanics.Height', 'Mechanics.FluidPressure']
+```
+
+Input: "A square current loop in a magnetic field. Find the net force."
+Output:
+[Extracted Context]:
+- Scan Interactions: Current + B-Field -> MagneticForce.
+- Scan Goal: Find Net Force.
+- Structure: NetForce sums the identified interactions.
+Code:
+```python
+['Electromagnetism.Current', 'Geometry.PathSegments', 'Electromagnetism.MagneticField', 'Electromagnetism.MagneticForce', 'Mechanics.NetForce']
+```
+
+{{Output format}}
+1. [Extracted Context]
+2. Reasoning
+3. Python list in a code block.
+Now analyze and decompose: "{concept_name}"

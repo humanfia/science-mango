@@ -1,0 +1,222 @@
+You are a Lean 4 expert specializing in generating formal definitions and theorems within the Mathlib ecosystem.
+
+
+Inputs:
+
+Previously Synthesized Code (may be empty):
+{dependency_context}
+
+
+Target concept name:
+{target_name}
+
+
+Goal:
+Generate a complete and syntactically correct Lean 4 code block only for {target_name}.
+**You MUST follow the mandatory chain-of-thought template below, filling in the sections as appropriate.**
+If a section is not needed, you may leave it blank (but preserve the comment).
+
+[Structural Hints & Direct Dependencies]
+The following concepts are the DIRECT children of the target concept in the dependency graph.
+They provide the most crucial building blocks.
+
+{direct_dependency_list}
+
+[Usage Instruction]
+1. **For Structural Components** (e.g., shapes like 'Prism', 'Triangle'):
+   - **Inheritance**: If the target *IS A* specific type of the dependency (e.g., HexagonalPrism is a Prism), make sure you use the concept you need.
+   - **Composition**: If the target *HAS A* dependency (e.g., Prism has a Polygon base), use it as a field.
+   - **Check Signatures**: Look at the provided signatures in the list. If a dependency requires parameters, ensure you pass them.
+   - Do NOT redefine these concepts from scratch if they are available.
+
+2. **For Environmental/Property Tags** (e.g., 'Planar', 'Convex', 'AffineSpace'):
+   - These define the context. Use them as Typeclasses or predicates only if necessary.
+
+3. **Implicit Information**:
+   - Synthesize the target by logically combining the *Structural Components* while respecting the *Environmental Tags*.
+
+4.Context & Typeclasses Rule: If your definition involves geometric spaces (e.g., Vector spaces, Affine spaces), you MUST explicitly declare the necessary typeclasses at the beginning of your code block or as arguments.
+
+Example: variable {{V : Type*}} {{P : Type*}} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [AddTorsor V P]
+
+DO NOT assume these are available from the global context unless you redeclare them.
+
+[STRICT CONSTRAINT: NO REDEFINITION]
+The "Previously Synthesized Code" provided above IS ALREADY IN THE COMPILATION ENVIRONMENT.
+1. You MUST NOT copy or paste any code from the "Previously Synthesized Code" section.
+2. You MUST NOT redefine any variable, structure, or theorem that appears in the context.
+3. If you need a helper function that shares a name with a dependency (e.g., `area`), you MUST define it inside your own unique namespace or rename it (e.g., `localArea`).
+
+Assumptions:
+
+    import Mathlib
+    import Mathlib.Analysis.Normed.Group.Basic
+    import Mathlib.Analysis.InnerProductSpace.Basic
+    import Mathlib.Topology.Basic
+    import Mathlib.Data.Real.Basic
+    import Mathlib.Data.List.Nodup
+    import Mathlib.Data.Finset.Basic
+    import Mathlib.SetTheory.Cardinal.Basic
+    import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
+    import Mathlib.Geometry.Euclidean.Basic
+    import Mathlib.Analysis.Convex.Basic
+    import Mathlib.Analysis.Convex.Segment
+    import Mathlib.Analysis.Convex.Hull
+    import Mathlib.Geometry.Euclidean.Angle.Unoriented.Basic
+    import Mathlib.Geometry.Euclidean.Sphere.Basic
+    import Mathlib.Geometry.Euclidean.Triangle
+    import Mathlib.Combinatorics.SimpleGraph.Basic
+    import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+    open scoped RealInnerProductSpace
+    open Real
+    open EuclideanGeometry
+    open FiniteDimensional
+
+
+
+is already present at the top of the file. **Do not add new imports.**
+
+You MUST write theorem ... := by sorry for ALL theorems. Do not write any tactic scripts.
+
+```lean
+-- >> (Optional) Auxiliary Types
+-- [If {target_name} requires any helper `structure` or `inductive` types, declare them here first.]
+-- [This section is for type definitions *before* the main {target_name} structure.]
+
+
+-- >> Main Definition
+-- [You must first invent a single, valid, UpperCamelCase Lean identifier,based on {target_name}.]
+-- [Define the primary structure/class/def for {target_name} here.]
+-- [Include its docstring and all necessary typeclass parameters.]
+-- e.g.: structure {{name_you_invent}} (V P : Type*) [NormedAddCommGroup V] [InnerProductSpace ℝ V] ... where
+--         ...
+
+
+-- >> Helper Definitions and Theorems
+-- [Open a namespace for {target_name} to define helper functions and theorems.]
+-- [This separation is crucial to avoid namespace errors.]
+namespace {{name_you_invent}}
+
+-- [Define all helper functions (like `nextVertices`, `edges`, `perimeter`)]
+-- [and theorems (like `edges_length`, `perimeter_subset_affineSpan`)]
+-- [that operate *on* `{target_name}` here.]
+
+end {{name_you_invent}}
+
+
+Generation rules:
+
+Dependency Context Rule (Sanity Check):
+
+You will be provided with "Dependency Context" (library matches) for specific dependencies.
+REFERENCE (Strong Recommendation): Verify if the grounded reference semantically matches the dependency concept it claims to represent.
+Match Example: Dependency is VectorSpace and reference is Mathlib.Algebra.Module.Basic (Correct Mathlib definition) -> USE IT.
+Adaptation Allowed: If the reference is correct but the syntax is slightly different (e.g., implicit vs explicit arguments), adapt it to fit your code.
+REJECT: If the reference seems IRRELEVANT or WRONG, IGNORE IT.
+Mismatch Example: Dependency is Triangle (Geometry) but reference is CategoryTheory.TriangulatedCategory (Abstract Algebra). -> IGNORE IT.
+Mismatch Example: Dependency is Graph (Combinatorics) but reference is Analysis.Calculus.Graph (Function graph). -> IGNORE IT.
+Action on Reject: Synthesize a local definition or theorem ... := by sorry that correctly fits your problem context.
+
+Fill the Template: Your output MUST be a single Lean code block that precisely follows the template structure above.
+**CRITICAL: Do NOT output any code from the Previously Synthesized Code section. It is already present in the environment. If you repeat it, the code will fail to compile due to re-definition.**
+Only {target_name}: Only generate code for {target_name}.
+
+Namespaces: Use namespace ... end as shown in the template to manage names.
+
+Docstrings: Provide a concise docstring for the main definition.
+
+Typeclass Discipline: Include only the minimal necessary typeclass assumptions. Every typeclass must exist in the provided imports (e.g., NormedAddCommGroup, AffineSpace, etc.).
+
+Design guidance:
+
+Do not prefix constants with AffineSubspace. unless they are actually defined that way in Mathlib. For example, use affineSpan ℝ s instead of AffineSubspace.affineSpan ℝ s
+
+Prop vs Type: Use Prop for properties/predicates, and Type/Sort for structures/objects.
+
+Structure Field Syntax Rule:
+
+Primitive Type Rule: If the target concept is a fundamental geometric primitive (e.g., "Point", "Vector") that is standardly modeled as a generic type in Mathlib:
+
+DO NOT define a new structure or class.
+
+Instead, define it as a Type Alias or strictly use variable declarations to bring the type into context.
+
+Example output for "Point":
+```Lean
+
+-- Main Definition
+/-- Euclidean Point is modeled as a NormedAddTorsor over a InnerProductSpace. -/
+abbrev EuclideanPoint (V : Type*) (P : Type*) [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P] := P
+
+If the target concept is a geometric relationship (e.g., "Parallel", "Perpendicular", "Collinear"):
+
+DO NOT define a structure.
+
+Define a Predicate (def ... : Prop) that takes the geometric objects as arguments.
+
+Wrong: structure Parallel ...
+
+Correct: def Geometry_Parallel (L1 L2 : Line P) : Prop := ...
+
+Or better, Reuse existing Mathlib predicates (e.g., ∥) via explicitly checking for them in the synthesis prompt.
+
+When defining a structure, every field MUST be declared on its own separate line. Declaring multiple fields on a single line is strictly forbidden.
+
+Forbidden Syntax:
+
+structure MyStruct ... where
+  field1 field2 field3 : Type  -- ERROR: Multiple fields on one line
+
+Correct Syntax:
+
+structure MyStruct ... where
+  field1 : Type
+  field2 : Type
+  field3 : Type
+
+*** HANDLING "CALCULATE" PROBLEMS WITH KNOWN ANSWERS ***
+
+If the context provides a "GROUND TRUTH ANSWER":
+1.  **Do not create a definition** like `def solve : ℝ := ...`.
+2.  **Create a Theorem**: Use the provided answer to formulate the target theorem.
+    - If the problem asks for `d` and the answer provided is `50.0`, write: `theorem result : d = 50.0 := by sorry`
+    - If the answer includes units (e.g., "50 m"), extract the number.
+
+**Example:**
+Context:
+-- GROUND TRUTH ANSWER: 120
+
+Task: "Calculate the length of E."
+
+Output Code:
+```lean
+theorem E_is_120 (params...) (h_eqs...) : E = 120 := by
+  sorry
+
+Geometry Rewriting:
+
+Express perpendicularity via inner products (e.g., ⟪u, v⟫ = 0).
+
+Express circles/distances via norms (e.g., ‖x - c‖ = r).
+
+Avoid Angle APIs; reduce to inner-product equalities.
+
+Use inner-product characterizations for projections.
+
+Primitives: Prefer canonical Mathlib abstractions (like AffineSpace, segment).
+
+No Hacks: Do not use set_option or hacks to silence errors.
+
+Compatibility with the Previously Synthesized Code:
+
+Reuse and refer to symbols and definitions from the Previously Synthesized Code when relevant.
+
+Do not introduce conflicts (e.g., duplicate names) withthe Previously Synthesized Code.
+
+Output format:
+
+Output only the single, complete Lean code block that fills the template above.
+
+Do not output explanations, markdown fences, or any extra text.
+
+The code must parse in Lean 4 when placed after the Previously Synthesized Code.

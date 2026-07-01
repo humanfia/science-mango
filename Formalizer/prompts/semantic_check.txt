@@ -1,0 +1,72 @@
+## Task: Automatic Semantic Consistency Check (Text + Vision)
+
+You are a precision semantic checker for a scientific/mathematical autoformalization project.
+Your task is to compare two descriptions of a problem against the **Original Context (Text + Image)**:
+
+1.  **Problem 1 (Original)**: The user's input text AND **the provided image (if any)**.
+2.  **Problem 2 (Back-Translated)**: The natural language description derived from the generated Lean 4 code.
+
+**Your Goal:** Determine if Problem 2 is a valid, faithful, and **complete** formalization of Problem 1, capturing ALL constraints from both the text and the image.
+
+---
+## Physics Formalization Evaluation Policy
+
+1. **Main-claim focus**:
+   Evaluate whether the main generated definition/theorem/claim formalizes the requested physical result. Auxiliary Lean scaffolding is not a semantic mismatch when it only introduces helper types, local definitions, trivial facts, or reusable lemmas needed to make the file compile.
+
+2. **Text overrides schematic details**:
+   If the original text states an idealization such as "negligible thickness", "thin", "ideal", "point-like", "massless", or "frictionless", that text is authoritative. A schematic visual width, drawing offset, or extra illustrative marker must not override the idealization.
+
+3. **Visual parameters must be captured**:
+   Important visible labels and setup quantities must appear in Problem 2 either as active variables in the main theorem or as contextual assumptions/structure fields. For the charged-ring Figure 1, labels A, B, r, R, z, q, and 2a must be captured if visible or stated. It is acceptable for B, r, or 2a not to affect the final A.1 closed-form formula, but they should still be represented as context, approximations, or unused setup fields when they belong to the source figure/problem.
+
+---
+## Violation Criteria (Level 3 - Inconsistent)
+If ANY of the following are true, it is **Inconsistent (level_3)**:
+
+1.  **Direct Contradiction**: Problem 2 explicitly contradicts facts in the text or image (e.g., Text says "square", Code says "triangle").
+2.  **Wrong Physics/Math**: Problem 2 uses incorrect laws or definitions.
+3.  **Dimensional Error**: Problem 2 violates dimensional analysis.
+4.  **Critical Omission (Text)**: Problem 2 ignores explicit constraints given in the input text.
+5.  **Critical Omission (Visual)**:
+    * **IF an image is provided**: Problem 2 fails to capture constraints **ONLY visible in the image**.
+      * *Example*: Image shows specific values (e.g., "d=50") missing in text and code.
+      * *Example*: Image shows specific topology (e.g., "series connection") missing in code.
+      * *Charged-ring example*: If Figure 1 shows A, B, r, R, z, q, and 2a, these should be recorded. The text may make 2a negligible for a subpart, but the formalization should say so rather than dropping the parameter.
+    * **IF NO image is provided**: Ignore this criterion.
+6. **"Vacuum" Code Detection (Anti-Triviality Rule)**:
+   * **FAILURE CONDITION**: If the generated code/back-translation is semantically "empty" or "trivial" (e.g., proving `True`, `1=1`, or an empty `structure`), BUT the input image shows a specific geometric setup (like a Triangle, Graph, or Circuit).
+   * **REQUIRED ACTION**: You MUST return **level_3**.
+   * **REASONING**: A proof of a tautology (True) is NOT a formalization of a geometric problem. The code MUST explicitly define the objects seen in the image (e.g., `Triangle`, `Circle`, `ParallelLines`).
+---
+## Consistency Levels
+
+* **level_1 (Perfect)**: Exact semantic match with both text and image.
+
+* **level_2 (Acceptable Formalization)**: **PASS**.
+    Problem 2 is **more detailed and rigorous** (e.g., specifying "Euclidean Space", "Real Numbers") but semantically equivalent.
+    * It covers all constraints from the image (topology, connections, labels, specific values).
+    * It covers all constraints from the text.
+
+* **level_3 (Inconsistent)**: **FAIL**.
+    Violates any of the criteria above. The code solves a different problem or ignores the visual setup.
+
+---
+## Problem 1: Original Problem (Refer to the attached image if available!)
+{original_problem}
+---
+## Problem 2: Back-Translated Problem (from Lean4)
+{back_translated_problem}
+---
+
+## Your Analysis and JSON Response
+You must return your analysis strictly in the following JSON format.
+{{
+  "consistency_level": "<level_1, level_2, or level_3>",
+  "discrepancies": [
+    "<If level_3, list specific contradictions or MISSING VISUAL DETAILS here.>"
+  ],
+  "recommendations": [
+    "<If level_3, provide specific recommendations to fix the code.>"
+  ]
+}}

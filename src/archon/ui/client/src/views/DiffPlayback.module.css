@@ -1,0 +1,430 @@
+.page {
+  display: flex;
+  height: calc(100vh - 80px);
+  gap: 0;
+}
+
+/* -- File sidebar -- */
+.sidebar {
+  width: 280px;
+  min-width: 220px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.sidebarTitle {
+  padding: 10px 12px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tree {
+  padding-bottom: 12px;
+}
+
+.treeNode {
+  min-width: 0;
+}
+
+.folderRow,
+.fileItem {
+  width: 100%;
+  display: block;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: none;
+  border-left: 3px solid transparent;
+  transition: all 0.1s;
+  background: transparent;
+  text-align: left;
+}
+
+.folderRow:hover,
+.fileItem:hover {
+  background: var(--bg-tertiary);
+}
+
+.fileItemActive {
+  background: rgba(3, 102, 214, 0.06);
+  border-left-color: var(--blue);
+}
+
+.folderRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.folderChevron {
+  width: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.folderName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folderChildren {
+  padding-left: 14px;
+}
+
+.fileName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+.fileMeta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* -- Main content area -- */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* -- Toolbar -- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.stepNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn:hover { background: var(--bg-secondary); }
+.btn:disabled { opacity: 0.35; cursor: default; }
+
+.stepInfo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0 6px;
+  min-width: 70px;
+  text-align: center;
+}
+
+.iterLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.iterCommit {
+  font-weight: 700;
+  color: var(--blue);
+  border-left: 1px solid var(--border);
+  padding-left: 6px;
+}
+.iterSynthetic {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.06);
+  border-radius: 2px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.compareControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.compareLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.compareSelect,
+.compareSelectWide {
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.compareSelectWide {
+  min-width: 180px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 0;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.viewBtn {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.viewBtn:hover { color: var(--text-primary); }
+
+.viewBtnActive {
+  background: var(--blue);
+  color: white;
+}
+
+/* -- Lightweight clarity hint -- */
+.inlineHintBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-secondary) 92%, var(--bg-primary));
+  flex-shrink: 0;
+}
+
+.inlineHintText {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.inlineHintWarn {
+  font-size: 11px;
+  color: #8a5a00;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+  border-radius: 999px;
+  padding: 2px 8px;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* -- Timeline scrubber -- */
+.scrubber {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 16px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.scrubberTrack {
+  flex: 1;
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+}
+
+.scrubberBar {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+}
+
+.scrubberFill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 2px;
+  transition: width 0.1s ease;
+}
+
+.scrubberMarkers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.scrubberTick {
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  background: var(--border);
+  border-radius: 1px;
+  transform: translateX(-1px);
+}
+
+.scrubberTickIter {
+  height: 16px;
+  background: var(--text-muted);
+  width: 2px;
+}
+
+.scrubberCompareHandle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ff8c00;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transform: translateX(-5px);
+  top: 5px;
+  transition: left 0.1s ease;
+  pointer-events: none;
+}
+
+.scrubberHandle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--blue);
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transform: translateX(-6px);
+  top: 4px;
+  transition: left 0.1s ease;
+  pointer-events: none;
+}
+
+.scrubberLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 55px;
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+/* -- Content area -- */
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.fileLineActive {
+  outline: 2px solid rgba(3, 102, 214, 0.45);
+  outline-offset: -2px;
+}
+
+/* -- Full file view -- */
+.fileView {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.fileViewHeader {
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.fileViewBody {
+  overflow-x: auto;
+}
+
+.fileTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fileLineNum {
+  width: 1px;
+  padding: 0 10px;
+  text-align: right;
+  color: var(--text-muted);
+  user-select: none;
+  font-size: 11px;
+  border-right: 1px solid var(--border);
+}
+
+.fileLineContent {
+  padding: 0 12px;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* -- Empty -- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  gap: 6px;
+}
+
+.empty h3 {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.loading {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+}

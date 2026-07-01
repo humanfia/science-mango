@@ -1,0 +1,220 @@
+/* Shared styles for log detail components */
+
+.container {
+  width: 100%;
+  margin: 4px 0 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+/* -- Header bar -- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.icon { font-size: 13px; flex-shrink: 0; }
+.label { font-weight: 600; color: var(--text-primary); }
+.path { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+.meta { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+/* -- Bash command block -- */
+.bashBlock {
+  padding: 8px 12px;
+  margin: 0;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* -- Code preview block (Write) -- */
+.codeBlock {
+  padding: 8px 12px;
+  margin: 0;
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  color: var(--text-secondary);
+}
+
+/* -- Tool result block -- */
+.resultBlock {
+  padding: 6px 0;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.summaryBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(3, 102, 214, 0.03);
+}
+
+.summaryChip,
+.summaryChipError,
+.summaryChipWarning,
+.summaryChipSuccess {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.4;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+}
+
+.summaryChipError {
+  color: #d73a49;
+  background: rgba(203, 36, 49, 0.06);
+  border-color: rgba(203, 36, 49, 0.16);
+}
+
+.summaryChipWarning {
+  color: #b08800;
+  background: rgba(227, 155, 0, 0.08);
+  border-color: rgba(227, 155, 0, 0.18);
+}
+
+.summaryChipSuccess {
+  color: #22863a;
+  background: rgba(40, 167, 69, 0.08);
+  border-color: rgba(40, 167, 69, 0.18);
+}
+
+.resultNormal { padding: 0 12px; color: var(--text-secondary); }
+.resultError { padding: 0 12px; background: rgba(203, 36, 49, 0.06); color: #d73a49; }
+.resultWarning { padding: 0 12px; background: rgba(227, 155, 0, 0.06); color: #b08800; }
+.resultSuccess { padding: 0 12px; background: rgba(40, 167, 69, 0.06); color: #22863a; }
+
+/* -- Prompt block (initial prompt sent to claude) --
+ * Preformatted so whitespace is preserved exactly as sent. The font
+ * is monospaced for the same reason — character-for-character fidelity
+ * matters when verifying hint injection. */
+.promptBlock {
+  margin: 0;
+  padding: 10px 14px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* -- Thinking/text block -- */
+.thinkingBlock {
+  padding: 8px 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.thinkingMarkdown { font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+.thinkingMarkdown h2 { font-size: 14px; color: var(--text-primary); margin: 8px 0 4px; }
+.thinkingMarkdown h3 { font-size: 13px; color: var(--text-primary); margin: 6px 0 3px; }
+.thinkingMarkdown h4 { font-size: 12px; color: var(--text-primary); margin: 4px 0 2px; }
+.thinkingMarkdown strong { color: var(--text-primary); }
+.thinkingMarkdown code { background: var(--bg-tertiary); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+.thinkingMarkdown ul { padding-left: 18px; margin: 4px 0; }
+.thinkingMarkdown li { margin: 2px 0; }
+.thinkingMarkdown table { border-collapse: collapse; margin: 6px 0; font-size: 12px; width: auto; }
+.thinkingMarkdown th, .thinkingMarkdown td { border: 1px solid var(--border); padding: 3px 8px; text-align: left; }
+.thinkingMarkdown th { background: var(--bg-tertiary); font-weight: 600; }
+.thinkingMarkdown pre { background: var(--bg-tertiary); padding: 8px; border-radius: 4px; overflow-x: auto; font-size: 12px; margin: 4px 0; }
+
+/* -- Snapshot detail -- */
+.snapshotBody {
+  padding: 8px 12px;
+}
+
+.snapshotChange {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.changeRemove { color: #d73a49; }
+.changeAdd { color: #22863a; }
+
+.snapshotMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.linkBtn {
+  padding: 2px 8px;
+  font-size: 11px;
+  border: 1px solid var(--blue);
+  border-radius: 3px;
+  background: rgba(3, 102, 214, 0.06);
+  color: var(--blue);
+  cursor: pointer;
+}
+.linkBtn:hover { background: rgba(3, 102, 214, 0.12); }
+
+/* -- JSON tree -- */
+.jsonTree {
+  padding: 8px 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.jsonNode { margin: 1px 0; }
+.jsonLeaf { padding: 1px 0; }
+.jsonToggle { cursor: pointer; }
+.jsonToggle:hover { color: var(--text-primary); }
+.jsonKey { color: var(--purple); font-weight: 500; }
+.jsonString { color: var(--green); word-break: break-word; white-space: pre-wrap; }
+.jsonPrimitive { color: var(--blue); }
+.jsonNull { color: var(--text-muted); font-style: italic; }
+.inlineToggleBtn {
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 10px;
+  cursor: pointer;
+}
+.inlineToggleBtn:hover { text-decoration: underline; }
+.expandHint { color: var(--text-muted); font-size: 10px; }

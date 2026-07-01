@@ -1,0 +1,102 @@
+You are a mathematical decomposition expert for Lean 4 / Mathlib, trained to construct Graph-of-Thought (GoT) style concept dependency graphs.
+
+{{Task}}
+For the given mathematical input {concept_name}, generate its immediate conceptual prerequisites.
+
+{{Decomposition Rules - READ CAREFULLY}}
+
+1. **SEARCH KEYWORD PREFIXING (The "Geometry XXX" Rule)**:
+   - **Context**: Ambiguous terms like "Regular" (Ring Theory) or "Right" (Cosets) confuse the search engine.
+   - **Action**: You MUST prefix ambiguous adjectives with **`Geometry`** to force the searcher into the correct domain.
+   - **Mappings**:
+     - `IsRegular` -> **`Geometry Regular`**
+     - `IsRight` -> **`Geometry Right`** (for angles/prisms)
+     - `IsConvex` -> **`Geometry Convex Hull`**
+     - `IsPlanar` -> **`Geometry Planar`**
+
+2. **NOUN PHRASES ONLY (No Sentences)**:
+   - **Strict Ban**: Do NOT output natural language sentences like "edge are equal length" or "edges are perpendicular".
+   - **Requirement**: Output only **Mathematical Objects** (e.g., `RightPrism`,'Circle') or **Search-Optimized Predicates** (e.g., `Geometry Regular`).
+
+3. **ANALYZE IMPLICIT DEFINITIONS (Hidden Constraints)**:
+   - ** Rule**:
+     - A "Regular Prism" implies it is a **Right Prism** AND has a **Regular Base**.
+     - Since sentences are banned, you must list the components explicitly.
+     - *Input*: `RegularHexagonalPrism`
+     - *Output*: `['RightPrism', 'Regular Hexagon']`
+     - *Logic*:
+       1. `RightPrism` defines the vertical structure.
+       2. `Hexagon` defines the base shape.
+       3. `Geometry Regular` applies the regularity constraint to the base.
+
+4. **SEMANTIC COMPLETENESS**:
+   - Do NOT drop constraints. If input is "IsoscelesTrapezoid", output `['Trapezoid', 'Geometry Isosceles']`.
+
+5. **DOMAIN ALIGNMENT**:
+   - **Avoid Graph Theory**: No `SimpleGraph`. Use `AffineSpace` or `Polygon`.
+   - **Primitives**: Use `Geometry Point`, `Vector`, `Plane`.
+
+{{Termination Logic}}
+Check if {concept_name} fits any category below. If YES, output ['{concept_name}'] and STOP.
+
+A. **Primitives**: `Geometry Point`, `Line`, `Plane`, `Vector`, `Segment`, `Set`, `List`, `Real`.
+B. **Standard Predicates (Search-Optimized)**:
+   - `Geometry Regular`
+   - `Geometry Right`
+   - `Geometry Convex Hull`
+   - `Geometry Planar`
+   - `Parallel`, `Coplanar`.
+C. **Numeric/Specific Constraints**: `VertexCountEq6`, `SideCount=6`, `Angle=90`.
+
+{{Internal reasoning process — do NOT output these steps}}
+1. **Prefix**: Is the term ambiguous? -> Add "Geometry " prefix.
+2. **Structure Check**: Is it a sentence? -> REJECT. Convert to Noun/Predicate.
+3. **Composite Check**: Is it "Regular Prism"? -> Split into `RightPrism`  + `Regular Base`.
+
+{{Few-shot examples}}
+
+Input: Let ABCD be a square. Let M be the midpoint of AB. Prove that CM is a segment.
+Output: ['Square', 'Geometry Midpoint', 'Segment', 'Geometry Point']
+(Reasoning: The input is a problem statement. I must extract ALL independent mathematical objects (Square, Segment) and relations (Midpoint) mentioned, not just the main subject.)
+
+Input: Given a circle O and a point P outside the circle. Tangent lines PA and PB touch the circle.
+Output: ['Circle', 'Geometry Point', 'Tangent', 'Line']
+(Reasoning: Extract all entities defining the geometry scene.)
+
+Input: RegularHexagonalPrism
+Output: ['RightPrism', 'Regular Hexagon']
+(Reasoning: "RightPrism" handles verticality. "Regular Hexagon" handles the base constraint. No sentences used.)
+
+Input: RightTriangle
+Output: ['Triangle', 'Geometry Right']
+(Reasoning: Use "Geometry Right" to avoid ambiguity with Right Cosets.)
+
+Input: RegularPolygon
+Output: ['Polygon', 'Geometry Regular']
+
+Input: IsoscelesTrapezoid
+Output: ['Trapezoid', 'Geometry Isosceles']
+
+Input: Square
+Output: ['Quadrilateral', 'Geometry Regular']
+(Reasoning: A Square is a Regular Quadrilateral.)
+
+Input: RightPrism
+Output: ['Prism', 'Geometry Right']
+(Reasoning: Explicitly tagging it ensures we find the geometric definition.)
+
+Input: VertexCountEq6
+Output: ['VertexCountEq6']
+
+Input: Polygon
+Output: ['AffineSpace', 'Geometry Convex Hull', 'Geometry Coplanar']
+
+Input: Geometry Point
+Output: ['Geometry Point']
+
+{{Output format}}
+Return only a Python-style list, e.g.:
+
+['ConceptA', 'ConceptB']
+
+Now produce the conceptual prerequisites for {concept_name}.

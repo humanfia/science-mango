@@ -1,0 +1,181 @@
+You are a physics concept decomposition expert for Lean 4.
+Your task is to decompose a physics concept or problem description into its **logical prerequisites** (Variables, Interactions, Laws).
+
+{{Problem-level formalization contract}}
+{problem_context}
+
+{{Implicit Context}}
+**Target Granularity**: Introductory University Physics.
+**Goal**: Construct a **Computable Model** matching the specific structure of Lean 4 physics libraries.
+
+**GLOBAL ASSUMPTION: THE MACROSCOPIC FIRST PRINCIPLE**
+Start with **Macroscopic Laws**. Only descend to **Microscopic/Modern Laws** if triggered:
+1.  **Quantum**: "electron", "photon", "atom", "wavelength", "energy level", "tunneling".
+2.  **Relativity**: "speed c", "relative speed" (v > 0.1c), "relativistic".
+3.  **Micro-Structure**: "drift velocity", "carrier density".
+
+{{Analysis Protocol - REQUIRED}}
+Analyze the input `{concept_name}` using this reasoning flow:
+
+0.  **FULL PROBLEM / ROOT EXPANSION RULE**
+    * If `{concept_name}` is a full natural-language problem statement rather than a single concept name, do not mark the whole problem STOP_ATOMIC just because the final target is a data-reduction formula or measured-scalar relation.
+    * **Role-level graph granularity**: For a full problem/root, extract a compact set of 4-8 role-level ingredients needed by the target:
+        - `Physics.ExperimentSetupContext`: a single context node that preserves apparatus, diagram labels, selected components, terminals, switches, supplies, idealizations, and named constants as fields or hypotheses.
+        - `Physics.MeasurementData` or domain-specific measured-observable nodes for readouts, slopes, calibration constants, and raw data.
+        - `Physics.TargetRelation` or a domain-specific target law/formula node for the requested algebraic/geometric relation.
+        - `Physics.Constraints` or specific constraint nodes for ranges, nonzero assumptions, thin-object assumptions, and selection conditions.
+        - only add separate law/interaction nodes when the problem asks to derive or model that law.
+    * Do not create one node per visible label. Labels such as switches, terminals, resistor names, capacitor names, points, arrows, and supply labels belong inside one setup/context node unless their internal physics is explicitly requested.
+    * Avoid namespace duplicates. Do not emit both `Apparatus.SelectedCapacitor` and `Circuits.SelectedCapacitor`, or both `Math.VoltageRange` and `Electromagnetism.VoltageRange`; choose one role-appropriate name and reuse it.
+    * Prefer role names such as `ExperimentSetupContext`, `MeasurementData`, `MeasuredCurrentAtVoltage`, `VoltageSlope`, `CapacitanceFromSlopeFormula`, `TargetRelation`, and `MeasurementConstraints` over a flat list of device labels.
+    * These extracted ingredients may themselves STOP_ATOMIC later. The root should normally EXPAND unless the input is truly a single atomic concept.
+
+1.  **PHASE 0: THE "PARAMETER VS. SYSTEM" TEST (Stopping Logic)**
+    * **Heuristic**: Is this concept, in the current problem contract, a **GIVEN/MEASURED quantity**, a **setup/context label**, or a **SYSTEM/LAW**?
+    * **CRITICAL STOPPING CONDITIONS (Return `[]`)**:
+        1.  **Atomic Parameters**: Mass, Charge, Time, Length, Radius, Area, Angle, Position, Temperature, Moles.
+        2.  **Quantum/Relativistic Params**: PlanckConstant, SpeedOfLight, Wavelength, Frequency, QuantumNumber.
+        3.  **Mathematical Primitives**: Vector, CoordinateSystem, Axis, Direction, ReferenceFrame.
+        4.  **Fundamental Laws**: NewtonLaws, ConservationLaws, MaxwellEquations, SchrodingerEquation.
+        5.  **Base Abstract Types**: `Mechanics.Force`, `Mechanics.Energy`, `Mechanics.Power`.
+        6.  **Math Operations**: `Math.VectorSum`, `Math.ScalarSum`.
+        7.  **Measured Observables / Readouts**: If the contract says a quantity is measured, calibrated, a slope/readout, or already abstracted as scalar data, STOP. Do not expand it to a constitutive law or dynamical law unless the problem explicitly asks for that mechanism.
+        8.  **Setup Context**: Device labels, switches, terminals, selected components, and named apparatus features are context leaves unless the target asks to model their internal physics.
+        9.  **Excluded Mechanisms**: If the contract explicitly says not to formalize/model a mechanism, never introduce it as a dependency for a child concept.
+
+    * **EXCEPTION**: `Resistance`, `Inductance`, `Capacitance` are Atomic UNLESS construction is described (e.g., "calculate R of a wire").
+    * **Role-sensitive examples**:
+        - `Current` as a measured readout in a data-reduction formula -> STOP_ATOMIC.
+        - `Current` in a circuit-law derivation or RC model -> may EXPAND to circuit laws if requested.
+        - `Voltage` as a measured graph coordinate/slope context -> STOP_ATOMIC.
+        - `Voltage` in an Ohm-law problem -> may EXPAND to circuit relations if requested.
+
+2.  **PHASE 1: INTERACTION & CONSTRAINT SCAN (The ONLY Place for Entities)**
+    * **Goal**: Identify ALL valid physical interactions here.
+    * **Do NOT add entities later.**
+
+    * **TYPE A: CLASSICAL MECHANICS & FLUIDS**
+        * "Connected/Tethered/Hangs" -> **Infer `Mechanics.Tension`**.
+          * **Note**: Tension is a Force valid in BOTH Dynamic and Static cases. Do **NOT** infer Equilibrium automatically.
+        * "Surface Contact" -> **Infer `Mechanics.NormalForce`** (+ Friction if rough).
+        * "Rotation/Rolling/Spinning" -> **Infer `Mechanics.RotationalNewtonSecondLaw`** AND `Mechanics.MomentOfInertia`.
+        * "Immersed/Submerged" -> **Infer `Mechanics.Buoyancy`** OR `Mechanics.FluidPressure`.
+
+    * **TYPE B: ELECTROMAGNETIC INTERACTIONS**
+        * **LEVEL 1: MACROSCOPIC**
+            - Input: Current $I$ + Ext B-Field -> **Infer `Electromagnetism.MagneticForce`**.
+            - Input: Charge $q$ + Ext E-Field -> **Infer `Electromagnetism.ElectricForce`**.
+            - Input: Current Source (calculating field) -> **Infer `Electromagnetism.BiotSavart`**.
+            - **Constraint**: Do NOT decompose $I$ into $n, q, v_d$.
+        * **LEVEL 2: MICROSCOPIC (Particle + Field)**
+            - Input: Moving Charge $q$ + B-Field -> **Infer `Electromagnetism.LorentzForce`**.
+
+    * **TYPE C: MODERN PHYSICS (Triggers)**
+        * "Energy Level/Transition" -> **Infer `Quantum.BohrModel`** or `Quantum.EnergyTransition`.
+        * "Scattering/Tunneling/Barrier" -> **Infer `Quantum.Scattering`** or `Quantum.TransmissionCoefficient`.
+        * "Well/Box/Trapped" -> **Infer `Quantum.PotentialWell`** (Bound State).
+        * "Wavelength of mass/De Broglie" -> **Infer `Quantum.DeBroglieWavelength`**.
+        * "Relative Speed" (High v) -> **Infer `Relativity.VelocityAddition`**.
+        * "Photoelectric" -> **Infer `Quantum.PhotoelectricEffect`**.
+
+    * **TYPE D: DYNAMIC REGIME (CRITICAL DECISION)**
+        * **Condition 1 (Dynamic)**: Motion/Acceleration ($a \neq 0$) -> **Infer `Mechanics.NewtonSecondLaw`**.
+          * **Constraint**: If Dynamic, you are **FORBIDDEN** from using `Mechanics.StaticEquilibrium`.
+        * **Condition 2 (Static)**: "At rest"/"Balanced"/"Constant Velocity" -> **Infer `Mechanics.StaticEquilibrium`**.
+        * **Condition 3 (Conservation)**: "Collision" or "Height-Speed Exchange" -> **Infer `Mechanics.ConservationOfMomentum`** or `Energy`.
+
+    * TYPE E: THERMODYNAMICS
+        * "Gas/Moles/Ideal" -> **Infer `Thermodynamics.IdealGasLaw`**.
+        * "Heat Transfer/Specific Heat/Melting" -> **Infer `Thermodynamics.Calorimetry`**.
+        * "Expansion/Compression/Cycle/Engine" -> **Infer `Thermodynamics.FirstLaw`**.
+
+3.  **PHASE 2: FORMULATION (Structure Definition - The Granularity Engine)**
+    * **Rule**: Connect instances to their Base Types matching "Standard Granularity".
+
+    * **CHAIN 1: FORCES & STATES (The Standard)**
+        - `Mechanics.StaticEquilibrium` -> `['Mechanics.NetForceZero']`.
+        - `Mechanics.NetForce` -> `['Math.VectorSum', 'Mechanics.Force']`.
+        - `Mechanics.RotationalNewtonSecondLaw` -> `['Mechanics.Torque', 'Mechanics.MomentOfInertia', 'Mechanics.AngularAcceleration']`.
+        - `Mechanics.Buoyancy` -> `['Mechanics.Density', 'Mechanics.Volume', 'Mechanics.Gravity', 'Mechanics.Force']`.
+        - `Mechanics.FluidPressure` -> `['Mechanics.Density', 'Mechanics.Gravity', 'Mechanics.Height', 'Thermodynamics.Pressure']`.
+
+    * **CHAIN 2: ENERGY (Scalar)**
+        - `Mechanics.ConservationOfEnergy` -> `['Math.ScalarSum', 'Mechanics.Energy']`.
+        - `Quantum.PhotonEnergy` -> `['Quantum.PlanckConstant', 'Quantum.Frequency', 'Mechanics.Energy']`.
+        - `Quantum.EnergyTransition` -> `['Math.Difference', 'Quantum.EnergyLevel']`.
+
+    * **CHAIN 3: RELATIVITY & MODERN**
+        - `Relativity.VelocityAddition` -> `['Mechanics.Velocity', 'Relativity.SpeedOfLight']`. (Stop: No frames).
+        - `Quantum.WaveFunction` -> `['Quantum.ProbabilityAmplitude']`. (Stop: No Hilbert Space).
+        - `Quantum.Scattering` -> `['Quantum.TransmissionCoefficient', 'Quantum.ReflectionCoefficient']`.
+        - `Quantum.PotentialWell` -> `['Mechanics.Length', 'Mechanics.Mass', 'Quantum.EnergyLevel']`.
+        - `Quantum.DeBroglieWavelength` -> `['Quantum.PlanckConstant', 'Mechanics.Momentum']`.
+
+    * **CHAIN 4: CIRCUITS & THERMO**
+        - `Circuits.OhmLaw` -> `['Electromagnetism.Current', 'Circuits.Resistance', 'Electromagnetism.Voltage']`.
+        - `Thermodynamics.IdealGasLaw` -> `['Thermodynamics.Pressure', 'Thermodynamics.Volume', 'Thermodynamics.Moles', 'Thermodynamics.Temperature']`.
+        - `Thermodynamics.FirstLaw` -> `['Thermodynamics.Heat', 'Thermodynamics.Work', 'Thermodynamics.InternalEnergy']`.
+        - `Thermodynamics.Calorimetry` -> `['Thermodynamics.SpecificHeat', 'Mechanics.Mass', 'Math.Difference']`.
+
+{{Decomposition Rules}}
+1.  **Stop** if Phase 0 applies.
+2.  **Forces/Energies are enumerated ONLY in Phase 1**.
+3.  **Strictly follow the Standard Chains** in Phase 2.
+4.  **Problem contract dominates textbook associations**: do not expand merely because a textbook relation exists. Expand only if that relation is required by the target statement and not excluded by the contract.
+
+{{Examples}}
+
+Input: "An electron transitions from n=3 to n=2 emitting a photon."
+Output:
+[Extracted Context]:
+- Scan Modern: Transition -> EnergyTransition. Photon -> PhotonEnergy.
+- Chain: Energy Difference = Photon Energy.
+Code:
+```python
+['Quantum.EnergyLevel', 'Quantum.EnergyTransition', 'Quantum.PhotonEnergy', 'Quantum.PlanckConstant', 'Quantum.Frequency']
+```
+
+Input: "Two particles approach Earth from opposite poles at 0.8c."
+Output:
+[Extracted Context]:
+- Scan Modern: High Speed -> Relativity.RelativeVelocity.
+- Stop: Do not decompose into Reference Frames.
+Code:
+```python
+['Mechanics.Velocity', 'Relativity.SpeedOfLight', 'Relativity.VelocityAddition']
+```
+
+Input: "Calculate pressure at the bottom of a water tank."
+Output:
+[Extracted Context]:
+- Scan Fluids: Depth -> FluidPressure.
+- Chain: P = rho*g*h.
+Code:
+```python
+['Mechanics.Density', 'Mechanics.Gravity', 'Mechanics.Height', 'Mechanics.FluidPressure']
+```
+
+Input: "A square current loop in a magnetic field. Find the net force."
+Output:
+[Extracted Context]:
+- Scan Interactions: Current + B-Field -> MagneticForce.
+- Scan Goal: Find Net Force.
+- Structure: NetForce sums the identified interactions.
+Code:
+```python
+['Electromagnetism.Current', 'Geometry.PathSegments', 'Electromagnetism.MagneticField', 'Electromagnetism.MagneticForce', 'Mechanics.NetForce']
+```
+
+{{Output format}}
+Return a JSON object in a fenced `json` code block:
+```json
+{{
+  "decision": "STOP_ATOMIC" | "EXPAND",
+  "reason": "short reason",
+  "dependencies": ["Concept.One", "Concept.Two"]
+}}
+```
+- Use `"STOP_ATOMIC"` with `"dependencies": []` only when Phase 0 truly applies.
+- Use `"EXPAND"` when the concept is a composite system, law, interaction, or calculational structure.
+- In `"reason"`, mention whether the stop is because of a measured observable, setup context, atomic parameter, excluded mechanism, or max abstraction level.
+Now analyze and decompose: "{concept_name}"

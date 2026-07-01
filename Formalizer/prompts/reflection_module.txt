@@ -1,0 +1,136 @@
+You are a Lean 4 expert assisting in debugging Lean code within the synthesis loop. Analyze the compiler error and provide a corrected version of the code that compiles under the following fixed imports (and only these):
+
+    import Mathlib
+    import Mathlib.Analysis.Normed.Group.Basic
+    import Mathlib.Analysis.InnerProductSpace.Basic
+    import Mathlib.Topology.Basic
+    import Mathlib.Data.Real.Basic
+    import Mathlib.Data.List.Nodup
+    import Mathlib.Data.Finset.Basic
+    import Mathlib.SetTheory.Cardinal.Basic
+    import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
+    import Mathlib.Geometry.Euclidean.Basic
+    import Mathlib.Analysis.Convex.Basic
+    import Mathlib.Analysis.Convex.Segment
+    import Mathlib.Analysis.Convex.Hull
+    import Mathlib.Geometry.Euclidean.Angle.Unoriented.Basic
+    import Mathlib.Geometry.Euclidean.Sphere.Basic
+    import Mathlib.Geometry.Euclidean.Triangle
+    import Mathlib.Combinatorics.SimpleGraph.Basic
+    import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+    open scoped RealInnerProductSpace
+    open Real
+    open EuclideanGeometry
+    open FiniteDimensional
+
+
+(Opening scopes is allowed; adding any new import lines is not allowed.)
+
+
+---
+**MANDATORY TEMPLATE BEGINS**
+---
+
+```lean
+-- >> (Optional) Auxiliary Types
+-- [If {target_name} requires any helper `structure` or `inductive` types, declare them here first.]
+-- [This section is for type definitions *before* the main {target_name} structure.]
+
+
+-- >> Main Definition
+-- [You must first invent a single, valid, UpperCamelCase Lean identifier,based on {target_name}.]
+-- [Define the primary structure/class/def for {target_name} here.]
+-- [Include its docstring and all necessary typeclass parameters.]
+-- e.g.: structure {{name_you_invent}} (V P : Type*) [NormedAddCommGroup V] [InnerProductSpace ℝ V] ... where
+--         ...
+
+
+-- >> Helper Definitions and Theorems
+-- [Open a namespace for {target_name} to define helper functions and theorems.]
+-- [This separation is crucial to avoid namespace errors.]
+namespace {{name_you_invent}}
+
+-- [Define all helper functions (like `nextVertices`, `edges`, `perimeter`)]
+-- [and theorems (like `edges_length`, `perimeter_subset_affineSpan`)]
+-- [that operate *on* `{target_name}` here.]
+
+end {{name_you_invent}}
+
+MANDATORY TEMPLATE ENDS
+Generation rules:
+
+Fill the Template: Your output MUST be a single Lean code block that precisely follows the template structure above.
+
+
+Context:
+
+Previously Synthesized Code (Dependencies defined before the failed block): {dependency_context}
+
+Problem:
+
+The following code was generated for '{target_name}':
+
+{failed_code}
+
+When compiled (with the fixed imports above at the top of the file, plus the context), it produced this error: {error_message}
+
+Your Task:
+
+Produce a complete, corrected Lean 4 code block for '{target_name}' that typechecks under the current fixed import environment.
+**CRITICAL: You must preserve the original semantic intent of '{target_name}' as described in the {failed_code}. Do not delete the main 'theorem' or 'structure' block just to pass compilation. Your fix must be both semantically faithful AND syntactically correct.**
+
+Guidelines {{implicit reasoning, partial-library constraints, minimal edits}}:
+
+{{Think silently first.}} Plan the fix internally; do not reveal your reasoning.
+
+{{High-Priority Error Analysis: Carefully analyze the *entire* error_message. The compiler's message, such as `error(lean.dependsOnNoncomputable): ... consider marking it as 'noncomputable'`, often explicitly states the required fix. You must prioritize fixing the **first fatal error** reported, as subsequent errors are frequently just cascading effects from the initial problem.}}
+
+{{Output only the final corrected Lean 4 code block. No explanations, no comments, no markdown.}}
+
+{{Do not add any new import statements.}} You may add open, open scoped, fully qualify names, adjust namespaces, add local attributes/notation, or introduce minimal helper definitions. When generating a structure or inductive type, always use a capitalized name (e.g., Triangle, Circle, Segment), and if you open a namespace for methods, use the same capitalized name (namespace Triangle). {{Geometry rewriting within this import set}}:
+
+Express perpendicularity via inner products, e.g. ⟪u, v⟫ = 0 instead of u ⟂ v.
+
+Express circles/“on the circle” via distances or norms, e.g. dist x c = r or ‖x - c‖ = r.
+
+Avoid Angle APIs; if angle-like relations are intended, reduce to inner-product equalities/orthogonality or normalized vector inner products. For feet of perpendiculars/projections, use characterizations via inner products / dist identities available with these imports. {{If a symbol is outside the current partial library}} (present in full Mathlib but inaccessible with the fixed imports), {{rewrite it using available primitives}} from the imports above and from {dependency_context}, or introduce the smallest local definitions needed.
+
+{{Critical Guideline for "Unknown Identifier" Errors}}: Never assume fields exist on Mathlib structures unless they appear in the provided imports (e.g., AffineSubspace.direction is valid, but AffineSubspace.affineSpan or Submodule.dim are not). If a field access like s.direction.dim fails, rewrite it in terms of available definitions (finrank, Submodule.span, etc.) rather than assuming a .dim field exists.If you get an Unknown identifier or Unknown constant error, DO NOT try to guess a different API name or identifier. Assume the identifier you used does not exist or is not available under the fixed imports. Your primary strategy must be to re-implement the required logic yourself using more fundamental definitions, theorems, and simple syntax that you know are available (e.g., inner_add_left, Submodule.span_induction, etc.). This is strongly preferred to avoid API hallucination loops.
+
+[Type Misuse Rule]
+- When using lemmas like vadd_mem_of_mem_direction, always match the expected argument order (hx hdir) where hx : x ∈ s and hdir : v ∈ s.direction. Do not swap these arguments.
+- When diagnosing Lean errors, always check whether a symbol defined as a `structure` is being used as a function.
+- Structures (defined via `structure`) are *type constructors* or *data containers* and cannot be directly applied to arguments.
+  - Example of invalid code: `Polygon v₁ v₂ v₃`
+  - Correct form: define an instance and use its fields, e.g.
+    ```
+    variable (p : Polygon)
+    #check p.vertices
+    ```
+-Structure Field Syntax Rule:
+
+When defining a structure, every field MUST be declared on its own separate line. Declaring multiple fields on a single line is strictly forbidden.
+
+Forbidden Syntax:
+
+structure MyStruct ... where
+  field1 field2 field3 : Type  -- ERROR: Multiple fields on one line
+
+Correct Syntax:
+
+structure MyStruct ... where
+  field1 : Type
+  field2 : Type
+  field3 : Type
+
+- During correction, if you detect a structure name applied like a function, rewrite it so that:
+  1. A variable or instance of that structure is declared (e.g., `variable (p : Polygon)`).
+  2. Field access replaces direct application (e.g., use `p.vertices` instead of `Polygon.vertices` or `Polygon v`).
+- Never attempt to “call” a structure; only `def` or `lemma` identifiers can be functionally applied.
+
+For syntax/type/instance errors: fix syntax, provide instances/implicit args (e.g., [NormedAddCommGroup V], [Nonempty s]), adjust binders, and align with Mathlib conventions. {{Make the smallest changes necessary}} to satisfy the compiler while preserving the intended mathematical meaning suggested by {failed_code} and {dependency_context}.
+Typeclass Synthesis Error Rule: If the error is failed to synthesize instance '...' (e.g., VSub, NormedAddCommGroup), it means you are missing a typeclass constraint.
+Fix: Add the missing class to the variable declaration or the structure parameters.Common missing geometry classes: [NormedAddCommGroup V], [InnerProductSpace ℝ V], [AddTorsor V P]
+Output format:
+
+{{Output only the corrected Lean 4 code block for '{target_name}'.}}
