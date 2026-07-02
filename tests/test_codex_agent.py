@@ -25,6 +25,7 @@ from archon.agents.codex import (
     _CODEX_STREAM_PARSER,
     _ensure_archon_on_path,
     _ensure_codex_runtime_on_path,
+    _resolve_lean_lsp_mcp_launcher,
     _resolve_codex_bin,
     _stamp_archon_cli,
     resolve_prompt_variant,
@@ -160,6 +161,39 @@ class GatewayTest(unittest.TestCase):
         built = a.build_env(env_overrides=env)
         self.assertEqual(built["CODEX_GATEWAY_API_KEY"], "secret-xyz")
 
+    def test_build_env_writes_codex_home_gateway_config_for_old_codex(self):
+        with tempfile.TemporaryDirectory() as d:
+            codex_home = Path(d) / "codex-home"
+            a = _agent(
+                model="gpt-5.5",
+                effort="xhigh",
+                base_url_env="CODEX_BASE_URL",
+                key_env="CZ_API_KEY",
+                raw={"codex_home": str(codex_home)},
+            )
+            built = a.build_env(
+                env_overrides={
+                    "CODEX_BASE_URL": "https://gw.example/v1",
+                    "CZ_API_KEY": "secret-xyz",
+                }
+            )
+
+            config = codex_home / "config.toml"
+            self.assertTrue(config.is_file())
+            text = config.read_text(encoding="utf-8")
+
+        self.assertEqual(built["CODEX_HOME"], str(codex_home))
+        self.assertEqual(built["CODEX_GATEWAY_API_KEY"], "secret-xyz")
+        self.assertIn('model_provider = "harness-gateway"', text)
+        self.assertIn('model = "gpt-5.5"', text)
+        self.assertIn('model_reasoning_effort = "xhigh"', text)
+        self.assertIn("[model_providers.harness-gateway]", text)
+        self.assertIn('base_url = "https://gw.example/v1"', text)
+        self.assertIn('env_key = "CODEX_GATEWAY_API_KEY"', text)
+        self.assertIn('wire_api = "responses"', text)
+        self.assertIn("supports_websockets = false", text)
+        self.assertNotIn("secret-xyz", text)
+
     def test_configured_gateway_without_env_raises(self):
         a = _agent(model="m", base_url_env="CODEX_BASE_URL", key_env="CZ_API_KEY")
         with self.assertRaises(PartialGatewayConfigError):
@@ -202,7 +236,11 @@ class McpTest(unittest.TestCase):
 
     def test_lean_lsp_command_resolves_uv_from_env(self):
         # The MCP launcher must be PATH-independent for nested subagents.
-        a = _agent(model="m", mcp=("lean-lsp",))
+        a = _agent(
+            model="m",
+            mcp=("lean-lsp",),
+            raw={"lean_lsp_use_uv": True},
+        )
         argv = a.build_argv(
             "P", env_source={"ARCHON_UV_BIN": "/opt/uv/bin/uv"}, lake_root="/proj",
         )
@@ -219,6 +257,40 @@ class McpTest(unittest.TestCase):
         self.assertTrue(any(
             "archon-lean-lsp.env.PATH" in a and "/x/bin:/y/bin" in a for a in argv
         ))
+
+    def test_lean_lsp_prefers_prebuilt_venv_launcher(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            launcher = root / ".venv" / "bin" / "lean-lsp-mcp"
+            launcher.parent.mkdir(parents=True)
+            launcher.write_text("#!/bin/sh\n", encoding="utf-8")
+            launcher.chmod(0o755)
+
+            command, args = _resolve_lean_lsp_mcp_launcher(
+                _agent(model="m").descriptor,
+                {"ARCHON_UV_BIN": "/opt/uv/bin/uv"},
+                root,
+            )
+
+        self.assertEqual(command, str(launcher))
+        self.assertEqual(args, [])
+
+    def test_lean_lsp_can_force_uv_launcher(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            launcher = root / ".venv" / "bin" / "lean-lsp-mcp"
+            launcher.parent.mkdir(parents=True)
+            launcher.write_text("#!/bin/sh\n", encoding="utf-8")
+            launcher.chmod(0o755)
+
+            command, args = _resolve_lean_lsp_mcp_launcher(
+                _agent(model="m", raw={"lean_lsp_use_uv": True}).descriptor,
+                {"ARCHON_UV_BIN": "/opt/uv/bin/uv"},
+                root,
+            )
+
+        self.assertEqual(command, "/opt/uv/bin/uv")
+        self.assertEqual(args, ["run", "--directory", str(root), "lean-lsp-mcp"])
 
     def test_lean_explore_renders_api_backend_with_key_env(self):
         a = _agent(model="m", mcp=("lean-explore",))
