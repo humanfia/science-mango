@@ -2,7 +2,7 @@
 
 > **This file is a hint, not ground truth.** Mathlib evolves; entries below may
 > already be available in your project's Mathlib. Always verify a "not
-> available" claim with `mcp__archon-lean-lsp__lean_local_search` /
+> available" claim with `mcp__humanizephysics-lean-lsp__lean_local_search` /
 > `lean_leansearch` before using it as a reason to abandon a proof
 > route. The Lean LSP is authoritative; this document is advisory.
 >

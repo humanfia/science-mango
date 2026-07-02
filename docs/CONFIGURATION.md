@@ -1,6 +1,6 @@
 # Configuring backends, harnesses, and models
 
-Archon runs each *role* (`plan` / `prover` / `review`) and each *subagent*
+HumanizePhysics runs each *role* (`plan` / `prover` / `review`) and each *subagent*
 through an **engine**. By default that engine is Claude Code driving
 `claude -p`. Two orthogonal knobs change this:
 
@@ -11,12 +11,12 @@ through an **engine**. By default that engine is Claude Code driving
   together with the model and engine-specific options. A harness is a named
   bundle you can assign to any role or subagent.
 
-All of this lives in `.archon/config.json`. With no `loop.harness` /
+All of this lives in `.humanizephysics/config.json`. With no `loop.harness` /
 `loop.roles` / `harnesses` keys set, every role and subagent uses the built-in
 `claude-code` harness on the `default` backend — i.e. plain `claude -p` — and
 nothing below applies.
 
-`archon init` writes a fully-commented `config.json`; the sections below are the
+`humanizephysics init` writes a fully-commented `config.json`; the sections below are the
 reference for it. Every key is optional.
 
 ## At a glance
@@ -49,7 +49,7 @@ for strict JSON):
 }
 ```
 
-`harnesses` (named engine bundles) is the one block not shown here; `archon init`
+`harnesses` (named engine bundles) is the one block not shown here; `humanizephysics init`
 ships a ready-to-use `codex` harness, so you usually only reference it by name.
 
 ---
@@ -70,7 +70,7 @@ Set once for the whole loop via config or the `--claude-backend` CLI flag:
 | `claude-p` | Drives the interactive Claude Code TUI headlessly via the [`claude-p`](https://github.com/AxelDlv00/claude-p) wrapper. Useful when the standard headless path is rate-limited on a subscription account. |
 | `interactive` | Runs `claude` in the **foreground** for you to drive by hand. Forces serial execution (`max_parallel 1`) and disables multilane. |
 
-**Precedence:** `--claude-backend` flag > `ARCHON_CLAUDE_BACKEND` env >
+**Precedence:** `--claude-backend` flag > `HUMANIZEPHYSICS_CLAUDE_BACKEND` env >
 `loop.claude_backend` > `default`.
 
 ### `claude-p` config directory
@@ -81,7 +81,7 @@ Set once for the whole loop via config or the `--claude-backend` CLI flag:
 { "loop": { "claude_backend": "claude-p", "claude_p_config_dir": "~/.claude-work" } }
 ```
 
-or `--claude-p-config-dir`, or the `ARCHON_CLAUDE_P_CONFIG_DIR` env. When unset,
+or `--claude-p-config-dir`, or the `HUMANIZEPHYSICS_CLAUDE_P_CONFIG_DIR` env. When unset,
 the value already in the environment is used.
 
 ### Verifying which binary ran
@@ -89,7 +89,7 @@ the value already in the environment is used.
 `claude-p` writes a raw PTY transcript next to each phase/subagent JSONL log:
 
 ```bash
-ls .archon/logs/iter-*/**/*.claude-p-raw.log
+ls .humanizephysics/logs/iter-*/**/*.claude-p-raw.log
 ```
 
 A `*.claude-p-raw.log` next to a **subagent** log (`<subagent>-<slug>.claude-p-raw.log`)
@@ -97,8 +97,8 @@ confirms that subagent ran through `claude-p`; the run log also contains a
 `claude-p raw transcript: …` line. Plain `claude -p` never produces this file.
 
 > **Note — subagents inherit the parent backend.** A subagent is dispatched by
-> `archon subagent`, which carries no `--claude-backend` flag. The parent agent
-> exports its backend (`ARCHON_CLAUDE_BACKEND`, plus `ARCHON_CLAUDE_P_CONFIG_DIR`
+> `humanizephysics subagent`, which carries no `--claude-backend` flag. The parent agent
+> exports its backend (`HUMANIZEPHYSICS_CLAUDE_BACKEND`, plus `HUMANIZEPHYSICS_CLAUDE_P_CONFIG_DIR`
 > for `claude-p`) into the child process so the subagent re-resolves to the same
 > backend. The loop-level `--claude-backend` flag therefore *does* reach
 > subagents. (Before this was wired up, subagents silently fell back to
@@ -134,12 +134,12 @@ Fields:
 | `wire_api` | codex | Wire protocol (default `responses`). |
 | `lean_explore_backend` | codex | LeanExplore MCP backend, `api` by default; set `local` only after installing/fetching the local LeanExplore index. |
 | `lean_explore_bin` | codex | Optional absolute path to the `lean-explore` executable. |
-| `lean_explore_use_official_cli` | codex | Optional escape hatch. By default Archon launches LeanExplore through a compatibility shim that reads `LEANEXPLORE_API_KEY` from the environment and patches current Python/Pydantic TypedDict incompatibilities. Set this to `true` only if you want Codex to invoke the official `lean-explore mcp serve` CLI directly. |
+| `lean_explore_use_official_cli` | codex | Optional escape hatch. By default HumanizePhysics launches LeanExplore through a compatibility shim that reads `LEANEXPLORE_API_KEY` from the environment and patches current Python/Pydantic TypedDict incompatibilities. Set this to `true` only if you want Codex to invoke the official `lean-explore mcp serve` CLI directly. |
 
 A built-in `codex` harness ships, so you can route to Codex without defining one
 yourself; it enables both `lean-lsp` and `lean-explore` MCP bundles by default.
 To customize (or make a claude-code variant), copy the
-`_my_harness_example` block in `.archon/config.json`, rename it, and reference it.
+`_my_harness_example` block in `.humanizephysics/config.json`, rename it, and reference it.
 
 ### Harness model selection
 
@@ -233,27 +233,27 @@ it once under `harnesses`, then reference it by name:
 ### Codex subagent dispatch
 
 Codex runs each command in a sandboxed login shell that re-derives `PATH`,
-dropping the venv `bin/` — so `archon`, `codex`, and `uv` aren't on `PATH` when
-a subagent is dispatched. Archon handles this automatically by passing absolute
-paths through the environment (`ARCHON_CLI_BIN`/`ARCHON_PYTHON` for the wrapper,
-`ARCHON_CODEX_BIN`/`ARCHON_UV_BIN` for the nested codex/MCP). It almost always
+dropping the venv `bin/` — so `humanizephysics`, `codex`, and `uv` aren't on `PATH` when
+a subagent is dispatched. HumanizePhysics handles this automatically by passing absolute
+paths through the environment (`HUMANIZEPHYSICS_CLI_BIN`/`HUMANIZEPHYSICS_PYTHON` for the wrapper,
+`HUMANIZEPHYSICS_CODEX_BIN`/`HUMANIZEPHYSICS_UV_BIN` for the nested codex/MCP). It almost always
 just works; pin paths only if it doesn't:
 
 ```json
 { "harnesses": { "codex": { "runner": "codex", "bin": "/abs/path/to/codex", "uv_bin": "/abs/path/to/uv" } } }
 ```
 
-If you see *"archon CLI not found"*, ensure Archon is installed in the
-environment Codex runs in and re-run `archon init` so the project's
-`.claude/tools/archon-subagent.py` wrapper is current.
+If you see *"humanizephysics CLI not found"*, ensure HumanizePhysics is installed in the
+environment Codex runs in and re-run `humanizephysics init` so the project's
+`.claude/tools/humanizephysics-subagent.py` wrapper is current.
 
 ---
 
 ## 3. Subagents
 
 The shipped subagents are listed under `subagents._available` in the generated
-`.archon/config.json`. Copy any name into `subagents.enabled` to activate it;
-see `.archon/subagents/<name>.md` for each one's role, write-domain, and
+`.humanizephysics/config.json`. Copy any name into `subagents.enabled` to activate it;
+see `.humanizephysics/subagents/<name>.md` for each one's role, write-domain, and
 `default_enabled` status.
 
 `subagents.enabled` accepts either a list of names or the string `"*"`, which

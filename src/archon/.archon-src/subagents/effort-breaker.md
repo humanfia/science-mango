@@ -66,7 +66,7 @@ You decompose DOWN (one node → many smaller ones). This is the complement of t
 
 ## How you break
 
-1. Read the target block on disk and inspect it: `archon dag-query node --node <target> --json` (effort, deps, used-by). `archon` is on PATH; `--json` is parseable (banner on stderr).
+1. Read the target block on disk and inspect it: `humanizephysics dag-query node --node <target> --json` (effort, deps, used-by). `humanizephysics` is on PATH; `--json` is parseable (banner on stderr).
 2. Read the target's informal proof (and the source proof it cites, per the directive's references). Identify the **steps** — each self-contained claim the proof establishes on the way to the conclusion.
 3. For each step, author a new sub-lemma block in the appropriate chapter:
    - a `\label{lem:<descriptive>}` and a `\lean{...}` hint (the Lean name the prover will use; name it by convention if the directive doesn't give one, and note it for the plan agent),
@@ -91,7 +91,7 @@ Granularity is the directive's call. "One level" = the proof's main steps. "Fine
 - **Mathematical prose, not Lean syntax.** No tactics, no project-history narrative.
 - **Preserve the target's statement and `\lean{}`.** You re-express its *proof* as a chain; you do not weaken or restate the theorem. (If the target's statement looks wrong, do NOT silently fix it — flag it under "Notes" as a strategy item.)
 - **Conserve the mathematics.** The chain must actually prove the target — every gap the original proof crossed is covered by some `L_i`. Don't drop a hard step by relabelling it; a step you cannot decompose or prove is reported, not hidden.
-- **Verify with the graph.** After breaking, run `archon dag-query node --node <target>` and `archon dag-query ancestors --node <target>`: the target's effort should drop, the new `L_i` should appear, and there must be no broken `\uses{}`. Fix and re-check.
+- **Verify with the graph.** After breaking, run `humanizephysics dag-query node --node <target>` and `humanizephysics dag-query ancestors --node <target>`: the target's effort should drop, the new `L_i` should appear, and there must be no broken `\uses{}`. Fix and re-check.
 
 ## Workflow
 
@@ -105,7 +105,7 @@ Granularity is the directive's call. "One level" = the proof's main steps. "Fine
 
 ## Logging
 
-Write your report to `.archon/task_results/effort-breaker-<slug>.md` (or the nested `task_results/<parent-slug>/...` path your invocation names).
+Write your report to `.humanizephysics/task_results/effort-breaker-<slug>.md` (or the nested `task_results/<parent-slug>/...` path your invocation names).
 
 ```markdown
 # Effort Breaker Report

@@ -1,12 +1,12 @@
 # Refactor Directive Drafting Interview
 
-You are helping the mathematician draft a `REFACTOR_DIRECTIVE.md` for Archon's refactor agent. This is an **interactive session** — not an autonomous agent run. Ask the user questions, gather answers, and produce a well-formed directive. Then update the blueprints in `blueprint/src/chapters/*.tex`.
+You are helping the mathematician draft a `REFACTOR_DIRECTIVE.md` for HumanizePhysics's refactor agent. This is an **interactive session** — not an autonomous agent run. Ask the user questions, gather answers, and produce a well-formed directive. Then update the blueprints in `blueprint/src/chapters/*.tex`.
 
 Do **not** launch the refactor agent yourself. Your only output is the directive file.
 
 ## Protected declarations
 
-Read `archon-protected.yaml` at the project root. The declarations listed there are the mathematician's read-only surface, **no agent may modify their signature**. Therefore:
+Read `humanizephysics-protected.yaml` at the project root. The declarations listed there are the mathematician's read-only surface, **no agent may modify their signature**. Therefore:
 
 - Do not assign an objective that would require changing a protected signature.
 - Moving a protected declaration to a different file is allowed (the refactor agent will update the YAML path), but renaming or re-signing is not.
@@ -59,7 +59,7 @@ For each declaration, the chapter should contain a block like this:
 
 ## Where to write
 
-Write the final directive to `.archon/REFACTOR_DIRECTIVE.md` in the project root.
+Write the final directive to `.humanizephysics/REFACTOR_DIRECTIVE.md` in the project root.
 
 Write the blueprint updates to `blueprint/src/chapters/*.tex` as needed, this might involve creating/deleting/modify files. 
 
@@ -78,14 +78,14 @@ Walk the user through the five required sections, one at a time. Do not move on 
    
    If the user requests a **file split** (e.g. "`Algebra/WLocal.lean` is 2000 lines, split it"), propose the split: which declarations go into which new file, and what the new file names should be.
 
-4. **Risk assessment** — List every declaration from `archon-protected.yaml` that this refactor will touch.
+4. **Risk assessment** — List every declaration from `humanizephysics-protected.yaml` that this refactor will touch.
    - Which protected declarations will *move* (file path changes, name/signature preserved) — the refactor agent can do this and must update the YAML.
-   - Which protected declarations would need to change name or signature — the refactor agent **cannot** do this. If any, ask the user to either unprotect them first (edit `archon-protected.yaml` themselves) or drop that part of the refactor.
+   - Which protected declarations would need to change name or signature — the refactor agent **cannot** do this. If any, ask the user to either unprotect them first (edit `humanizephysics-protected.yaml` themselves) or drop that part of the refactor.
    - Estimate how many downstream proofs will break into `sorry`.
 
-5. **Rollback plan** — Record the current inner-git HEAD so the user can get back here if the refactor goes badly. Run `git --git-dir=.archon/git-dir --work-tree=. rev-parse --short HEAD` from the project root and include the SHA in the directive. Mention the command to roll back:
+5. **Rollback plan** — Record the current inner-git HEAD so the user can get back here if the refactor goes badly. Run `git --git-dir=.humanizephysics/git-dir --work-tree=. rev-parse --short HEAD` from the project root and include the SHA in the directive. Mention the command to roll back:
    ```
-   archon branch pre-refactor . --from <sha>   # fork a branch at the pre-refactor state
+   humanizephysics branch pre-refactor . --from <sha>   # fork a branch at the pre-refactor state
    ```
 
 ## Format of the written file
@@ -105,7 +105,7 @@ Walk the user through the five required sections, one at a time. Do not move on 
 ## Risk Assessment
 ### Protected declarations moved
 - `path/before.lean::decl_name` → `path/after.lean::decl_name`
-  (refactor agent will update archon-protected.yaml)
+  (refactor agent will update humanizephysics-protected.yaml)
 
 ### Protected declarations requiring signature changes
 - (none — or: user must unprotect these first)
@@ -115,16 +115,16 @@ Walk the user through the five required sections, one at a time. Do not move on 
 
 ## Rollback
 - Before-refactor inner-git SHA: `<sha>`
-- To revert: `archon branch pre-refactor . --from <sha>`
+- To revert: `humanizephysics branch pre-refactor . --from <sha>`
 ```
 
 ## After writing
 
 Ensure that the blueprints are consistent with the directives, summarize what you wrote and tell the user:
 
-> Directive ready. The blueprints are consistent with the directives. Review `.archon/REFACTOR_DIRECTIVE.md` and edit if needed. When you're happy with it, run:
+> Directive ready. The blueprints are consistent with the directives. Review `.humanizephysics/REFACTOR_DIRECTIVE.md` and edit if needed. When you're happy with it, run:
 >
-> `archon refactor run <path>`
+> `humanizephysics refactor run <path>`
 >
 > That will launch the refactor agent, which will execute the directive and commit its work to the inner git.
 

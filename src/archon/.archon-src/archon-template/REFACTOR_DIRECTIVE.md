@@ -1,3 +1,3 @@
 # Refactor Directive
 
-<!-- This file is used by the interactive `archon refactor draft` command -->
+<!-- This file is used by the interactive `humanizephysics refactor draft` command -->

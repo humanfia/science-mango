@@ -1,4 +1,4 @@
-# HiPhO IPhO 2024-2025 Archon Input Review
+# HiPhO IPhO 2024-2025 HumanizePhysics Input Review
 
 - Items: 76
 - By year: {2024: 37, 2025: 39}
@@ -9,10 +9,10 @@
 - Downloaded unique images: 25
 
 ## Files
-- Processed JSONL: `archon_test_inputs/hipho_ipho_2024_2025/hipho_ipho_2024_2025_archon.jsonl`
-- Raw HiPhO JSON: `archon_test_inputs/hipho_ipho_2024_2025/raw/IPhO_2024.json`, `archon_test_inputs/hipho_ipho_2024_2025/raw/IPhO_2025.json`
-- Images: `archon_test_inputs/hipho_ipho_2024_2025/image_question/`
-- Preview table: `archon_test_inputs/hipho_ipho_2024_2025/review/preview.tsv`
+- Processed JSONL: `humanizephysics_test_inputs/hipho_ipho_2024_2025/hipho_ipho_2024_2025_humanizephysics.jsonl`
+- Raw HiPhO JSON: `humanizephysics_test_inputs/hipho_ipho_2024_2025/raw/IPhO_2024.json`, `humanizephysics_test_inputs/hipho_ipho_2024_2025/raw/IPhO_2025.json`
+- Images: `humanizephysics_test_inputs/hipho_ipho_2024_2025/image_question/`
+- Preview table: `humanizephysics_test_inputs/hipho_ipho_2024_2025/review/preview.tsv`
 
 ## Policy Notes
 - `previous_parts` are natural-language prerequisites only; no previous Lean output is referenced.

@@ -4,7 +4,7 @@ You are the analogy subagent. The plan agent points you at a piece of the projec
 
 ## Invocation
 
-You are invoked by the plan agent via the Bash tool, which runs `.claude/tools/archon-analogy-agent.py`. Your invocation prompt tells you:
+You are invoked by the plan agent via the Bash tool, which runs `.claude/tools/humanizephysics-analogy-agent.py`. Your invocation prompt tells you:
 
 - The path to the **directive file** — read it from disk before doing anything else.
 - The **slug** for this invocation — used in the persistent file (`analogies/<slug>.md`) and the report (`task_results/analogy-<slug>.md`).
@@ -14,7 +14,7 @@ You are invoked by the plan agent via the Bash tool, which runs `.claude/tools/a
 
 **One design question per invocation.** A design question may be broad ("how should we represent the local-ring property?") or narrow ("bundled vs. unbundled morphism here?"). Multiple Mathlib precedents are welcome if they all speak to the same question — a typeclass and a predicate version of the same idea, two different formulations of the same theorem, etc. What you should not do is sprawl across unrelated decisions in the same call. If the file raises several independent questions, pick the one the plan agent flagged, write up only that, and note the others briefly at the end so the plan agent can call you again.
 
-**Read-only on project source and Mathlib.** You write only to `analogies/<slug>.md` and `.archon/task_results/analogy-<slug>.md`.
+**Read-only on project source and Mathlib.** You write only to `analogies/<slug>.md` and `.humanizephysics/task_results/analogy-<slug>.md`.
 
 ## What the directive looks like
 
@@ -136,7 +136,7 @@ The skeleton is guidance, not a contract. If the question is a narrow lemma-form
 
 ### 8. Write the report
 
-Write the report to `.archon/task_results/analogy-<slug>.md`:
+Write the report to `.humanizephysics/task_results/analogy-<slug>.md`:
 
 ```markdown
 # Analogy Report
@@ -191,5 +191,5 @@ Your final assistant message must be:
 - **Follow up cited references when they bear on the design choice**, not when they only document the underlying math.
 - **Never invent precedents.** A negative result is itself useful.
 - **Be honest about analogy strength.** Weak precedents poorly flagged cause worse decisions than no precedent at all.
-- **Never modify project source, the blueprint, or Mathlib.** You are read-only on every `.lean` file. Your write-domain is your persistent output (`analogies/<slug>.md`) and your report (`.archon/task_results/.../analogy-<slug>.md`).
+- **Never modify project source, the blueprint, or Mathlib.** You are read-only on every `.lean` file. Your write-domain is your persistent output (`analogies/<slug>.md`) and your report (`.humanizephysics/task_results/.../analogy-<slug>.md`).
 - **Spawning child subagents is allowed but rare.** When a single design question has multiple genuinely independent sub-questions (e.g. "compare these two Mathlib subsystems in parallel"), you may dispatch child `analogy` subagents via Bash and the standard wrapper protocol — see refactor.md or coordinator.md for the dispatch shape. Each child's declared write-domain must be a subset of yours (which is read-only on project source). Skip this for most invocations; one analogy = one question handled by you directly.

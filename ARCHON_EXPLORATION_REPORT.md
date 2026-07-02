@@ -1,8 +1,8 @@
-# Archon Project - Comprehensive Exploration Report
+# HumanizePhysics Project - Comprehensive Exploration Report
 
 ## Executive Summary
 
-**Archon** is an autonomous Lean 4 formalization system written in Python that uses AI (Claude and OpenAI Codex) to automatically formalize mathematical theorems and physics problems into the Lean 4 proof assistant. It's a sophisticated orchestration framework for managing multi-phase agent-driven theorem proving.
+**HumanizePhysics** is an autonomous Lean 4 formalization system written in Python that uses AI (Claude and OpenAI Codex) to automatically formalize mathematical theorems and physics problems into the Lean 4 proof assistant. It's a sophisticated orchestration framework for managing multi-phase agent-driven theorem proving.
 
 ---
 
@@ -10,8 +10,8 @@
 
 ### Directory Layout
 ```
-Archon/
-├── src/archon/                    # Main Python package (54MB)
+HumanizePhysics/
+├── src/humanizephysics/                    # Main Python package (54MB)
 │   ├── cli.py                     # CLI entrypoint (136 lines)
 │   ├── agent.py                   # Claude Code wrapper (1,950 lines) ★ Core
 │   ├── prompts.py                 # Prompt templates (1,979 lines) ★ Core
@@ -42,7 +42,7 @@ Archon/
 ├── hipho_ipho_2024_2025/          # IPhO physics dataset (8.2MB)
 │   ├── raw/                       # Raw problem data (JSON)
 │   ├── image_question/            # 27 problem images
-│   └── hipho_ipho_2024_2025_archon.jsonl
+│   └── hipho_ipho_2024_2025_humanizephysics.jsonl
 │
 ├── tests/                         # 50+ test files (804KB)
 ├── docs/                          # Documentation (2.5MB)
@@ -70,23 +70,23 @@ Archon/
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT="${1:-/home/ma-user/Python_project/ArchonHiphoProblemSetSmoke_20260701-224644}"
-ARCHON_ROOT="${ARCHON_ROOT:-/home/ma-user/Python_project/Archon}"
+PROJECT="${1:-/home/ma-user/Python_project/HumanizePhysicsHiphoProblemSetSmoke_20260701-224644}"
+HUMANIZEPHYSICS_ROOT="${HUMANIZEPHYSICS_ROOT:-/home/ma-user/Python_project/HumanizePhysics}"
 
 # Prepend essential tools to PATH
 export PATH="/home/ma-user/.elan/bin:/home/ma-user/.local/node-v22.15.1-linux-x64/bin:..."
 
-cd "$ARCHON_ROOT"
-exec .venv/bin/archon loop "$PROJECT" \
+cd "$HUMANIZEPHYSICS_ROOT"
+exec .venv/bin/humanizephysics loop "$PROJECT" \
   --from prover \
-  --max-iterations "${ARCHON_MAX_ITERATIONS:-1}" \
-  --max-parallel "${ARCHON_MAX_PARALLEL:-4}" \
-  --max-objectives "${ARCHON_MAX_OBJECTIVES:-10}" \
+  --max-iterations "${HUMANIZEPHYSICS_MAX_ITERATIONS:-1}" \
+  --max-parallel "${HUMANIZEPHYSICS_MAX_PARALLEL:-4}" \
+  --max-objectives "${HUMANIZEPHYSICS_MAX_OBJECTIVES:-10}" \
   --no-dashboard
 ```
 
 ### Purpose
-- Quick-start entry point for running Archon's main proving loop
+- Quick-start entry point for running HumanizePhysics's main proving loop
 - Takes a Lean 4 project directory as argument (defaults to smoke test)
 - Launches **prover agent** (`--from prover`) rather than planning
 - Respects environment variables for parallelism/iteration limits
@@ -112,7 +112,7 @@ exec .venv/bin/archon loop "$PROJECT" \
 4. **docs/MULTILANE.md** — Parallel multi-provider proving
 5. **physics.md** — Physics proof workflow guide
 
-**No primary README** — typical entrypoint is `archon --help`
+**No primary README** — typical entrypoint is `humanizephysics --help`
 
 ---
 
@@ -153,11 +153,11 @@ exec .venv/bin/archon loop "$PROJECT" \
 | File | Purpose |
 |------|---------|
 | `pyproject.toml` | Package metadata, dependencies, entry points |
-| `.archon/config.json` | Per-project loop settings (harness, model, backend) |
-| `.archon/AGENTS.md` | Role documentation (loaded by all engines) |
-| `.archon-protected.yaml` | Protection rules for Lean files & blueprints |
-| `src/archon/.archon-src/prompts/` | Default prompt templates |
-| `src/archon/.archon-src/subagents/` | Subagent specifications |
+| `.humanizephysics/config.json` | Per-project loop settings (harness, model, backend) |
+| `.humanizephysics/AGENTS.md` | Role documentation (loaded by all engines) |
+| `.humanizephysics-protected.yaml` | Protection rules for Lean files & blueprints |
+| `src/humanizephysics/.humanizephysics-src/prompts/` | Default prompt templates |
+| `src/humanizephysics/.humanizephysics-src/subagents/` | Subagent specifications |
 | `Formalizer/prompts/` | Physics-specific LLM prompts (15 files) |
 
 ---
@@ -213,7 +213,7 @@ exec .venv/bin/archon loop "$PROJECT" \
 
 | Component | Size |
 |-----------|------|
-| `src/archon/` | 54MB |
+| `src/humanizephysics/` | 54MB |
 | `hipho_ipho_2024_2025/` | 8.2MB |
 | `docs/` | 2.5MB |
 | `tests/` | 804KB |
@@ -228,13 +228,13 @@ exec .venv/bin/archon loop "$PROJECT" \
 - 50+ test files covering agent lifecycle, initialization, multilane, physics, DAG ops
 - Examples: `test_agent_bash_timeout.py`, `test_multilane.py`, `test_physics_formalize.py`
 
-### Prompt Templates (`.archon-src/prompts/`)
+### Prompt Templates (`.humanizephysics-src/prompts/`)
 - `plan.md` — Blueprint planning
 - `prover-*.md` — Proof tactics (formalize, prove, polish, golf)
 - `review.md` — Proof review
 - `discuss.md` — Interactive guidance
 
-### Subagent Specs (`.archon-src/subagents/`)
+### Subagent Specs (`.humanizephysics-src/subagents/`)
 - `lean-scaffolder.md`, `mathlib-analogist.md`, `blueprint-reviewer.md`, etc. (12+ agents)
 
 ---
@@ -242,7 +242,7 @@ exec .venv/bin/archon loop "$PROJECT" \
 ## 10. Main Workflow
 
 ```
-archon loop <project>
+humanizephysics loop <project>
     ↓
 Phase 1: Plan (create objectives from blueprint)
     ↓
@@ -277,7 +277,7 @@ Output: Verified Lean code + logs
 ### Critical Files
 - `agent.py` — All agent invocation goes through `ClaudeAgent.run()`
 - `prompts.py` — Central prompt repository
-- `.archon/AGENTS.md` — Shared role documentation
+- `.humanizephysics/AGENTS.md` — Shared role documentation
 
 ---
 

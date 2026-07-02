@@ -5,7 +5,7 @@ compatible_stages:
   - autoformalize
 read_blueprint: true
 dispatcher_notes: |
-  Use for blueprint chapters marked `% archon:physics`.
+  Use for blueprint chapters marked `% humanizephysics:physics`.
   This mode creates compiling Lean statements with `sorry` bodies only; it does
   not attempt proofs and must preserve the physical modeling content.
 ---
@@ -21,7 +21,7 @@ by-sorry formalization, not a proof attempt.
 
 1. Read `PROGRESS.md`, your assigned `.lean` path, and the matching blueprint
    chapter under `blueprint/src/chapters/`.
-2. Confirm the chapter contains `% archon:physics`; if it does not, fall back to
+2. Confirm the chapter contains `% humanizephysics:physics`; if it does not, fall back to
    the ordinary `formalize` discipline.
 3. Extract the physical model before writing Lean:
    - named quantities and their roles,
@@ -35,7 +35,7 @@ by-sorry formalization, not a proof attempt.
    - Always pass `packages: ["Mathlib", "Physlib"]` when the tool schema
      supports package filters.
    - Fetch source/module/docstring for only the candidates you intend to use.
-5. Verify Lean syntax and available names with `archon-lean-lsp` diagnostics,
+5. Verify Lean syntax and available names with `humanizephysics-lean-lsp` diagnostics,
    hover, local search, or small snippets.
 6. Write declarations with `sorry` bodies. The file must compile with only
    expected `sorry` warnings when you stop.

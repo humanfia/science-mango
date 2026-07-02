@@ -149,7 +149,7 @@ Use `\definition`, `\lemma`, `\theorem`, `\proposition`, `\corollary` as appropr
 
 When a source proof is too long for one verbatim block (multi-page construction): split the theorem into sub-lemmas in the directive's logical structure, and give each sub-statement its own `% SOURCE QUOTE PROOF:`. One opaque mega-quote defeats verifiability. If even sub-splitting is impractical, report it in "Notes for Plan Agent" — do not silently drop the verbatim quote.
 
-**For Archon-original / project-bespoke results** (the directive does not name an external source for this block): the source lines are omitted — the block stands on the proof sketch alone.
+**For HumanizePhysics-original / project-bespoke results** (the directive does not name an external source for this block): the source lines are omitted — the block stands on the proof sketch alone.
 
 **The hard rule, explicit:**
 
@@ -179,7 +179,7 @@ If retrieval fails (paywall, broken link, no API key, not available online): mar
 
 ### What you MUST do
 - **Keep the chapter valid LaTeX.** Don't leave dangling `\begin{...}` without matching `\end{...}`. Compile-checking is the plan agent's responsibility but you must not introduce syntax errors.
-- **Stay within your chapter.** Your declared write-domain is one `*.tex` file. The Archon CLI rejects writes outside it.
+- **Stay within your chapter.** Your declared write-domain is one `*.tex` file. The HumanizePhysics CLI rejects writes outside it.
 - **Define non-standard macros in `blueprint/src/macros/common.tex`** before using them — but: that file is outside your write-domain, so you DON'T touch it. If the directive requires a new macro, you note in your report "needs macro `\foo`" and leave the LaTeX using the new command name; the plan agent adds the macro before next iter's typeset.
 - **Use mathematical, not Lean-syntactic prose.** Describe the proof in the language of mathematics — definitions, set inclusions, ring maps, universal properties — not in Lean tactic syntax. The prover formalizes your math.
 - **Follow citation discipline** for every block derived from external reference material (see "Citation discipline (the hard rule)" above). Each such block needs `% SOURCE:` with a local-file parenthetical, `% SOURCE QUOTE:` with a verbatim original-language quote, `% SOURCE QUOTE PROOF:` before the proof env when applicable, and a visible `\textit{Source: ...}` prefix. Never cite from memory — only from a local `references/<file>.md` you opened and read in this session.
@@ -197,7 +197,7 @@ If retrieval fails (paywall, broken link, no API key, not available online): mar
 - **Do NOT interleave math delimiters.** Pick `\( … \)` for a formula and close it with `\)` — never produce `$ … \( … \) … $` or `X\(, hence \)Y` inversions; the doctor's `math-delim` lint flags every such site and the rendered output shreds mid-formula.
 - **Do NOT paste bare label ids into prose.** "Thm.~th:main" is not a reference — write `\cref{...}` for project declarations, or the source's human-readable number ("Thm.~4.8") when quoting external material.
 - **Do NOT use undefined macros.** Every `\foo` your prose needs must exist in `blueprint/src/macros/common.tex` or be `\providecommand`'d at the top of your chapter (chapter-local is fine; report a "needs macro" note for shared ones).
-- **Do NOT touch protected blocks.** Your invocation prompt's "Protected by the mathematician" section lists `archon-protected.yaml` rules. A `statement`-protected label's declaration block (statement + `\label`/`\lean`/`\uses`) is frozen — you may still write its `\begin{proof}`; an `all`-protected label is entirely off-limits. You may freely `\uses{}` protected labels from other blocks. If your directive conflicts with a protection rule, stop and report the conflict instead of editing.
+- **Do NOT touch protected blocks.** Your invocation prompt's "Protected by the mathematician" section lists `humanizephysics-protected.yaml` rules. A `statement`-protected label's declaration block (statement + `\label`/`\lean`/`\uses`) is frozen — you may still write its `\begin{proof}`; an `all`-protected label is entirely off-limits. You may freely `\uses{}` protected labels from other blocks. If your directive conflicts with a protection rule, stop and report the conflict instead of editing.
 - **Do NOT expand scope.** Stick to what the directive listed under "Required content".
 - **Do NOT fabricate citations.** Never write `% SOURCE:`, `% SOURCE QUOTE:`, `% SOURCE QUOTE PROOF:`, or `\textit{Source: ...}` from memory. If you don't have a local `references/<file>.md` containing the source text, dispatch a retriever and wait. The `(read from references/<file>.md)` parenthetical is the discipline check — if you cannot truthfully point to the file you read, the citation block is not allowed in the chapter.
 - **Do NOT translate or restate the verbatim quote.** `% SOURCE QUOTE:` and `% SOURCE QUOTE PROOF:` contain the source's original language, original notation, every word as-is. Project-notation rewrites belong in the rendered prose body, not in the verbatim comment.
@@ -255,14 +255,14 @@ Conditions for dispatch:
 Dispatch (Bash; treat as blocking and await the report; in your write-domain only if it includes `references/**`):
 
 ```
-python3 .claude/tools/archon-subagent.py \
+python3 .claude/tools/humanizephysics-subagent.py \
   --name reference-retriever \
   --slug <kebab-slug-for-the-source> \
-  --directive-file .archon/logs/iter-NNN/<your-slug>/reference-retriever-<child-slug>-directive.md \
+  --directive-file .humanizephysics/logs/iter-NNN/<your-slug>/reference-retriever-<child-slug>-directive.md \
   --write-domain 'references/**'
 ```
 
-Write the directive file first; the directive format is documented in `.archon/subagents/reference-retriever.md`. The retriever returns when the new summary is on disk; **then resume writing**, citing the new reference.
+Write the directive file first; the directive format is documented in `.humanizephysics/subagents/reference-retriever.md`. The retriever returns when the new summary is on disk; **then resume writing**, citing the new reference.
 
 If your invocation's recorded write-domain does NOT include `references/**` (your `parent.write_domain` in `dispatch.jsonl`), the dispatch will be rejected. In that case, STOP writing the affected section, report the missing source in "Notes for Plan Agent", and finish the parts of the chapter you can still write. The plan agent will re-dispatch you next iter with the broader write-domain.
 
@@ -288,7 +288,7 @@ leandag query --isolated --chapter <c>     # isolated nodes in your chapter (no 
 leandag show isolated                       # all isolated nodes, project-wide
 ```
 
-`leandag` is on the same PATH as `archon`; it is the one tool you use to query the DAG.
+`leandag` is on the same PATH as `humanizephysics`; it is the one tool you use to query the DAG.
 
 What to do with the output, scoped to **your chapter**:
 
@@ -300,7 +300,7 @@ Keep `leandag` edits inside your assigned chapter — fixing a dependency that l
 
 ## Logging
 
-Write your report to `.archon/task_results/blueprint-writer-<slug>.md`. 
+Write your report to `.humanizephysics/task_results/blueprint-writer-<slug>.md`. 
 
 **CRITICAL COST RULE**: Your report must be extremely concise. Use dense bullet points, abbreviations, and avoid conversational filler. Maximum ~100 words total. The plan agent does not need prose; it needs facts.
 

@@ -52,13 +52,13 @@ If a proof resists all golfing attempts (it's already near-minimal, or the tacti
 
 ## Protected declarations
 
-Read `archon-protected.yaml`. Proof bodies of protected declarations may be golfed; signatures may not change.
+Read `humanizephysics-protected.yaml`. Proof bodies of protected declarations may be golfed; signatures may not change.
 
 ## LSP MCP tools
 
-The `archon-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__archon-lean-lsp__lean_diagnostic_messages`, `mcp__archon-lean-lsp__lean_goal`, etc.). Never call them as shell commands.
+The `humanizephysics-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__humanizephysics-lean-lsp__lean_diagnostic_messages`, `mcp__humanizephysics-lean-lsp__lean_goal`, etc.). Never call them as shell commands.
 
-- First LSP action: `mcp__archon-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry or `lake build` first.
+- First LSP action: `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry or `lake build` first.
 
 ## Logging
 

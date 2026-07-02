@@ -65,7 +65,7 @@ For each sub-lemma:
 
 ## Protected declarations
 
-Read `archon-protected.yaml` before touching any declaration. Do not change protected signatures.
+Read `humanizephysics-protected.yaml` before touching any declaration. Do not change protected signatures.
 
 ## Completion criteria
 
@@ -79,9 +79,9 @@ A subsequent `prove` pass targeting specific open sub-lemmas is expected.
 
 ## LSP MCP tools
 
-The `archon-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__archon-lean-lsp__lean_goal`, `mcp__archon-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
+The `humanizephysics-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__humanizephysics-lean-lsp__lean_goal`, `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
 
-- First LSP action: `mcp__archon-lean-lsp__lean_diagnostic_messages` on your file.
+- First LSP action: `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages` on your file.
 - Use `lean_goal` after each tactic to confirm progress.
 
 ## Search protocol

@@ -57,7 +57,7 @@ dispatcher_notes: |
   - For each `.lean` file F you are considering adding to
     `## Current Objectives` (i.e. about to send a prover to), identify
     the corresponding blueprint chapter C. The mapping is: if some
-    chapter declares `% archon:covers ... F ...` near its top, THAT
+    chapter declares `% humanizephysics:covers ... F ...` near its top, THAT
     chapter is C (a consolidated chapter blueprints several files while
     its siblings are thin pointers); otherwise fall back to the 1:1
     `Foo/Bar.lean → Foo_Bar.tex` slug. Look up C in my per-chapter
@@ -130,9 +130,9 @@ The plan agent gives you a directive containing the current strategy snapshot, t
   - **Broken edges** — `leandag build --json` reports `unknown_uses` (a `\uses{}` pointing at a label no declaration defines). Every one is a must-fix.
   - **Missing edges** — read each proof: if it relies on a lemma/definition that its `\uses{}` does not list, the edge is missing. These don't show up as "broken"; you find them by reading the math against the declared `\uses{}`. Missing edges make the loop dispatch provers out of order, so flag them as correctness findings.
   - **Isolated declarations** — `leandag show isolated` (or `leandag query --isolated --type theorem`, and the `isolated` / `isolated_blueprint` counts in `leandag stats`) lists nodes with **no `\uses{}` out and nothing using them**. An isolated *blueprint* node is almost always a *symptom of a missing edge*, not dead weight — so for each one decide and record a disposition (see below). Isolated `lean_aux` nodes are uncovered Lean helpers, a separate "needs a blueprint entry" signal, not removal candidates.
-- **Mathlib dependency anchors (`\mathlibok`)** — it is good practice for a chapter that relies on a Mathlib-provided result to state it as an explicit anchor block marked `\mathlibok` (with `\lean{}` naming the real Mathlib declaration), rather than a bare `\uses{}` to nothing. Treat such anchors as *valid and done* — never flag them as ∞ holes or `remove` candidates. But **audit each `\mathlibok` claim for faithfulness**, because a wrong one makes the loop skip a real gap: does Mathlib actually contain the named `\lean{}` declaration, and does the stated form match it? Verify against Lean (`archon-lean-lsp`) when in doubt. A `\mathlibok` on a statement Mathlib does not provide — or whose form is stronger/different than Mathlib's — is a hard fail (treat like a fabricated citation). Also: where a broken `\uses{}` points at what is really a Mathlib result, the right `wire-up` is "add a `\mathlibok` anchor for it," not "invent a project lemma."
+- **Mathlib dependency anchors (`\mathlibok`)** — it is good practice for a chapter that relies on a Mathlib-provided result to state it as an explicit anchor block marked `\mathlibok` (with `\lean{}` naming the real Mathlib declaration), rather than a bare `\uses{}` to nothing. Treat such anchors as *valid and done* — never flag them as ∞ holes or `remove` candidates. But **audit each `\mathlibok` claim for faithfulness**, because a wrong one makes the loop skip a real gap: does Mathlib actually contain the named `\lean{}` declaration, and does the stated form match it? Verify against Lean (`humanizephysics-lean-lsp`) when in doubt. A `\mathlibok` on a statement Mathlib does not provide — or whose form is stronger/different than Mathlib's — is a hard fail (treat like a fabricated citation). Also: where a broken `\uses{}` points at what is really a Mathlib result, the right `wire-up` is "add a `\mathlibok` anchor for it," not "invent a project lemma."
 - **Lean target formulation quality** — for each `\lean{...}` hint, is the named theorem/definition a *useful* target for the prover? Vague or under-specified hints lead to wrong formalizations; surface those.
-- **Rendering integrity (run `archon blueprint-doctor`)** — the blueprint must *render*: as the compiled leanblueprint site and in the dashboard. The doctor lints this deterministically — run `archon blueprint-doctor --json` once and triage every `malformed_refs` finding into your report:
+- **Rendering integrity (run `humanizephysics blueprint-doctor`)** — the blueprint must *render*: as the compiled leanblueprint site and in the dashboard. The doctor lints this deterministically — run `humanizephysics blueprint-doctor --json` once and triage every `malformed_refs` finding into your report:
   - **`undefined-macro`** — a chapter uses `\foo` that no `macros/*.tex` or chapter-local `\providecommand` defines: it renders as raw TeX everywhere. Recommend the definition (usually obvious from context: `\Z` → `\mathbb{Z}`, `\fppf` → `\mathrm{fppf}`); when the intent is genuinely unclear (you cannot tell what the writer meant), flag it as a correctness finding for the chapter's writer instead of guessing.
   - **`math-delim`** — interleaved `$ … \( … \) … $` delimiters that shred formulas mid-sentence; per-line locations are in the finding. Must-fix, writer-directive material.
   - **`literal-ref` / `bare-label`** — placeholder "REF" tokens and raw label ids in prose; each needs a `\cref{}` or the human-readable number.
@@ -145,14 +145,14 @@ The plan agent gives you a directive containing the current strategy snapshot, t
      - **Original language**: the quote must be in the source's original language. A quote in English when the source is Bourbaki / EGA (French) signals translation, which is not allowed — flag it.
      - **Original notation**: the quote must use the source's notation, even when it differs from the project's. If the project writes $\mathcal{O}_X^\times$ everywhere but the `% SOURCE QUOTE:` also writes $\mathcal{O}_X^\times$ when the source is Hartshorne (who writes $\mathcal{O}_X^*$), the quote was rewritten — flag it.
      - **Verbatim, every word**: a quote that reads like a paraphrase ("essentially says that …", "the source states …") rather than direct copy is a hard fail. The whole point of the verbatim is anti-hallucination; paraphrased quotes are exactly the failure mode.
-  3. **`% SOURCE QUOTE PROOF:`** immediately before the `\begin{proof}` environment, when the block has a proof and the proof derives from the source. Same verbatim rules as `% SOURCE QUOTE:`. Missing `% SOURCE QUOTE PROOF:` on a theorem whose proof clearly comes from the cited source is a citation-discipline finding. (Archon-original proofs of external statements are allowed — flag only when the proof prose itself reads as a translation of an obvious source proof.)
+  3. **`% SOURCE QUOTE PROOF:`** immediately before the `\begin{proof}` environment, when the block has a proof and the proof derives from the source. Same verbatim rules as `% SOURCE QUOTE:`. Missing `% SOURCE QUOTE PROOF:` on a theorem whose proof clearly comes from the cited source is a citation-discipline finding. (HumanizePhysics-original proofs of external statements are allowed — flag only when the proof prose itself reads as a translation of an obvious source proof.)
   4. **Visible `\textit{Source: <pointer>.}`** line as the first line of the block's prose. Missing → flag.
 
   Cross-check: the visible `\textit{Source: ...}` pointer must match the `% SOURCE:` pointer. Drift between them signals copy-paste error or hallucination.
 
   Spot-check against `## References consulted` in the corresponding writer's report (when available in `task_results/`): every distinct `references/<file>.md` named in `% SOURCE:` parentheticals across the chapter should appear in that list. A `% SOURCE: ... (read from references/X.md)` where the writer's "References consulted" list does NOT mention `references/X.md` means the writer cited a file they did not actually open this session — fabrication.
 
-  **Archon-original / project-bespoke** results (no external source) omit the source lines entirely — do not falsely flag those. The signal that a block is Archon-original: the directive that produced it didn't name an external source, or the chapter prose explicitly characterizes it as new (e.g. "This is the technical heart of our argument"). When in doubt, ask the plan agent in "Notes for Plan Agent" rather than flagging.
+  **HumanizePhysics-original / project-bespoke** results (no external source) omit the source lines entirely — do not falsely flag those. The signal that a block is HumanizePhysics-original: the directive that produced it didn't name an external source, or the chapter prose explicitly characterizes it as new (e.g. "This is the technical heart of our argument"). When in doubt, ask the plan agent in "Notes for Plan Agent" rather than flagging.
 
 You audit the blueprint **against the context the plan agent gave you**, not against your own opinions about how the math should be set up. But you are critical of weak prose — under-specified blueprints fail provers and are not safe to merge.
 
@@ -172,7 +172,7 @@ A chapter outline proposal is not a flag or a complaint — it is a concrete, ac
 
 The proposal answers:
 
-1. **Which Lean file(s) will this chapter cover?** Name the expected file path(s) and whether this should be a consolidated chapter (one chapter covering multiple files via `% archon:covers`) or a 1:1 chapter.
+1. **Which Lean file(s) will this chapter cover?** Name the expected file path(s) and whether this should be a consolidated chapter (one chapter covering multiple files via `% humanizephysics:covers`) or a 1:1 chapter.
 
 2. **What are the declaration blocks the chapter needs?** For each: the block type (definition / lemma / theorem / proposition), a proposed `\label`, a one-sentence description of the mathematical content, the expected `\lean{...}` hint (even if speculative — tag it `[expected]`), and the likely reference source (from `references/summary.md` or a named standard reference). Do not write the full prose — that is the writer's job — but give enough that the writer knows exactly what to write.
 
@@ -194,7 +194,7 @@ The proposal answers:
 **Why now**: <one sentence on why writing this chapter this iter, before any prover work, is the right move — what ambiguity it resolves, what parallelism it enables>
 
 **Key declarations** (in dependency order):
-1. `\definition` `\label{def:foo}` — <one sentence>. `\lean{Foo.foo}` [expected]. Source: <reference + section, or "no source identified — Archon-original">
+1. `\definition` `\label{def:foo}` — <one sentence>. `\lean{Foo.foo}` [expected]. Source: <reference + section, or "no source identified — HumanizePhysics-original">
 2. `\lemma` `\label{lem:bar}` — <one sentence>. `\lean{Foo.bar}` [expected]. Source: <...>
 3. `\theorem` `\label{thm:baz}` — <one sentence>. `\lean{Foo.baz}` [expected]. Source: <...>
 ...
@@ -253,7 +253,7 @@ The proposal answers:
    - Read the entire chapter.
    - Check every declaration block against the strategy snapshot.
    - For each proof block: are steps sound? Are `\uses{...}` cross-refs real labels? Is detail adequate for a prover?
-   - For each `\lean{...}`: is the named target well-formulated? (You may verify existence using the `archon-lean-lsp` MCP tools — read-only.)
+   - For each `\lean{...}`: is the named target well-formulated? (You may verify existence using the `humanizephysics-lean-lsp` MCP tools — read-only.)
 4. **Compute completeness/correctness verdicts** per chapter (`true | partial | false`).
 5. **Note cross-chapter inconsistencies** as you find them (e.g. `def X` in chapter A doesn't match the use of `X` in chapter B). These go in the "Cross-chapter notes" section.
 6. **Audit the dependency graph with `leandag`.** Run `leandag build --json` (broken/unknown `\uses{}`, `unmatched_lean`, isolated count) and `leandag show isolated` once for the whole blueprint. Then triage each isolated **blueprint** node into exactly one disposition and record it:
@@ -261,14 +261,14 @@ The proposal answers:
    - **remove** — it is genuinely orphaned scaffolding: nothing in the goal's proof closure needs it, it isn't the goal, and it isn't a `\mathlibok`/reference anchor. Only then is removal the right call. Name the chapter + label so the plan agent can authorize a writer to delete it.
    - **keep** — it is intentionally standalone (the goal theorem with nothing above it, a deliberately isolated `\mathlibok` reference, etc.). Say why and move on.
    You **flag and recommend**; you never edit. The plan agent turns a `wire-up`/`remove` disposition into a blueprint-writer directive.
-7. **Run the rendering lint.** `archon blueprint-doctor --json` once for the whole blueprint; triage every `malformed_refs` finding (`undefined-macro`, `math-delim`, `literal-ref`, `bare-label`) per the "Rendering integrity" bullet above, grouped per chapter.
+7. **Run the rendering lint.** `humanizephysics blueprint-doctor --json` once for the whole blueprint; triage every `malformed_refs` finding (`undefined-macro`, `math-delim`, `literal-ref`, `bare-label`) per the "Rendering integrity" bullet above, grouped per chapter.
 8. **Check multi-route coverage**: for each route listed in the directive's `## Routes`, identify which chapters cover it. Flag any route that has zero or insufficient blueprint coverage.
 9. **Cross-reference phases against chapters**: for each row in the strategy's `## Phases & estimations` table, determine whether adequate blueprint coverage exists. For every phase with no or stub coverage, produce a chapter outline proposal (see "Unstarted-phase proposals" above).
 10. **Produce three top-level summaries** (see report format) — these are what the plan agent acts on first.
 
 You may also use:
-- `archon-lean-lsp`: read-only Lean LSP operations (search, hover, diagnostics) to verify `\lean{...}` references.
-- **`archon blueprint-doctor [--json]`** — the deterministic rendering/structure lint (orphan chapters, broken refs, literal-REF, interleaved math delimiters, bare labels, undefined macros, covers problems). Read-only; run it once per review and triage its `malformed_refs` (see "Rendering integrity" above).
+- `humanizephysics-lean-lsp`: read-only Lean LSP operations (search, hover, diagnostics) to verify `\lean{...}` references.
+- **`humanizephysics blueprint-doctor [--json]`** — the deterministic rendering/structure lint (orphan chapters, broken refs, literal-REF, interleaved math delimiters, bare labels, undefined macros, covers problems). Read-only; run it once per review and triage its `malformed_refs` (see "Rendering integrity" above).
 - **`leandag`** — your read-only window into the real dependency DAG. Run it freely: it never touches project source or the blueprint. (`leandag build` refreshes the derived `.leandag/` cache, which is regenerated deterministically from the current tree — that is a tool artifact, not a project edit, so it does not violate your read-only rule.)
   - `leandag build --json` — the structured build report: `unknown_uses` (broken `\uses{}`), `unmatched_lean` (`\lean{}` pointing nowhere), `conflicts`, and `summary.isolated`.
   - `leandag stats` — counts including `isolated` / `isolated_blueprint`.
@@ -279,7 +279,7 @@ You do **not** modify any project file, including the blueprint. Even if you spo
 
 ## Report format
 
-Write your report to `.archon/task_results/blueprint-reviewer-<slug>.md`.
+Write your report to `.humanizephysics/task_results/blueprint-reviewer-<slug>.md`.
 
 **CRITICAL COST RULE**: Your report must be extremely concise to save LLM tokens. Use dense bullet points, abbreviations, and zero conversational filler. DO NOT write paragraphs. Omit any section that has no findings. The plan agent only needs the facts.
 

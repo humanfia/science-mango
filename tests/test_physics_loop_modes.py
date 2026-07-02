@@ -331,6 +331,120 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             self.assertIsNotNone(doctor)
             self.assertEqual(doctor.physics_grounding_problems, [])
 
+    def test_partial_leanexplore_failures_do_not_poison_successful_grounding_log(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            state.mkdir()
+            src = project / "blueprint" / "src"
+            chapters = src / "chapters"
+            chapters.mkdir(parents=True)
+            (src / "content.tex").write_text(
+                "\\input{chapters/P}\n",
+                encoding="utf-8",
+            )
+            (chapters / "P.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Electric field square-root expression]\n"
+                "\\label{thm:field}\\lean{P.field}\n"
+                "An electric field statement involving Real.sqrt.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "P.lean").write_text(
+                "theorem target : True := by sorry\n",
+                encoding="utf-8",
+            )
+
+            def fake_searcher(query: str, packages: list[str], limit: int):
+                if query == "electric field":
+                    raise RuntimeError("Server error: transient 500")
+                return [
+                    GroundingCandidate(
+                        name="Real.sqrt",
+                        module="Mathlib.Analysis.Real.Sqrt",
+                        docstring="Square root on real numbers.",
+                    ),
+                    GroundingCandidate(
+                        name="Electromagnetism.ElectricField",
+                        module="Physlib.Electromagnetism.Basic",
+                        docstring="The electric field.",
+                    ),
+                ][:limit]
+
+            reports = run_physics_grounding(
+                project,
+                searcher=fake_searcher,
+                max_attempts=1,
+            )
+
+            self.assertEqual(len(reports), 1)
+            self.assertTrue(reports[0].is_complete)
+            text = reports[0].report_path.read_text(encoding="utf-8")
+            self.assertIn("Grounding status: complete", text)
+            self.assertNotIn("ERROR:", text)
+            self.assertNotIn("error:", text.lower())
+            self.assertIn("Search unavailable", text)
+            self.assertIn("Real.sqrt", text)
+            self.assertIn("Electromagnetism.ElectricField", text)
+
+            doctor = run_blueprint_doctor(project)
+            self.assertIsNotNone(doctor)
+            self.assertEqual(doctor.physics_grounding_problems, [])
+
+    def test_leanexplore_search_retries_transient_failures(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            state.mkdir()
+            src = project / "blueprint" / "src"
+            chapters = src / "chapters"
+            chapters.mkdir(parents=True)
+            (src / "content.tex").write_text(
+                "\\input{chapters/P}\n",
+                encoding="utf-8",
+            )
+            (chapters / "P.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Electric field]\n"
+                "\\label{thm:field}\\lean{P.field}\n"
+                "An electric field statement.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "P.lean").write_text(
+                "theorem target : True := by sorry\n",
+                encoding="utf-8",
+            )
+
+            calls = 0
+
+            def fake_searcher(query: str, packages: list[str], limit: int):
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    raise RuntimeError("temporary unavailable")
+                return [
+                    GroundingCandidate(
+                        name="Electromagnetism.ElectricField",
+                        module="Physlib.Electromagnetism.Basic",
+                    )
+                ]
+
+            reports = run_physics_grounding(
+                project,
+                searcher=fake_searcher,
+                max_attempts=2,
+                retry_delay=0,
+            )
+
+            self.assertGreaterEqual(calls, 2)
+            self.assertEqual(len(reports), 1)
+            self.assertTrue(reports[0].is_complete)
+            self.assertEqual(run_blueprint_doctor(project).physics_grounding_problems, [])
+
     def test_archive_preserves_loop_owned_physics_grounding_log(self):
         with tempfile.TemporaryDirectory() as d:
             project = Path(d)

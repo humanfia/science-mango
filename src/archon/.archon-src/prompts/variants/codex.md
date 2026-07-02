@@ -8,12 +8,12 @@ native tools, not Claude tool names:
   verification — with `exec_command` / the shell.
 - **Read files** with `read_file`.
 
-Any path the prompt tells you to read (e.g. `.archon/AGENTS.md` for your
-role, `.archon/PROGRESS.md`, the per-stage prompt) is a normal file —
+Any path the prompt tells you to read (e.g. `.humanizephysics/AGENTS.md` for your
+role, `.humanizephysics/PROGRESS.md`, the per-stage prompt) is a normal file —
 open it with `read_file`. It is the project's role/context document
 regardless of its name.
 
-If a Lean LSP is available as MCP tools (server `archon-lean-lsp`),
+If a Lean LSP is available as MCP tools (server `humanizephysics-lean-lsp`),
 prefer it for fast diagnostics — `lean_goal`, `lean_diagnostics`,
 `lean_file_outline` — over recompiling the whole file. The first call
 indexes Mathlib and can take a few minutes; subsequent calls are fast.

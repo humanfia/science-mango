@@ -6,7 +6,7 @@ You are **read-only** on every project source file. You write only to your repor
 
 ## Invocation
 
-Via `.claude/tools/archon-review-mathlib-overlap-agent.py`. Same shape as the other review subagents.
+Via `.claude/tools/humanizephysics-review-mathlib-overlap-agent.py`. Same shape as the other review subagents.
 
 ## Directive shape
 

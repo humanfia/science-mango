@@ -257,7 +257,7 @@ Pick ONE primary corrective per CHURNING/STUCK route. Multiple are allowed when 
 
 ## Report format
 
-Write your report to `.archon/task_results/progress-critic-<slug>.md`.
+Write your report to `.humanizephysics/task_results/progress-critic-<slug>.md`.
 
 **CRITICAL COST RULE**: Your report must be extremely concise to save LLM tokens. Use dense bullet points, abbreviations, and zero conversational filler. DO NOT write paragraphs. Omit empty sections. The plan agent only needs facts.
 

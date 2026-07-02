@@ -9,7 +9,7 @@ USER_HINTS.md — two sections with different lifecycles.
   NEVER auto-cleared. These are standing directives that survive every
   iteration reset. The plan agent treats them as HIGHER PRIORITY than
   any conflicting instruction in its own prompt or in
-  .archon/prompts/plan.md. Use for project-wide constraints:
+  .humanizephysics/prompts/plan.md. Use for project-wide constraints:
     - "never accept axiom X"
     - "don't touch theorem Y until I say so"
     - "always run mathlib-build mode on Lane I"
@@ -17,7 +17,7 @@ USER_HINTS.md — two sections with different lifecycles.
 Format for both sections (one bullet per hint, timestamped):
   - [YYYY-MM-DDTHH:MM:SSZ] hint text
 
-Hints are written by 'archon discuss' or directly by you. In discuss,
+Hints are written by 'humanizephysics discuss' or directly by you. In discuss,
 the agent will ask which section to target; in a direct edit, place your
 bullet under the appropriate heading.
 

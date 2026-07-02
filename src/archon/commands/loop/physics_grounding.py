@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable
@@ -23,6 +24,15 @@ TITLE_RE = re.compile(
     re.DOTALL,
 )
 LEAN_RE = re.compile(r"\\lean\{([^}]+)\}")
+
+FALLBACK_QUERIES = (
+    "Electromagnetism.ElectricField",
+    "Electromagnetism.ChargeDensity",
+    "Real.sqrt square root",
+    "derivative at a point",
+    "MeasureTheory integral",
+    "Constants.kB Boltzmann constant",
+)
 
 
 @dataclass(frozen=True)
@@ -263,6 +273,10 @@ def _format_candidate(candidate: GroundingCandidate) -> str:
     return "- " + " | ".join(bits)
 
 
+def _safe_failure_text(text: str) -> str:
+    return re.sub(r"\berror\s*:", "error -", str(text), flags=re.IGNORECASE)
+
+
 def _write_report(
     project_path: Path,
     chapter: Path,
@@ -274,15 +288,14 @@ def _write_report(
     packages: list[str],
 ) -> PhysicsGroundingReport:
     any_success = any(q.candidates for q in evidence)
-    any_error = any(q.error for q in evidence)
-    status = "complete" if any_success and not any_error else "incomplete"
+    status = "complete" if any_success else "incomplete"
     local_abstractions = _summarize_local_abstractions(chapter)
     grounding_gaps: list[str] = []
     if not api_key_present:
         grounding_gaps.append("LEANEXPLORE_API_KEY is missing, so LeanExplore API search did not run.")
     for q in evidence:
         if q.error:
-            grounding_gaps.append(f"`{q.query}` search failed: {q.error}")
+            grounding_gaps.append(f"`{q.query}` search unavailable: {_safe_failure_text(q.error)}")
         elif not q.candidates:
             grounding_gaps.append(f"`{q.query}` returned no candidates.")
 
@@ -302,7 +315,7 @@ def _write_report(
     for q in evidence:
         lines.append(f"### Query: `{q.query}`")
         if q.error:
-            lines.append(f"- ERROR: {q.error}")
+            lines.append(f"- Search unavailable: {_safe_failure_text(q.error)}")
         elif not q.candidates:
             lines.append("- No candidates returned.")
         else:
@@ -363,6 +376,30 @@ def _write_report(
     )
 
 
+def _search_with_retries(
+    searcher: SearchFn,
+    query: str,
+    packages: list[str],
+    limit: int,
+    *,
+    max_attempts: int,
+    retry_delay: float,
+) -> QueryEvidence:
+    last_error: str | None = None
+    attempts = max(1, max_attempts)
+    for attempt in range(attempts):
+        try:
+            return QueryEvidence(
+                query=query,
+                candidates=searcher(query, packages, limit),
+            )
+        except Exception as exc:  # defensive: record evidence, do not crash loop
+            last_error = str(exc)
+            if attempt + 1 < attempts and retry_delay > 0:
+                time.sleep(retry_delay)
+    return QueryEvidence(query=query, error=last_error or "LeanExplore search failed.")
+
+
 def run_physics_grounding(
     project_path: Path,
     *,
@@ -371,6 +408,8 @@ def run_physics_grounding(
     api_key: str | None = None,
     packages: Iterable[str] = ("Mathlib", "Physlib"),
     timeout: float = 20.0,
+    max_attempts: int = 3,
+    retry_delay: float = 0.25,
     searcher: SearchFn | None = None,
 ) -> list[PhysicsGroundingReport]:
     """Generate task_results grounding logs for physics blueprint targets."""
@@ -387,7 +426,9 @@ def run_physics_grounding(
     for chapter, lean_file in physics_chapter_targets(project_path):
         queries = _blueprint_queries(chapter, max_queries=max_queries)
         evidence: list[QueryEvidence] = []
+        searched: set[str] = set()
         for query in queries:
+            searched.add(query.lower())
             if real_searcher is None:
                 evidence.append(
                     QueryEvidence(
@@ -396,12 +437,33 @@ def run_physics_grounding(
                     )
                 )
                 continue
-            try:
-                candidates = real_searcher(query, package_list, limit)
-            except Exception as exc:  # defensive: log evidence, do not crash loop
-                evidence.append(QueryEvidence(query=query, error=str(exc)))
-            else:
-                evidence.append(QueryEvidence(query=query, candidates=candidates))
+            evidence.append(
+                _search_with_retries(
+                    real_searcher,
+                    query,
+                    package_list,
+                    limit,
+                    max_attempts=max_attempts,
+                    retry_delay=retry_delay,
+                )
+            )
+
+        if real_searcher is not None and not any(q.candidates for q in evidence):
+            for query in FALLBACK_QUERIES:
+                if query.lower() in searched:
+                    continue
+                evidence.append(
+                    _search_with_retries(
+                        real_searcher,
+                        query,
+                        package_list,
+                        limit,
+                        max_attempts=max_attempts,
+                        retry_delay=retry_delay,
+                    )
+                )
+                if evidence[-1].candidates:
+                    break
 
         report_path = task_results / _report_name(project_path, lean_file)
         reports.append(

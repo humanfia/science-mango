@@ -6,10 +6,10 @@ The script launches you interactively so you can talk to the user and set up the
 
 ## Step 1: Detect project state
 
-The Archon Python CLI has already attempted to bootstrap the project (Lake, Git, Mathlib, Blueprint). The expected structure is:
+The HumanizePhysics Python CLI has already attempted to bootstrap the project (Lake, Git, Mathlib, Blueprint). The expected structure is:
 
 ```
-├── .archon/
+├── .humanizephysics/
 ├── .claude/
 ├── .git/
 ├── .lake/
@@ -97,4 +97,4 @@ Use [x] for stages that are truly complete or that you intentionally skip.
 
 ## After init
 
-When you advance the stage out of `init`, tell the user: "Init complete. Exit your agent CLI (in Claude Code, `/exit` or `Ctrl+D`). Then start the loop with `archon loop <project_path>`."
+When you advance the stage out of `init`, tell the user: "Init complete. Exit your agent CLI (in Claude Code, `/exit` or `Ctrl+D`). Then start the loop with `humanizephysics loop <project_path>`."

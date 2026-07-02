@@ -5,8 +5,8 @@ compatible_stages:
   - prover
 read_blueprint: true
 dispatcher_notes: |
-  Use for Lean files generated from blueprint chapters marked `% archon:physics`
-  or by `archon physics-formalize`.
+  Use for Lean files generated from blueprint chapters marked `% humanizephysics:physics`
+  or by `humanizephysics physics-formalize`.
   This mode assumes the theorem signatures are the physics formalization
   contract; prove the existing statement, and report redraft needs instead of
   weakening or rewriting the formalization.
@@ -21,7 +21,7 @@ statement is the contract produced from the original text/image problem; keep th
 
 1. Read `PROGRESS.md`, then read the blueprint chapter named in the objective.
 2. Read the Formalizer report linked from `PROGRESS.md` if one exists. For
-   native `archon dag --physics` projects, read the physics blueprint chapter
+   native `humanizephysics dag --physics` projects, read the physics blueprint chapter
    and `references/` files instead; those are the source of truth.
 3. Inspect the assigned `.lean` file and identify every theorem/lemma with a
    `sorry`.

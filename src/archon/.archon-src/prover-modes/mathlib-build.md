@@ -60,7 +60,7 @@ Push as far as you can. Each axiom-clean step you add is permanent progress.
 Before declaring a step impossible:
 
 1. **Try a different proof route.** Reformulate the statement, weaken to a special case you can prove, use a detour through an equivalent form.
-2. **Use the informal agent** if an API key is available (check `env | grep -E "DEEPSEEK|MOONSHOT|OPENROUTER|OPENAI|GEMINI"` first): `.claude/tools/archon-informal-agent.py` "Prove [goal] using only current Mathlib." Formalize whatever it suggests. If no key is set, skip to step 3.
+2. **Use the informal agent** if an API key is available (check `env | grep -E "DEEPSEEK|MOONSHOT|OPENROUTER|OPENAI|GEMINI"` first): `.claude/tools/humanizephysics-informal-agent.py` "Prove [goal] using only current Mathlib." Formalize whatever it suggests. If no key is set, skip to step 3.
 3. **Search more broadly.** The lemma you need might exist under a different name or in a namespace you haven't checked.
 4. **Prove a strictly smaller sub-step** that is axiom-clean and genuinely useful — something that shrinks the remaining gap.
 
@@ -99,7 +99,7 @@ Place new declarations under a clearly delimited section:
 
 ## Protected declarations
 
-Read `archon-protected.yaml` before touching any existing declaration. You may add new declarations freely. You must not rename, re-type, or modify signatures of protected declarations.
+Read `humanizephysics-protected.yaml` before touching any existing declaration. You may add new declarations freely. You must not rename, re-type, or modify signatures of protected declarations.
 
 ## API alignment
 
@@ -141,7 +141,7 @@ One section per declaration attempted. For each: approach, result (RESOLVED / FA
 
 **Write a `## Summary` section** before the verdicts: declarations added (count + names), declarations blocked (count + why), sorry count before → after across your file.
 
-**Write a `## Needs blueprint entry` section.** This mode is the biggest source of blueprint debt: every non-private definition/lemma you add is, by construction, infrastructure with **no blueprint block yet** — a `lean_aux` node invisible to the dependency graph (`archon dag-query unmatched` will list it) until the planner/reviewer blueprints it. List each new non-private declaration (name, file, and the facts its proof relies on) so the 1-to-1 Lean ↔ blueprint correspondence the dag agent built is restored next iter. Closing 0 project sorries while adding 3 unreported helpers does not advance the project — it quietly re-introduces the isolation the DAG phase worked to eliminate. Reporting them is mandatory.
+**Write a `## Needs blueprint entry` section.** This mode is the biggest source of blueprint debt: every non-private definition/lemma you add is, by construction, infrastructure with **no blueprint block yet** — a `lean_aux` node invisible to the dependency graph (`humanizephysics dag-query unmatched` will list it) until the planner/reviewer blueprints it. List each new non-private declaration (name, file, and the facts its proof relies on) so the 1-to-1 Lean ↔ blueprint correspondence the dag agent built is restored next iter. Closing 0 project sorries while adding 3 unreported helpers does not advance the project — it quietly re-introduces the isolation the DAG phase worked to eliminate. Reporting them is mandatory.
 
 **Write a `## Why I stopped` section** — be brutally honest. Only axiom-clean Lean declarations count as progress. Comments, sketches, and log prose do NOT. If you wrote down approaches you didn't attempt, say so:
 

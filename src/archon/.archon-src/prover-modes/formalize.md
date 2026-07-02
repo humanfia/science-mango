@@ -30,7 +30,7 @@ Read the blueprint chapter for your assigned file and introduce a matching Lean 
 
 ## Protected declarations
 
-Before touching any `.lean` file, read `archon-protected.yaml`. If a chapter block points (via `\lean{...}`) to a name already listed there with a different signature, do NOT change that signature. Keep the existing declaration, align your stub around it, and note the discrepancy in your task result.
+Before touching any `.lean` file, read `humanizephysics-protected.yaml`. If a chapter block points (via `\lean{...}`) to a name already listed there with a different signature, do NOT change that signature. Keep the existing declaration, align your stub around it, and note the discrepancy in your task result.
 
 ## Blueprint alignment
 
@@ -46,9 +46,9 @@ If the informal statement maps cleanly to an existing Mathlib definition or lemm
 
 ## LSP MCP tools
 
-The `archon-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__archon-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
+The `humanizephysics-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__humanizephysics-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
 
-- First LSP action: `mcp__archon-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or `lake build` then retry.
+- First LSP action: `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or `lake build` then retry.
 
 ## Logging
 

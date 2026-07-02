@@ -32,22 +32,22 @@ Fill `sorry` placeholders with complete Lean proofs in your assigned `.lean` fil
 
 ## Know your target in the dependency graph (leandag)
 
-The blueprint dependency graph is queryable **read-only** — `archon` is on PATH, `--json` is parseable (the banner goes to stderr). Use it to ground your work instead of guessing:
+The blueprint dependency graph is queryable **read-only** — `humanizephysics` is on PATH, `--json` is parseable (the banner goes to stderr). Use it to ground your work instead of guessing:
 
-- `archon dag-query node --node <label> --json` — your target's blueprint entry, its `\lean{}` pin, and status. **If the `\lean{}` pin is a `…TODO.…` placeholder, the Lean declaration does not exist yet** — you must *create* it (the typed `sorry`, or the proof if your mode builds it), not "fill" a name that isn't in the environment.
-- `archon dag-query ancestors --node <label> --json` — your target's full dependency closure. Build on deps that are actually done (`\leanok`); a dependency still marked ∞ / `sorry` is **not** a sound foundation — cite it only if it genuinely typechecks today.
-- `archon dag-query gaps --json` — the ∞ holes (statements with no informal proof). If your target's cone hits one, the blueprint sketch is incomplete: flag it in your task_result rather than inventing a proof to paper over it.
-- `archon dag-query unmatched --json` — Lean decls with no blueprint entry. After you add helpers, your new names surface here until they're blueprinted — that is the debt you must report (see Logging → "Needs blueprint entry").
+- `humanizephysics dag-query node --node <label> --json` — your target's blueprint entry, its `\lean{}` pin, and status. **If the `\lean{}` pin is a `…TODO.…` placeholder, the Lean declaration does not exist yet** — you must *create* it (the typed `sorry`, or the proof if your mode builds it), not "fill" a name that isn't in the environment.
+- `humanizephysics dag-query ancestors --node <label> --json` — your target's full dependency closure. Build on deps that are actually done (`\leanok`); a dependency still marked ∞ / `sorry` is **not** a sound foundation — cite it only if it genuinely typechecks today.
+- `humanizephysics dag-query gaps --json` — the ∞ holes (statements with no informal proof). If your target's cone hits one, the blueprint sketch is incomplete: flag it in your task_result rather than inventing a proof to paper over it.
+- `humanizephysics dag-query unmatched --json` — Lean decls with no blueprint entry. After you add helpers, your new names surface here until they're blueprinted — that is the debt you must report (see Logging → "Needs blueprint entry").
 
 The label↔Lean mapping is the `\lean{}` annotation in the blueprint block; `leandag stats` / `leandag focus` also give a project-wide view. You never *write* the graph — that's the dag/plan/review agents' job — but reading it keeps you from proving against a hollow or unfinished foundation.
 
 ## Protected declarations
 
-Read `archon-protected.yaml` before touching any declaration. You may fill proof bodies of protected declarations but must not rename, re-type, reorder arguments, or weaken hypotheses. Only the mathematician edits protected signatures.
+Read `humanizephysics-protected.yaml` before touching any declaration. You may fill proof bodies of protected declarations but must not rename, re-type, reorder arguments, or weaken hypotheses. Only the mathematician edits protected signatures.
 
 ## Talking to the user (TO_USER.md)
 
-`.archon/TO_USER.md` is a *persistent* shared notice board surfaced to the user as a banner. You may add a bullet **only** for something the user genuinely must act on that you hit while proving — e.g. a missing credential/dependency a sorry is gated on, or a `/- USER: -/` question you cannot resolve. Discipline:
+`.humanizephysics/TO_USER.md` is a *persistent* shared notice board surfaced to the user as a banner. You may add a bullet **only** for something the user genuinely must act on that you hit while proving — e.g. a missing credential/dependency a sorry is gated on, or a `/- USER: -/` question you cannot resolve. Discipline:
 
 - **Concise + relevant**: keep the whole file ≤ 2–3 short bullets; before adding, read it and delete any bullet no longer true. Never a question queue — the loop never waits.
 - **Concurrency**: provers run in parallel (one per file). To avoid clobbering a sibling lane's bullet, append your single bullet prefixed with your file (`- [Foo/Bar.lean] …`) rather than rewriting the whole file, and only when it's truly user-actionable. Routine "couldn't close this sorry" notes go in `task_results/<your_file>.md`, NOT here.
@@ -115,7 +115,7 @@ When the substantive type is unattainable this iter, leave `sorry` with the **in
 
 Do NOT report "Mathlib lacks X" and stop. Before filing "Infrastructure missing":
 
-1. **Use the informal agent** if an API key is available (check `env | grep -E "DEEPSEEK|MOONSHOT|OPENROUTER|OPENAI|GEMINI"` first): call `.claude/tools/archon-informal-agent.py` with "Prove [goal] using only current Mathlib." Formalize whatever it suggests. If no key is set, skip to step 2.
+1. **Use the informal agent** if an API key is available (check `env | grep -E "DEEPSEEK|MOONSHOT|OPENROUTER|OPENAI|GEMINI"` first): call `.claude/tools/humanizephysics-informal-agent.py` with "Prove [goal] using only current Mathlib." Formalize whatever it suggests. If no key is set, skip to step 2.
 2. **If the missing ingredient is ≤~100 LOC**: write it as a project-local helper — typed signature plus a genuine proof attempt. A partial proof body is better than a documented gap.
 3. **Only after steps 1–2 are exhausted**: write the alternative sketch to `informal/<theorem_name>.md` with what you tried, why it failed, and the precise statement of the missing ingredient for the plan agent to assign in `mathlib-build` mode.
 
@@ -131,7 +131,7 @@ When stuck more generally: break into smaller subgoals, search Mathlib more thor
 - Keep edits minimal; don't delete comments or change labels; don't add unrelated declarations.
 - Helper lemmas you introduced may be modified if they turn out wrong.
 - Add a concise comment above each helper lemma so reuse is easy.
-- **List every new declaration you introduce under a `## Needs blueprint entry` heading in your task_result** (name, file, and the facts its proof relies on) — see Logging below. The project keeps a 1-to-1 Lean ↔ blueprint correspondence: the review agent and planner consume this list (and `archon dag-query unmatched`) to give each new declaration a blueprint block. An unreported helper is an invisible, isolated dependency that silently corrupts the frontier — flagging it is mandatory, not optional. (You never write the blueprint yourself; you only name what needs one.)
+- **List every new declaration you introduce under a `## Needs blueprint entry` heading in your task_result** (name, file, and the facts its proof relies on) — see Logging below. The project keeps a 1-to-1 Lean ↔ blueprint correspondence: the review agent and planner consume this list (and `humanizephysics dag-query unmatched`) to give each new declaration a blueprint block. An unreported helper is an invisible, isolated dependency that silently corrupts the frontier — flagging it is mandatory, not optional. (You never write the blueprint yourself; you only name what needs one.)
 - **`change` vs `show`** — `change` reshapes the goal up to defeq; `show` is display-level only. Default to `change` when in doubt.
 
 ## Mathlib tags in PROGRESS.md
@@ -144,11 +144,11 @@ The plan agent tags suggested lemmas:
 
 ## LSP MCP tools
 
-The `archon-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__archon-lean-lsp__lean_goal`, `mcp__archon-lean-lsp__lean_diagnostic_messages`, etc.). The lean4 skill reference uses short names (`lean_goal`, …) — same tools, never shell binaries.
+The `humanizephysics-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__humanizephysics-lean-lsp__lean_goal`, `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages`, etc.). The lean4 skill reference uses short names (`lean_goal`, …) — same tools, never shell binaries.
 
 - Always invoke through your tool-call interface.
 - **Never** call `Bash` with `lean_goal …` — there is no such shell command.
-- First LSP action: `mcp__archon-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or run `lake build` once via Bash, then retry.
+- First LSP action: `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or run `lake build` once via Bash, then retry.
 
 ## Search protocol
 

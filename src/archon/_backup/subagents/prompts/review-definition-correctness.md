@@ -6,7 +6,7 @@ You are **read-only** on every project source file. You write only to your repor
 
 ## Invocation
 
-You are invoked via the Bash tool calling `.claude/tools/archon-review-definition-correctness-agent.py`. Your invocation prompt tells you:
+You are invoked via the Bash tool calling `.claude/tools/humanizephysics-review-definition-correctness-agent.py`. Your invocation prompt tells you:
 
 - The path to the **directive file** — read it from disk first.
 - The **slug** for this invocation — used in the report filename.

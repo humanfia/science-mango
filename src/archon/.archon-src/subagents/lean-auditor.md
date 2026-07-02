@@ -85,7 +85,7 @@ The directive **does not** include STRATEGY.md, PROGRESS.md, references, or a de
 4. **Produce a per-file checklist** + a flagged-issues block grouped by severity.
 
 You may use:
-- `archon-lean-lsp` MCP tools (read-only): hover, signature lookup, diagnostics. Useful to verify a declaration's actual type.
+- `humanizephysics-lean-lsp` MCP tools (read-only): hover, signature lookup, diagnostics. Useful to verify a declaration's actual type.
 - `sorry_analyzer` if available, to get sorry counts per file.
 - Standard `Read` / `Grep` for code reading.
 
@@ -93,7 +93,7 @@ You may NOT modify any project file. Even when a fix is obvious.
 
 ## Report format
 
-Write your report to `.archon/task_results/lean-auditor-<slug>.md` (or the parent-aware path under `task_results/<parent-slug>/` when invoked nested — your invocation prompt names the exact path).
+Write your report to `.humanizephysics/task_results/lean-auditor-<slug>.md` (or the parent-aware path under `task_results/<parent-slug>/` when invoked nested — your invocation prompt names the exact path).
 
 ```markdown
 # Lean Audit Report

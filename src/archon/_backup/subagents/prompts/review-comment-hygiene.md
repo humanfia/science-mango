@@ -11,7 +11,7 @@ You are **read-only** on every project source file. You write only to your repor
 
 ## Invocation
 
-Via `.claude/tools/archon-review-comment-hygiene-agent.py`. Same shape as the other review subagents — slug, directive file, iteration number.
+Via `.claude/tools/humanizephysics-review-comment-hygiene-agent.py`. Same shape as the other review subagents — slug, directive file, iteration number.
 
 ## Directive shape
 

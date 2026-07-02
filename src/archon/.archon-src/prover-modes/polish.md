@@ -34,7 +34,7 @@ Verify, clean, and improve already-compiled proofs in your assigned `.lean` file
 
 ## Protected declarations
 
-Read `archon-protected.yaml` before editing. In polish mode you must especially avoid signature drift: do not rename, re-type, or reorder arguments of protected declarations, even if golfing suggests a cleaner signature. Protected signatures are contractual with the mathematician.
+Read `humanizephysics-protected.yaml` before editing. In polish mode you must especially avoid signature drift: do not rename, re-type, or reorder arguments of protected declarations, even if golfing suggests a cleaner signature. Protected signatures are contractual with the mathematician.
 
 ## Constraints
 
@@ -51,9 +51,9 @@ Do not edit the blueprint chapter. Record in `task_results/<your_file>.md` which
 
 ## LSP MCP tools
 
-The `archon-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__archon-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
+The `humanizephysics-lean-lsp` server exposes Lean LSP operations as **MCP tool calls** (`mcp__humanizephysics-lean-lsp__lean_diagnostic_messages`, etc.). Never call them as shell commands.
 
-- First LSP action: `mcp__archon-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or `lake build` then retry.
+- First LSP action: `mcp__humanizephysics-lean-lsp__lean_diagnostic_messages` on your file. If `success: false`, retry once or `lake build` then retry.
 
 ## Logging
 

@@ -206,62 +206,62 @@ No changes made. Run `/lean4:doctor cleanup --apply` to remove.
 | `rg` not found | Install via package manager — see [ripgrep](../../../INSTALLATION.md#optional-ripgrep) |
 | Lean LSP MCP tools unavailable | Check `claude mcp list` (Claude Code); if missing, `claude mcp add lean-lsp uvx lean-lsp-mcp` or see [INSTALLATION.md](../../../INSTALLATION.md#lean-lsp-mcp-server-all-hosts) |
 
-### 6. Archon Setup Check
+### 6. HumanizePhysics Setup Check
 
-When running inside an Archon-initialized project (`.archon/` exists), verify the Archon-specific setup:
+When running inside an HumanizePhysics-initialized project (`.humanizephysics/` exists), verify the HumanizePhysics-specific setup:
 
-**State files** — check all required files exist in `.archon/`:
+**State files** — check all required files exist in `.humanizephysics/`:
 ```
-.archon/PROGRESS.md
-.archon/AGENTS.md
-.archon/task_pending.md
-.archon/task_done.md
-.archon/USER_HINTS.md
+.humanizephysics/PROGRESS.md
+.humanizephysics/AGENTS.md
+.humanizephysics/task_pending.md
+.humanizephysics/task_done.md
+.humanizephysics/USER_HINTS.md
 ```
 `✓ … exists` or `✗ … missing`
 
-**Prompts** — check `.archon/prompts/` for each expected prompt:
+**Prompts** — check `.humanizephysics/prompts/` for each expected prompt:
 ```
 plan.md, dag.md, review.md
 ```
-For each: report whether it's a valid symlink, a local override (real file), or missing/broken. (Per-stage prover instructions live in `.archon/prover-modes/*.md`, not `prompts/prover-*.md`.)
+For each: report whether it's a valid symlink, a local override (real file), or missing/broken. (Per-stage prover instructions live in `.humanizephysics/prover-modes/*.md`, not `prompts/prover-*.md`.)
 
-**Skills plugin** — check `lean4@archon-local` plugin:
-- Installed and enabled (via `claude plugin list`) → `✓ lean4@archon-local plugin installed`
-- Cache dir is a symlink to Archon source → `✓ live-linked to Archon source`
+**Skills plugin** — check `lean4@humanizephysics-local` plugin:
+- Installed and enabled (via `claude plugin list`) → `✓ lean4@humanizephysics-local plugin installed`
+- Cache dir is a symlink to HumanizePhysics source → `✓ live-linked to HumanizePhysics source`
 - Cache dir is a real copy → `⚠ cache is a copy, not symlinked (global updates won't propagate)`
-- Not installed → `✗ lean4@archon-local plugin not found`
-- Legacy `.claude/skills/archon-lean4` symlink present → `⚠ legacy skills symlink (can be removed)`
+- Not installed → `✗ lean4@humanizephysics-local plugin not found`
+- Legacy `.claude/skills/humanizephysics-lean4` symlink present → `⚠ legacy skills symlink (can be removed)`
 
 **MCP server** — check `.claude/settings.json`:
-- Contains `archon-lean-lsp` → `✓`
-- Contains `lean-lsp` but not `archon-lean-lsp` → `⚠ may conflict with global MCP`
+- Contains `humanizephysics-lean-lsp` → `✓`
+- Contains `lean-lsp` but not `humanizephysics-lean-lsp` → `⚠ may conflict with global MCP`
 - Neither → `✗ not configured`
 
-**Informal agent** — check `.claude/tools/archon-informal-agent.py`:
+**Informal agent** — check `.claude/tools/humanizephysics-informal-agent.py`:
 - Valid symlink or file → `✓`
 - Missing → `✗ not found`
 
-**Git protection** — if `.git/` exists, check `.gitignore` contains `.archon/`:
+**Git protection** — if `.git/` exists, check `.gitignore` contains `.humanizephysics/`:
 - Present → `✓`
-- Missing → `⚠ .archon/ may be committed accidentally`
+- Missing → `⚠ .humanizephysics/ may be committed accidentally`
 
-**Proof journal** — check `.archon/proof-journal/sessions/`:
+**Proof journal** — check `.humanizephysics/proof-journal/sessions/`:
 - Exists → report session count
 - Missing → `⚠ not yet created`
 
 **Output:**
 ```markdown
-### Archon Setup
+### HumanizePhysics Setup
 ✓ State files complete
 ✓ Prompts: 5/5 (4 symlinks, 1 local override)
-✓ lean4@archon-local plugin installed (live-linked)
-✓ archon-lean-lsp MCP configured
-✓ archon-informal-agent.py available
-✓ .archon/ in .gitignore
+✓ lean4@humanizephysics-local plugin installed (live-linked)
+✓ humanizephysics-lean-lsp MCP configured
+✓ humanizephysics-informal-agent.py available
+✓ .humanizephysics/ in .gitignore
 ⚠ proof-journal: 0 sessions
 
-### Archon Status: Ready
+### HumanizePhysics Status: Ready
 ```
 
 ## Safety
@@ -275,6 +275,6 @@ For each: report whether it's a valid symlink, a local override (real file), or 
 
 ## See Also
 
-- `/archon-lean4:prove` - Guided cycle-by-cycle proving
-- `/archon-lean4:checkpoint` - Save progress
+- `/humanizephysics-lean4:prove` - Guided cycle-by-cycle proving
+- `/humanizephysics-lean4:checkpoint` - Save progress
 - [Examples](../skills/lean4/references/command-examples.md#doctor)

@@ -1,5 +1,5 @@
-<!-- ARCHON_MEMORY.md — condensed project knowledge for all agents.
-     Written by the plan agent and archon discuss. Read by all agents.
+<!-- HUMANIZEPHYSICS_MEMORY.md — condensed project knowledge for all agents.
+     Written by the plan agent and humanizephysics discuss. Read by all agents.
 
      HARD LIMITS: max 10 bullets · ~600 chars total.
      Prune before adding. Only keep what would surprise an agent reading

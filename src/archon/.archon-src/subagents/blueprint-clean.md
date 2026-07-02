@@ -36,7 +36,7 @@ Your job is to read and refine a blueprint chapter (`blueprint/src/chapters/<slu
 ## Spawning a Retriever
 If you identify a missing reference, spawn it using:
 ```bash
-python3 .claude/tools/archon-subagent.py --name reference-retriever --slug <slug> --directive-file <file> --write-domain 'references/**'
+python3 .claude/tools/humanizephysics-subagent.py --name reference-retriever --slug <slug> --directive-file <file> --write-domain 'references/**'
 ```
 
 Return your outcome and the path to your report.

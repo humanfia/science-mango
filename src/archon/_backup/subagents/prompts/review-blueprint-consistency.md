@@ -13,7 +13,7 @@ You are **read-only** on every project source file and the blueprint. You write 
 
 ## Invocation
 
-Via `.claude/tools/archon-review-blueprint-consistency-agent.py`. Slug, directive, iteration as usual.
+Via `.claude/tools/humanizephysics-review-blueprint-consistency-agent.py`. Slug, directive, iteration as usual.
 
 ## Directive shape
 
@@ -45,7 +45,7 @@ Via `.claude/tools/archon-review-blueprint-consistency-agent.py`. Slug, directiv
 ## What you MUST NOT do
 
 - **Do NOT modify any `.lean` file or blueprint chapter.** You are read-only.
-- **Do NOT touch `\leanok` markers.** Those are managed by Archon's `sync_leanok` phase; you only *report* inconsistencies.
+- **Do NOT touch `\leanok` markers.** Those are managed by HumanizePhysics's `sync_leanok` phase; you only *report* inconsistencies.
 - **Do NOT propose specific TeX or Lean fixes in the body.** Describe the drift, not the patch.
 - **Do NOT spawn child subagents.**
 

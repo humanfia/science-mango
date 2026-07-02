@@ -98,7 +98,7 @@ That's it. No strategy snapshot, no references, no full project context — just
 3. Read the blueprint chapter completely. List every `\lean{...}` reference and its corresponding declaration block.
 4. **For each `\lean{...}` block**: locate the Lean declaration. Verify:
    - It exists.
-   - Its signature matches the informal statement (use `archon-lean-lsp` for hover/signature info).
+   - Its signature matches the informal statement (use `humanizephysics-lean-lsp` for hover/signature info).
    - If the Lean has a body (proof or definition body), does it match the blueprint's prose? Naming and tactic choice can differ; the *mathematical content* should match.
 5. **For each declaration in the Lean file**: is it `\lean{...}`-referenced from the blueprint? Unreferenced declarations are notable but not necessarily wrong (helpers may exist). Flag suspect ones.
 6. **Scan for red flags** in the Lean file:
@@ -109,14 +109,14 @@ That's it. No strategy snapshot, no references, no full project context — just
 7. **Cross-check** any `import` paths and namespace usage that should match what the blueprint's `\lean{...}` hints suggest.
 
 You may use:
-- `archon-lean-lsp` MCP tools (read-only): hover, signature lookup, diagnostics.
+- `humanizephysics-lean-lsp` MCP tools (read-only): hover, signature lookup, diagnostics.
 - `sorry_analyzer` if available, to count sorries in the file.
 
 You may NOT modify the Lean file, the blueprint, or any other project file. Even when a fix is obvious.
 
 ## Report format
 
-Write your report to `.archon/task_results/lean-vs-blueprint-checker-<slug>.md` (or the parent-aware path when invoked nested — your invocation prompt names the exact path).
+Write your report to `.humanizephysics/task_results/lean-vs-blueprint-checker-<slug>.md` (or the parent-aware path when invoked nested — your invocation prompt names the exact path).
 
 ```markdown
 # Lean ↔ Blueprint Check Report

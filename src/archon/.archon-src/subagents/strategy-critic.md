@@ -80,7 +80,7 @@ You may use:
 
 - The references named in the directive (read them if needed for the math).
 - The blueprint chapter summaries (the prose summary in the directive, NOT the full chapter text — full-chapter audit is the territory of the blueprint-review subagent in the catalog).
-- `archon-lean-lsp` if you need to spot-check a Mathlib name's existence.
+- `humanizephysics-lean-lsp` if you need to spot-check a Mathlib name's existence.
 
 You may NOT use:
 
@@ -181,7 +181,7 @@ your audit.
 
 ## Report format
 
-Write your report to `.archon/task_results/strategy-critic-<slug>.md` (or the parent-aware path when invoked nested — your invocation prompt names the exact path).
+Write your report to `.humanizephysics/task_results/strategy-critic-<slug>.md` (or the parent-aware path when invoked nested — your invocation prompt names the exact path).
 
 **Omit-empty rule.** Every section below is optional except `## Slug`, `## Iteration`, `## Routes audited`, and `## Overall verdict`. If a section's right answer is "nothing to report", **OMIT the section entirely** — do NOT write "none", "N/A", "no findings detected", or "(omit if empty)" as filler content. The absence of a section IS the signal that nothing was found there. Per-route blocks: when a route's verdict is SOUND with no flagged items, render the block as just the verdict line and omit the bullet checklist above it.
 

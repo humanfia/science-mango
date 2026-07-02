@@ -144,13 +144,13 @@ You are explicitly NOT checking API alignment in this mode. The goal is to surfa
 **Read-only.** You may read:
 
 - Project files (`.lean`, blueprint chapters, `references/`).
-- Mathlib (via `archon-lean-lsp` MCP: `lean_leansearch`, `lean_loogle`, hover, signature lookup).
+- Mathlib (via `humanizephysics-lean-lsp` MCP: `lean_leansearch`, `lean_loogle`, hover, signature lookup).
 - Any existing `analogies/<slug>.md` summaries from prior calls.
 
 You may write:
 
 - `analogies/<slug>.md` — persistent design-rationale file future iters re-read.
-- `.archon/task_results/mathlib-analogist-<slug>.md` (or the parent-aware path) — your report.
+- `.humanizephysics/task_results/mathlib-analogist-<slug>.md` (or the parent-aware path) — your report.
 
 You may **NOT** modify project source, blueprint, or any state file.
 
@@ -260,7 +260,7 @@ in finding analogues the dispatcher couldn't.>
 
 7. **Write the persistent analogy file** to `analogies/<slug>.md`. Format below.
 
-8. **Write the report** to `.archon/task_results/mathlib-analogist-<slug>.md`.
+8. **Write the report** to `.humanizephysics/task_results/mathlib-analogist-<slug>.md`.
 
 ### cross-domain-inspiration mode
 
@@ -286,7 +286,7 @@ in finding analogues the dispatcher couldn't.>
 
 8. **Rank.** Order ANALOGUE_FOUND verdicts by porting cost (lowest first). The planner reads top-to-bottom.
 
-9. **Write the persistent file** to `analogies/<slug>.md` and the report to `.archon/task_results/mathlib-analogist-<slug>.md`. Format below — the cross-domain section is separate from the api-alignment section.
+9. **Write the persistent file** to `analogies/<slug>.md` and the report to `.humanizephysics/task_results/mathlib-analogist-<slug>.md`. Format below — the cross-domain section is separate from the api-alignment section.
 
 ## Persistent file format (`analogies/<slug>.md`)
 
@@ -371,7 +371,7 @@ For each analogue, ranked by porting cost (lowest first):
 
 ## Report format
 
-Write your report to `.archon/task_results/mathlib-analogist-<slug>.md`.
+Write your report to `.humanizephysics/task_results/mathlib-analogist-<slug>.md`.
 
 **CRITICAL COST RULE**: Your report must be extremely concise to save LLM tokens. Use dense bullet points, abbreviations, and zero conversational filler. DO NOT write paragraphs. Omit empty sections. The plan agent only needs facts.
 

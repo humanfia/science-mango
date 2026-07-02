@@ -187,7 +187,7 @@ RETRIEVED — <date>
 the most important field — a later planner uses them to re-fetch or double-check.)
 
 ## Why this source
-<2-3 sentences: which Archon chapter / strategy decision will use this. Copy from the directive's "What the dispatcher will use this for".>
+<2-3 sentences: which HumanizePhysics chapter / strategy decision will use this. Copy from the directive's "What the dispatcher will use this for".>
 
 ## Contents map
 <A table of contents / section map pointing INTO the downloaded file, so a planner knows where to look. Use the source's own numbering. NO paraphrase of the mathematics — just locations.>
@@ -239,7 +239,7 @@ Append one row to the `## File inventory` table. The template has three columns:
 | [`<slug>.md`](./<slug>.md) → ⚠ NOT RETRIEVED (<short reason>) | <topic note> | n/a — no local file |
 ```
 
-For the `How to read` column, record what *actually worked* during your verification step (you opened the file to verify it isn't an HTML-paywall stub — write down the command you used). `Read` for PDFs assumes ``poppler-utils`` is installed (``archon setup`` handles it); if `Read` errors with a missing-`pdftoppm` message, record the exact `pdftotext` (or other) fallback you used. The column is a living log — later agents who ingest the same file should overwrite the entry with a better entry if they find one.
+For the `How to read` column, record what *actually worked* during your verification step (you opened the file to verify it isn't an HTML-paywall stub — write down the command you used). `Read` for PDFs assumes ``poppler-utils`` is installed (``humanizephysics setup`` handles it); if `Read` errors with a missing-`pdftoppm` message, record the exact `pdftotext` (or other) fallback you used. The column is a living log — later agents who ingest the same file should overwrite the entry with a better entry if they find one.
 
 If `references/summary.md` doesn't exist, create it with the standard header + the inventory table before appending.
 
@@ -266,7 +266,7 @@ If `references/summary.md` doesn't exist, create it with the standard header + t
 
 ## Report format
 
-Write your report to `.archon/task_results/reference-retriever-<slug>.md` (or the parent-aware path under `task_results/<parent-slug>/` when invoked nested — your invocation prompt names the exact path).
+Write your report to `.humanizephysics/task_results/reference-retriever-<slug>.md` (or the parent-aware path under `task_results/<parent-slug>/` when invoked nested — your invocation prompt names the exact path).
 
 ```markdown
 # Reference Retriever Report

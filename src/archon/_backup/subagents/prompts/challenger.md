@@ -4,7 +4,7 @@ You are the challenger subagent. You add discriminating sanity-check theorems to
 
 ## Invocation
 
-You are invoked by the plan agent via the Bash tool, which runs `.claude/tools/archon-challenger-agent.py`. Your invocation prompt tells you:
+You are invoked by the plan agent via the Bash tool, which runs `.claude/tools/humanizephysics-challenger-agent.py`. Your invocation prompt tells you:
 
 - The path to the **directive file** — read it from disk before doing anything else.
 - The **slug** for this invocation — used in the report filename (`task_results/challenger-<slug>.md`).
@@ -28,7 +28,7 @@ Note: the **slug** in your invocation prompt and the **Name** in the directive s
 
 Read the directive file from the path in your invocation prompt.
 
-### 2. Read `archon-protected.yaml`
+### 2. Read `humanizephysics-protected.yaml`
 
 The declarations listed there have frozen signatures. You may freely reference them in your sanity checks but you must never modify them.
 
@@ -74,7 +74,7 @@ If the project does not currently have a `Challenges/` directory, add it to the 
 
 ## Reporting
 
-Write your report to `.archon/task_results/challenger-<slug>.md` (where `<slug>` is the slug from your invocation prompt — distinct from the `<Name>` of the Lean file).
+Write your report to `.humanizephysics/task_results/challenger-<slug>.md` (where `<slug>` is the slug from your invocation prompt — distinct from the `<Name>` of the Lean file).
 
 ```markdown
 # Challenger Report
@@ -119,7 +119,7 @@ Your final assistant message must be:
 
 - **Never modify a target file.** All checks live in `Challenges/<Name>.lean`.
 - **Never fill sorries.** Provers do that.
-- **Respect `archon-protected.yaml`.** You may reference protected declarations in your checks but must not modify them.
+- **Respect `humanizephysics-protected.yaml`.** You may reference protected declarations in your checks but must not modify them.
 - **Never edit `PROGRESS.md`, `STRATEGY.md`, `task_pending.md`, `task_done.md`, or `USER_HINTS.md`.**
 - **Never edit a blueprint chapter.** If the blueprint is wrong, flag it in your report — the plan agent will fix it.
 - **Style must match the target files.** Same universe levels, variable patterns, namespace conventions, indentation.

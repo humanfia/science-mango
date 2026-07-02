@@ -6,21 +6,21 @@ the best proof per declaration across the lanes' outputs.
 
 You only need this if you want to run multiple providers in parallel.
 A single Anthropic lane (the default) is the normal flow and needs no setup
-beyond the interactive Claude Code login that `archon init` does for you.
+beyond the interactive Claude Code login that `humanizephysics init` does for you.
 
 ## TL;DR
 
 Two files matter:
 
-- `.archon/.env` — provider API keys (gitignored, never committed).
-- `.archon/config.json` — declares which lanes run, with which provider.
+- `.humanizephysics/.env` — provider API keys (gitignored, never committed).
+- `.humanizephysics/config.json` — declares which lanes run, with which provider.
 
 To turn multilane on:
 
-1. Put your provider keys in `.archon/.env` (uncomment the relevant block).
-2. In `.archon/config.json`, set `multilane.enabled: true` and copy the
+1. Put your provider keys in `.humanizephysics/.env` (uncomment the relevant block).
+2. In `.humanizephysics/config.json`, set `multilane.enabled: true` and copy the
    relevant lane entry from `multilane._examples` into `multilane.lanes`.
-3. Run `archon loop` — multilane fires automatically when `enabled` is true.
+3. Run `humanizephysics loop` — multilane fires automatically when `enabled` is true.
 
 That's it. You don't need to touch any CLI flag.
 
@@ -33,7 +33,7 @@ That's it. You don't need to touch any CLI flag.
 | DeepSeek | `deepseek` | `DEEPSEEK_API_KEY` | Provider's `/anthropic` endpoint (native) |
 | OpenRouter | `openrouter` | `OPENROUTER_API_KEY` + `OPENROUTER_MODEL` | OpenRouter's `/anthropic` endpoint (native) |
 
-Every supported provider speaks the Anthropic API natively — archon points the
+Every supported provider speaks the Anthropic API natively — humanizephysics points the
 lane's Claude Code session at the provider's `/anthropic` endpoint via
 `ANTHROPIC_BASE_URL`. OpenRouter doubles as an automatic fallback: if a
 `moonshot`/`deepseek` lane has no key but `OPENROUTER_API_KEY` is set, that lane
@@ -44,7 +44,7 @@ instead; see [CONFIGURATION.md](CONFIGURATION.md)).
 
 ## Per-provider env vars
 
-All env vars go in `.archon/.env`. Fields with a default in the template are
+All env vars go in `.humanizephysics/.env`. Fields with a default in the template are
 optional; only the API key is mandatory.
 
 ### Moonshot (Kimi)
@@ -73,13 +73,13 @@ OPENROUTER_MODEL=anthropic/claude-3.5-sonnet              # required: pick a mod
 
 ## Example: run Anthropic + Kimi side by side
 
-`.archon/.env`:
+`.humanizephysics/.env`:
 
 ```bash
 MOONSHOT_API_KEY=sk-...your-moonshot-key...
 ```
 
-`.archon/config.json` (only the relevant section):
+`.humanizephysics/config.json` (only the relevant section):
 
 ```json
 "multilane": {
@@ -92,7 +92,7 @@ MOONSHOT_API_KEY=sk-...your-moonshot-key...
 }
 ```
 
-Then `archon loop`. The dashboard's log list will show
+Then `humanizephysics loop`. The dashboard's log list will show
 `anthropic//<file>.lean` and `kimi//<file>.lean` entries side by side, with
 a `merge//<file>.lean` entry once both lanes finish that file.
 
@@ -103,7 +103,7 @@ others — a single missing key doesn't take down the round.
 
 ## What happens if a lane finishes faster
 
-`archon loop` runs all `(lane × file)` jobs concurrently up to
+`humanizephysics loop` runs all `(lane × file)` jobs concurrently up to
 `loop.max_parallel × num_lanes` slots. When one lane finishes a file
 **cleanly** (no sorries, no new axioms, builds, only the assigned file
 changed), the other lanes still working on that file get a grace period —
@@ -113,18 +113,18 @@ proof per declaration across whichever lanes did finish that file.
 
 ## Where things land on disk
 
-- `.archon/lanes/<lane>/` — the lane's worktree (separate inner-git checkout).
-- `.archon/multilane/lanes/<lane>/iter-NNN/provers/<file>.jsonl` — the lane's
-  per-file prover log (also symlinked into `.archon/logs/iter-NNN/provers/`
+- `.humanizephysics/lanes/<lane>/` — the lane's worktree (separate inner-git checkout).
+- `.humanizephysics/multilane/lanes/<lane>/iter-NNN/provers/<file>.jsonl` — the lane's
+  per-file prover log (also symlinked into `.humanizephysics/logs/iter-NNN/provers/`
   as `<file>__<lane>.jsonl` so the dashboard sees it).
-- `.archon/multilane/runtime/iter-NNN-results.jsonl` — per-assignment outcome
+- `.humanizephysics/multilane/runtime/iter-NNN-results.jsonl` — per-assignment outcome
   rows: success / failure_reason (`rate_limited`, `auth_failed`, etc.).
-- `.archon/multilane/reports/iter-NNN-execution.md` — human-readable summary
+- `.humanizephysics/multilane/reports/iter-NNN-execution.md` — human-readable summary
   including per-file merges.
 
 ## Disabling
 
-Set `multilane.enabled: false` (or remove all but one lane). `archon loop`
+Set `multilane.enabled: false` (or remove all but one lane). `humanizephysics loop`
 goes back to single-lane behaviour. Existing lane worktrees under
-`.archon/lanes/` aren't deleted automatically — `git worktree remove
-.archon/lanes/<lane>` cleans them up.
+`.humanizephysics/lanes/` aren't deleted automatically — `git worktree remove
+.humanizephysics/lanes/<lane>` cleans them up.

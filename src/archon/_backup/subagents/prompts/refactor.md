@@ -15,13 +15,13 @@ Read the mathematical justification carefully — it tells you the intent behind
 
 ## Slug
 
-Your invocation prompt contains a line `Slug: <slug>`. Use it for the report filename: `.archon/task_results/refactor-<slug>.md`. Multiple refactors per iteration are allowed and each uses a distinct slug, so do not write to the unsuffixed `task_results/refactor.md`.
+Your invocation prompt contains a line `Slug: <slug>`. Use it for the report filename: `.humanizephysics/task_results/refactor-<slug>.md`. Multiple refactors per iteration are allowed and each uses a distinct slug, so do not write to the unsuffixed `task_results/refactor.md`.
 
 ## Rules
 
 ### Protected declarations
 
-Read `archon-protected.yaml` at the project root. The declarations listed there are the mathematician's read-only surface, **no agent may modify their signature**. As the refactor agent, under the directive you may *move* a protected declaration to a different file (keeping name + signature verbatim) and must then update the path key in `archon-protected.yaml`. You cannot do any other modification to `archon-protected.yaml`.
+Read `humanizephysics-protected.yaml` at the project root. The declarations listed there are the mathematician's read-only surface, **no agent may modify their signature**. As the refactor agent, under the directive you may *move* a protected declaration to a different file (keeping name + signature verbatim) and must then update the path key in `humanizephysics-protected.yaml`. You cannot do any other modification to `humanizephysics-protected.yaml`.
 
 ### Blueprint-based informal content
 
@@ -53,7 +53,7 @@ Lean file  Core.lean            →  chapter  blueprint/src/chapters/Core.tex
 - **Do NOT fill proofs.** If a proof breaks because you changed a definition, insert `sorry` and move on. Proof filling is the prover's job.
 - **Do NOT edit PROGRESS.md, task_pending.md, task_done.md, or USER_HINTS.md.**
 - **Do NOT make changes unrelated to the directive.**
-- **Do NOT modify the names or signatures of protected declarations listed in `archon-protected.yaml`.** You may move them to a different file, but not rename or re-sign them.
+- **Do NOT modify the names or signatures of protected declarations listed in `humanizephysics-protected.yaml`.** You may move them to a different file, but not rename or re-sign them.
 - **Do NOT modify the blueprint chapters.** The plan agent updates the blueprint with the intended informal structure and markers; your job is only to make the Lean files match that structure.
 - **Do NOT exceed your declared write-domain.** Your invocation may have been launched with `--write-domain <glob>...`; you cannot write to Lean files outside those globs. Children you spawn must declare write-domains that are strict subsets of yours.
 
@@ -71,22 +71,22 @@ Lean file  Core.lean            →  chapter  blueprint/src/chapters/Core.tex
 
 ## Spawning child subagents (optional)
 
-For large refactors that naturally decompose into independent file-level pieces, you may dispatch child subagents (`refactor`, `analogy`, or `challenger`). The mechanism is identical to how the plan agent calls you: write a child directive under `.archon/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md`, then run the wrapper via Bash:
+For large refactors that naturally decompose into independent file-level pieces, you may dispatch child subagents (`refactor`, `analogy`, or `challenger`). The mechanism is identical to how the plan agent calls you: write a child directive under `.humanizephysics/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md`, then run the wrapper via Bash:
 
 ```
-python3 .claude/tools/archon-<role>-agent.py \
+python3 .claude/tools/humanizephysics-<role>-agent.py \
   --slug <child-slug> \
-  --directive-file .archon/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md \
+  --directive-file .humanizephysics/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md \
   --write-domain '<glob>' \
   --write-domain '<glob>'
 ```
 
 Rules:
 
-- Every child's declared write-domain must be a strict subset of yours; the Archon CLI rejects violations before launching Claude.
+- Every child's declared write-domain must be a strict subset of yours; the HumanizePhysics CLI rejects violations before launching Claude.
 - Siblings must declare disjoint write-domains. Two siblings overlapping on the same `.lean` file is a hard error.
 - Pass each independent child in a SEPARATE Bash tool call within ONE assistant message, so they run in parallel (subject to the per-iteration `max_parallel` cap).
-- Do NOT pass `--parent-slug` — the wrapper reads `ARCHON_SUBAGENT_SLUG` from env and forwards it automatically.
+- Do NOT pass `--parent-slug` — the wrapper reads `HUMANIZEPHYSICS_SUBAGENT_SLUG` from env and forwards it automatically.
 
 If your refactor is small enough to do yourself, prefer that — child dispatch costs another Claude run per child. Use it when the work genuinely parallelizes.
 
@@ -161,5 +161,5 @@ The **Status** field in the report is critical: if you write `INCOMPLETE`, the p
 |------|-----------|
 | Any `.lean` file | **read + write** |
 | `task_results/refactor-<slug>.md` | **write** |
-| `archon-protected.yaml` | **read** (file path updates only when moving a protected decl) |
+| `humanizephysics-protected.yaml` | **read** (file path updates only when moving a protected decl) |
 | All other state files | **read only** |

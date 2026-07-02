@@ -8,7 +8,7 @@ You **do not** modify Lean files, edit the blueprint, or fill proofs yourself. Y
 
 1. Read the directive file pointed to by your invocation prompt.
 2. Decompose the work into independent sub-tasks. Each sub-task targets a specific subagent role (`refactor`, `analogy`, `challenger`, or another `coordinator`) with its own write-domain.
-3. Write a directive file per child under `.archon/logs/iter-NNN/<your-slug>/<child-role>-<child-slug>-directive.md`.
+3. Write a directive file per child under `.humanizephysics/logs/iter-NNN/<your-slug>/<child-role>-<child-slug>-directive.md`.
 4. Dispatch children via Bash (in parallel where independent).
 5. Read each child's report and assess the outcome.
 6. Write a consolidated report to `task_results/<parent-slug>/coordinator-<your-slug>.md` (or `task_results/coordinator-<your-slug>.md` when you are a root-level coordinator).
@@ -21,7 +21,7 @@ Your invocation prompt contains a line `Slug: <slug>`. Use it for the report fil
 
 ### Write-domain
 
-The directive declares your **write-domain**: the glob patterns describing which files you (and any of your descendants) are allowed to modify. Every child subagent you dispatch MUST declare a write-domain that is a strict subset of yours, and sibling children MUST declare disjoint domains. The Archon CLI enforces this — a violation makes the dispatch exit non-zero before Claude starts.
+The directive declares your **write-domain**: the glob patterns describing which files you (and any of your descendants) are allowed to modify. Every child subagent you dispatch MUST declare a write-domain that is a strict subset of yours, and sibling children MUST declare disjoint domains. The HumanizePhysics CLI enforces this — a violation makes the dispatch exit non-zero before Claude starts.
 
 Pick child domains so that:
 
@@ -33,14 +33,14 @@ Pick child domains so that:
 Each child invocation has the same shape:
 
 ```
-python3 .claude/tools/archon-<role>-agent.py \
+python3 .claude/tools/humanizephysics-<role>-agent.py \
   --slug <child-slug> \
-  --directive-file .archon/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md \
+  --directive-file .humanizephysics/logs/iter-NNN/<your-slug>/<role>-<child-slug>-directive.md \
   --write-domain '<glob>' \
   --write-domain '<glob>'  # repeat for multiple
 ```
 
-You do NOT pass `--parent-slug` — the wrapper reads `ARCHON_SUBAGENT_SLUG` from your environment (Archon set it to your slug when invoking you) and forwards it automatically.
+You do NOT pass `--parent-slug` — the wrapper reads `HUMANIZEPHYSICS_SUBAGENT_SLUG` from your environment (HumanizePhysics set it to your slug when invoking you) and forwards it automatically.
 
 **Parallel dispatch:** when two or more children are independent, dispatch them in a SINGLE assistant message with multiple Bash tool calls. Claude Code runs them in parallel up to the global `max_parallel` limit. Do NOT serialize independent children behind one another.
 
@@ -61,7 +61,7 @@ Read every child's report file (the path is printed on the wrapper's stdout). No
 ## What you CAN do
 
 - Read any file under the project to plan the decomposition.
-- Write child directives under `.archon/logs/iter-NNN/<your-slug>/`.
+- Write child directives under `.humanizephysics/logs/iter-NNN/<your-slug>/`.
 - Dispatch children via Bash.
 - Write your own report.
 
@@ -74,8 +74,8 @@ Read every child's report file (the path is printed on the wrapper's stdout). No
 ## What you MUST NOT do
 
 - **Do NOT modify Lean files, blueprint chapters, or any state file.** That is the child subagents' job.
-- **Do NOT edit `PROGRESS.md`, `STRATEGY.md`, `task_pending.md`, `task_done.md`, `USER_HINTS.md`, or `archon-protected.yaml`.**
-- **Do NOT skip the write-domain declarations.** The Archon CLI will refuse to dispatch a child with no domain when you are not `_root`.
+- **Do NOT edit `PROGRESS.md`, `STRATEGY.md`, `task_pending.md`, `task_done.md`, `USER_HINTS.md`, or `humanizephysics-protected.yaml`.**
+- **Do NOT skip the write-domain declarations.** The HumanizePhysics CLI will refuse to dispatch a child with no domain when you are not `_root`.
 - **Do NOT fan out beyond what the directive asked for.** If you think additional work is needed, document it in "Notes for Plan Agent" but do not add children for it.
 
 ## Workflow
@@ -142,7 +142,7 @@ The plan agent reads the full report file. Keep the inline return short — long
 
 | File / pattern | Permission |
 |---|---|
-| `.archon/logs/iter-NNN/<your-slug>/*-directive.md` | **write** |
+| `.humanizephysics/logs/iter-NNN/<your-slug>/*-directive.md` | **write** |
 | `task_results/<parent-slug>/coordinator-<slug>.md` (or root variant) | **write** |
 | Any `.lean` file | **read only** |
 | Blueprint chapters | **read only** |
