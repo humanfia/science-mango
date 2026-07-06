@@ -29,6 +29,13 @@ def test_physics_formalize_mode_preserves_physical_modeling_not_scalar_placehold
     mode = PHYSICS_FORMALIZE_MODE.read_text(encoding="utf-8")
 
     required_contracts = [
+        "Assumption/target split",
+        "governing laws",
+        "previous-part results",
+        "figure/data readouts",
+        "current target conclusions",
+        "must not appear as hypotheses",
+        "Goal-faithfulness audit",
         "named quantities and their roles",
         "units or dimensional meaning",
         "geometry/figure labels",
@@ -67,6 +74,13 @@ def test_physics_reviewer_blocks_fake_statement_structures_and_missing_grounding
     reviewer = PHYSICS_REVIEWER.read_text(encoding="utf-8")
 
     required_contracts = [
+        "Goal-faithfulness / answer-as-assumption",
+        "Assumption-target split",
+        "Current target smuggled into hypotheses",
+        "Official outputs covered",
+        "Valid...Physics",
+        "Satisfies...",
+        "current target conclusion",
         "LeanExplore grounding evidence",
         "missing or incomplete LeanExplore grounding evidence",
         "Missing physical hypotheses",

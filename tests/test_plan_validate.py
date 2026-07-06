@@ -478,6 +478,26 @@ class ValidatePlanOutputNoopFilterTest(unittest.TestCase):
             self.assertTrue(result)
             self.assertFalse((state / "AUTO_NOTES.md").exists())
 
+    def test_autoformalize_redraft_keeps_zero_sorry_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve()
+            state = self._setup(root)
+            (root / "Redraft.lean").write_text("theorem a : True := trivial\n")
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n"
+                "## Current Stage\n\n"
+                "autoformalize\n\n"
+                "## Stages\n\n"
+                "- autoformalize\n- prover\n- COMPLETE\n\n"
+                "## Current Objectives\n\n"
+                "1. **`Redraft.lean`** [prover-mode: physics-formalize] — "
+                "redraft the statement after physics review found modeling drift.\n",
+            )
+            ctx = self._make_ctx(root, state)
+            result = validate_plan_output(ctx)
+            self.assertTrue(result)
+            self.assertFalse((state / "AUTO_NOTES.md").exists())
+
     def test_all_noop_skips_prover(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d).resolve()

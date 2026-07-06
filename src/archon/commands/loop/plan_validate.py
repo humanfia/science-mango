@@ -35,7 +35,7 @@ from pathlib import Path
 
 from archon import log
 from archon.commands.tooling.iteration import commit_phase
-from archon.state import auto_fix_objectives, write_meta
+from archon.state import auto_fix_objectives, read_stage, write_meta
 from archon.state.progress import _extract_section
 
 from .blocked_deps import (
@@ -189,7 +189,10 @@ def validate_plan_output(ctx: LoopContext) -> bool:
         # which would dispatch a prover that quits immediately. Scaffold
         # dispatches and new files are exempt (see filter_noop_objectives).
         noop_dropped: list[Path] = []
-        if getattr(ctx.options, "filter_noop_objectives", True):
+        if (
+            getattr(ctx.options, "filter_noop_objectives", True)
+            and not _allows_zero_sorry_redraft(ctx)
+        ):
             objectives, noop_dropped = filter_noop_objectives(
                 objectives, progress_file=ctx.progress_file,
             )
@@ -287,6 +290,26 @@ def validate_plan_output(ctx: LoopContext) -> bool:
         "planValidate.objectives": 0,
     })
     return False
+
+
+def _allows_zero_sorry_redraft(ctx: LoopContext) -> bool:
+    """Autoformalize can redraft an existing proof-clean Lean file.
+
+    The no-op filter is correct for proof mode: a prover has no work when
+    an existing file has zero open sorries. Physics modeling review can
+    reopen a proof-clean file for statement redraft, though, and that
+    work runs through the autoformalize mode rather than through ordinary
+    sorry filling.
+    """
+    force_stage = None
+    force_stage_fn = getattr(ctx, "force_stage", None)
+    if callable(force_stage_fn):
+        force_stage = force_stage_fn()
+    try:
+        stage = read_stage(ctx.progress_file, force_stage)
+    except (FileNotFoundError, ValueError):
+        stage = str(getattr(ctx, "current_stage", "") or "")
+    return stage.strip().lower().startswith("autoformalize")
 
 
 def _check_strategy_bounds(ctx: LoopContext) -> None:

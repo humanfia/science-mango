@@ -47,6 +47,9 @@ class LoopOptions:
     multilane_preview: bool
     multilane_cfg: dict[str, Any]
 
+    compress_plan_review_inputs: bool = False
+    prompt_compression_target_chars: int = 40000
+    prompt_compression_section_chars: int = 6000
     debug_feedback: bool = False
     resume: bool = False
     backend: ClaudeBackend = field(default_factory=ClaudeBackend)

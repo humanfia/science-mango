@@ -383,6 +383,11 @@ class BuildReviewPromptPhysicsTest(unittest.TestCase):
         self.assertIn("disconnected", prompt)
         self.assertIn("HasDerivAt", prompt)
         self.assertIn("IsLittleO", prompt)
+        self.assertIn("answer-as-assumption", prompt)
+        self.assertIn("current target conclusion", prompt)
+        self.assertIn("Valid...Physics", prompt)
+        self.assertIn("Satisfies...", prompt)
+        self.assertIn("BLOCKED ON MODELING", prompt)
 
     def test_non_physics_project_does_not_inject_review_checklist(self):
         (self.root / "blueprint" / "src" / "chapters" / "Phys.tex").write_text(

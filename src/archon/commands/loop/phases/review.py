@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import time
@@ -16,9 +17,16 @@ from archon.commands.tooling.project_config import (
     resolve_recent_iter_window,
     resolve_subagents_enabled,
 )
+from archon.prompt_compression import (
+    PromptCompressionConfig,
+    compress_prompt,
+    write_prompt_compression_report,
+)
+from archon.phase_input_summary import build_review_input_pack
 from archon.prompts import build_review_prompt
 from archon.state import write_meta
 from archon.state.progress import is_complete, write_stage
+from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
 from ..resume import REVIEW_CONTINUE, persist_session_id, pick_resume_session
@@ -29,6 +37,11 @@ from .base import Phase, PhaseResult
 PHYSICS_DOCTOR_BLOCKER_KEYS = (
     "physics_modeling_problems",
     "physics_grounding_problems",
+)
+PHYSICS_REVIEWER_BLOCKING_VERDICTS = (
+    "BLOCKED ON MODELING",
+    "BLOCKED ON GROUNDING",
+    "NEEDS REDRAFT",
 )
 AUTO_NOTES_FILENAME = "AUTO_NOTES.md"
 
@@ -63,22 +76,172 @@ def _load_physics_doctor_blockers(
     return blockers
 
 
-def _append_physics_doctor_auto_note(
+def _markdown_section_lines(text: str, heading: str) -> list[str]:
+    target = heading.strip().lower()
+    lines: list[str] = []
+    in_section = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.lower() == target:
+            in_section = True
+            continue
+        if in_section and stripped.startswith("## "):
+            break
+        if in_section:
+            lines.append(line)
+    return lines
+
+
+def _first_nonempty(lines: list[str]) -> str:
+    for line in lines:
+        stripped = line.strip()
+        if stripped:
+            return stripped
+    return ""
+
+
+def _extract_physics_reviewer_verdict(text: str) -> str:
+    verdict_line = _first_nonempty(
+        _markdown_section_lines(text, "## Overall verdict")
+    )
+    return _find_blocking_verdict(verdict_line)
+
+
+def _find_blocking_verdict(text: str) -> str:
+    upper = text.upper()
+    for verdict in PHYSICS_REVIEWER_BLOCKING_VERDICTS:
+        if verdict in upper:
+            return verdict
+    return ""
+
+
+def _is_substantive_must_fix(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    low = stripped.lower()
+    if low in {"none", "- none", "* none", "n/a", "- n/a", "* n/a"}:
+        return False
+    if "<finding>" in low or "<file>" in low:
+        return False
+    return bool(re.match(r"^[-*]\s+\S", stripped))
+
+
+def _extract_physics_reviewer_must_fixes(text: str) -> list[str]:
+    return [
+        line.strip()
+        for line in _markdown_section_lines(text, "## Must-fix-this-iter")
+        if _is_substantive_must_fix(line)
+    ]
+
+
+def _load_physics_reviewer_blockers(state_dir: Path) -> list[dict[str, str]]:
+    """Load current physics-reviewer verdicts that should block COMPLETE."""
+    task_results = state_dir / "task_results"
+    if not task_results.is_dir():
+        return []
+
+    blockers: list[dict[str, str]] = []
+    for report in sorted(task_results.rglob("physics-reviewer-*.md")):
+        try:
+            text = report.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        verdict = _extract_physics_reviewer_verdict(text)
+        must_fixes = _extract_physics_reviewer_must_fixes(text)
+        if not verdict and not must_fixes:
+            continue
+
+        reason_parts: list[str] = []
+        if verdict:
+            reason_parts.append(f"overall verdict: {verdict}")
+        if must_fixes:
+            reason_parts.append("must-fix: " + " ".join(must_fixes[:3]))
+            if len(must_fixes) > 3:
+                reason_parts.append(f"... and {len(must_fixes) - 3} more")
+
+        blockers.append({
+            "source": "physics-reviewer",
+            "file": str(report),
+            "kind": verdict or "must-fix-this-iter",
+            "reason": "; ".join(reason_parts),
+        })
+    return blockers
+
+
+def _first_matching_line(text: str, needle: str) -> str:
+    needle_upper = needle.upper()
+    for line in text.splitlines():
+        if needle_upper in line.upper():
+            return line.strip()
+    return ""
+
+
+def _load_physics_session_review_blockers(
+    state_dir: Path,
+    iter_num: int,
+) -> list[dict[str, str]]:
+    """Load blocker verdicts written by the main review agent this iter."""
+    sessions = [
+        state_dir / "proof-journal" / "sessions" / f"session_{iter_num}",
+        state_dir / "proof-journal" / "sessions" / f"session_{iter_num:03d}",
+    ]
+    blockers: list[dict[str, str]] = []
+    seen: set[Path] = set()
+    for session_dir in sessions:
+        for name in ("summary.md", "recommendations.md"):
+            path = session_dir / name
+            if path in seen:
+                continue
+            seen.add(path)
+            try:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            verdict = _find_blocking_verdict(text)
+            if not verdict:
+                continue
+            reason = _first_matching_line(text, verdict) or f"overall verdict: {verdict}"
+            blockers.append({
+                "source": "review-agent",
+                "file": str(path),
+                "kind": verdict,
+                "reason": reason,
+            })
+    return blockers
+
+
+def _physics_blocker_label(source: str) -> str:
+    if source in PHYSICS_DOCTOR_BLOCKER_KEYS:
+        return "physics-doctor"
+    return source or "physics-review-gate"
+
+
+def _append_physics_review_auto_note(
     notes_file: Path,
     blockers: list[dict[str, str]],
 ) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    sources = sorted({
+        _physics_blocker_label(item.get("source") or "")
+        for item in blockers
+    })
+    if len(sources) == 1:
+        label = sources[0]
+    else:
+        label = "physics-review-gate"
     lines = [
-        f"\n- [{ts}] archon[physics-doctor]: current review found "
-        f"{len(blockers)} physics doctor blocker(s), so the project must not "
-        f"mark COMPLETE until these are repaired. The review gate reset the "
-        f"stage to `prover`:",
+        f"\n- [{ts}] archon[{label}]: current review found "
+        f"{len(blockers)} physics blocker(s), so the project must not "
+        f"mark COMPLETE until these are repaired. The review gate reset "
+        f"the stage to `autoformalize` for statement redraft:",
     ]
     for item in blockers[:8]:
+        source = _physics_blocker_label(item.get("source") or "")
         file_part = item.get("file") or "(unknown file)"
         kind = item.get("kind") or "(unknown kind)"
         reason = item.get("reason") or "(no reason)"
-        lines.append(f"  - {file_part} — {kind}: {reason}")
+        lines.append(f"  - {source}: {file_part} — {kind}: {reason}")
     if len(blockers) > 8:
         lines.append(f"  - ... and {len(blockers) - 8} more")
     note = "\n".join(lines) + "\n"
@@ -92,24 +255,82 @@ def _append_physics_doctor_auto_note(
     notes_file.write_text(existing + note, encoding="utf-8")
 
 
-def _enforce_physics_doctor_blocker_gate(
+def _enforce_physics_review_blocker_gate(
     state_dir: Path,
     progress_file: Path,
     iter_num: int,
 ) -> tuple[list[dict[str, str]], bool]:
-    """Prevent physics-doctor blockers from being hidden by COMPLETE."""
-    blockers = _load_physics_doctor_blockers(state_dir, iter_num)
+    """Prevent physics review blockers from being hidden by COMPLETE."""
+    blockers = (
+        _load_physics_doctor_blockers(state_dir, iter_num)
+        + _load_physics_reviewer_blockers(state_dir)
+        + _load_physics_session_review_blockers(state_dir, iter_num)
+    )
     if not blockers:
         return blockers, False
     if not is_complete(progress_file):
         return blockers, False
 
-    write_stage(progress_file, "prover")
-    _append_physics_doctor_auto_note(
+    write_stage(progress_file, "autoformalize")
+    _append_physics_review_auto_note(
         state_dir / AUTO_NOTES_FILENAME,
         blockers,
     )
     return blockers, True
+
+
+def _enforce_physics_doctor_blocker_gate(
+    state_dir: Path,
+    progress_file: Path,
+    iter_num: int,
+) -> tuple[list[dict[str, str]], bool]:
+    """Backward-compatible alias for the broader physics review gate."""
+    return _enforce_physics_review_blocker_gate(state_dir, progress_file, iter_num)
+
+
+def _maybe_compress_review_prompt(ctx, prompt: str) -> str:
+    if not ctx.options.compress_plan_review_inputs:
+        return prompt
+    result = compress_prompt(
+        prompt,
+        role="review",
+        config=PromptCompressionConfig(
+            enabled=True,
+            target_chars=ctx.options.prompt_compression_target_chars,
+            section_chars=ctx.options.prompt_compression_section_chars,
+        ),
+    )
+    report = result.report
+    if ctx.iter_dir is not None:
+        try:
+            write_prompt_compression_report(
+                ctx.iter_dir / "prompt-compression-review.json",
+                report,
+            )
+        except OSError as e:
+            log.warn(f"could not write review prompt compression report: {e}")
+    if ctx.iter_meta is not None:
+        write_meta(
+            ctx.iter_meta,
+            **{
+                "review.promptOriginalChars": report.original_chars,
+                "review.promptCompressedChars": report.compressed_chars,
+                "review.promptCompressionOmittedChars": report.omitted_chars,
+                "review.promptCompressionChanged": report.changed,
+            },
+        )
+    if report.changed:
+        log.info(
+            "Review prompt compression: "
+            f"{report.original_chars} -> {report.compressed_chars} chars "
+            f"({report.omitted_chars} omitted)"
+        )
+    else:
+        log.info(
+            f"Review prompt compression enabled; no eligible section changed "
+            f"({report.original_chars} chars)."
+        )
+    return result.prompt
 
 
 class ReviewPhase(Phase):
@@ -147,11 +368,26 @@ class ReviewPhase(Phase):
             phase="review",
             enabled=resolve_subagents_enabled(cfg),
         )
+        doctor_blocker_count = len([
+            b for b in blockers
+            if b.get("source") in PHYSICS_DOCTOR_BLOCKER_KEYS
+        ])
+        reviewer_blocker_count = len([
+            b for b in blockers
+            if b.get("source") == "physics-reviewer"
+        ])
+        review_agent_blocker_count = len([
+            b for b in blockers
+            if b.get("source") == "review-agent"
+        ])
         write_meta(ctx.iter_meta, **{
             "review.status": "done",
             "review.durationSecs": review_secs,
-            "review.physicsDoctorBlockers": len(blockers),
-            "review.physicsDoctorResetComplete": reset_complete,
+            "review.physicsBlockers": len(blockers),
+            "review.physicsDoctorBlockers": doctor_blocker_count,
+            "review.physicsReviewerBlockers": reviewer_blocker_count,
+            "review.physicsReviewAgentBlockers": review_agent_blocker_count,
+            "review.physicsGateResetComplete": reset_complete,
         })
         commit_phase(
             ctx.project_path, iter_num=ctx.iter_num, phase="review",
@@ -161,21 +397,35 @@ class ReviewPhase(Phase):
 
     def _run_physics_doctor_gate(self) -> tuple[list[dict[str, str]], bool]:
         ctx = self.ctx
-        blockers, reset_complete = _enforce_physics_doctor_blocker_gate(
+        blockers, reset_complete = _enforce_physics_review_blocker_gate(
             ctx.state_dir,
             ctx.progress_file,
             ctx.iter_num,
         )
+        doctor_blockers = [
+            b for b in blockers
+            if b.get("source") in PHYSICS_DOCTOR_BLOCKER_KEYS
+        ]
+        reviewer_blockers = [
+            b for b in blockers
+            if b.get("source") == "physics-reviewer"
+        ]
+        review_agent_blockers = [
+            b for b in blockers
+            if b.get("source") == "review-agent"
+        ]
         if blockers:
             log.warn(
-                f"physics-doctor gate: {len(blockers)} blocker(s) remain in "
-                f"iter-{ctx.iter_num:03d} blueprint-doctor.json"
+                f"physics review gate: {len(blockers)} blocker(s) remain "
+                f"(doctor={len(doctor_blockers)}, "
+                f"reviewer={len(reviewer_blockers)}, "
+                f"review-agent={len(review_agent_blockers)})"
             )
         if reset_complete:
-            ctx.current_stage = "prover"
+            ctx.current_stage = read_stage(ctx.progress_file, ctx.force_stage())
             log.warn(
-                "physics-doctor gate: PROGRESS.md was COMPLETE despite "
-                "physics blockers; reset stage to 'prover'."
+                "physics review gate: PROGRESS.md was COMPLETE despite "
+                f"physics blockers; reset stage to '{ctx.current_stage}'."
             )
         return blockers, reset_complete
 
@@ -259,13 +509,30 @@ class ReviewPhase(Phase):
         # and keep it to <=2-3 concise bullets (see review.md Step 7).
 
         cfg = load_project_config(ctx.project_path)
+        compact_input_pack = None
+        if ctx.options.compress_plan_review_inputs:
+            pack_iter_dir = ctx.iter_dir
+            if pack_iter_dir is None and ctx.dry_run:
+                pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
+                pack_iter_dir.mkdir(parents=True, exist_ok=True)
+            if pack_iter_dir is not None:
+                compact_input_pack = build_review_input_pack(
+                    project_path=ctx.project_path,
+                    state_dir=ctx.state_dir,
+                    iter_dir=pack_iter_dir,
+                    iter_num=ctx.iter_num,
+                    attempts_file=attempts_file,
+                    combined_prover_log=combined,
+                )
         prompt = build_review_prompt(
             ctx.project_name, ctx.project_path, ctx.state_dir, ctx.current_stage,
             session_num, session_dir, attempts_file, combined,
             ctx.iter_num,
             debug_feedback=ctx.options.debug_feedback,
             recent_iter_window=resolve_recent_iter_window(cfg),
+            compact_input_pack=compact_input_pack,
         )
+        prompt = _maybe_compress_review_prompt(ctx, prompt)
         review_log = ctx.iter_dir / "review"
         resume_sid = pick_resume_session(
             ctx.iter_meta, "review.sessionId",

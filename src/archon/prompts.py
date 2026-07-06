@@ -1341,6 +1341,7 @@ def build_plan_prompt(
     recent_iter_window: int = 3,
     captured_user_hints: str | None = None,
     captured_auto_notes: str | None = None,
+    compact_input_pack: Path | None = None,
 ) -> str:
     refs = _references_summary(state_dir, project_path)
     refs_block = ""
@@ -1403,13 +1404,28 @@ def build_plan_prompt(
     peers_block = _peers_block(project_path)
     memory_block = _archon_memory_block(state_dir, writable=True)
     protected_block = _protected_block(project_path)
+    if compact_input_pack is not None:
+        read_instruction = dedent(f"""\
+            COMPACT INPUT MODE is enabled for this ablation run.
+            Read `{compact_input_pack}` FIRST. It is the intended first-pass
+            substitute for broad reads of `{state_dir}/AGENTS.md`,
+            `{state_dir}/prompts/plan.md`, recent sidecars, and task_results.
+            Do NOT scan those full files unless the compact pack is missing a
+            specific rule or exact evidence you need. Still write normal Archon
+            outputs to the usual state files.
+        """)
+    else:
+        read_instruction = (
+            f"Read {state_dir}/AGENTS.md for your role, then read "
+            f"{state_dir}/prompts/plan.md and {state_dir}/PROGRESS.md."
+        )
 
     return dedent(f"""\
         You are the plan agent for project '{project_name}'. Current stage: {stage}.
         Archon iteration: {iter_num:03d}.
         Project directory: {project_path}
         Project state directory: {state_dir}
-        Read {state_dir}/AGENTS.md for your role, then read {state_dir}/prompts/plan.md and {state_dir}/PROGRESS.md.
+        {read_instruction}
         State files (PROGRESS.md, task_pending.md, task_done.md, task_results/) live in {state_dir}/.
         The .lean files are in {project_path}/.
 
@@ -1876,6 +1892,14 @@ def _physics_review_block(project_path: Path, state_dir: Path, iter_num: int) ->
           Newton/Lorentz force, Ohm/Kirchhoff, boundary conditions, or
           measurement/calibration assumptions as appropriate. Missing this
           left-hand side is a BLOCKER, not merely an unfinished proof.
+        - Run a goal-faithfulness / answer-as-assumption audit. Split each
+          target into governing laws, previous-part results, figure/data
+          readouts, and the current target conclusion. The current target
+          conclusion must not be hidden inside hypotheses, `Laws` fields,
+          `Valid...Physics` fields, `Satisfies...` predicates, `...Law`
+          premises, or local definitions that the theorem merely unfolds.
+          If this happens, report `BLOCKED ON MODELING` and route the next
+          iteration to redraft/formalize rather than continue proving.
         - For local approximations, first-order expansions, and linearization,
           reject global exact equalities unless the statement uses a real local
           calculus/asymptotics contract such as `HasDerivAt`, `HasFDerivAt`,
@@ -1949,6 +1973,7 @@ def build_review_prompt(
     combined_prover_log: Path, iter_num: int, debug_feedback: bool = False,
     *,
     recent_iter_window: int = 3,
+    compact_input_pack: Path | None = None,
 ) -> str:
     sidecar_block = _iter_sidecar_context_block(
         state_dir, iter_num,
@@ -1959,13 +1984,27 @@ def build_review_prompt(
     physics_block = _physics_review_block(project_path, state_dir, iter_num)
     sync_block = _sync_leanok_block(state_dir, iter_num)
     memory_block = _archon_memory_block(state_dir, writable=False)
+    if compact_input_pack is not None:
+        read_instruction = dedent(f"""\
+            COMPACT INPUT MODE is enabled for this ablation run.
+            Read `{compact_input_pack}` FIRST. It is the intended first-pass
+            substitute for broad reads of `{state_dir}/AGENTS.md`,
+            `{state_dir}/prompts/review.md`, `{attempts_file}`,
+            `{combined_prover_log}`, and task_results. Do NOT scan those full
+            files unless the compact pack is missing exact evidence you need.
+        """)
+    else:
+        read_instruction = (
+            f"Read {state_dir}/AGENTS.md for your role, then read "
+            f"{state_dir}/prompts/review.md."
+        )
 
     return dedent(f"""\
         You are the review agent for project '{project_name}'. Current stage: {stage}.
         Archon iteration: {iter_num:03d}.
         Project directory: {project_path}
         Project state directory: {state_dir}
-        Read {state_dir}/AGENTS.md for your role, then read {state_dir}/prompts/review.md.
+        {read_instruction}
         Session number: {session_num} (matches the iteration number — session_{session_num}/ is the review of iter-{iter_num:03d}).
         Pre-processed attempt data: {attempts_file} (READ THIS FIRST).
         Prover log: {combined_prover_log}

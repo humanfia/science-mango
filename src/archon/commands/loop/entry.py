@@ -134,6 +134,22 @@ def loop(
              "when they notice something the developer should fix. "
              "(default from config or off)",
     ),
+    compress_plan_review_inputs: Optional[bool] = typer.Option(
+        None, "--compress-plan-review-inputs/--no-compress-plan-review-inputs",
+        help="Ablation knob: compress large dynamic context sections in "
+             "plan/review prompts before sending them to the agent. Fixed "
+             "role rules are preserved. (default from config or off)",
+    ),
+    prompt_compression_target_chars: Optional[int] = typer.Option(
+        None, "--prompt-compression-target-chars",
+        help="Soft target prompt length for compressed plan/review inputs. "
+             "(default from config or 40000)",
+    ),
+    prompt_compression_section_chars: Optional[int] = typer.Option(
+        None, "--prompt-compression-section-chars",
+        help="Per-section soft cap for compressed dynamic context blocks. "
+             "(default from config or 6000)",
+    ),
     claude_backend: Optional[str] = typer.Option(
         None, "--claude-backend",
         help=(
@@ -202,6 +218,24 @@ def loop(
     debug_feedback = _resolve(
         debug_feedback, section=loop_cfg, key='debug_feedback', default=False,
     )
+    compress_plan_review_inputs = _resolve(
+        compress_plan_review_inputs,
+        section=loop_cfg,
+        key='compress_plan_review_inputs',
+        default=False,
+    )
+    prompt_compression_target_chars = _resolve(
+        prompt_compression_target_chars,
+        section=loop_cfg,
+        key='prompt_compression_target_chars',
+        default=40000,
+    )
+    prompt_compression_section_chars = _resolve(
+        prompt_compression_section_chars,
+        section=loop_cfg,
+        key='prompt_compression_section_chars',
+        default=6000,
+    )
     backend = resolve_claude_backend(
         project_config,
         cli_value=claude_backend,
@@ -256,6 +290,9 @@ def loop(
         multilane_execute=multilane_execute,
         multilane_preview=False,  # legacy; kept False so existing dispatch falls through
         multilane_cfg=multilane_cfg,
+        compress_plan_review_inputs=bool(compress_plan_review_inputs),
+        prompt_compression_target_chars=int(prompt_compression_target_chars),
+        prompt_compression_section_chars=int(prompt_compression_section_chars),
         debug_feedback=debug_feedback,
         resume=resume,
         backend=backend,

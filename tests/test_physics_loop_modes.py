@@ -21,12 +21,14 @@ from archon.commands.loop.physics_grounding import (
 from archon.commands.loop.phases.review import (
     _enforce_physics_doctor_blocker_gate,
     _load_physics_doctor_blockers,
+    _load_physics_reviewer_blockers,
+    _load_physics_session_review_blockers,
 )
 from archon.commands.loop.prover.runners import (
     ParallelProverRunner,
     select_prover_mode_for_target,
 )
-from archon.state import archive_task_results
+from archon.state import archive_task_results, is_complete, read_stage
 
 
 def _write_mode(state_dir: Path, name: str, *, default_for: str | None = None) -> None:
@@ -254,10 +256,105 @@ class PhysicsReviewDoctorGateTest(unittest.TestCase):
 
             self.assertEqual(len(blockers), 1)
             self.assertTrue(reset)
-            self.assertIn("prover", progress.read_text(encoding="utf-8"))
+            self.assertEqual(read_stage(progress), "autoformalize")
             notes = (state / "AUTO_NOTES.md").read_text(encoding="utf-8")
             self.assertIn("archon[physics-doctor]", notes)
             self.assertIn("scalar-fallback", notes)
+
+    def test_lowercase_complete_stage_counts_as_complete(self):
+        with tempfile.TemporaryDirectory() as d:
+            progress = Path(d) / "PROGRESS.md"
+            _write_progress(progress, "complete")
+
+            self.assertTrue(is_complete(progress))
+
+    def test_loads_physics_reviewer_modeling_blockers(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = Path(d) / ".archon"
+            reports = state / "task_results"
+            reports.mkdir(parents=True)
+            (reports / "physics-reviewer-Phys.md").write_text(
+                "\n".join([
+                    "# Physics Review Report",
+                    "",
+                    "## Slug",
+                    "Phys",
+                    "",
+                    "## Must-fix-this-iter",
+                    "- PhysicsProblems/Phys.lean:ring_axis_field_linearization — current target is smuggled into `Satisfies...`. Why must-fix: answer-as-assumption.",
+                    "",
+                    "## Overall verdict",
+                    "BLOCKED ON MODELING — target formula appears as a hypothesis.",
+                ]),
+                encoding="utf-8",
+            )
+
+            blockers = _load_physics_reviewer_blockers(state)
+
+            self.assertEqual(len(blockers), 1)
+            self.assertEqual(blockers[0]["source"], "physics-reviewer")
+            self.assertEqual(blockers[0]["kind"], "BLOCKED ON MODELING")
+            self.assertIn("answer-as-assumption", blockers[0]["reason"])
+
+    def test_gate_resets_complete_for_physics_reviewer_blocker(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            state = root / ".archon"
+            reports = state / "task_results"
+            reports.mkdir(parents=True)
+            (reports / "physics-reviewer-Phys.md").write_text(
+                "\n".join([
+                    "# Physics Review Report",
+                    "",
+                    "## Must-fix-this-iter",
+                    "- PhysicsProblems/Phys.lean:main — theorem assumes the current target conclusion. Why must-fix: goal weakening.",
+                    "",
+                    "## Overall verdict",
+                    "BLOCKED ON MODELING",
+                ]),
+                encoding="utf-8",
+            )
+            progress = state / "PROGRESS.md"
+            _write_progress(progress, "COMPLETE")
+
+            blockers, reset = _enforce_physics_doctor_blocker_gate(
+                state, progress, 4,
+            )
+
+            self.assertEqual(len(blockers), 1)
+            self.assertTrue(reset)
+            self.assertEqual(read_stage(progress), "autoformalize")
+            notes = (state / "AUTO_NOTES.md").read_text(encoding="utf-8")
+            self.assertIn("archon[physics-reviewer]", notes)
+            self.assertIn("goal weakening", notes)
+
+    def test_gate_resets_complete_for_main_review_blocker(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            state = root / ".archon"
+            session = state / "proof-journal" / "sessions" / "session_004"
+            session.mkdir(parents=True)
+            (session / "summary.md").write_text(
+                "Overall verdict: BLOCKED ON MODELING — current theorem "
+                "assumes the answer-as-assumption target.\n",
+                encoding="utf-8",
+            )
+            progress = state / "PROGRESS.md"
+            _write_progress(progress, "COMPLETE")
+
+            session_blockers = _load_physics_session_review_blockers(state, 4)
+            blockers, reset = _enforce_physics_doctor_blocker_gate(
+                state, progress, 4,
+            )
+
+            self.assertEqual(len(session_blockers), 1)
+            self.assertEqual(session_blockers[0]["source"], "review-agent")
+            self.assertEqual(len(blockers), 1)
+            self.assertTrue(reset)
+            self.assertEqual(read_stage(progress), "autoformalize")
+            notes = (state / "AUTO_NOTES.md").read_text(encoding="utf-8")
+            self.assertIn("archon[review-agent]", notes)
+            self.assertIn("answer-as-assumption", notes)
             self.assertIn("must not mark COMPLETE", notes)
 
 
@@ -512,7 +609,7 @@ class ParallelProverDryRunTest(unittest.TestCase):
             )
             _write_mode(state, "formalize", default_for="autoformalize")
             _write_mode(state, "physics-formalize")
-            (project / "P.lean").write_text("theorem placeholder : True := by sorry\n")
+            (project / "P.lean").write_text("theorem placeholder : True := trivial\n")
             chapter = project / "blueprint" / "src" / "chapters" / "P.tex"
             chapter.parent.mkdir(parents=True)
             chapter.write_text("% archon:physics\n", encoding="utf-8")

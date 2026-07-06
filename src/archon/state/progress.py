@@ -141,7 +141,7 @@ def read_stage(progress_file: Path, force_stage: str | None = None) -> str:
 
 def is_complete(progress_file: Path, force_stage: str | None = None) -> bool:
     try:
-        return "COMPLETE" in read_stage(progress_file, force_stage)
+        return "complete" in read_stage(progress_file, force_stage).lower()
     except (FileNotFoundError, ValueError):
         return False
 

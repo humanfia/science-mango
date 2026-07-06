@@ -356,9 +356,11 @@ class ParallelProverRunner:
         # PROGRESS.md replayed via --from prover still gets filtered.
         from ..sorry_count import filter_noop_objectives
 
-        sorry_files, noop_dropped = filter_noop_objectives(
-            sorry_files, progress_file=progress,
-        )
+        noop_dropped: list[Path] = []
+        if not self.stage.strip().lower().startswith("autoformalize"):
+            sorry_files, noop_dropped = filter_noop_objectives(
+                sorry_files, progress_file=progress,
+            )
         if noop_dropped:
             log.warn(
                 f"Dropped {len(noop_dropped)} objective(s) naming an "

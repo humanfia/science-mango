@@ -25,6 +25,12 @@ from archon.commands.tooling.project_config import (
     resolve_recent_iter_window,
     resolve_subagents_enabled,
 )
+from archon.prompt_compression import (
+    PromptCompressionConfig,
+    compress_prompt,
+    write_prompt_compression_report,
+)
+from archon.phase_input_summary import build_plan_input_pack
 from archon.prompts import build_plan_prompt
 from archon.commands.loop.sorry_count import count_sorries
 from archon.state import is_complete, read_stage, write_meta, write_stage
@@ -173,6 +179,51 @@ def _read_user_hints_template() -> str:
         return ""
 
 
+def _maybe_compress_plan_prompt(ctx, prompt: str) -> str:
+    if not ctx.options.compress_plan_review_inputs:
+        return prompt
+    result = compress_prompt(
+        prompt,
+        role="plan",
+        config=PromptCompressionConfig(
+            enabled=True,
+            target_chars=ctx.options.prompt_compression_target_chars,
+            section_chars=ctx.options.prompt_compression_section_chars,
+        ),
+    )
+    report = result.report
+    if ctx.iter_dir is not None:
+        try:
+            write_prompt_compression_report(
+                ctx.iter_dir / "prompt-compression-plan.json",
+                report,
+            )
+        except OSError as e:
+            log.warn(f"could not write plan prompt compression report: {e}")
+    if ctx.iter_meta is not None:
+        write_meta(
+            ctx.iter_meta,
+            **{
+                "plan.promptOriginalChars": report.original_chars,
+                "plan.promptCompressedChars": report.compressed_chars,
+                "plan.promptCompressionOmittedChars": report.omitted_chars,
+                "plan.promptCompressionChanged": report.changed,
+            },
+        )
+    if report.changed:
+        log.info(
+            "Plan prompt compression: "
+            f"{report.original_chars} -> {report.compressed_chars} chars "
+            f"({report.omitted_chars} omitted)"
+        )
+    else:
+        log.info(
+            f"Plan prompt compression enabled; no eligible section changed "
+            f"({report.original_chars} chars)."
+        )
+    return result.prompt
+
+
 class PlanPhase(Phase):
     name = "Plan agent"
     number = 1
@@ -190,6 +241,20 @@ class PlanPhase(Phase):
         cfg = load_project_config(ctx.project_path)
         captured_hints = _capture_user_hints(ctx.state_dir)
         captured_auto_notes = _capture_auto_notes(ctx.state_dir)
+        compact_input_pack = None
+        if ctx.options.compress_plan_review_inputs:
+            pack_iter_dir = ctx.iter_dir
+            if pack_iter_dir is None and ctx.dry_run:
+                pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
+                pack_iter_dir.mkdir(parents=True, exist_ok=True)
+            if pack_iter_dir is not None:
+                pack_iter_num = ctx.iter_num
+                compact_input_pack = build_plan_input_pack(
+                    project_path=ctx.project_path,
+                    state_dir=ctx.state_dir,
+                    iter_dir=pack_iter_dir,
+                    iter_num=pack_iter_num,
+                )
         plan_prompt = build_plan_prompt(
             ctx.project_name, ctx.project_path, ctx.state_dir, ctx.current_stage,
             ctx.iter_num,
@@ -200,7 +265,9 @@ class PlanPhase(Phase):
             recent_iter_window=resolve_recent_iter_window(cfg),
             captured_user_hints=captured_hints,
             captured_auto_notes=captured_auto_notes,
+            compact_input_pack=compact_input_pack,
         )
+        plan_prompt = _maybe_compress_plan_prompt(ctx, plan_prompt)
 
         if ctx.dry_run:
             log.step("[dry-run] Plan prompt:")

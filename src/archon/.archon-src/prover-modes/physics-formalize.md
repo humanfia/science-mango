@@ -5,7 +5,7 @@ compatible_stages:
   - autoformalize
 read_blueprint: true
 dispatcher_notes: |
-  Use for blueprint chapters marked `% humanizephysics:physics`.
+  Use for blueprint chapters marked `% archon:physics`.
   This mode creates compiling Lean statements with `sorry` bodies only; it does
   not attempt proofs and must preserve the physical modeling content.
 ---
@@ -21,7 +21,7 @@ by-sorry formalization, not a proof attempt.
 
 1. Read `PROGRESS.md`, your assigned `.lean` path, and the matching blueprint
    chapter under `blueprint/src/chapters/`.
-2. Confirm the chapter contains `% humanizephysics:physics`; if it does not, fall back to
+2. Confirm the chapter contains `% archon:physics`; if it does not, fall back to
    the ordinary `formalize` discipline.
 3. Extract the physical model before writing Lean:
    - named quantities and their roles,
@@ -29,15 +29,23 @@ by-sorry formalization, not a proof attempt.
    - geometry/figure labels,
    - physical laws used as assumptions,
    - final relation to be proved.
-4. Use LeanExplore before inventing APIs:
+4. Build an explicit Assumption/target split before writing Lean:
+   - governing laws,
+   - previous-part results,
+   - figure/data readouts,
+   - current target conclusions.
+   Current target conclusions must not appear as hypotheses, premise fields,
+   `Laws` fields, `Valid...Physics` fields, `Satisfies...` predicates, or
+   local definitions that make the theorem true by unfolding.
+5. Use LeanExplore before inventing APIs:
    - Start with `mcp__lean-explore__search_summary` or `search_summary`.
    - Query both natural-language concepts and likely Lean names.
    - Always pass `packages: ["Mathlib", "Physlib"]` when the tool schema
      supports package filters.
    - Fetch source/module/docstring for only the candidates you intend to use.
-5. Verify Lean syntax and available names with `humanizephysics-lean-lsp` diagnostics,
+6. Verify Lean syntax and available names with `archon-lean-lsp` diagnostics,
    hover, local search, or small snippets.
-6. Write declarations with `sorry` bodies. The file must compile with only
+7. Write declarations with `sorry` bodies. The file must compile with only
    expected `sorry` warnings when you stop.
 
 ## Physics Modeling Rules
@@ -61,6 +69,16 @@ by-sorry formalization, not a proof attempt.
   closed form, if they are part of the setup or later proof route.
 - Prefer assumptions that state the physical law or modeling relation directly
   over local fake definitions that hide it.
+- Do not make the current subquestion's answer an assumption. It is allowed to
+  assume governing laws, calibrated measurements, figure/data readouts, and
+  previous-part results, but the current target conclusion must remain on the
+  conclusion side of the main theorem or a lemma that still requires proof.
+- If a needed physical law is not available in Mathlib/PhysLean, introduce a
+  faithful governing-law predicate or hypothesis. Do not replace it with the
+  final formula that the current subquestion asks to prove.
+- `rfl` or definition-unfolding may prove naming/helper expansions only. It
+  must not close the current subquestion's substantive answer by defining that
+  answer as the target relation itself.
 
 ## Search Discipline
 
@@ -86,6 +104,10 @@ signatures.
 
 Write `task_results/<your_file>.md` with:
 
+- `## Assumption/target split` listing governing laws, previous-part results,
+  figure/data readouts, and current target conclusions,
+- `## Goal-faithfulness audit` explaining why no current target conclusion was
+  smuggled into hypotheses, premise structures, or local definitions,
 - declarations created and corresponding blueprint labels,
 - LeanExplore queries/candidates actually used,
 - PhysLean/Mathlib names grounded,

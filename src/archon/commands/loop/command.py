@@ -230,6 +230,11 @@ class LoopCommand:
             "Logs": str(ctx.log_dir),
             "User hints": str(ctx.state_dir / "USER_HINTS.md"),
             "Debug feedback": "enabled" if opts.debug_feedback else "disabled",
+            "Plan/review compression": (
+                f"enabled (target {opts.prompt_compression_target_chars} chars, "
+                f"section {opts.prompt_compression_section_chars})"
+                if opts.compress_plan_review_inputs else "disabled"
+            ),
             "Subagents": subagent_status,
             "Multi-lane": (
                 f"enabled ({len(multilane_lanes)} lane{'s' if len(multilane_lanes) != 1 else ''}: "
