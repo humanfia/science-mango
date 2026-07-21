@@ -1,0 +1,32 @@
+[project]
+name = "qcode-discovery"
+version = "0.1.0"
+description = "Discovering quantum LDPC codes via LLM-guided evolutionary search"
+requires-python = ">=3.10"
+dependencies = [
+    "qldpc",
+    "ldpc",
+    "numpy",
+    "scipy",
+    "galois",
+    "sympy",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "python-igraph>=1.0.0",
+]
+evolve = [
+    "openevolve",
+    "litellm[proxy]",
+]
+tracking = [
+    "wandb",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (distance estimation, full evaluation)",
+]

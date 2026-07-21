@@ -1,0 +1,132 @@
+# OpenEvolve configuration for new-ansatz discovery — 64-core server
+#
+# Tuned for a server with 64+ CPU cores.  Key differences from config_ansatz.yaml:
+#   - parallel_evaluations: 24 (vs 6 for 14-core laptop)
+#   - evaluator timeout: 900s (vs 1200s)
+#   - population_size: 750 (more diversity with faster iterations)
+#
+# IMPORTANT: Set environment before running:
+#   export OMP_NUM_THREADS=1    # prevent BLAS over-subscription
+#   export OPENBLAS_NUM_THREADS=1
+#   export MKL_NUM_THREADS=1
+#
+# Usage:
+#   OMP_NUM_THREADS=1 uv run python evolve/run_evolution.py \
+#     --config evolve/config_ansatz_server.yaml \
+#     --seed evolve/seed_solution_ansatz.py \
+#     --iterations 300 \
+#     --run-name ansatz_campaign4
+
+max_iterations: 300
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 25
+
+llm:
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.33
+      temperature: 1.0
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 1.0
+  temperature: 1.0
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are an expert in quantum error-correcting codes. You are improving a Python
+    function `generate_candidates(ell, m)` that returns candidate bivariate bicycle
+    (BB) code polynomial pairs for evaluation.
+
+    ## Mathematical Background
+
+    A BB code is defined over F_2[x,y]/(x^ell - 1, y^m - 1) by two polynomials
+    A(x,y) and B(x,y). Each monomial x^a * y^b maps to the shift operator
+    P_m^b (tensor) P_ell^a on the ell x m torus. Code parameters: [[n, k, d]]
+    where n = 2*ell*m. Figure of merit: FOM = k * d^2 / n. Target: FOM > 12.0.
+
+    ## The Scientific Question
+
+    All known good BB codes fall into exactly 3 structural families:
+    1. **x/y-swap trinomials**: A = x^a + y^b + y^c, B = y^d + x^e + x^f
+    2. **Constant-monomial**: A = 1 + y^a + y^b, B = 1 + x^c + x^d
+    3. **Bravyi et al. standard**: specific trinomials from arXiv:2308.07915
+
+    Your goal is to discover NOVEL structural families — new ansatze that don't
+    reduce to the above. This is an open mathematical question.
+
+    ## Promising Directions (non-exhaustive — creativity welcome)
+
+    1. **Mixed monomials** (x^a*y^b with both a,b > 0): Create diagonal shifts
+       coupling both cyclic dimensions. Almost entirely unexplored.
+       - Complementary diagonals: A has shift (a,b), B uses (b,a) or (-b,a)
+       - Coordinate transforms: B = A(x^s, y^t) for coprime s,t
+       - Hybrid: axis-aligned anchor + diagonal terms (4-5 terms)
+
+    2. **Multi-term polynomials** (4-6 terms): All known good codes use exactly
+       3 terms. What happens with 4, 5, or 6 terms? More terms = richer Tanner
+       graph connectivity. Try 4-term extensions of known good trinomials.
+
+    3. **Non-standard pure-term patterns**: Pure-x and pure-y terms but NOT
+       matching x/y-swap or constant-monomial structure. E.g., A with both
+       x and y terms plus constant; B with a different asymmetric structure.
+
+    4. **Algebraic constructions**: B = x^a*y^b * A (shared ideal structure),
+       B derived from A via torus automorphism, etc.
+
+    ## Known Best Codes (the baseline to beat)
+
+    [[72,12,6]] (6,6): A=x^3+y+y^2, B=y^3+x+x^2 — FOM=6.0
+    [[144,12,12]] (12,6): same polynomials — FOM=12.0
+    [[288,12,18]] (12,12): A=x^3+y^2+y^7, B=y^3+x+x^2 — FOM=13.5
+    [[360,12,<=24]] (30,6): A=x^9+y+y^2, B=y^3+x^25+x^26 — FOM=19.2
+    [[360,40,<=20]] (15,12): A=1+y+y^2, B=1+x^5+x^10 — FOM=44.4
+
+    ## AVOID (already well-explored or proven dead)
+
+    - Self-dual codes (A=B): always d=2 exactly (proven, auto-blocked)
+    - Regenerating exact known codes: they're already in the safety net
+    - Minor perturbations of known families: small exponent shifts yield
+      diminishing returns. Focus on structurally different constructions.
+
+    ## Your Task
+
+    Improve generate_candidates to discover NEW structural families of BB codes.
+    Prioritize novelty over incremental improvement of known families.
+    When feedback reports d >= 4, study the A-B structural relationship in
+    the artifacts and encode it as a generation strategy.
+
+    Tips:
+    - If most candidates have k=0, add constant term (0,0) as identity anchor.
+    - If k>0 but d<=2, try larger/coprime shift vectors.
+    - Think in TEMPLATES: a relationship at 3+ lattice sizes is an ansatz.
+    - Each polynomial can have 2-6 terms. Keep candidates to 100-2000 per lattice.
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  # 64-core server: 24 parallel evaluations with OMP_NUM_THREADS=1.
+  # Budget per evaluation: ~150s k-screening (1500 cands × 8 lattices × 10ms)
+  # + ~400s distance (80 codes × 5s) + ~100s refine headroom = ~650s.
+  # Timeout 900s gives 40% margin.  24 parallel evals uses ~37% of 64 cores
+  # (each eval is single-threaded); matches LLM generation rate of ~1 mutation
+  # per 30s → 30 mutations during a 900s eval window.
+  timeout: 900
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  parallel_evaluations: 24
+
+database:
+  population_size: 750
+  num_islands: 6
+  migration_interval: 12
+  feature_dimensions: ["term_count", "pattern_type"]

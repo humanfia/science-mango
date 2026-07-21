@@ -1,0 +1,115 @@
+# OpenEvolve configuration for non-CSS PBB code evolution campaign (7g)
+#
+# Key features:
+#   - Adaptive hash-based exact check: d≤6 at n≤216, d≤4 at n>216
+#   - MILP symplectic with adaptive timeouts (15-60s/logical)
+#   - BP-OSD fallback only when MILP yields nothing
+#   - Evaluation timeout: 1500s (25 min) — MILP at n=360 needs headroom
+#   - parallel_evaluations: 4 — larger codes need more resource per worker
+#   - Lattices: (6,6) to (30,6) — n=72 to n=360
+#   - Candidates are 4-tuples (A, B, C, D)
+#
+# Usage:
+#   uv run python evolve/run_evolution.py \
+#     --config evolve/config_noncss.yaml \
+#     --seed evolve/seed_solution_noncss.py \
+#     --noncss --iterations 200
+
+max_iterations: 500
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 20
+
+llm:
+  # Overridden at runtime by --model and --api-base
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.33
+      temperature: 0.8
+    - name: "azure/gpt-5.3-codex"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3.1-pro-preview"
+      weight: 0.33
+      temperature: 0.8
+  temperature: 0.8
+  max_tokens: 16384
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are an expert in quantum error-correcting codes, specifically non-CSS
+    perturbed bivariate bicycle (PBB) codes — an extension of bivariate bicycle codes.
+
+    You are improving a Python function `generate_candidates(ell, m)` that returns
+    candidate PBB code 4-tuples (A, B, C, D) for evaluation.
+
+    Your goal: maximize FOM = k*d^2/n, where:
+    - k = logical qubits, d = code distance, n = 2*ell*m
+
+    DISTANCE PIPELINE (adaptive by code size):
+    - n≤216: hash-based exact d≤6 check (full symplectic weight), MILP for d≥7
+    - n>216 (e.g. n=360): hash-based exact d≤4 only, MILP+BPOSD for d≥5
+    At (6,6) n=72: d≤6 is exact. Any FOM > 6.0 at (6,6) is verified.
+    At larger n: MILP gives partial results (valid upper bounds) for d≥5.
+
+    SCORING: Codes with d <= 4 get score=0 (rejected).
+
+    PBB CONSTRUCTION (corrected):
+    - Block 1: x-part = [A | B], z-part = [D | C]   ← D first, C second!
+    - Block 2: x-part = [0 | 0], z-part = [B^T | A^T]
+    - Commutativity: (A @ D^T + B @ C^T) % 2 must be symmetric
+    - C = D = 0 gives CSS; non-zero C,D gives genuinely non-CSS codes
+
+    BEST KNOWN (MILP-verified):
+    - [[72,12,6]] FOM=6.0 — Base2 variants + Base7e (2-3 term C, 2-3 term D)
+    Target: beat FOM=6.0. Finding higher FOM at ANY lattice is a breakthrough.
+
+    TWO KNOWN GOOD (6,6) BASES:
+    - Base 2: A=[(1,2),(4,3),(4,4)], B=[(0,0),(1,5),(5,4)] — k=10-12, d=6
+    - Base 7e: A=[(2,1),(3,1),(4,4)], B=[(0,0),(5,1),(4,5)] — k=12, d=6
+    These bases are valid at larger ℓ too — shift/scale x-exponents to explore.
+
+    SCORED LATTICES (7 total):
+    (6,6) n=72, (9,6) n=108, (12,6) n=144, (15,6) n=180, (30,6) n=360,
+    (6,3) n=36, (3,6) n=36.
+
+    FOM TARGETS at larger n:
+    - d=8 at n=144 with k=12 → FOM=5.3
+    - d=10 at n=180 with k=12 → FOM=6.7 (beats current best!)
+    - d=14 at n=360 with k=20 → FOM=10.9
+
+    KEY STRATEGIES:
+    1. Optimize C,D for Base2/Base7e at (6,6) (incremental)
+    2. Discover new A,B bases with d>=5 (high risk, high reward)
+    3. Explore larger lattices (12,6)/(15,6)/(30,6) — more room for high d
+    4. Scale known bases to larger ℓ: shift x-exponents, use wider range
+
+    WHAT DOES NOT WORK:
+    - Empty C or D (that's CSS, not non-CSS)
+    - C = D (self-dual perturbation): ALWAYS d=2
+    - Base1 A=[(0,3),(0,4),(3,2)], B=[(0,2),(2,2),(4,2)]: ALWAYS d=2
+    - Most random A,B bases: d<=4 structurally
+    - Candidates that fail commutativity (silently dropped, wastes budget)
+  include_artifacts: true
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  # 25 minutes — MILP at n=360 can take 360s/code, plus hash at n≤216
+  timeout: 1500
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.3]
+  # Distance estimation runs in parallel within each evaluation using
+  # ProcessPoolExecutor. With larger lattices (up to n=360) and MILP,
+  # each worker can take 360s+ and use significant memory.
+  parallel_evaluations: 4
+
+database:
+  population_size: 200
+  num_islands: 4
+  migration_interval: 15
+  feature_dimensions: ["lattices_with_high_k", "num_high_k"]
