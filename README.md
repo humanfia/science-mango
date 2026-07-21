@@ -135,6 +135,7 @@ humanizephysics --help             # 查看所有命令
 - [MULTILANE.md](docs/MULTILANE.md) — 多通道并行证明
 - [MIGRATION.md](docs/MIGRATION.md) — 版本迁移指南
 - [CHANGELOG.md](docs/CHANGELOG.md) — 变更日志
+- [QCODE_PIPELINE.md](docs/QCODE_PIPELINE.md) — 量子码快筛、BP-OSD、top-N MILP 与 Lean 验证闭环
 
 ---
 
