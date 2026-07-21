@@ -166,7 +166,11 @@ set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem distance_lower : HasDistanceAtLeast code {d} := by
   intro x
-  simp (config := {{ maxSteps := 1000000 }}) [code, IsXLogical, IsZLogical, orthogonal, pairsAny, parityAt, weightBV, weightBVAux]
+  -- A broad `simp` spends minutes searching the full Mathlib simp set while
+  -- expanding these concrete matrices. This closed list performs exactly the
+  -- reductions needed by the bit-blaster and produces the same proposition.
+  simp only [code, IsXLogical, IsZLogical, orthogonal, pairsAny, parityAt,
+    weightBV, weightBVAux, List.all, List.any, List.foldl]
   bv_decide (config := {{ timeout := {timeout} }})
 
 theorem exact_parameters : VerifiedParameters code {k} {d} := by
