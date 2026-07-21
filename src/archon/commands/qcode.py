@@ -33,7 +33,11 @@ def _capture(cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None
 
 
 def _default_repo_dir(project_path: Path) -> Path:
-    return project_path.resolve().parent / "qcode-discovery"
+    project = project_path.resolve()
+    vendored = project / "qcode-discovery"
+    if (vendored / "main.py").is_file() and (vendored / "pyproject.toml").is_file():
+        return vendored
+    return project.parent / "qcode-discovery"
 
 
 def _default_lean_project(project: Path) -> Path:
@@ -57,9 +61,14 @@ def _new_run_id() -> str:
 
 
 def _ensure_repo(repo_dir: Path, repo_url: str) -> None:
-    if (repo_dir / ".git").is_dir():
-        log.success(f"qcode-discovery repo found: {repo_dir}")
+    standalone = (repo_dir / ".git").is_dir()
+    vendored = (repo_dir / "main.py").is_file() and (repo_dir / "pyproject.toml").is_file()
+    if standalone or vendored:
+        kind = "standalone" if standalone else "vendored"
+        log.success(f"qcode-discovery {kind} tree found: {repo_dir}")
         return
+    if repo_dir.exists() and any(repo_dir.iterdir()):
+        raise typer.BadParameter(f"Non-empty path is not qcode-discovery: {repo_dir}")
     repo_dir.parent.mkdir(parents=True, exist_ok=True)
     _run(["git", "clone", repo_url, str(repo_dir)])
 
@@ -212,11 +221,14 @@ def qcode_discovery(
 
     log.header("archon qcode")
     _ensure_repo(repo, repo_url)
-    active_branch = (
-        _checkout_branch(repo, branch, fallback_default)
-        if update_repo
-        else _capture(["git", "branch", "--show-current"], cwd=repo).strip() or "detached"
-    )
+    if (repo / ".git").is_dir():
+        active_branch = (
+            _checkout_branch(repo, branch, fallback_default)
+            if update_repo
+            else _capture(["git", "branch", "--show-current"], cwd=repo).strip() or "detached"
+        )
+    else:
+        active_branch = "vendored"
     log.success(f"Using qcode-discovery branch: {active_branch}")
 
     env = (

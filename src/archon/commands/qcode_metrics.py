@@ -126,6 +126,10 @@ def compute_metrics(*, repo_dir: Path, run_id: str,
     rows = _read_jsonl(run_dir / "evaluations.jsonl")
     generations = _read_jsonl(run_dir / "generations.jsonl")
     run_meta = _read_json(run_dir / "run_meta.json")
+    humanize_enabled = bool(run_meta.get("humanize"))
+    humanize_state = _read_json(Path(run_meta.get("state_path", ""))) if humanize_enabled else {}
+    archive_path = Path(run_meta.get("state_path", "")).parent / "elite-archive.json" if humanize_enabled else Path()
+    humanize_archive = _read_json(archive_path) if humanize_enabled else {}
     valid = [row for row in rows if int(row.get("k", 0) or 0) > 0]
     distance_rows = [row for row in valid if int(row.get("d", 0) or 0) > 0]
     attempted = [
@@ -180,8 +184,14 @@ def compute_metrics(*, repo_dir: Path, run_id: str,
         if bp_d > 0 and ref_d > 0:
             ref_factors.append(bp_d / ref_d)
 
-    expected_lattices = len(run_meta.get("config", {}).get("lattices", [])) or 18
-    completed_lattices = len(generations)
+    if humanize_enabled:
+        expected_lattices = int(run_meta.get("config", {}).get("max_rounds", 0) or 0)
+        completed_lattices = int(run_meta.get("rounds_completed", 0) or 0)
+        coverage_unit = "rlcr_rounds"
+    else:
+        expected_lattices = len(run_meta.get("config", {}).get("lattices", [])) or 18
+        completed_lattices = len(generations)
+        coverage_unit = "lattices"
     metrics = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -194,12 +204,23 @@ def compute_metrics(*, repo_dir: Path, run_id: str,
             "citation": "arxiv:2606.02418, Sections V-A/V-B and PBB deep-MILP audit",
         },
         "coverage": {
+            "unit": coverage_unit,
             "expected_lattices": expected_lattices,
             "completed_lattices": completed_lattices,
             "lattice_completion_rate": _ratio(completed_lattices, expected_lattices),
             "evaluations_logged": len(rows),
             "valid_k_positive": len(valid),
             "distance_evaluated": len(distance_rows),
+        },
+        "humanize": {
+            "enabled": humanize_enabled,
+            "rounds_completed": int(run_meta.get("rounds_completed", 0) or 0),
+            "unique_elite_cells": len(humanize_archive.get("cells", {})),
+            "no_improvement_rounds": int(humanize_state.get("no_improvement_rounds", 0) or 0),
+            "search_model": run_meta.get("config", {}).get("model"),
+            "review_model": run_meta.get("config", {}).get("review_model"),
+            "reasoning_effort": run_meta.get("config", {}).get("reasoning_effort"),
+            "review_effort": run_meta.get("config", {}).get("review_effort"),
         },
         "search": {
             "valid_candidate_rate": _ratio(len(valid), len(rows)),
@@ -249,7 +270,7 @@ def _markdown(metrics: dict[str, Any]) -> str:
     return "\n".join([
         f"# QCode metrics: {metrics['run_id']}", "",
         f"- Run status: `{metrics['run_status']}`",
-        f"- Dataset progress: {c['completed_lattices']}/{c['expected_lattices']} lattices ({pct(c['lattice_completion_rate'])}), {c['evaluations_logged']} evaluations",
+        f"- Coverage ({c.get('unit', 'lattices')}): {c['completed_lattices']}/{c['expected_lattices']} ({pct(c['lattice_completion_rate'])}), {c['evaluations_logged']} evaluations",
         f"- MILP audited: {m['attempted']}; fully exact: {m['fully_certified_exact']} ({pct(m['exact_certification_rate'])})",
         f"- BP-OSD tightened by MILP: {m['bp_osd_tightened']} ({pct(m['tightening_rate'])}); paper baseline: 33/149 (22.15%)",
         f"- BP-OSD accuracy on exact MILP ground truth: {a['exact_matches']}/{a['ground_truth_codes']} ({pct(a['accuracy'])})",

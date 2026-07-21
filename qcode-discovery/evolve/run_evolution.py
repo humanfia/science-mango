@@ -108,6 +108,28 @@ def _resolve_output_dir(args) -> str:
     return str(Path(EVOLUTION_BASE) / run_name)
 
 
+def _set_reasoning_effort(config, effort: str | None) -> None:
+    """Forward reasoning effort, refusing a silent downgrade."""
+    if not effort:
+        return
+    configured = 0
+    for model in [*config.llm.models, *config.llm.evaluator_models]:
+        if hasattr(model, "reasoning_effort"):
+            setattr(model, "reasoning_effort", effort)
+            configured += 1
+            continue
+        for attribute in ("extra_params", "model_kwargs", "extra_body"):
+            extra = getattr(model, attribute, None)
+            if isinstance(extra, dict):
+                extra["reasoning_effort"] = effort
+                configured += 1
+                break
+    if configured == 0:
+        raise RuntimeError(
+            "This OpenEvolve version cannot forward reasoning_effort; upgrade it."
+        )
+
+
 def _build_config(args, api_base: str, model_names: list[str] | None):
     """Load config YAML and apply CLI overrides for models, temperature, etc."""
     import yaml
@@ -172,6 +194,13 @@ def _build_config(args, api_base: str, model_names: list[str] | None):
             {"temperature": args.temperature}, overwrite=True
         )
 
+    _set_reasoning_effort(config, args.reasoning_effort)
+    if args.humanize_context:
+        context = Path(args.humanize_context).read_text().strip()
+        if context:
+            config.prompt.system_message += (
+                "\n\nHumanize cross-round memory and reviewer focus:\n" + context
+            )
     return config
 
 
@@ -360,6 +389,15 @@ def main():
     parser.add_argument(
         "--no-temperature", action="store_true",
         help="Disable sending temperature parameter (for models that reject it).",
+    )
+    parser.add_argument(
+        "--reasoning-effort", type=str, default=None,
+        help="Reasoning effort forwarded to all search/evaluator models; "
+             "fails rather than silently downgrading when unsupported.",
+    )
+    parser.add_argument(
+        "--humanize-context", type=str, default=None,
+        help="Read-only BitLesson/reviewer context appended to the search prompt.",
     )
     parser.add_argument(
         "--wandb-project", type=str, default="qcode-discovery",
