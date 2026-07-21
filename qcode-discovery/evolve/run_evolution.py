@@ -400,6 +400,10 @@ def main():
         help="Read-only BitLesson/reviewer context appended to the search prompt.",
     )
     parser.add_argument(
+        "--codex-cli", action="store_true",
+        help="Use authenticated Codex CLI via OpenEvolve init_client.",
+    )
+    parser.add_argument(
         "--wandb-project", type=str, default="qcode-discovery",
         help="W&B project name.",
     )
@@ -530,6 +534,10 @@ def main():
     # Run OpenEvolve
     try:
         config = _build_config(args, api_base, model_names)
+        if args.codex_cli:
+            from evolve.codex_cli_llm import make_codex_cli_client
+            for model_config in config.llm.models + config.llm.evaluator_models:
+                model_config.init_client = make_codex_cli_client
 
         # Startup banner
         active_models = [m.name for m in config.llm.models]
@@ -541,7 +549,7 @@ def main():
             for name in active_models:
                 print(f"    - {name}")
         print(f"  Iterations: {args.iterations}")
-        print(f"  API base: {api_base}")
+        print(f"  Model backend: {'Codex CLI' if args.codex_cli else api_base}")
         print(f"  Seed: {seed_path}")
         if args.noncss:
             print(f"  Mode: Non-CSS PBB codes")

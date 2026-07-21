@@ -43,12 +43,15 @@ archon qcode-humanize /root/proposal_for_physic/science-mango \
   --rounds 5 --iterations-per-round 20 \
   --model gpt-5.5 --review-model gpt-5.5 \
   --reasoning-effort xhigh --review-effort xhigh \
+  --codex-cli \
   --milp-top 3 --milp-early-stop 0 \
   --formalize --prove --formalize-top 3 \
   --lean-project /root/proposal_for_physic/science-mango/qcode_lean_bridges/qcode_bridge \
   --bridge-dir /root/proposal_for_physic/science-mango/qcode_lean_bridges \
   --lean-jobs 1
 ```
+
+`--codex-cli` is the Archon default and uses the authenticated Codex CLI for OpenEvolve, so no OpenAI API key or LiteLLM proxy is required. Each generation is an ephemeral, read-only Codex session; OpenEvolve checkpoints and the Humanize state remain the only search memory.
 
 `--install` (the default) runs `uv sync --group dev --group evolve` in the
 vendored qcode tree. Use `--no-install` after the environment is prepared.

@@ -36,6 +36,10 @@ def qcode_humanize(
     reasoning_effort: str = typer.Option("xhigh", "--reasoning-effort"),
     review_effort: str = typer.Option("xhigh", "--review-effort"),
     api_base: Optional[str] = typer.Option(None, "--api-base"),
+    codex_cli: bool = typer.Option(
+        True, "--codex-cli/--no-codex-cli",
+        help="Use authenticated Codex CLI as the OpenEvolve model backend.",
+    ),
     milp_top: int = typer.Option(3, "--milp-top"),
     milp_timeout_per_logical: int = typer.Option(300, "--milp-timeout-per-logical"),
     milp_total_timeout: int = typer.Option(7200, "--milp-total-timeout"),
@@ -102,6 +106,8 @@ def qcode_humanize(
     ]
     if api_base:
         command.extend(["--api-base", api_base])
+    if codex_cli:
+        command.append("--codex-cli")
     _run(command, cwd=repo, env=env)
 
     state_path = repo / "results" / "humanize" / selected_run_id / "state.json"

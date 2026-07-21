@@ -24,6 +24,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--review-model", default="gpt-5.5")
     parser.add_argument("--review-effort", default="xhigh")
     parser.add_argument("--api-base")
+    parser.add_argument(
+        "--codex-cli", action="store_true",
+        help="Use authenticated Codex CLI instead of an OpenAI-compatible API.",
+    )
     parser.add_argument("--milp-top", type=int, default=3)
     parser.add_argument("--milp-timeout-per-logical", type=int, default=300)
     parser.add_argument("--milp-total-timeout", type=int, default=7200)
@@ -57,6 +61,7 @@ def main() -> None:
         patience=args.patience,
         min_improvement=args.min_improvement,
         candidate_file=args.candidate_file.resolve() if args.candidate_file else None,
+        codex_cli=args.codex_cli,
     )
     state = HumanizeFlow(config).run()
     print(json.dumps({

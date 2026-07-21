@@ -48,6 +48,7 @@ class FlowConfig:
     patience: int = 3
     min_improvement: float = 0.01
     candidate_file: Path | None = None
+    codex_cli: bool = False
 
     def serializable(self) -> dict[str, Any]:
         value = asdict(self)
@@ -113,6 +114,8 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
         command.extend(["--resume", checkpoint])
     if config.api_base:
         command.extend(["--api-base", config.api_base])
+    if config.codex_cli:
+        command.append("--codex-cli")
     log_path = round_dir / "evolution.log"
     with log_path.open("w", encoding="utf-8") as stream:
         subprocess.run(
