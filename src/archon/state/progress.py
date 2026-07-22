@@ -448,6 +448,19 @@ def _best_existing_match(project_path: Path, candidate: str) -> Path | None:
     Returns ``None`` when no file matches (the caller decides whether to
     treat the candidate as a new-file objective or to drop it).
     """
+    # Most objectives use an explicit project-relative path.  Resolve that
+    # exact path first so large batches do not recursively scan the whole
+    # worktree once per objective.  Preserve the existing protection against
+    # symlinks escaping the project root.
+    direct = project_path / candidate
+    if direct.is_file():
+        try:
+            direct.resolve().relative_to(project_path.resolve())
+        except ValueError:
+            pass
+        else:
+            return direct
+
     basename = candidate.rsplit("/", 1)[-1]
     matches: list[Path] = []
     for match in project_path.rglob(f"*{basename}"):

@@ -85,6 +85,7 @@ class PhysicsGroundingReport:
 
 
 SearchFn = Callable[[str, list[str], int], list[GroundingCandidate]]
+GROUNDING_BACKENDS = frozenset({"auto", "api", "local"})
 
 
 def physics_chapter_targets(project_path: Path) -> list[tuple[Path, Path]]:
@@ -226,6 +227,95 @@ def _api_searcher(
     return search
 
 
+class _LocalSearcher:
+    """Synchronous adapter around one reusable LeanExplore local service."""
+
+    def __init__(self) -> None:
+        from importlib.util import find_spec
+
+        missing = [
+            name
+            for name in ("torch", "sentence_transformers")
+            if find_spec(name) is None
+        ]
+        if missing:
+            joined = ", ".join(missing)
+            raise RuntimeError(
+                f"LeanExplore local runtime dependencies are missing: {joined}. "
+                "Install the `lean-explore[local]` extra."
+            )
+
+        from lean_explore.search import SearchEngine, Service
+
+        self._service = Service(engine=SearchEngine(use_local_data=False))
+        self._loop = asyncio.new_event_loop()
+
+    def __call__(
+        self,
+        query: str,
+        packages: list[str],
+        limit: int,
+    ) -> list[GroundingCandidate]:
+        response = self._loop.run_until_complete(
+            self._service.search(
+                query=query,
+                limit=limit,
+                rerank_top=0,
+                packages=packages,
+            )
+        )
+        return [_candidate_from_result(item) for item in response.results[:limit]]
+
+    def close(self) -> None:
+        try:
+            engine = self._service.engine.engine
+            self._loop.run_until_complete(engine.dispose())
+        finally:
+            self._loop.close()
+
+
+def _local_searcher() -> SearchFn:
+    """Build a local LeanExplore searcher from fetched cache data."""
+    return _LocalSearcher()
+
+
+def _resolve_searcher(
+    *,
+    backend: str,
+    api_key: str | None,
+    timeout: float,
+    searcher: SearchFn | None,
+) -> tuple[SearchFn | None, str, str | None, bool]:
+    """Resolve a grounding backend and return searcher/backend/error/ownership."""
+    normalized = backend.lower().strip()
+    if normalized not in GROUNDING_BACKENDS:
+        supported = ", ".join(sorted(GROUNDING_BACKENDS))
+        raise ValueError(f"LeanExplore grounding backend must be one of: {supported}")
+    if searcher is not None:
+        return searcher, "custom", None, False
+    if normalized == "api":
+        if not api_key:
+            return (
+                None,
+                "api",
+                "LEANEXPLORE_API_KEY is missing, so LeanExplore API search did not run.",
+                False,
+            )
+        return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
+
+    if normalized == "auto" and api_key:
+        return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
+
+    try:
+        return _local_searcher(), "local", None, True
+    except Exception as exc:
+        prefix = "LeanExplore local backend is unavailable"
+        suffix = "Run `lean-explore data fetch` to install its local index."
+        if normalized == "auto":
+            prefix += " and LEANEXPLORE_API_KEY is not set"
+        return None, "local", f"{prefix}: {exc}. {suffix}", False
+
+
 def _summarize_local_abstractions(chapter: Path) -> list[str]:
     """Extract likely local abstraction names from the blueprint's Lean refs."""
     try:
@@ -284,15 +374,16 @@ def _write_report(
     report_path: Path,
     evidence: list[QueryEvidence],
     *,
-    api_key_present: bool,
+    backend: str,
+    backend_error: str | None,
     packages: list[str],
 ) -> PhysicsGroundingReport:
     any_success = any(q.candidates for q in evidence)
     status = "complete" if any_success else "incomplete"
     local_abstractions = _summarize_local_abstractions(chapter)
     grounding_gaps: list[str] = []
-    if not api_key_present:
-        grounding_gaps.append("LEANEXPLORE_API_KEY is missing, so LeanExplore API search did not run.")
+    if backend_error:
+        grounding_gaps.append(backend_error)
     for q in evidence:
         if q.error:
             grounding_gaps.append(f"`{q.query}` search unavailable: {_safe_failure_text(q.error)}")
@@ -305,6 +396,7 @@ def _write_report(
         f"- Target Lean file: `{_rel(lean_file, project_path)}`",
         f"- Blueprint chapter: `{_rel(chapter, project_path)}`",
         f"- Grounding status: {status}",
+        f"- Search backend: {backend}",
         f"- Packages searched: {', '.join(packages)}",
         "",
         "## LeanExplore queries/candidates actually used",
@@ -406,6 +498,7 @@ def run_physics_grounding(
     limit: int = 3,
     max_queries: int = 10,
     api_key: str | None = None,
+    backend: str = "auto",
     packages: Iterable[str] = ("Mathlib", "Physlib"),
     timeout: float = 20.0,
     max_attempts: int = 3,
@@ -418,39 +511,28 @@ def run_physics_grounding(
     task_results = state_dir / "task_results"
     package_list = list(packages)
     api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
-    real_searcher = searcher
-    if real_searcher is None and api_key:
-        real_searcher = _api_searcher(api_key=api_key, timeout=timeout)
+    real_searcher, resolved_backend, backend_error, owns_searcher = _resolve_searcher(
+        backend=backend,
+        api_key=api_key,
+        timeout=timeout,
+        searcher=searcher,
+    )
 
     reports: list[PhysicsGroundingReport] = []
-    for chapter, lean_file in physics_chapter_targets(project_path):
-        queries = _blueprint_queries(chapter, max_queries=max_queries)
-        evidence: list[QueryEvidence] = []
-        searched: set[str] = set()
-        for query in queries:
-            searched.add(query.lower())
-            if real_searcher is None:
-                evidence.append(
-                    QueryEvidence(
-                        query=query,
-                        error="LEANEXPLORE_API_KEY is missing; no searcher available.",
+    try:
+        for chapter, lean_file in physics_chapter_targets(project_path):
+            queries = _blueprint_queries(chapter, max_queries=max_queries)
+            evidence: list[QueryEvidence] = []
+            searched: set[str] = set()
+            for query in queries:
+                searched.add(query.lower())
+                if real_searcher is None:
+                    evidence.append(
+                        QueryEvidence(
+                            query=query,
+                            error=backend_error or "LeanExplore searcher is unavailable.",
+                        )
                     )
-                )
-                continue
-            evidence.append(
-                _search_with_retries(
-                    real_searcher,
-                    query,
-                    package_list,
-                    limit,
-                    max_attempts=max_attempts,
-                    retry_delay=retry_delay,
-                )
-            )
-
-        if real_searcher is not None and not any(q.candidates for q in evidence):
-            for query in FALLBACK_QUERIES:
-                if query.lower() in searched:
                     continue
                 evidence.append(
                     _search_with_retries(
@@ -462,19 +544,39 @@ def run_physics_grounding(
                         retry_delay=retry_delay,
                     )
                 )
-                if evidence[-1].candidates:
-                    break
 
-        report_path = task_results / _report_name(project_path, lean_file)
-        reports.append(
-            _write_report(
-                project_path,
-                chapter,
-                lean_file,
-                report_path,
-                evidence,
-                api_key_present=bool(api_key) or searcher is not None,
-                packages=package_list,
+            if real_searcher is not None and not any(q.candidates for q in evidence):
+                for query in FALLBACK_QUERIES:
+                    if query.lower() in searched:
+                        continue
+                    evidence.append(
+                        _search_with_retries(
+                            real_searcher,
+                            query,
+                            package_list,
+                            limit,
+                            max_attempts=max_attempts,
+                            retry_delay=retry_delay,
+                        )
+                    )
+                    if evidence[-1].candidates:
+                        break
+
+            report_path = task_results / _report_name(project_path, lean_file)
+            reports.append(
+                _write_report(
+                    project_path,
+                    chapter,
+                    lean_file,
+                    report_path,
+                    evidence,
+                    backend=resolved_backend,
+                    backend_error=backend_error,
+                    packages=package_list,
+                )
             )
-        )
+    finally:
+        closer = getattr(real_searcher, "close", None)
+        if owns_searcher and callable(closer):
+            closer()
     return reports

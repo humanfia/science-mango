@@ -317,6 +317,38 @@ class McpTest(unittest.TestCase):
         ))
         self.assertNotIn("secret-leanexplore", joined)
 
+    def test_lean_explore_renders_local_backend_without_api_key(self):
+        a = _agent(
+            model="m",
+            mcp=("lean-explore",),
+            raw={"lean_explore_backend": "local"},
+        )
+        argv = a.build_argv(
+            "P",
+            env_source={"PATH": "/x/bin:/y/bin"},
+            lake_root="/proj",
+        )
+        self.assertTrue(any(
+            "lean-explore.args" in item
+            and "lean_explore_mcp_shim" in item
+            and "local" in item
+            for item in argv
+        ))
+
+    def test_lean_explore_can_use_shared_streamable_http_server(self):
+        a = _agent(
+            model="m",
+            mcp=("lean-explore",),
+            raw={"lean_explore_url": "http://127.0.0.1:8765/mcp"},
+        )
+        argv = a.build_argv("p", lake_root="/proj", env_source={"PATH": "/bin"})
+        joined = " ".join(argv)
+        self.assertIn("mcp_servers.lean-explore.url", joined)
+        self.assertIn("http://127.0.0.1:8765/mcp", joined)
+        self.assertIn("mcp_servers.lean-explore.required", joined)
+        self.assertFalse(any("lean-explore.command" in item for item in argv))
+        self.assertFalse(any("lean-explore.args" in item for item in argv))
+
     def test_lean_explore_can_use_official_cli_when_explicitly_requested(self):
         a = _agent(
             model="m",

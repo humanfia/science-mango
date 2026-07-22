@@ -58,6 +58,26 @@ def _parser() -> argparse.ArgumentParser:
         choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
         default="ERROR",
     )
+    parser.add_argument(
+        "--transport",
+        choices=("stdio", "streamable-http"),
+        default="stdio",
+        help=(
+            "MCP transport. Use streamable-http to share one local LeanExplore "
+            "model across multiple agent processes."
+        ),
+    )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Listen host for streamable-http (default: 127.0.0.1).",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Listen port for streamable-http (default: 8000).",
+    )
     return parser
 
 
@@ -142,7 +162,10 @@ def main(argv: list[str] | None = None) -> int:
 
         backend = _init_backend(args.backend, args.api_key)
         mcp_app._lean_explore_backend_service = backend
-        mcp_app.run(transport="stdio")
+        if args.transport == "streamable-http":
+            mcp_app.settings.host = args.host
+            mcp_app.settings.port = args.port
+        mcp_app.run(transport=args.transport)
     except Exception as exc:
         logging.exception("LeanExplore MCP shim failed")
         print(f"LeanExplore MCP shim failed: {exc}", file=sys.stderr)

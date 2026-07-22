@@ -29,7 +29,14 @@ class PhysicsGroundingPhase(Phase):
 
         start = time.monotonic()
         try:
-            reports = run_physics_grounding(ctx.project_path)
+            descriptor = ctx.harness_descriptor_for("prover")
+            configured_backend = descriptor.raw.get("lean_explore_backend")
+            backend = (
+                configured_backend
+                if configured_backend in {"api", "local"}
+                else "auto"
+            )
+            reports = run_physics_grounding(ctx.project_path, backend=backend)
         except Exception as exc:  # defensive: grounding must not break the loop
             log.warn(f"physics grounding crashed: {exc}")
             return PhaseResult()

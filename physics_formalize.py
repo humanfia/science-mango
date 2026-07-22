@@ -70,8 +70,8 @@ PHYSICS_PREFLIGHT_IMPORTS = [
     "import Physlib.Electromagnetism.Dynamics.Basic",
     "import Physlib.Thermodynamics.Basic",
     "import Physlib.Thermodynamics.Temperature.Basic",
-    "import Physlib.QuantumMechanics.FiniteTarget.Basic",
-    "import Physlib.QuantumMechanics.OneDimension.HarmonicOscillator.Basic",
+    "import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+    "import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Basic",
     "import Physlib.Relativity.LorentzGroup.Basic",
     "import Physlib.Relativity.Special.ProperTime",
 ]

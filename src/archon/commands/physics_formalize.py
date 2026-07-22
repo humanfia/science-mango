@@ -30,6 +30,7 @@ from archon.commands.tooling.blueprint import BlueprintChapter, BlueprintStructu
 PHYSICS_FORMALIZE_MODE = "physics-formalize"
 PHYSICS_PROVER_MODE = "physics"
 PHYSICS_REVIEWER = "physics-reviewer"
+SUPPORTED_DATASET_FORMATS = {"auto", "native", "phyx"}
 
 PHYSLEAN_GIT_URL = "https://github.com/HEPLean/PhysLean"
 PHYSLEAN_REQUIRE_LEAN = f'\nrequire PhysLean from git "{PHYSLEAN_GIT_URL}" @ "master"\n'
@@ -59,8 +60,8 @@ PHYSICS_PREFLIGHT_IMPORTS = [
     "import Physlib.Electromagnetism.Dynamics.Basic",
     "import Physlib.Thermodynamics.Basic",
     "import Physlib.Thermodynamics.Temperature.Basic",
-    "import Physlib.QuantumMechanics.FiniteTarget.Basic",
-    "import Physlib.QuantumMechanics.OneDimension.HarmonicOscillator.Basic",
+    "import Physlib.QuantumMechanics.HilbertSpaces.FiniteTarget.Basic",
+    "import Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Basic",
     "import Physlib.Relativity.LorentzGroup.Basic",
     "import Physlib.Relativity.Special.ProperTime",
 ]
@@ -89,6 +90,7 @@ class PhysicsFormalizeCommand:
         index: str = "001",
         category: str = "physics",
         limit: int = -1,
+        dataset_format: str = "auto",
         ensure_physlean: bool = False,
         build_physlean: bool = False,
         preflight: bool = False,
@@ -115,6 +117,7 @@ class PhysicsFormalizeCommand:
         self.index = index
         self.category = category
         self.limit = limit
+        self.dataset_format = dataset_format.lower().strip()
         self.ensure_physlean = ensure_physlean
         self.build_physlean = build_physlean
         self.preflight = preflight
@@ -265,6 +268,10 @@ class PhysicsFormalizeCommand:
         if self.limit == 0 or self.limit < -1:
             log.error("--limit must be -1 or a positive integer.")
             raise typer.Exit(1)
+        if self.dataset_format not in SUPPORTED_DATASET_FORMATS:
+            supported = ", ".join(sorted(SUPPORTED_DATASET_FORMATS))
+            log.error(f"--dataset-format must be one of: {supported}.")
+            raise typer.Exit(1)
 
     def _read_question(self) -> str:
         if self.question and self.question_file:
@@ -311,9 +318,9 @@ class PhysicsFormalizeCommand:
                 if not question:
                     log.error(f"JSONL line {line_no} is missing a non-empty `question`.")
                     raise typer.Exit(1)
-                normalized = dict(entry)
+                normalized = self._normalize_dataset_entry(entry, line_no=line_no)
                 normalized["index"] = str(normalized.get("index") or f"{line_no:03d}")
-                normalized["question"] = question
+                normalized["question"] = str(normalized.get("question", "")).strip()
                 normalized["answer"] = str(normalized.get("answer", ""))
                 normalized["category"] = str(normalized.get("category", self.category))
                 normalized["image"] = self._normalize_entry_image(normalized)
@@ -325,6 +332,107 @@ class PhysicsFormalizeCommand:
             log.error(f"Input JSONL contains no usable physics problems: {path}")
             raise typer.Exit(1)
         return path, entries
+
+    def _normalize_dataset_entry(self, entry: dict, *, line_no: int) -> dict:
+        dataset_format = self.dataset_format
+        if dataset_format == "auto":
+            phyx_markers = {
+                "description",
+                "question_description",
+                "question_simply",
+                "question_description_simplified",
+                "image_caption",
+                "reasoning_type",
+                "subfield",
+            }
+            dataset_format = "phyx" if phyx_markers.intersection(entry) else "native"
+        if dataset_format == "native":
+            return dict(entry)
+        return self._normalize_phyx_entry(entry, line_no=line_no)
+
+    @classmethod
+    def _normalize_phyx_entry(cls, entry: dict, *, line_no: int) -> dict:
+        """Map an official Cloudriver/PhyX row to Archon's physics contract."""
+        normalized = dict(entry)
+        source_index = str(entry.get("index") or entry.get("id") or line_no)
+        description = str(
+            entry.get("description")
+            or entry.get("question_description")
+            or entry.get("question_simply")
+            or entry.get("question_description_simplified")
+            or ""
+        ).strip()
+        question = str(entry.get("question") or "").strip()
+        caption = str(entry.get("image_caption") or "").strip()
+        options = cls._parse_phyx_options(entry.get("options"))
+        answer_label = str(entry.get("answer") or "").strip()
+        answer_text = options.get(answer_label.upper(), "")
+
+        sections: list[str] = []
+        if description and description != question:
+            sections.extend(["## Physical scenario", description])
+        sections.extend(["## Question", question])
+        if options:
+            sections.extend(
+                ["## Answer choices"]
+                + [f"- {label}: {value}" for label, value in options.items()]
+            )
+        if caption:
+            sections.extend([
+                "## Figure caption (auxiliary; use the image as primary evidence)",
+                caption,
+            ])
+        subfield = str(entry.get("subfield") or "").strip()
+        reasoning = entry.get("reasoning_type")
+        if isinstance(reasoning, list):
+            reasoning_text = ", ".join(str(item) for item in reasoning)
+        else:
+            reasoning_text = str(reasoning or "").strip()
+        metadata = [part for part in (subfield, reasoning_text) if part]
+        if metadata:
+            sections.extend(["## Dataset metadata", "; ".join(metadata)])
+
+        normalized.update(
+            {
+                "index": f"phyx_{source_index}",
+                "source_index": source_index,
+                "dataset": "Cloudriver/PhyX",
+                "dataset_format": "phyx",
+                "question": "\n\n".join(part for part in sections if part).strip(),
+                "answer": (
+                    f"{answer_label.upper()}: {answer_text}"
+                    if answer_text
+                    else answer_label
+                ),
+                "answer_label": answer_label.upper(),
+                "answer_text": answer_text,
+                "options_parsed": options,
+            }
+        )
+        return normalized
+
+    @staticmethod
+    def _parse_phyx_options(raw_options: object) -> dict[str, str]:
+        if isinstance(raw_options, (list, tuple)):
+            return {
+                chr(ord("A") + index): str(value).strip()
+                for index, value in enumerate(raw_options)
+            }
+        if isinstance(raw_options, dict):
+            return {
+                str(label).strip().upper(): str(value).strip()
+                for label, value in raw_options.items()
+            }
+        text = str(raw_options or "").strip()
+        matches = list(re.finditer(r"(?:^|,)\s*([A-Za-z])\s*:\s*", text))
+        parsed: dict[str, str] = {}
+        for index, match in enumerate(matches):
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+            value = text[match.end():end].strip().strip(",").strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in {chr(34), chr(39)}:
+                value = value[1:-1]
+            parsed[match.group(1).upper()] = value
+        return parsed
 
     @staticmethod
     def _normalize_entry_image(entry: dict) -> str | None:
@@ -469,7 +577,8 @@ class PhysicsFormalizeCommand:
             if not root.is_absolute():
                 root = input_path.parent / root
         else:
-            root = input_path.parent / "image"
+            is_phyx = any(entry.get("dataset_format") == "phyx" for entry in entries)
+            root = input_path.parent / ("test_image" if is_phyx else "image")
         root = root.resolve()
         if root.exists() and not root.is_dir():
             log.error(f"Image root is not a directory: {root}")
@@ -1326,7 +1435,7 @@ class PhysicsFormalizeCommand:
     def _metadata_physlean_build(self, build_result: dict | None) -> dict:
         if build_result:
             return build_result
-        return {"requested": self.build_physlean, "passed": None, "target": "PhysLean"}
+        return {"requested": self.build_physlean, "passed": None, "target": "Physlib"}
 
     def _metadata_preflight(self, preflight_result: dict | None) -> dict:
         if preflight_result:
@@ -1481,8 +1590,8 @@ class PhysicsFormalizeCommand:
         if not ((self.project_path / "lakefile.lean").exists() or (self.project_path / "lakefile.toml").exists()):
             log.error("PhysLean build failed: target project has no lakefile.")
             raise typer.Exit(1)
-        command = [lake, "build", "PhysLean"]
-        log.phase(0, "Build PhysLean")
+        command = [lake, "build", "Physlib"]
+        log.phase(0, "Build Physlib")
         try:
             proc = subprocess.run(
                 command,
@@ -1504,10 +1613,10 @@ class PhysicsFormalizeCommand:
             "requested": True,
             "passed": proc.returncode == 0,
             "command": " ".join(command),
-            "target": "PhysLean",
+            "target": "Physlib",
         }
         if proc.returncode == 0:
-            log.success("PhysLean build completed.")
+            log.success("Physlib build completed.")
             return result
         output = (proc.stderr or proc.stdout or "").strip()
         result["error"] = output[:4000]
@@ -1688,6 +1797,14 @@ def physics_formalize(
         "--limit",
         help="Batch/problem-set limit. Use -1 to process all selected entries.",
     ),
+    dataset_format: str = typer.Option(
+        "auto",
+        "--dataset-format",
+        help=(
+            "Input schema: auto, native, or phyx. PhyX mode combines the visual "
+            "scenario/question/options and resolves letter answers to answer text."
+        ),
+    ),
     ensure_physlean: bool = typer.Option(
         False,
         "--ensure-physlean/--no-ensure-physlean",
@@ -1696,7 +1813,7 @@ def physics_formalize(
     build_physlean: bool = typer.Option(
         False,
         "--build-physlean/--no-build-physlean",
-        help="Run `lake build PhysLean` in the target project before loop preparation.",
+        help="Run `lake build Physlib` in the target project before loop preparation.",
     ),
     preflight: bool = typer.Option(
         False,
@@ -1751,6 +1868,7 @@ def physics_formalize(
         index=index,
         category=category,
         limit=limit,
+        dataset_format=dataset_format,
         ensure_physlean=ensure_physlean,
         build_physlean=build_physlean,
         preflight=preflight,
