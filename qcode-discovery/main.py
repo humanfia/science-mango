@@ -143,6 +143,14 @@ def main():
         help="Number of top results to display.",
     )
     parser.add_argument(
+        "--structural-dedup",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Before saving top candidates, reject codes permutation-equivalent "
+             "to the known CSS literature registry using BLISS plus explicit "
+             "H_X/H_Z permutation replay (default: enabled).",
+    )
+    parser.add_argument(
         "--run-id", type=str, default=None,
         help="Run identifier for tracking. Auto-generated if not set.",
     )
@@ -212,6 +220,17 @@ def main():
                 (tuple(map(tuple, r["A_terms"])), tuple(map(tuple, r["B_terms"]))), r
             ) for r in results]
             results.sort(key=lambda r: r.get("score", float("-inf")), reverse=True)
+        if args.structural_dedup:
+            from evaluation.structural_dedup import annotate_css_result
+            ranked_for_novelty = [
+                result for result in results
+                if result.get("k", 0) > 0 and result.get("d", 0) > 0
+            ]
+            ranked_for_novelty.sort(
+                key=lambda result: result.get("score", float("-inf")), reverse=True
+            )
+            for result in ranked_for_novelty[:args.top]:
+                result.update(annotate_css_result(result))
         for r in results:
             tracker.log_evaluation(r)
         summary = tracker.end_generation(gen_idx, results)
@@ -230,6 +249,16 @@ def main():
     if args.milp_top > 0:
         top = [r for r in top if r.get("milp_attempted")]
     top.sort(key=lambda r: r["score"], reverse=True)
+    if args.structural_dedup:
+        from evaluation.structural_dedup import deduplicate_css_results
+        top, rejected = deduplicate_css_results(top)
+        for duplicate in rejected:
+            audit = duplicate["structural_novelty"]
+            logger.info(
+                "Structural duplicate rejected: [[%d,%d,%d]] matches %s",
+                duplicate["n"], duplicate["k"], duplicate["d"],
+                audit["matched_reference"],
+            )
     top = top[:args.top]
     for r in top:
         save_code(r)
