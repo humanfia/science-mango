@@ -27,6 +27,7 @@ import numpy as np
 
 from evaluation.bb_code import build_bb_code, validate_terms
 from evaluation.distance_milp import get_code_matrices
+from evaluation.registry import check_code_novelty
 from evaluation.structural_dedup import check_css_structural_novelty
 
 
@@ -252,6 +253,7 @@ def evaluate_final_gate(
 
     reported_audit = row.get("structural_novelty")
     recomputed_audit = check_css_structural_novelty(ell, m, a_terms, b_terms)
+    expanded_audit = check_code_novelty(code, code_type="css")
     checks["structural_audit_present"] = bool(
         isinstance(reported_audit, dict)
         and reported_audit.get("checked") is True
@@ -261,6 +263,11 @@ def evaluate_final_gate(
         recomputed_audit.get("novel") is True
         and isinstance(reported_audit, dict)
         and reported_audit.get("canonical_digest") == recomputed_audit.get("canonical_digest")
+    )
+    checks["expanded_registry_novel"] = bool(
+        expanded_audit.get("novel") is True
+        and isinstance(reported_audit, dict)
+        and reported_audit.get("registry_sha256") == expanded_audit.get("registry_sha256")
     )
 
     win = classify_win(n, k, d)
@@ -296,6 +303,7 @@ def evaluate_final_gate(
             },
         },
         "structural_novelty": recomputed_audit,
+        "expanded_structural_novelty": expanded_audit,
         "win": win,
     })
     return result

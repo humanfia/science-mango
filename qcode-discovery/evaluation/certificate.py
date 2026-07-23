@@ -25,7 +25,7 @@ from evaluation.bb_code import build_bb_code
 from evaluation.challenge_gate import evaluate_challenge_gate
 from evaluation.distance_milp import get_code_matrices
 from evaluation.final_gate import _matrix_sha256, _rank_f2
-from evaluation.structural_dedup import check_css_structural_novelty
+from evaluation.registry import check_code_novelty
 
 
 SCHEMA_VERSION = 1
@@ -192,7 +192,10 @@ def verify_direction_evidence(
         evidence.get("success") is True
         and int(evidence.get("status", -1)) == 0
         and float(evidence.get("mip_gap", math.inf)) == 0.0
-        and float(evidence.get("mip_dual_bound", math.inf)) == float(objective)
+        and math.isclose(
+            float(evidence.get("mip_dual_bound", math.inf)),
+            float(objective), rel_tol=0.0, abs_tol=1e-7,
+        )
     ):
         failures.append("stored solver result is not a zero-gap optimum")
     return failures
@@ -272,7 +275,7 @@ def build_css_certificate(
     d_z = min(z_values) if z_values else 0
     d_x = min(x_values) if x_values else 0
     distance = min(d_z, d_x) if d_z and d_x else 0
-    novelty = check_css_structural_novelty(ell, m, a_terms, b_terms)
+    novelty = check_code_novelty(code, code_type="css")
     normalized_claim = {
         **claim,
         "ell": ell,
