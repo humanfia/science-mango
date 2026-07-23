@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 
 from archon import log
+from archon.state import parse_objective_files
 
 from ..physics_grounding import run_physics_grounding
 from .base import Phase, PhaseResult
@@ -36,7 +37,16 @@ class PhysicsGroundingPhase(Phase):
                 if configured_backend in {"api", "local"}
                 else "auto"
             )
-            reports = run_physics_grounding(ctx.project_path, backend=backend)
+            objective_files = parse_objective_files(
+                ctx.progress_file,
+                ctx.project_path,
+            )
+            reports = run_physics_grounding(
+                ctx.project_path,
+                backend=backend,
+                lean_files=objective_files,
+                reuse_unchanged=True,
+            )
         except Exception as exc:  # defensive: grounding must not break the loop
             log.warn(f"physics grounding crashed: {exc}")
             return PhaseResult()
@@ -47,11 +57,16 @@ class PhysicsGroundingPhase(Phase):
         secs = int(time.monotonic() - start)
         complete = sum(1 for report in reports if report.is_complete)
         incomplete = len(reports) - complete
+        cached = sum(1 for report in reports if report.cached)
+        generated = len(reports) - cached
+        work = f"{generated} generated, {cached} reused"
         if incomplete:
             log.warn(
                 f"physics grounding: {complete} complete, {incomplete} incomplete "
-                f"report(s) ({secs}s)"
+                f"report(s); {work} ({secs}s)"
             )
         else:
-            log.success(f"physics grounding: {complete} report(s) complete ({secs}s)")
+            log.success(
+                f"physics grounding: {complete} report(s) complete; {work} ({secs}s)"
+            )
         return PhaseResult()

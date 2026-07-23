@@ -10,6 +10,7 @@ from archon.multilane.config import multilane_config_from_simple
 from archon.state import write_meta
 
 from ..formalization_review_gate import enforce_progress_review_gate
+from ..proof_review_gate import filter_objectives_for_proof_review_gate
 from ..lane_round import LaneRoundExecutor, LaneRoundPreviewRunner
 from ..prover import ParallelProverRunner, SerialProverRunner
 from ..sorry_count import count_sorries
@@ -89,24 +90,59 @@ class ProverPhase(Phase):
             stage=ctx.current_stage,
             enabled=ctx.options.formalization_review_gate,
         )
-        if not dropped:
-            return True
-
-        details = [
-            {"file": str(path), "reason": reason}
-            for path, reason in dropped
-        ]
-        log.warn(
-            "formalization Review gate removed "
-            f"{len(dropped)} objective(s) before prover dispatch; "
-            f"{len(kept)} remain eligible"
+        proof_kept, proof_dropped = filter_objectives_for_proof_review_gate(
+            kept,
+            state_dir=ctx.state_dir,
+            project_path=ctx.project_path,
+            enabled=getattr(ctx.options, "proof_review_gate", False),
         )
-        if not ctx.dry_run:
-            write_meta(ctx.iter_meta, **{
-                "prover.formalizationReviewGateDropped": details,
-                "prover.formalizationReviewGateEligible": len(kept),
-            })
-        if kept:
+
+        if proof_dropped:
+            from archon.commands.loop.formalization_review_gate import (
+                _relative_file,
+                _replace_objectives,
+            )
+            if proof_kept:
+                _replace_objectives(ctx.progress_file, [
+                    f"- **`{_relative_file(str(path), ctx.project_path)}`** — "
+                    "eligible under the proof Review retry gate."
+                    for path in proof_kept
+                ])
+            else:
+                _replace_objectives(ctx.progress_file, [
+                    "(no dispatch — every target is blocked by the proof Review retry gate)"
+                ])
+            log.warn(
+                "proof Review retry gate removed "
+                f"{len(proof_dropped)} objective(s) before prover dispatch; "
+                f"{len(proof_kept)} remain eligible"
+            )
+            if not ctx.dry_run:
+                write_meta(ctx.iter_meta, **{
+                    "prover.proofReviewGateDropped": [
+                        {"file": str(path), "reason": reason}
+                        for path, reason in proof_dropped
+                    ],
+                    "prover.proofReviewGateEligible": len(proof_kept),
+                })
+
+        if dropped:
+            details = [
+                {"file": str(path), "reason": reason}
+                for path, reason in dropped
+            ]
+            log.warn(
+                "formalization Review gate removed "
+                f"{len(dropped)} objective(s) before prover dispatch; "
+                f"{len(proof_kept)} remain eligible"
+            )
+            if not ctx.dry_run:
+                write_meta(ctx.iter_meta, **{
+                    "prover.formalizationReviewGateDropped": details,
+                    "prover.formalizationReviewGateEligible": len(proof_kept),
+                })
+
+        if proof_kept:
             return True
         log.warn("prover dispatch skipped: no Review-passed objective is eligible")
         return False

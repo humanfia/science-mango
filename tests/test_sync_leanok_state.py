@@ -14,8 +14,10 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
-from archon.commands.loop.phases.sync_leanok import _write_state
+from archon.commands.loop.phases.sync_leanok import SyncLeanokPhase, _write_state
 
 
 class WriteStateTest(unittest.TestCase):
@@ -55,6 +57,8 @@ class WriteStateTest(unittest.TestCase):
         # ``sha`` is None when there's no inner-git initialized — make sure
         # the writer still produces a parseable file in that case.
         self.assertIn("sha", data)
+        self.assertEqual(data["scope"], "full")
+        self.assertEqual(data["targets_checked"], [])
 
     def test_creates_state_dir_if_absent(self):
         proj = self._project()
@@ -86,6 +90,49 @@ class WriteStateTest(unittest.TestCase):
             chapters_touched=[],
             secs=0,
         )
+
+
+class IncrementalPhaseTest(unittest.TestCase):
+    def test_phase_passes_only_current_objectives_to_script(self):
+        with tempfile.TemporaryDirectory() as td:
+            proj = Path(td)
+            state = proj / ".archon"
+            state.mkdir()
+            chapters = proj / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (proj / "A.lean").write_text("theorem a : True := by trivial\n")
+            (proj / "B.lean").write_text("theorem b : True := by trivial\n")
+            progress = state / "PROGRESS.md"
+            progress.write_text(
+                "# Progress\n\n## Current Objectives\n\n"
+                "1. **`A.lean`** — current target.\n"
+            )
+            script = proj / "sync.py"
+            script.write_text("# placeholder\n")
+            ctx = SimpleNamespace(
+                skip_now=set(), dry_run=False, project_path=proj,
+                progress_file=progress, state_dir=state, iter_num=7,
+            )
+            completed = SimpleNamespace(returncode=0, stdout="[]", stderr="")
+            with (
+                patch(
+                    "archon.commands.loop.phases.sync_leanok._script_path",
+                    return_value=script,
+                ),
+                patch(
+                    "archon.commands.loop.phases.sync_leanok.subprocess.run",
+                    return_value=completed,
+                ) as run,
+            ):
+                SyncLeanokPhase(ctx).run()
+
+            command = run.call_args.args[0]
+            self.assertIn("--lean-file", command)
+            self.assertIn("A.lean", command)
+            self.assertNotIn("B.lean", command)
+            data = json.loads((state / "sync_leanok-state.json").read_text())
+            self.assertEqual(data["scope"], "current-objectives")
+            self.assertEqual(data["targets_checked"], ["A.lean"])
 
 
 def _rmtree(path: str) -> None:

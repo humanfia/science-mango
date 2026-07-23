@@ -32,6 +32,8 @@ class LoopOptions:
     no_review: bool
     formalization_review_gate: bool
     formalization_review_max_iterations: int
+    proof_review_gate: bool
+    proof_review_max_iterations: int
     no_finalize: bool
     no_git_commit: bool
     no_lake_build: bool

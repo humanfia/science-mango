@@ -97,6 +97,34 @@ def default_config() -> dict[str, Any]:
                 "Slower (recompiles); on for soundness-critical projects."
             ),
             'axiom_sweep': False,
+            '_deterministic_plan_help': (
+                "If true in prover/polish, the loop selects a Review-safe "
+                "objective frontier itself and gives the plan agent only a "
+                "bounded candidate pack. Proof Review retries are prioritized; "
+                "the model cannot expand or replace the selected batch."
+            ),
+            'deterministic_plan': False,
+            '_deterministic_review_help': (
+                "If true, run direct Lean checks for the current Review batch "
+                "in parallel, build a bounded evidence pack, and prohibit the "
+                "review model from repeating compile/DAG/corpus scans."
+            ),
+            'deterministic_review': False,
+            '_review_preflight_jobs_help': (
+                "Parallel direct Lean checks before deterministic Review."
+            ),
+            'review_preflight_jobs': 16,
+            'review_preflight_timeout_sec': 300,
+            '_parallel_target_review_help': (
+                "If true during proof Review, run one isolated Reviewer per "
+                "target with bounded concurrency, retry infrastructure "
+                "failures at halved concurrency, then deterministically merge "
+                "the per-target milestones. Requires deterministic_review."
+            ),
+            'parallel_target_review': False,
+            'parallel_target_review_jobs': 16,
+            'parallel_target_review_max_attempts': 3,
+            'parallel_target_review_backoff_sec': 5,
             '_sync_leanok_timeout_sec_help': (
                 "Seconds for the deterministic \\leanok marker sync (it "
                 "compile-checks each blueprint-referenced Lean file). Raise if "

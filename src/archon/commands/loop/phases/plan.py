@@ -36,8 +36,15 @@ from archon.commands.loop.sorry_count import count_sorries
 from archon.state import is_complete, read_stage, write_meta, write_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
+from ..deterministic_plan import (
+    deterministic_plan_prompt_prefix,
+    select_deterministic_candidates,
+    write_deterministic_candidate_pack,
+    write_deterministic_objectives,
+)
 from ..plan_validate import AUTO_NOTES_FILENAME
 from ..resume import PLAN_CONTINUE, persist_session_id, pick_resume_session
+from ..proof_review_gate import proof_review_prompt_block
 from .base import Phase, PhaseResult
 
 
@@ -179,8 +186,8 @@ def _read_user_hints_template() -> str:
         return ""
 
 
-def _maybe_compress_plan_prompt(ctx, prompt: str) -> str:
-    if not ctx.options.compress_plan_review_inputs:
+def _maybe_compress_plan_prompt(ctx, prompt: str, *, force: bool = False) -> str:
+    if not ctx.options.compress_plan_review_inputs and not force:
         return prompt
     result = compress_prompt(
         prompt,
@@ -239,14 +246,65 @@ class PlanPhase(Phase):
         log.phase(self.number, self.name)
         plan_start = time.monotonic()
         cfg = load_project_config(ctx.project_path)
+        starting_stage = ctx.current_stage
         captured_hints = _capture_user_hints(ctx.state_dir)
         captured_auto_notes = _capture_auto_notes(ctx.state_dir)
+        deterministic_candidates = []
+        deterministic_candidate_pack = None
+        deterministic_enabled = bool(
+            cfg.loop_section().get("deterministic_plan", False)
+        )
+        pack_iter_dir = ctx.iter_dir
+        if pack_iter_dir is None and ctx.dry_run:
+            pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
+            pack_iter_dir.mkdir(parents=True, exist_ok=True)
+        if deterministic_enabled and starting_stage.strip().lower().startswith(
+            ("prover", "polish")
+        ):
+            deterministic_candidates = select_deterministic_candidates(
+                project_path=ctx.project_path,
+                state_dir=ctx.state_dir,
+                stage=starting_stage,
+                # `max_objectives` is queue depth; `max_parallel` only caps
+                # concurrently executing workers. A deeper queue refills idle
+                # slots immediately when shorter targets finish.
+                limit=ctx.options.max_objectives,
+                formalization_gate_enabled=ctx.options.formalization_review_gate,
+                proof_gate_enabled=getattr(ctx.options, "proof_review_gate", False),
+            )
+            if deterministic_candidates and pack_iter_dir is not None:
+                if not ctx.dry_run:
+                    write_deterministic_objectives(
+                        progress_file=ctx.progress_file,
+                        state_dir=ctx.state_dir,
+                        iter_num=ctx.iter_num,
+                        candidates=deterministic_candidates,
+                    )
+                deterministic_candidate_pack = write_deterministic_candidate_pack(
+                    project_path=ctx.project_path,
+                    iter_dir=pack_iter_dir,
+                    iter_num=ctx.iter_num,
+                    candidates=deterministic_candidates,
+                )
+                log.info(
+                    "Deterministic Plan selected "
+                    f"{len(deterministic_candidates)} Review-safe objective(s); "
+                    "the plan agent is restricted to this bounded set."
+                )
+                if not ctx.dry_run and ctx.iter_meta is not None:
+                    write_meta(ctx.iter_meta, **{
+                        "plan.deterministic": True,
+                        "plan.deterministicCandidates": [
+                            item.relative_path for item in deterministic_candidates
+                        ],
+                    })
+            else:
+                log.warn(
+                    "Deterministic Plan found no eligible prover objectives; "
+                    "falling back to the normal planner for completion/blocker handling."
+                )
         compact_input_pack = None
-        if ctx.options.compress_plan_review_inputs:
-            pack_iter_dir = ctx.iter_dir
-            if pack_iter_dir is None and ctx.dry_run:
-                pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
-                pack_iter_dir.mkdir(parents=True, exist_ok=True)
+        if ctx.options.compress_plan_review_inputs or deterministic_candidate_pack:
             if pack_iter_dir is not None:
                 pack_iter_num = ctx.iter_num
                 compact_input_pack = build_plan_input_pack(
@@ -254,20 +312,46 @@ class PlanPhase(Phase):
                     state_dir=ctx.state_dir,
                     iter_dir=pack_iter_dir,
                     iter_num=pack_iter_num,
+                    deterministic_candidates_pack=deterministic_candidate_pack,
                 )
-        plan_prompt = build_plan_prompt(
-            ctx.project_name, ctx.project_path, ctx.state_dir, ctx.current_stage,
-            ctx.iter_num,
-            ignore_multilane=(
-                ctx.options.multilane_preview or ctx.options.multilane_execute
+        if deterministic_candidate_pack is not None and compact_input_pack is not None:
+            # Crucially, do not call build_plan_prompt here: its leandag
+            # frontier construction parses the full blueprint corpus.
+            plan_prompt = deterministic_plan_prompt_prefix(
+                candidate_pack=deterministic_candidate_pack,
+                plan_input_pack=compact_input_pack,
+                state_dir=ctx.state_dir,
+                iter_num=ctx.iter_num,
+                project_name=ctx.project_name,
+                project_path=ctx.project_path,
+                stage=starting_stage,
+                captured_user_hints=captured_hints,
+                captured_auto_notes=captured_auto_notes,
+            )
+        else:
+            plan_prompt = build_plan_prompt(
+                ctx.project_name, ctx.project_path, ctx.state_dir, ctx.current_stage,
+                ctx.iter_num,
+                ignore_multilane=(
+                    ctx.options.multilane_preview or ctx.options.multilane_execute
+                ),
+                debug_feedback=ctx.options.debug_feedback,
+                recent_iter_window=resolve_recent_iter_window(cfg),
+                captured_user_hints=captured_hints,
+                captured_auto_notes=captured_auto_notes,
+                compact_input_pack=compact_input_pack,
+            )
+        plan_prompt += proof_review_prompt_block(
+            state_dir=ctx.state_dir,
+            max_iterations=getattr(ctx.options, "proof_review_max_iterations", 3),
+            enabled=(
+                getattr(ctx.options, "proof_review_gate", False)
+                and ctx.current_stage.strip().lower().startswith("prover")
             ),
-            debug_feedback=ctx.options.debug_feedback,
-            recent_iter_window=resolve_recent_iter_window(cfg),
-            captured_user_hints=captured_hints,
-            captured_auto_notes=captured_auto_notes,
-            compact_input_pack=compact_input_pack,
         )
-        plan_prompt = _maybe_compress_plan_prompt(ctx, plan_prompt)
+        plan_prompt = _maybe_compress_plan_prompt(
+            ctx, plan_prompt, force=bool(deterministic_candidate_pack)
+        )
 
         if ctx.dry_run:
             log.step("[dry-run] Plan prompt:")
@@ -292,6 +376,17 @@ class PlanPhase(Phase):
                 ctx.iter_meta, Path(str(plan_log) + ".jsonl"),
                 "plan.sessionId",
             )
+
+        if deterministic_candidates and not ctx.dry_run:
+            # The planner owns strategy, not scheduling. Restore the exact
+            # loop-selected frontier if the model rewrote PROGRESS.md.
+            write_deterministic_objectives(
+                progress_file=ctx.progress_file,
+                state_dir=ctx.state_dir,
+                iter_num=ctx.iter_num,
+                candidates=deterministic_candidates,
+            )
+            write_stage(ctx.progress_file, starting_stage)
 
         plan_secs = int(time.monotonic() - plan_start)
         log.info(f"Plan phase finished ({plan_secs}s)")

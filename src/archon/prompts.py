@@ -1956,13 +1956,14 @@ def _sync_leanok_block(state_dir: Path, iter_num: int) -> str:
 
           {state_file}
 
-        Schema: ``{{iter, sha, timestamp, added, removed, chapters_touched}}``.
+        Schema: ``{{iter, sha, timestamp, scope, targets_checked, added, removed, chapters_touched}}``.
 
         - ``iter`` equals this iteration ({iter_num:03d}) ⇒ sync has run for
-          the current tree. Any remaining ``\\leanok`` is the script's
-          deterministic verdict; only flag genuine laundering after a
-          first-hand audit of the Lean source. You are authorized to manually
-          override incorrect markers if you are certain (see Step 6).
+          the recorded ``scope``. In ``current-objectives`` scope, its verdict
+          applies exactly to ``targets_checked``; markers elsewhere were not
+          revisited this iteration. Any remaining ``\\leanok`` on a checked
+          target is the script's deterministic verdict; only flag genuine
+          laundering after a first-hand audit of the Lean source.
         - ``iter`` is older or the file is missing ⇒ markers may be stale.
           Note the ambiguity in ``summary.md`` instead of raising CRITICAL.""")
 

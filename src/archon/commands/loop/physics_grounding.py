@@ -9,6 +9,7 @@ before autoformalization/proving and writes a reviewable task_results report.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 import re
 import time
@@ -78,6 +79,7 @@ class PhysicsGroundingReport:
     query_evidence: list[QueryEvidence]
     local_abstractions: list[str] = field(default_factory=list)
     grounding_gaps: list[str] = field(default_factory=list)
+    cached: bool = False
 
     @property
     def is_complete(self) -> bool:
@@ -88,12 +90,25 @@ SearchFn = Callable[[str, list[str], int], list[GroundingCandidate]]
 GROUNDING_BACKENDS = frozenset({"auto", "api", "local"})
 
 
-def physics_chapter_targets(project_path: Path) -> list[tuple[Path, Path]]:
-    """Return ``(chapter, lean_file)`` pairs for live physics chapters."""
+def physics_chapter_targets(
+    project_path: Path,
+    *,
+    lean_files: Iterable[Path] | None = None,
+) -> list[tuple[Path, Path]]:
+    """Return ``(chapter, lean_file)`` pairs for live physics chapters.
+
+    When ``lean_files`` is provided, only chapters covering those objectives
+    are returned. An empty iterable deliberately means no targets.
+    """
     chapters_dir = project_path / "blueprint" / "src" / "chapters"
     if not chapters_dir.is_dir():
         return []
 
+    objective_files = (
+        {Path(path).resolve() for path in lean_files}
+        if lean_files is not None
+        else None
+    )
     pairs: list[tuple[Path, Path]] = []
     seen: set[Path] = set()
     for chapter in sorted(chapters_dir.glob("*.tex")):
@@ -109,6 +124,8 @@ def physics_chapter_targets(project_path: Path) -> list[tuple[Path, Path]]:
             covers = [conventional.name]
         for raw in covers:
             lean_file = (project_path / raw).resolve()
+            if objective_files is not None and lean_file not in objective_files:
+                continue
             if lean_file in seen:
                 continue
             seen.add(lean_file)
@@ -342,6 +359,54 @@ def _report_name(project_path: Path, lean_file: Path) -> str:
     return f"physics-grounding-{Path(rel_stem).name}.md"
 
 
+def _input_fingerprint(chapter: Path, lean_file: Path) -> str | None:
+    """Hash grounding inputs so cache validity does not depend on mtimes."""
+    digest = hashlib.sha256()
+    try:
+        digest.update(chapter.read_bytes())
+        digest.update(b"\0archon-physics-grounding\0")
+        if lean_file.is_file():
+            digest.update(lean_file.read_bytes())
+        else:
+            digest.update(b"<missing-lean-file>")
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _reuse_complete_report(
+    project_path: Path,
+    chapter: Path,
+    lean_file: Path,
+    report_path: Path,
+    *,
+    backend: str,
+) -> PhysicsGroundingReport | None:
+    """Reuse a complete report when neither of its inputs has changed."""
+    try:
+        text = report_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+    fingerprint = _input_fingerprint(chapter, lean_file)
+    if "- Grounding status: complete" not in text:
+        return None
+    if backend in {"api", "local"} and f"- Search backend: {backend}" not in text:
+        return None
+    if not fingerprint or f"- Input fingerprint: sha256:{fingerprint}" not in text:
+        return None
+
+    return PhysicsGroundingReport(
+        lean_file=lean_file,
+        chapter=chapter,
+        report_path=report_path,
+        status="complete",
+        query_evidence=[],
+        local_abstractions=_summarize_local_abstractions(chapter),
+        cached=True,
+    )
+
+
 def _rel(path: Path, root: Path) -> str:
     try:
         return path.resolve().relative_to(root.resolve()).as_posix()
@@ -397,6 +462,7 @@ def _write_report(
         f"- Blueprint chapter: `{_rel(chapter, project_path)}`",
         f"- Grounding status: {status}",
         f"- Search backend: {backend}",
+        f"- Input fingerprint: sha256:{_input_fingerprint(chapter, lean_file) or 'unavailable'}",
         f"- Packages searched: {', '.join(packages)}",
         "",
         "## LeanExplore queries/candidates actually used",
@@ -504,12 +570,41 @@ def run_physics_grounding(
     max_attempts: int = 3,
     retry_delay: float = 0.25,
     searcher: SearchFn | None = None,
+    lean_files: Iterable[Path] | None = None,
+    reuse_unchanged: bool = True,
 ) -> list[PhysicsGroundingReport]:
-    """Generate task_results grounding logs for physics blueprint targets."""
+    """Generate task_results grounding logs for selected physics targets."""
     project_path = project_path.resolve()
     state_dir = project_path / ".archon"
     task_results = state_dir / "task_results"
     package_list = list(packages)
+    targets = physics_chapter_targets(project_path, lean_files=lean_files)
+
+    reports: list[PhysicsGroundingReport] = []
+    pending: list[tuple[Path, Path, Path]] = []
+    for chapter, lean_file in targets:
+        report_path = task_results / _report_name(project_path, lean_file)
+        cached_report = (
+            _reuse_complete_report(
+                project_path,
+                chapter,
+                lean_file,
+                report_path,
+                backend=backend,
+            )
+            if reuse_unchanged
+            else None
+        )
+        if cached_report is not None:
+            reports.append(cached_report)
+        else:
+            pending.append((chapter, lean_file, report_path))
+
+    # Avoid loading the local embedding model when every selected report is
+    # already current (or when the current batch contains no physics targets).
+    if not pending:
+        return reports
+
     api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
     real_searcher, resolved_backend, backend_error, owns_searcher = _resolve_searcher(
         backend=backend,
@@ -518,9 +613,8 @@ def run_physics_grounding(
         searcher=searcher,
     )
 
-    reports: list[PhysicsGroundingReport] = []
     try:
-        for chapter, lean_file in physics_chapter_targets(project_path):
+        for chapter, lean_file, report_path in pending:
             queries = _blueprint_queries(chapter, max_queries=max_queries)
             evidence: list[QueryEvidence] = []
             searched: set[str] = set()
@@ -562,7 +656,6 @@ def run_physics_grounding(
                     if evidence[-1].candidates:
                         break
 
-            report_path = task_results / _report_name(project_path, lean_file)
             reports.append(
                 _write_report(
                     project_path,

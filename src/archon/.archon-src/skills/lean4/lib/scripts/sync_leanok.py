@@ -150,7 +150,10 @@ _DECL_RE = re.compile(
 )
 
 
-def _scan_lean_decls(project_path: Path) -> dict[str, Path]:
+def _scan_lean_decls(
+    project_path: Path,
+    lean_files: set[Path] | None = None,
+) -> dict[str, Path]:
     """Map fully-qualified Lean decl names → file path.
 
     The decl extractor is deliberately conservative: it only catches
@@ -164,7 +167,12 @@ def _scan_lean_decls(project_path: Path) -> dict[str, Path]:
     write the suffix.
     """
     out: dict[str, Path] = {}
-    for lean in project_path.rglob('*.lean'):
+    candidates = (
+        sorted(lean_files)
+        if lean_files is not None
+        else project_path.rglob('*.lean')
+    )
+    for lean in candidates:
         # Skip dependencies and build artefacts.
         parts = lean.parts
         if any(p in {'.lake', 'lake-packages', '_target', 'build'} for p in parts):
@@ -460,6 +468,7 @@ def _sync_chapter(
     dry_run: bool,
     verbose: bool,
     compile_cache: dict[Path, bool | None],
+    allowed_files: set[Path] | None = None,
 ) -> list[Change]:
     """Update one chapter's `\\leanok` markers in place. Returns the
     list of changes (or would-be changes for ``--dry-run``)."""
@@ -483,6 +492,11 @@ def _sync_chapter(
             continue
 
         lean_file = decl_index.get(blk.lean_name)
+        if allowed_files is not None:
+            if lean_file is None or lean_file.resolve() not in allowed_files:
+                # Incremental mode only owns markers backed by the selected
+                # Lean files. Unknown/out-of-scope declarations stay intact.
+                continue
         if lean_file is None:
             # Decl not found in the project — remove leanok if present.
             should_have = False
@@ -606,7 +620,9 @@ def _default_jobs() -> int:
 
 
 def _collect_compile_targets(
-    chapters: list[Path], decl_index: dict[str, Path],
+    chapters: list[Path],
+    decl_index: dict[str, Path],
+    allowed_files: set[Path] | None = None,
 ) -> set[Path]:
     """The set of Lean files the chapters will compile-check.
 
@@ -625,9 +641,34 @@ def _collect_compile_targets(
             if blk.has_mathlibok or blk.has_notready or blk.lean_name is None:
                 continue
             lean_file = decl_index.get(blk.lean_name)
-            if lean_file is not None:
+            if (
+                lean_file is not None
+                and (
+                    allowed_files is None
+                    or lean_file.resolve() in allowed_files
+                )
+            ):
                 targets.add(lean_file)
     return targets
+
+
+def _chapter_touches_files(
+    chapter: Path,
+    decl_index: dict[str, Path],
+    allowed_files: set[Path],
+) -> bool:
+    """Whether a chapter has a declaration backed by this batch."""
+    try:
+        text = chapter.read_text(encoding='utf-8')
+    except OSError:
+        return False
+    for block in _parse_chapter_blocks(text):
+        if block.lean_name is None:
+            continue
+        lean_file = decl_index.get(block.lean_name)
+        if lean_file is not None and lean_file.resolve() in allowed_files:
+            return True
+    return False
 
 
 def _populate_compile_cache(
@@ -676,6 +717,17 @@ def main(argv: list[str] | None = None) -> int:
              '(default: min(8, cpu count), or $ARCHON_SYNC_LEANOK_JOBS). '
              'Use 1 to force serial.',
     )
+    parser.add_argument(
+        '--lean-file',
+        action='append',
+        default=[],
+        metavar='PATH',
+        help=(
+            'Incremental mode: sync only declarations backed by this Lean '
+            'file. Repeat for each current objective. Other markers remain '
+            'untouched.'
+        ),
+    )
     args = parser.parse_args(argv)
 
     project_path = Path(args.project_path).resolve()
@@ -684,7 +736,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f'No blueprint chapters at {chapters_dir}', file=sys.stderr)
         return 0  # not a failure — just nothing to do
 
-    decl_index = _scan_lean_decls(project_path)
+    allowed_files: set[Path] | None = None
+    if args.lean_file:
+        allowed_files = set()
+        for raw in args.lean_file:
+            path = Path(raw)
+            if not path.is_absolute():
+                path = project_path / path
+            path = path.resolve()
+            if path.is_file():
+                allowed_files.add(path)
+
+    decl_index = _scan_lean_decls(project_path, allowed_files)
 
     # Warm the per-file compile-check cache in parallel before the
     # sequential marker pass. On a large blueprint (dozens of chapters,
@@ -692,8 +755,15 @@ def main(argv: list[str] | None = None) -> int:
     # dominant cost and used to blow the phase timeout; doing the
     # independent checks concurrently cuts wall-clock by ~#workers.
     chapters = sorted(chapters_dir.glob('*.tex'))
+    if allowed_files is not None:
+        chapters = [
+            chapter for chapter in chapters
+            if _chapter_touches_files(chapter, decl_index, allowed_files)
+        ]
     jobs = args.jobs if args.jobs is not None else _default_jobs()
-    targets = _collect_compile_targets(chapters, decl_index)
+    targets = _collect_compile_targets(
+        chapters, decl_index, allowed_files=allowed_files,
+    )
     compile_cache: dict[Path, bool | None] = _populate_compile_cache(
         targets, project_path, jobs=jobs,
     )
@@ -703,6 +773,7 @@ def main(argv: list[str] | None = None) -> int:
             tex, project_path, decl_index,
             dry_run=args.dry_run, verbose=args.verbose,
             compile_cache=compile_cache,
+            allowed_files=allowed_files,
         ))
 
     if args.format == 'json':
