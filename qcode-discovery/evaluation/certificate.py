@@ -147,7 +147,7 @@ def solve_css_direction(
         value = getattr(solved, name, None)
         if value is None or not np.isfinite(value):
             return None
-        return int(value) if integer else float(value)
+        return int(round(value)) if integer else float(value)
 
     return {
         "success": bool(solved.success),
@@ -162,25 +162,21 @@ def solve_css_direction(
     }
 
 
-def verify_direction_evidence(
+def verify_css_witness(
     evidence: dict[str, Any],
     check_matrix: np.ndarray,
     target_logical: np.ndarray,
 ) -> list[str]:
-    failures: list[str] = []
+    """Check a stored CSS operator algebraically, without trusting solver status."""
     try:
-        stored_target = unpack_vector(evidence["target_logical"])
         operator = unpack_vector(evidence["operator"])
     except (KeyError, TypeError, ValueError) as exc:
         return [f"invalid packed vector: {exc}"]
-
     target = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
     checks = np.asarray(check_matrix, dtype=np.uint8) & 1
-    if not np.array_equal(stored_target, target):
-        failures.append("target logical does not match reconstructed basis")
+    failures: list[str] = []
     if operator.size != checks.shape[1]:
-        failures.append("operator width mismatch")
-        return failures
+        return ["operator width mismatch"]
     if np.any((checks @ operator) & 1):
         failures.append("operator has nonzero stabilizer syndrome")
     if int(np.dot(target, operator) & 1) != 1:
@@ -188,9 +184,28 @@ def verify_direction_evidence(
     objective = evidence.get("objective")
     if objective is None or int(objective) != int(operator.sum()):
         failures.append("objective does not equal operator weight")
+    return failures
+
+
+def verify_direction_evidence(
+    evidence: dict[str, Any],
+    check_matrix: np.ndarray,
+    target_logical: np.ndarray,
+) -> list[str]:
+    failures = verify_css_witness(evidence, check_matrix, target_logical)
+    try:
+        stored_target = unpack_vector(evidence["target_logical"])
+    except (KeyError, TypeError, ValueError) as exc:
+        failures.append(f"invalid target logical: {exc}")
+        stored_target = None
+    target = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
+    if stored_target is not None and not np.array_equal(stored_target, target):
+        failures.append("target logical does not match reconstructed basis")
+    objective = evidence.get("objective")
     if not (
         evidence.get("success") is True
         and int(evidence.get("status", -1)) == 0
+        and objective is not None
         and float(evidence.get("mip_gap", math.inf)) == 0.0
         and math.isclose(
             float(evidence.get("mip_dual_bound", math.inf)),

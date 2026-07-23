@@ -10,9 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate import build_css_certificate
-from evaluation.matrix_certificate import build_matrix_css_certificate
-from evaluation.noncss_certificate import build_noncss_certificate
+from evaluation.certificate_dispatch import build_certificate
 
 
 def load_one(path: Path, index: int) -> dict:
@@ -45,17 +43,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         claim = load_one(args.candidate, args.index)
-        if claim.get("H_X") is not None or claim.get("hx") is not None:
-            builder = build_matrix_css_certificate
-        elif (
-            claim.get("symplectic_stabilizer") is not None
-            or claim.get("C_terms")
-            or claim.get("D_terms")
-        ):
-            builder = build_noncss_certificate
-        else:
-            builder = build_css_certificate
-        certificate = builder(
+        certificate = build_certificate(
             claim,
             known_answer_artifact=args.known_answer_artifact,
             timeout_per_logical=args.timeout_per_logical,

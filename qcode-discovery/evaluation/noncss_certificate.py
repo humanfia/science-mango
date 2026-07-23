@@ -135,13 +135,12 @@ def solve_symplectic_direction(
     }
 
 
-def verify_symplectic_direction(
+def verify_symplectic_witness(
     evidence: dict[str, Any],
     stabilizer: np.ndarray,
     target_logical: np.ndarray,
 ) -> list[str]:
     try:
-        stored_target = unpack_vector(evidence["target_logical"])
         operator = unpack_vector(evidence["operator"])
     except (KeyError, TypeError, ValueError) as exc:
         return [f"invalid packed vector: {exc}"]
@@ -149,10 +148,8 @@ def verify_symplectic_direction(
     target = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
     n = checks.shape[1] // 2
     failures: list[str] = []
-    if not np.array_equal(stored_target, target):
-        failures.append("target logical does not match reconstructed basis")
     if operator.size != 2 * n:
-        return failures + ["operator width mismatch"]
+        return ["operator width mismatch"]
     syndrome = (checks[:, :n] @ operator[n:] + checks[:, n:] @ operator[:n]) & 1
     if np.any(syndrome):
         failures.append("operator has nonzero stabilizer syndrome")
@@ -164,9 +161,28 @@ def verify_symplectic_direction(
     objective = evidence.get("objective")
     if objective is None or int(objective) != symplectic_weight(operator):
         failures.append("objective does not equal symplectic witness weight")
+    return failures
+
+
+def verify_symplectic_direction(
+    evidence: dict[str, Any],
+    stabilizer: np.ndarray,
+    target_logical: np.ndarray,
+) -> list[str]:
+    failures = verify_symplectic_witness(evidence, stabilizer, target_logical)
+    try:
+        stored_target = unpack_vector(evidence["target_logical"])
+    except (KeyError, TypeError, ValueError) as exc:
+        failures.append(f"invalid target logical: {exc}")
+        stored_target = None
+    target = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
+    if stored_target is not None and not np.array_equal(stored_target, target):
+        failures.append("target logical does not match reconstructed basis")
+    objective = evidence.get("objective")
     if not (
         evidence.get("success") is True
         and int(evidence.get("status", -1)) == 0
+        and objective is not None
         and float(evidence.get("mip_gap", math.inf)) == 0.0
         and math.isclose(
             float(evidence.get("mip_dual_bound", math.inf)),

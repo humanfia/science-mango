@@ -130,8 +130,15 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
         str(release_manifest),
         "--run-id", run_id,
     ], repo_dir)
+    _run([
+        python,
+        str(repo_dir / "scripts" / "verify_release.py"),
+        str(release_manifest),
+        "--run-id", run_id,
+    ], repo_dir)
     release = json.loads(release_manifest.read_text())
-    rows = []
+    bb_rows = []
+    universal_count = 0
     for entry in release["certificates"]:
         certificate_path = release_manifest.parent / entry["file"]
         certificate = json.loads(certificate_path.read_text())
@@ -142,10 +149,13 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
             raise RuntimeError(
                 f"unverified challenge certificate cannot be formalized: {certificate_path}"
             )
-        rows.append(certificate["claim"])
-    if not rows:
+        if certificate.get("certificate_type") == "qldpc-css-bb-exact":
+            bb_rows.append(certificate["claim"])
+        else:
+            universal_count += 1
+    if not bb_rows and not universal_count:
         raise RuntimeError("verified challenge release contains no formalizable claims")
-    exact_catalog, upper_catalog = prepare_catalogs(rows, top)
+    exact_catalog, upper_catalog = prepare_catalogs(bb_rows, top)
     all_catalog = {"archon-qcode": exact_catalog["archon-qcode-exact"]
                    + upper_catalog["archon-qcode-upper"]}
     run_root = lean_project / ".archon" / "qcode-runs" / run_id
@@ -154,8 +164,9 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
     _write_json(run_root / "exact-catalog.json", exact_catalog)
     _write_json(run_root / "upper-catalog.json", upper_catalog)
     css_out = run_root / "css"
-    _run([python, str(bridge_dir / "bridge_css.py"), "--catalog",
-          str(run_root / "catalog.json"), "--out", str(css_out)], bridge_dir)
+    if all_catalog["archon-qcode"]:
+        _run([python, str(bridge_dir / "bridge_css.py"), "--catalog",
+              str(run_root / "catalog.json"), "--out", str(css_out)], bridge_dir)
     exact_count = len(exact_catalog["archon-qcode-exact"])
     if exact_count:
         cmd = [python, str(bridge_dir / "bridge_exact.py"), "--catalog",
@@ -170,18 +181,33 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
                "--target-field", "ilp_d", "--timeout", str(witness_timeout)]
         if skip_missing: cmd.append("--skip-missing")
         _run(cmd, bridge_dir)
+    if universal_count:
+        _run([
+            python,
+            str(bridge_dir / "bridge_universal.py"),
+            "--manifest", str(release_manifest),
+            "--out", str(run_root / "universal"),
+            "--sat-timeout", str(sat_timeout),
+        ], bridge_dir)
     objectives = _read_objectives(css_out / "objectives.jsonl", "css")
     objectives += _read_objectives(run_root / "exact" / "objectives.jsonl", "exact")
     objectives += _read_objectives(run_root / "upper" / "objectives.jsonl", "upper")
+    objectives += _read_objectives(
+        run_root / "universal" / "objectives.jsonl", "universal",
+    )
     with (run_root / "objectives.jsonl").open("w") as stream:
         for row in objectives: stream.write(json.dumps(row, ensure_ascii=False) + "\n")
-    manifest = {"run_id": run_id, "source_evaluations": len(rows),
-                "selected_codes": len(all_catalog["archon-qcode"]),
+    selected_codes = len(all_catalog["archon-qcode"]) + universal_count
+    manifest = {"run_id": run_id,
+                "source_evaluations": len(release["certificates"]),
+                "selected_codes": selected_codes,
                 "exact_claims": exact_count, "upper_bound_claims": upper_count,
+                "universal_exact_claims": universal_count,
                 "lean_objectives": len(objectives), "status": "formalized"}
     _write_json(run_root / "manifest.json", manifest)
     log.success(f"Formalized {manifest['selected_codes']} qcodes: "
-                f"{exact_count} exact, {upper_count} upper-bound")
+                f"{exact_count} BB exact, {universal_count} universal exact, "
+                f"{upper_count} upper-bound")
     return run_root
 
 
@@ -201,7 +227,9 @@ def verify_qcode_run(lean_project: Path, run_root: Path, jobs: int) -> dict[str,
     if not 1 <= jobs <= 4:
         raise ValueError("Lean jobs must be between 1 and 4")
     log_dir = run_root / "lean-logs"; log_dir.mkdir(exist_ok=True)
-    for tier, lib in (("exact", "QExact"), ("upper", "QDistance")):
+    for tier, lib in (
+        ("exact", "QExact"), ("upper", "QDistance"), ("universal", "QUniversal"),
+    ):
         basic = run_root / tier / lib / "Basic.lean"
         if basic.is_file():
             _, ok = _compile_one(lean_project, run_root / tier, basic,

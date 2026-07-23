@@ -3,7 +3,7 @@
 
 Input may be a JSON object, a JSON list, or JSONL.  Every submitted row must
 pass.  The command exits nonzero for an empty input, malformed evidence, an
-unsupported PBB/non-CSS claim, or any rejected candidate.
+unsupported certificate type, or any rejected candidate.
 """
 
 from __future__ import annotations
@@ -17,24 +17,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate import verify_css_certificate
-from evaluation.matrix_certificate import (
-    CERTIFICATE_TYPE as MATRIX_CSS_TYPE,
-    verify_matrix_css_certificate,
-)
-from evaluation.noncss_certificate import (
-    MATRIX_TYPE as NONCSS_MATRIX_TYPE,
-    PBB_TYPE,
-    verify_noncss_certificate,
-)
-
-
-VERIFIERS = {
-    "qldpc-css-bb-exact": verify_css_certificate,
-    MATRIX_CSS_TYPE: verify_matrix_css_certificate,
-    PBB_TYPE: verify_noncss_certificate,
-    NONCSS_MATRIX_TYPE: verify_noncss_certificate,
-}
+from evaluation.certificate_dispatch import SUPPORTED_CERTIFICATE_TYPES, verify_certificate
 
 
 def load_rows(path: Path) -> list[dict[str, Any]]:
@@ -75,7 +58,10 @@ def main() -> int:
         print(f"FINAL GATE FAILED: cannot load claims: {exc}", file=sys.stderr)
         return 2
 
-    if not rows or any(row.get("certificate_type") not in VERIFIERS for row in rows):
+    if not rows or any(
+        row.get("certificate_type") not in SUPPORTED_CERTIFICATE_TYPES
+        for row in rows
+    ):
         print(
             "FINAL GATE FAILED: raw candidate metadata is forbidden; "
             "run scripts/build_certificate.py first",
@@ -84,7 +70,7 @@ def main() -> int:
         return 2
     evaluations = []
     for index, certificate in enumerate(rows):
-        verification = VERIFIERS[certificate["certificate_type"]](
+        verification = verify_certificate(
             certificate,
             known_answer_artifact=args.known_answer_artifact,
             rerun_milp=True,

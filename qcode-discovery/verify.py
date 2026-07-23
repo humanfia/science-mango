@@ -8,16 +8,7 @@ import json
 import sys
 from pathlib import Path
 
-from evaluation.certificate import verify_css_certificate
-from evaluation.matrix_certificate import (
-    CERTIFICATE_TYPE as MATRIX_CSS_TYPE,
-    verify_matrix_css_certificate,
-)
-from evaluation.noncss_certificate import (
-    MATRIX_TYPE as NONCSS_MATRIX_TYPE,
-    PBB_TYPE,
-    verify_noncss_certificate,
-)
+from evaluation.certificate_dispatch import verify_certificate
 from evaluation.known_answer_integrity import check_known_answer_integrity
 
 
@@ -54,16 +45,7 @@ def main() -> int:
                 print(f"  {failure}", file=sys.stderr)
             return 1
         certificate = json.loads(args.certificate.read_text())
-        certificate_type = certificate.get("certificate_type")
-        verifier = {
-            "qldpc-css-bb-exact": verify_css_certificate,
-            MATRIX_CSS_TYPE: verify_matrix_css_certificate,
-            PBB_TYPE: verify_noncss_certificate,
-            NONCSS_MATRIX_TYPE: verify_noncss_certificate,
-        }.get(certificate_type)
-        if verifier is None:
-            raise ValueError(f"unsupported certificate_type: {certificate_type!r}")
-        result = verifier(
+        result = verify_certificate(
             certificate,
             known_answer_artifact=args.known_answer_artifact,
             rerun_milp=True,

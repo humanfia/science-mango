@@ -20,11 +20,13 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from evaluation.certificate import pack_vector
 from evaluation.final_gate import _connected
 from evaluation.noncss_certificate import (
     build_noncss_certificate,
     solve_symplectic_direction,
     verify_noncss_certificate,
+    verify_symplectic_witness,
 )
 from evaluation.pbb_code import (
     build_pbb_code,
@@ -145,7 +147,7 @@ def main() -> int:
                     stabilizer, target,
                     timeout=min(args.timeout_per_logical, remaining),
                 )
-                directions.append({
+                direction = {
                     "logical_index": index,
                     "objective": result["objective"],
                     "success": result["success"],
@@ -153,7 +155,15 @@ def main() -> int:
                     "mip_gap": result["mip_gap"],
                     "mip_dual_bound": result["mip_dual_bound"],
                     "elapsed_s": result["elapsed_s"],
-                })
+                    "operator": result["operator"],
+                    "target_logical": pack_vector(target),
+                }
+                witness_failures = verify_symplectic_witness(
+                    direction, stabilizer, target,
+                )
+                direction["witness_verified"] = not witness_failures
+                direction["witness_failures"] = witness_failures
+                directions.append(direction)
                 if result["objective"] is not None and result["objective"] < required_distance:
                     exact = False
                     break

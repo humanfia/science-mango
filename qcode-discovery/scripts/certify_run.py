@@ -11,9 +11,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate import (
-    build_css_certificate,
-    verify_css_certificate,
+from evaluation.certificate_dispatch import (
+    build_certificate,
+    verify_certificate,
 )
 from evaluation.final_gate import classify_win
 from evaluation.known_answer_integrity import check_known_answer_integrity
@@ -87,7 +87,7 @@ def main() -> int:
     if integrity["passed"]:
         certificates_dir.mkdir(parents=True, exist_ok=True)
         for index, row in enumerate(candidates):
-            certificate = build_css_certificate(
+            certificate = build_certificate(
                 row,
                 known_answer_artifact=args.known_answer_artifact,
                 timeout_per_logical=args.timeout_per_logical,
@@ -98,7 +98,7 @@ def main() -> int:
             temporary = certificate_path.with_suffix(".json.tmp")
             temporary.write_text(json.dumps(certificate, indent=2) + "\n")
             temporary.replace(certificate_path)
-            verification = verify_css_certificate(
+            verification = verify_certificate(
                 certificate,
                 known_answer_artifact=args.known_answer_artifact,
                 rerun_milp=True,

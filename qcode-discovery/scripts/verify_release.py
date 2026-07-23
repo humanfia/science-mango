@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from evaluation.certificate import verify_css_certificate
+from evaluation.certificate_dispatch import verify_certificate
 from evaluation.known_answer_integrity import check_known_answer_integrity
 from evaluation.release_gate import validate_release_manifest
 
@@ -53,7 +53,7 @@ def main() -> int:
         for index, entry in enumerate(manifest["certificates"]):
             certificate_path = args.manifest.parent / entry["file"]
             certificate = json.loads(certificate_path.read_text())
-            result = verify_css_certificate(
+            result = verify_certificate(
                 certificate,
                 known_answer_artifact=args.known_answer_artifact,
                 rerun_milp=True,

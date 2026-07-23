@@ -1,3 +1,7 @@
+import json
+from pathlib import Path
+
+from archon.commands import qcode_formalize
 from archon.commands.qcode_formalize import distance_is_exact, prepare_catalogs
 
 
@@ -62,3 +66,51 @@ def test_prepare_catalogs_prefers_milp_audited_rows():
     exact_catalog, upper_catalog = prepare_catalogs([unaudited, audited], 1)
     assert len(exact_catalog["archon-qcode-exact"]) == 1
     assert not upper_catalog["archon-qcode-upper"]
+
+
+def test_formalize_routes_generic_certificate_only_to_universal(
+    tmp_path, monkeypatch,
+):
+    repo = tmp_path / "qcode"
+    run_root = repo / "results" / "runs" / "route-test"
+    certificate_dir = run_root / "certificates"
+    certificate_dir.mkdir(parents=True)
+    certificate = {
+        "certificate_type": "qldpc-css-matrix-exact",
+        "passed": True,
+        "claim": {"n": 2, "k": 1, "d": 1},
+    }
+    (certificate_dir / "candidate.json").write_text(json.dumps(certificate))
+    manifest = {
+        "certificates": [{
+            "file": "certificates/candidate.json",
+            "verification": {"passed": True},
+        }],
+    }
+    (run_root / "challenge_manifest.json").write_text(json.dumps(manifest))
+    calls = []
+
+    def record_run(cmd, cwd):
+        calls.append([str(part) for part in cmd])
+
+    monkeypatch.setattr(qcode_formalize, "_run", record_run)
+    output = qcode_formalize.formalize_qcode_run(
+        lean_project=tmp_path / "lean",
+        repo_dir=repo,
+        bridge_dir=tmp_path / "bridges",
+        run_id="route-test",
+        python="python",
+        top=0,
+        witness_timeout=10,
+        sat_timeout=30,
+        skip_missing=False,
+    )
+    invoked = [Path(call[1]).name for call in calls]
+    assert invoked == [
+        "check_release_manifest.py",
+        "verify_release.py",
+        "bridge_universal.py",
+    ]
+    result = json.loads((output / "manifest.json").read_text())
+    assert result["universal_exact_claims"] == 1
+    assert result["exact_claims"] == result["upper_bound_claims"] == 0
