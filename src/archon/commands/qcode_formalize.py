@@ -51,10 +51,27 @@ def prepare_catalogs(rows: list[dict[str, Any]], limit: int) -> tuple[dict, dict
     audited = [row for row in valid if row.get("milp_attempted")]
     if audited:
         valid = audited
+    novelty_checked = [
+        row for row in valid
+        if isinstance(row.get("structural_novelty"), dict)
+        and row["structural_novelty"].get("checked") is True
+    ]
+    if novelty_checked:
+        valid = [
+            row for row in novelty_checked
+            if row["structural_novelty"].get("novel") is True
+        ]
     valid.sort(key=lambda row: float(row.get("score", 0) or 0), reverse=True)
     selected, seen = [], set()
     for row in valid:
-        key = _code_key(row)
+        novelty = row.get("structural_novelty") or {}
+        digest = novelty.get("canonical_digest")
+        key = (
+            "structural",
+            int(row["n"]),
+            int(row["k"]),
+            digest,
+        ) if digest else ("polynomial", *_code_key(row))
         if key in seen:
             continue
         seen.add(key); selected.append(row)
@@ -72,6 +89,7 @@ def prepare_catalogs(rows: list[dict[str, Any]], limit: int) -> tuple[dict, dict
             "discovery_stage": row.get("stage"),
             "distance_source": row.get("distance_source", "bp_osd"),
             "score": row.get("score", 0),
+            "structural_novelty": row.get("structural_novelty"),
         }
         (exact if is_exact else upper).append(normalized)
     return {"archon-qcode-exact": exact}, {"archon-qcode-upper": upper}
@@ -105,7 +123,28 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
                          witness_timeout: int, sat_timeout: int,
                          skip_missing: bool) -> Path:
     """Generate CSS, distance-upper, and exact-distance Lean modules."""
-    rows = load_evaluations(repo_dir, run_id)
+    release_manifest = repo_dir / "results" / "runs" / run_id / "challenge_manifest.json"
+    _run([
+        python,
+        str(repo_dir / "scripts" / "check_release_manifest.py"),
+        str(release_manifest),
+        "--run-id", run_id,
+    ], repo_dir)
+    release = json.loads(release_manifest.read_text())
+    rows = []
+    for entry in release["certificates"]:
+        certificate_path = release_manifest.parent / entry["file"]
+        certificate = json.loads(certificate_path.read_text())
+        if (
+            certificate.get("passed") is not True
+            or entry.get("verification", {}).get("passed") is not True
+        ):
+            raise RuntimeError(
+                f"unverified challenge certificate cannot be formalized: {certificate_path}"
+            )
+        rows.append(certificate["claim"])
+    if not rows:
+        raise RuntimeError("verified challenge release contains no formalizable claims")
     exact_catalog, upper_catalog = prepare_catalogs(rows, top)
     all_catalog = {"archon-qcode": exact_catalog["archon-qcode-exact"]
                    + upper_catalog["archon-qcode-upper"]}

@@ -273,8 +273,21 @@ def qcode_discovery(
         log.success(f"Qcode metrics: {metric_paths[0]}")
 
     if formalize or prove:
-        from archon.commands.qcode_formalize import formalize_qcode_run, verify_qcode_run
         assert selected_run_id is not None
+        _run([
+            "python", str(repo / "scripts" / "certify_run.py"),
+            "--run-id", selected_run_id,
+            "--limit", str(formalize_top if formalize_top is not None else top),
+            "--known-answer-mode", "fast",
+            "--timeout-per-logical", str(milp_timeout_per_logical),
+            "--total-timeout", str(milp_total_timeout),
+        ], cwd=repo, env=env)
+        _run([
+            "python", str(repo / "scripts" / "check_release_manifest.py"),
+            str(repo / "results" / "runs" / selected_run_id / "challenge_manifest.json"),
+            "--run-id", selected_run_id,
+        ], cwd=repo, env=env)
+        from archon.commands.qcode_formalize import formalize_qcode_run, verify_qcode_run
         lean_root = (lean_project or _default_lean_project(project)).resolve()
         bridges = (bridge_dir or _default_bridge_dir(project, lean_root)).resolve()
         required = [bridges / name for name in ("bridge_css.py", "bridge_distance.py", "bridge_exact.py")]
