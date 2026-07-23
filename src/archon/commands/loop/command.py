@@ -646,4 +646,12 @@ def parse_from_phase(from_phase: str | None) -> set[str]:
         if ph == from_norm:
             break
         skip.add(ph)
+
+    # Auxiliary phases sit between the three user-facing phases.  A resume
+    # from prover/review must skip the auxiliaries that precede that point;
+    # otherwise `--from review` unexpectedly re-runs full-project grounding.
+    if from_norm in {"prover", "review"}:
+        skip.add("physics-grounding")
+    if from_norm == "review":
+        skip.update({"marker-sync", "blueprint-doctor", "axiom-sweep"})
     return skip

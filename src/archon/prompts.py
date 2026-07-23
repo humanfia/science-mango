@@ -1974,6 +1974,7 @@ def build_review_prompt(
     *,
     recent_iter_window: int = 3,
     compact_input_pack: Path | None = None,
+    formalization_review_gate: bool = False,
 ) -> str:
     sidecar_block = _iter_sidecar_context_block(
         state_dir, iter_num,
@@ -1999,6 +2000,31 @@ def build_review_prompt(
             f"{state_dir}/prompts/review.md."
         )
 
+    formalization_gate_block = ""
+    if formalization_review_gate and normalize_stage_for_prompt_path(stage) == "autoformalize":
+        formalization_gate_block = dedent("""
+
+            ## Mandatory per-target formalization Review verdict
+
+            This autoformalization run has a hard semantic gate. Every target
+            represented in `milestones.jsonl` MUST include:
+
+            ```json
+            "formalization_review": {
+              "status": "passed|failed",
+              "reason": "specific semantic/grounding verdict"
+            }
+            ```
+
+            Judge the formal statement independently of proof completion.
+            `passed` requires faithful source/figure/units/laws, truthful
+            grounding, no answer-as-assumption or globalized approximation,
+            and no live modeling/grounding doctor blocker. Missing evidence is
+            `failed`, never an implicit pass. The orchestrator retries failed
+            targets and permanently blocks them from prover dispatch after the
+            configured maximum Review attempts.
+        """)
+
     return dedent(f"""\
         You are the review agent for project '{project_name}'. Current stage: {stage}.
         Archon iteration: {iter_num:03d}.
@@ -2014,5 +2040,5 @@ def build_review_prompt(
           {session_dir}/summary.md
           {session_dir}/recommendations.md
           {state_dir}/PROJECT_STATUS.md""") \
-        + memory_block + sidecar_block + catalog_block + doctor_block + physics_block + sync_block \
+        + formalization_gate_block + memory_block + sidecar_block + catalog_block + doctor_block + physics_block + sync_block \
         + debug_feedback_block(debug_feedback, state_dir, "review", iter_num)

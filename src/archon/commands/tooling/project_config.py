@@ -46,6 +46,17 @@ def default_config() -> dict[str, Any]:
             'model': 'opus',
             'verbose_logs': False,
             'no_review': False,
+            '_formalization_review_gate_help': (
+                "If true, every target must pass semantic Review in the "
+                "autoformalize stage before it can enter prover. Failed "
+                "targets are retried and then quarantined persistently."
+            ),
+            'formalization_review_gate': False,
+            '_formalization_review_max_iterations_help': (
+                "Maximum autoformalize→Review attempts per target before "
+                "status becomes review_exhausted and prover dispatch is forbidden."
+            ),
+            'formalization_review_max_iterations': 2,
             '_lean_aware_help': (
                 "If true, `archon dag` reads existing .lean files to discover "
                 "declarations needing blueprint coverage."

@@ -24,11 +24,13 @@ from archon.prompt_compression import (
 )
 from archon.phase_input_summary import build_review_input_pack
 from archon.prompts import build_review_prompt
+from archon.state import normalize_stage_for_prompt_path, parse_objective_files
 from archon.state import write_meta
 from archon.state.progress import is_complete, write_stage
 from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
+from ..formalization_review_gate import apply_formalization_review
 from ..resume import REVIEW_CONTINUE, persist_session_id, pick_resume_session
 from ..utils import data_path
 from .base import Phase, PhaseResult
@@ -340,6 +342,14 @@ class ReviewPhase(Phase):
 
     def run(self) -> PhaseResult:
         ctx = self.ctx
+        formalization_gate_active = (
+            ctx.options.formalization_review_gate
+            and normalize_stage_for_prompt_path(ctx.current_stage) == "autoformalize"
+        )
+        reviewed_objectives = (
+            parse_objective_files(ctx.progress_file, ctx.project_path)
+            if formalization_gate_active else []
+        )
 
         if self.skip_token in ctx.skip_now:
             log.phase(self.number, f"{self.name} — skipped (--from)")
@@ -348,6 +358,14 @@ class ReviewPhase(Phase):
         if ctx.dry_run:
             return PhaseResult(skipped=True)
         if ctx.options.no_review:
+            if formalization_gate_active:
+                log.error(
+                    "formalization Review gate is enabled, but Review is disabled; "
+                    "targets will remain uncertified and cannot enter prover"
+                )
+                write_meta(ctx.iter_meta, **{
+                    "review.formalizationGateStatus": "review_required",
+                })
             self._run_physics_doctor_gate()
             return PhaseResult(skipped=True)
 
@@ -355,8 +373,45 @@ class ReviewPhase(Phase):
         review_start = time.monotonic()
         write_meta(ctx.iter_meta, **{"review.status": "running"})
 
-        self._invoke_review()
+        review_ok = self._invoke_review()
+        if not review_ok:
+            review_secs = int(time.monotonic() - review_start)
+            write_meta(ctx.iter_meta, **{
+                "review.status": "error",
+                "review.durationSecs": review_secs,
+                "review.error": (
+                    "review agent exited unsuccessfully; formalization gate "
+                    "was not updated"
+                ),
+            })
+            raise RuntimeError(
+                "Review agent exited unsuccessfully; refusing to apply "
+                "formalization verdicts or consume Review attempts"
+            )
         blockers, reset_complete = self._run_physics_doctor_gate()
+        formalization_result = None
+        if formalization_gate_active:
+            formalization_result = apply_formalization_review(
+                state_dir=ctx.state_dir,
+                project_path=ctx.project_path,
+                progress_file=ctx.progress_file,
+                session_dir=(
+                    ctx.state_dir / "proof-journal" / "sessions"
+                    / f"session_{ctx.iter_num}"
+                ),
+                iter_num=ctx.iter_num,
+                reviewed_objectives=reviewed_objectives,
+                max_iterations=ctx.options.formalization_review_max_iterations,
+                blockers=blockers,
+            )
+            ctx.current_stage = read_stage(ctx.progress_file)
+            log.info(
+                "formalization Review gate: "
+                f"passed={len(formalization_result.passed)}, "
+                f"retry={len(formalization_result.retry)}, "
+                f"exhausted={len(formalization_result.exhausted)}; "
+                f"next stage={ctx.current_stage}"
+            )
 
         review_secs = int(time.monotonic() - review_start)
         log.info(f"Review phase finished ({review_secs}s)")
@@ -389,6 +444,21 @@ class ReviewPhase(Phase):
             "review.physicsReviewAgentBlockers": review_agent_blocker_count,
             "review.physicsGateResetComplete": reset_complete,
         })
+        if formalization_result is not None:
+            if formalization_result.retry:
+                gate_status = "retry"
+            elif formalization_result.exhausted:
+                gate_status = "exhausted"
+            else:
+                gate_status = "passed"
+            write_meta(ctx.iter_meta, **{
+                "review.formalizationGateEnabled": True,
+                "review.formalizationGateStatus": gate_status,
+                "review.formalizationGatePassed": len(formalization_result.passed),
+                "review.formalizationGateRetry": len(formalization_result.retry),
+                "review.formalizationGateExhausted": len(formalization_result.exhausted),
+                "review.formalizationGateReviewed": len(formalization_result.reviewed),
+            })
         commit_phase(
             ctx.project_path, iter_num=ctx.iter_num, phase="review",
             summary=f"journal session ({review_secs}s)",
@@ -422,14 +492,14 @@ class ReviewPhase(Phase):
                 f"review-agent={len(review_agent_blockers)})"
             )
         if reset_complete:
-            ctx.current_stage = read_stage(ctx.progress_file, ctx.force_stage())
+            ctx.current_stage = read_stage(ctx.progress_file)
             log.warn(
                 "physics review gate: PROGRESS.md was COMPLETE despite "
                 f"physics blockers; reset stage to '{ctx.current_stage}'."
             )
         return blockers, reset_complete
 
-    def _invoke_review(self) -> None:
+    def _invoke_review(self) -> bool:
         ctx = self.ctx
         # Session number == iteration number. The pre-2026 monotonic
         # counter drifted away from iter numbers whenever the user did
@@ -531,6 +601,7 @@ class ReviewPhase(Phase):
             debug_feedback=ctx.options.debug_feedback,
             recent_iter_window=resolve_recent_iter_window(cfg),
             compact_input_pack=compact_input_pack,
+            formalization_review_gate=ctx.options.formalization_review_gate,
         )
         prompt = _maybe_compress_review_prompt(ctx, prompt)
         review_log = ctx.iter_dir / "review"
@@ -541,7 +612,7 @@ class ReviewPhase(Phase):
             cwd=ctx.project_path,
             jsonl_fallback=Path(str(review_log) + ".jsonl"),
         )
-        ctx.make_agent("review").run(
+        review_ok = ctx.make_agent("review").run(
             REVIEW_CONTINUE if resume_sid else prompt,
             cwd=ctx.project_path,
             log_base=review_log, verbose_logs=ctx.verbose_logs,
@@ -580,3 +651,4 @@ class ReviewPhase(Phase):
                     )
                 except OSError:
                     pass
+        return review_ok
