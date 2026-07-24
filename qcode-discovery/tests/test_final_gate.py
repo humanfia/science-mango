@@ -4,6 +4,7 @@ import json
 
 from evaluation.final_gate import (
     classify_win,
+    minimum_winning_distance,
     evaluate_final_gate,
     validate_known_answer_artifact,
 )
@@ -88,6 +89,14 @@ def test_scalar_and_pareto_win_rules():
     assert classify_win(72, 8, 12)["passed"] is True
     assert classify_win(144, 13, 12)["passed"] is True
     assert classify_win(144, 12, 12)["passed"] is False
+
+
+def test_minimum_winning_distance_includes_pareto_fronts():
+    assert minimum_winning_distance(72, 12) == 7
+    assert minimum_winning_distance(90, 8) == 11
+    assert minimum_winning_distance(108, 8) == 11
+    assert minimum_winning_distance(144, 12) == 13
+    assert minimum_winning_distance(288, 12) == 17
 
 
 def test_final_gate_rejects_missing_structural_audit(tmp_path):

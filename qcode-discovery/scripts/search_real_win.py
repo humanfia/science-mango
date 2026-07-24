@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 import time
 from pathlib import Path
@@ -21,7 +20,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.certificate import pack_vector
-from evaluation.final_gate import _connected
+from evaluation.final_gate import _connected, minimum_winning_distance
 from evaluation.noncss_certificate import (
     build_noncss_certificate,
     solve_symplectic_direction,
@@ -124,7 +123,7 @@ def main() -> int:
             if not connected or max_weight > 6 or max_degree > 6:
                 continue
             stats["static_pass"] += 1
-            required_distance = math.floor(math.sqrt(12 * n / k)) + 1
+            required_distance = minimum_winning_distance(n, k)
             logicals = get_symplectic_logicals(code)
             if logicals.shape != (2 * k, 2 * n):
                 continue

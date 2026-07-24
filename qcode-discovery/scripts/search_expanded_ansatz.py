@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 import time
 from pathlib import Path
@@ -30,7 +29,7 @@ from evaluation.certificate import (
 )
 from evaluation.certificate_dispatch import build_certificate, verify_certificate
 from evaluation.distance_milp import get_code_matrices
-from evaluation.final_gate import _connected
+from evaluation.final_gate import _connected, minimum_winning_distance
 from evaluation.matrix_io import pack_matrix
 from evaluation.registry import check_code_novelty
 
@@ -170,7 +169,7 @@ def main() -> int:
             if not connected or max_weight > 6 or max_degree > 6:
                 continue
             stats["static_pass"] += 1
-            required_distance = math.floor(math.sqrt(12 * n / k)) + 1
+            required_distance = minimum_winning_distance(n, k)
             basis_bound = min(
                 int(row.sum()) for row in np.vstack((lx, lz))
             )

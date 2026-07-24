@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from ortools.sat.python import cp_model
 from scipy.optimize import Bounds, LinearConstraint, milp
 
 from evaluation.bb_code import build_bb_code
@@ -160,6 +161,247 @@ def solve_css_direction(
         "elapsed_s": elapsed,
         "operator": operator,
     }
+
+
+def solve_css_below_threshold(
+    check_matrix: np.ndarray,
+    target_logical: np.ndarray,
+    *,
+    max_weight: int,
+    timeout: float,
+) -> dict[str, Any]:
+    """Decide whether one logical coset contains an operator up to max_weight.
+
+    Search only needs a low-weight counterexample or a proof that none exists;
+    it does not need the exact optimum.  A feasible result carries the same
+    replayable operator format as ``solve_css_direction``.  HiGHS status 2 is
+    an infeasibility proof for the bounded integer model.
+    """
+    checks = np.asarray(check_matrix, dtype=np.uint8) & 1
+    logical = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
+    num_checks, n = checks.shape
+    if logical.size != n:
+        raise ValueError("logical/check width mismatch")
+    if max_weight < 0:
+        raise ValueError("max_weight must be nonnegative")
+
+    num_vars = n + num_checks + 1
+    objective = np.zeros(num_vars)
+    matrix = np.zeros((num_checks + 2, num_vars))
+    matrix[:num_checks, :n] = checks
+    matrix[:num_checks, n:n + num_checks] = -2 * np.eye(num_checks)
+    matrix[num_checks, :n] = logical
+    matrix[num_checks, -1] = -2
+    matrix[-1, :n] = 1
+
+    constraint_lower = np.zeros(num_checks + 2)
+    constraint_upper = np.zeros(num_checks + 2)
+    constraint_lower[num_checks] = 1
+    constraint_upper[num_checks] = 1
+    constraint_upper[-1] = max_weight
+
+    lower = np.zeros(num_vars)
+    upper = np.ones(num_vars)
+    upper[n:n + num_checks] = np.ceil(checks.sum(axis=1) / 2)
+    upper[-1] = np.ceil(logical.sum() / 2)
+    options: dict[str, Any] = {"presolve": True}
+    if 0 < timeout < 1e9:
+        options["time_limit"] = float(timeout)
+
+    started = time.monotonic()
+    solved = milp(
+        c=objective,
+        constraints=LinearConstraint(
+            matrix, constraint_lower, constraint_upper,
+        ),
+        integrality=np.ones(num_vars),
+        bounds=Bounds(lower, upper),
+        options=options,
+    )
+    elapsed = time.monotonic() - started
+    operator = None
+    weight = None
+    if solved.x is not None:
+        rounded = np.rint(solved.x[:n]).astype(np.uint8)
+        operator = pack_vector(rounded)
+        weight = int(rounded.sum())
+
+    def number(name: str, *, integer: bool = False):
+        value = getattr(solved, name, None)
+        if value is None or not np.isfinite(value):
+            return None
+        return int(round(value)) if integer else float(value)
+
+    return {
+        "formulation": "css-logical-threshold-feasibility-v1",
+        "max_weight": int(max_weight),
+        "success": bool(solved.success),
+        "status": int(solved.status),
+        "message": str(solved.message),
+        "threshold_infeasible": bool(
+            int(solved.status) == 2 and solved.x is None
+        ),
+        "objective": weight,
+        "mip_dual_bound": number("mip_dual_bound"),
+        "mip_gap": number("mip_gap"),
+        "mip_node_count": number("mip_node_count", integer=True),
+        "elapsed_s": elapsed,
+        "operator": operator,
+    }
+
+
+def solve_css_sector_xor(
+    check_matrix: np.ndarray,
+    target_logicals: np.ndarray,
+    *,
+    timeout: float,
+    max_weight: int | None = None,
+    workers: int = 1,
+    seed: int = 0,
+    anchor_indices: tuple[int, ...] | None = None,
+    linear_parity_cuts: bool = True,
+) -> dict[str, Any]:
+    """Solve one complete CSS logical sector with native XOR constraints."""
+    checks = np.asarray(check_matrix, dtype=np.uint8) & 1
+    targets = np.asarray(target_logicals, dtype=np.uint8) & 1
+    if checks.ndim != 2 or targets.ndim != 2:
+        raise ValueError("checks and target_logicals must be matrices")
+    if checks.shape[1] != targets.shape[1] or not len(targets):
+        raise ValueError("logical/check width mismatch or empty logical basis")
+    if max_weight is not None and max_weight < 0:
+        raise ValueError("max_weight must be nonnegative")
+    if not 1 <= workers <= 8:
+        raise ValueError("workers must be between 1 and 8")
+    anchors = tuple(int(index) for index in (anchor_indices or ()))
+    if any(index < 0 or index >= checks.shape[1] for index in anchors):
+        raise ValueError("anchor index out of range")
+    if len(set(anchors)) != len(anchors):
+        raise ValueError("anchor indices must be distinct")
+
+    model = cp_model.CpModel()
+    n = checks.shape[1]
+    variables = [model.new_bool_var(f"x_{index}") for index in range(n)]
+    true_literal = model.new_constant(1)
+    for row_index, row in enumerate(checks):
+        support = [variables[index] for index in np.flatnonzero(row)]
+        model.add_bool_xor(support + [true_literal])
+        if linear_parity_cuts:
+            half_weight = model.new_int_var(
+                0, len(support) // 2, f"check_half_weight_{row_index}",
+            )
+            model.add(sum(support) == 2 * half_weight)
+
+    logical_bits = []
+    for index, row in enumerate(targets):
+        logical_bit = model.new_bool_var(f"logical_{index}")
+        logical_bits.append(logical_bit)
+        support = [variables[column] for column in np.flatnonzero(row)]
+        model.add_bool_xor(support + [logical_bit.Not()])
+        if linear_parity_cuts:
+            half_weight = model.new_int_var(
+                0, len(support) // 2, f"logical_half_weight_{index}",
+            )
+            model.add(sum(support) - logical_bit == 2 * half_weight)
+    model.add(sum(logical_bits) >= 1)
+    if anchors:
+        model.add_bool_or([variables[index] for index in anchors])
+    if max_weight is None:
+        model.minimize(sum(variables))
+    else:
+        model.add(sum(variables) <= int(max_weight))
+
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = float(timeout)
+    solver.parameters.num_search_workers = int(workers)
+    solver.parameters.random_seed = int(seed)
+    solver.parameters.cp_model_presolve = True
+    solver.parameters.symmetry_level = 2
+    started = time.monotonic()
+    status = solver.solve(model)
+    elapsed = time.monotonic() - started
+    status_name = solver.status_name(status)
+    has_solution = status in (cp_model.FEASIBLE, cp_model.OPTIMAL)
+    operator = None
+    objective = None
+    logical_syndrome = None
+    if has_solution:
+        vector = np.fromiter(
+            (solver.value(variable) for variable in variables),
+            dtype=np.uint8,
+            count=n,
+        )
+        operator = pack_vector(vector)
+        objective = int(vector.sum())
+        logical_syndrome = [
+            int(solver.value(logical_bit)) for logical_bit in logical_bits
+        ]
+    response = solver.response_proto
+    return {
+        "formulation": "css-sector-xor-cpsat-v1",
+        "solver": "ortools-cp-sat",
+        "solver_version": _package_version("ortools"),
+        "status": int(status),
+        "status_name": status_name,
+        "success": has_solution,
+        "exact": bool(max_weight is None and status == cp_model.OPTIMAL),
+        "threshold_infeasible": bool(
+            max_weight is not None and status == cp_model.INFEASIBLE
+        ),
+        "max_weight": max_weight,
+        "objective": objective,
+        "best_objective_bound": float(solver.best_objective_bound),
+        "branches": int(solver.num_branches),
+        "conflicts": int(solver.num_conflicts),
+        "wall_time_s": float(solver.wall_time),
+        "deterministic_time": float(response.deterministic_time),
+        "elapsed_s": elapsed,
+        "workers": int(workers),
+        "random_seed": int(seed),
+        "anchor_indices": list(anchors),
+        "linear_parity_cuts": bool(linear_parity_cuts),
+        "logical_syndrome": logical_syndrome,
+        "operator": operator,
+    }
+
+
+def verify_css_sector_witness(
+    evidence: dict[str, Any],
+    check_matrix: np.ndarray,
+    target_logicals: np.ndarray,
+) -> list[str]:
+    """Replay a global-sector witness without trusting CP-SAT metadata."""
+    try:
+        operator = unpack_vector(evidence["operator"])
+    except (KeyError, TypeError, ValueError) as exc:
+        return [f"invalid packed vector: {exc}"]
+    checks = np.asarray(check_matrix, dtype=np.uint8) & 1
+    targets = np.asarray(target_logicals, dtype=np.uint8) & 1
+    if operator.size != checks.shape[1] or targets.shape[1] != operator.size:
+        return ["operator width mismatch"]
+    failures: list[str] = []
+    try:
+        anchors = [int(index) for index in evidence.get("anchor_indices", [])]
+    except (TypeError, ValueError):
+        failures.append("invalid anchor indices")
+        anchors = []
+    if any(index < 0 or index >= operator.size for index in anchors):
+        failures.append("anchor index out of range")
+    elif anchors and not any(int(operator[index]) for index in anchors):
+        failures.append("operator violates stored symmetry anchors")
+    if np.any((checks @ operator) & 1):
+        failures.append("operator has nonzero stabilizer syndrome")
+    syndrome = ((targets @ operator) & 1).astype(int).tolist()
+    if not any(syndrome):
+        failures.append("operator is trivial in the logical quotient")
+    if evidence.get("logical_syndrome") != syndrome:
+        failures.append("stored logical syndrome does not match operator")
+    weight = int(operator.sum())
+    if evidence.get("objective") != weight:
+        failures.append("objective does not equal operator weight")
+    max_weight = evidence.get("max_weight")
+    if max_weight is not None and weight > int(max_weight):
+        failures.append("operator exceeds threshold bound")
+    return failures
 
 
 def verify_css_witness(

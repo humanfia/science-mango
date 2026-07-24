@@ -197,6 +197,16 @@ def classify_win(n: int, k: int, d: int) -> dict[str, Any]:
     return {"passed": bool(reasons), "fom": fom, "reasons": reasons}
 
 
+def minimum_winning_distance(n: int, k: int) -> int:
+    """Return the smallest distance that satisfies any scalar or Pareto win rule."""
+    if n <= 0 or k <= 0:
+        raise ValueError("n and k must be positive")
+    for distance in range(1, n + 1):
+        if classify_win(n, k, distance)["passed"]:
+            return distance
+    raise ValueError(f"no winning distance exists for n={n}, k={k}")
+
+
 def evaluate_final_gate(
     row: dict[str, Any],
     *,

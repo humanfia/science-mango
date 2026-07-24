@@ -8,8 +8,12 @@ from evaluation.bb_code import build_bb_code
 from evaluation.certificate import (
     _certificate_sha256,
     pack_vector,
+    solve_css_below_threshold,
     solve_css_direction,
+    solve_css_sector_xor,
     unpack_vector,
+    verify_css_sector_witness,
+    verify_css_witness,
     verify_direction_evidence,
 )
 from evaluation.distance_milp import get_code_matrices
@@ -46,6 +50,76 @@ def test_direction_evidence_contains_replayable_zero_gap_witness():
     assert evidence["mip_gap"] == 0.0
     assert evidence["mip_dual_bound"] == evidence["objective"]
     assert verify_direction_evidence(evidence, checks, logical) == []
+
+
+def test_threshold_direction_proves_absence_below_exact_distance():
+    checks, logical = _tiny_direction()
+    evidence = solve_css_below_threshold(
+        checks, logical, max_weight=1, timeout=30,
+    )
+    assert evidence["status"] == 2
+    assert evidence["threshold_infeasible"] is True
+    assert evidence["operator"] is None
+
+
+def test_threshold_direction_returns_replayable_counterexample():
+    checks, logical = _tiny_direction()
+    evidence = solve_css_below_threshold(
+        checks, logical, max_weight=2, timeout=30,
+    )
+    assert evidence["success"] is True
+    assert evidence["threshold_infeasible"] is False
+    assert evidence["objective"] == 2
+    evidence["target_logical"] = pack_vector(logical)
+    assert verify_css_witness(evidence, checks, logical) == []
+
+def test_xor_sector_threshold_proves_absence_below_distance():
+    checks, logical = _tiny_direction()
+    evidence = solve_css_sector_xor(
+        checks, logical[None, :], timeout=30, max_weight=1,
+    )
+    assert evidence["status_name"] == "INFEASIBLE"
+    assert evidence["threshold_infeasible"] is True
+    assert evidence["operator"] is None
+
+
+def test_xor_sector_returns_replayable_global_witness():
+    checks, logical = _tiny_direction()
+    evidence = solve_css_sector_xor(
+        checks, logical[None, :], timeout=30, max_weight=2,
+    )
+    assert evidence["success"] is True
+    assert evidence["objective"] == 2
+    assert verify_css_sector_witness(
+        evidence, checks, logical[None, :],
+    ) == []
+    exact = solve_css_sector_xor(
+        checks, logical[None, :], timeout=30,
+    )
+    assert exact["exact"] is True
+    assert exact["objective"] == 2
+
+
+def test_xor_sector_anchor_is_replayed_from_witness():
+    checks, logical = _tiny_direction()
+    evidence = solve_css_sector_xor(
+        checks,
+        logical[None, :],
+        timeout=30,
+        max_weight=2,
+        anchor_indices=(0, 4),
+    )
+    assert evidence["success"] is True
+    assert verify_css_sector_witness(
+        evidence, checks, logical[None, :],
+    ) == []
+    operator = unpack_vector(evidence["operator"])
+    zero_index = int(np.flatnonzero(operator == 0)[0])
+    evidence["anchor_indices"] = [zero_index]
+    assert "operator violates stored symmetry anchors" in verify_css_sector_witness(
+        evidence, checks, logical[None, :],
+    )
+
 
 
 def test_direction_evidence_rejects_tampered_objective():
