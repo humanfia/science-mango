@@ -12,7 +12,7 @@ from functools import lru_cache
 
 import numpy as np
 
-from evaluation.bb_code import build_bb_code, get_code_params_fast
+from evaluation.bb_code import build_bb_code, get_code_params_fast, validate_terms
 from evaluation.tanner_equivalence import (
     canonical_hash,
     extract_full_vertex_isomorphism,
@@ -45,6 +45,92 @@ def _matrices(code):
         else code.matrix_z, dtype=np.uint8,
     ) & 1
     return hx, hz
+
+
+def _component_sizes(checks: np.ndarray) -> list[int]:
+    """Return Tanner-component sizes using the final gate's graph definition."""
+    matrix = np.asarray(checks, dtype=np.uint8) & 1
+    num_checks, num_qubits = matrix.shape
+    adjacency = [[] for _ in range(num_checks + num_qubits)]
+    for check_index, qubit_index in np.argwhere(matrix):
+        left = int(check_index)
+        right = num_checks + int(qubit_index)
+        adjacency[left].append(right)
+        adjacency[right].append(left)
+
+    unseen = set(range(len(adjacency)))
+    sizes = []
+    while unseen:
+        start = unseen.pop()
+        size = 0
+        stack = [start]
+        while stack:
+            node = stack.pop()
+            size += 1
+            for neighbor in adjacency[node]:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    stack.append(neighbor)
+        sizes.append(size)
+    return sorted(sizes, reverse=True)
+
+
+def check_css_static_eligibility(
+    ell, m, a_terms, b_terms, *, reported_n=None, reported_k=None,
+) -> dict:
+    """Run cheap, fail-closed challenge gates before BLISS or distance MILP.
+
+    The code is rebuilt, then commutation, check weight, qubit degree, positive
+    dimension, and connectedness are recomputed from H_X/H_Z. Optional reported
+    n/k values are cross-checked but never trusted as inputs to those checks.
+    """
+    try:
+        ell, m = int(ell), int(m)
+        a_terms = [tuple(map(int, term)) for term in a_terms]
+        b_terms = [tuple(map(int, term)) for term in b_terms]
+        validate_terms(ell, m, a_terms, "A")
+        validate_terms(ell, m, b_terms, "B")
+        code = build_bb_code(ell, m, a_terms, b_terms)
+        hx, hz = _matrices(code)
+    except (TypeError, ValueError) as exc:
+        return {
+            "checked": True,
+            "eligible": False,
+            "checks": {"candidate_rebuild": False},
+            "failures": [f"candidate_rebuild: {exc}"],
+        }
+
+    stacked = np.vstack((hx, hz))
+    component_sizes = _component_sizes(stacked)
+    max_row_weight = int(stacked.sum(axis=1).max(initial=0))
+    max_qubit_degree = int(stacked.sum(axis=0).max(initial=0))
+    n, k = get_code_params_fast(code)
+    checks = {
+        "candidate_rebuild": True,
+        "positive_dimension": int(k) > 0,
+        "css_commutation": int(np.count_nonzero((hx @ hz.T) & 1)) == 0,
+        "weight_and_degree_at_most_6": (
+            max_row_weight <= 6 and max_qubit_degree <= 6
+        ),
+        "connected_tanner_graph": len(component_sizes) == 1,
+    }
+    if reported_n is not None:
+        checks["reported_n_matches"] = int(reported_n) == int(n)
+    if reported_k is not None:
+        checks["reported_k_matches"] = int(reported_k) == int(k)
+    failures = [name for name, passed in checks.items() if not passed]
+    return {
+        "checked": True,
+        "eligible": not failures,
+        "checks": checks,
+        "failures": failures,
+        "n": int(n),
+        "k": int(k),
+        "max_row_weight": max_row_weight,
+        "max_qubit_degree": max_qubit_degree,
+        "tanner_components": len(component_sizes),
+        "tanner_component_sizes": component_sizes,
+    }
 
 
 def canonical_digest(code) -> str:
@@ -155,8 +241,29 @@ def check_css_structural_novelty(ell, m, a_terms, b_terms) -> dict:
 
 
 def annotate_css_result(result: dict) -> dict:
-    """Return a result copy carrying its structural-novelty audit."""
+    """Return a result copy carrying static and structural eligibility audits."""
     annotated = dict(result)
+    static = check_css_static_eligibility(
+        int(result["ell"]),
+        int(result["m"]),
+        result["A_terms"],
+        result["B_terms"],
+        reported_n=result.get("n"),
+        reported_k=result.get("k"),
+    )
+    annotated["static_eligibility"] = static
+    if not static["eligible"]:
+        annotated["structural_novelty"] = {
+            "checked": False,
+            "novel": False,
+            "relation": "static_ineligible",
+            "canonical_digest": None,
+            "matched_reference": None,
+            "reference_digest": None,
+            "explicit_isomorphism": None,
+        }
+        annotated["structural_rejection"] = "static_ineligible"
+        return annotated
     annotated["structural_novelty"] = check_css_structural_novelty(
         int(result["ell"]),
         int(result["m"]),
@@ -177,8 +284,13 @@ def deduplicate_css_results(results: list[dict]) -> tuple[list[dict], list[dict]
     representatives: dict[tuple[int, int, str], tuple[dict, object]] = {}
     for result in results:
         annotated = annotate_css_result(result)
+        static = annotated["static_eligibility"]
+        if not static["eligible"]:
+            rejected.append(annotated)
+            continue
         audit = annotated["structural_novelty"]
         if not audit["novel"]:
+            annotated["structural_rejection"] = "known_reference"
             rejected.append(annotated)
             continue
 
@@ -212,5 +324,6 @@ def deduplicate_css_results(results: list[dict]) -> tuple[list[dict], list[dict]
             "reference_digest": key[2],
             "explicit_isomorphism": replay,
         }
+        annotated["structural_rejection"] = "within_run_duplicate"
         rejected.append(annotated)
     return kept, rejected

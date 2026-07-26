@@ -25,6 +25,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--review-effort", default="xhigh")
     parser.add_argument("--api-base")
     parser.add_argument(
+        "--evolution-config", type=Path,
+        help="Explicit OpenEvolve YAML, e.g. evolve/config_ansatz_server.yaml.",
+    )
+    parser.add_argument(
+        "--evolution-seed", type=Path,
+        help="Matching seed program, e.g. evolve/seed_solution_ansatz.py.",
+    )
+    parser.add_argument(
         "--codex-cli", action="store_true",
         help="Use authenticated Codex CLI instead of an OpenAI-compatible API.",
     )
@@ -56,6 +64,10 @@ def main() -> None:
         api_base=args.api_base,
         milp_top=args.milp_top,
         milp_timeout_per_logical=args.milp_timeout_per_logical,
+        evolution_config=(
+            args.evolution_config.resolve() if args.evolution_config else None
+        ),
+        evolution_seed=args.evolution_seed.resolve() if args.evolution_seed else None,
         milp_total_timeout=args.milp_total_timeout,
         milp_early_stop=args.milp_early_stop,
         patience=args.patience,

@@ -351,7 +351,7 @@ def evaluate_candidate_milp(
     quick: bool = False,
     milp_timeout_per_logical: int = 30,
     milp_total_timeout: int = 120,
-    milp_early_stop: int = 4,
+    milp_early_stop: int | None = 4,
 ) -> dict:
     """Evaluate a BB code candidate using MILP for exact distance.
 
@@ -398,7 +398,10 @@ def evaluate_candidate_milp(
     # - d_symp ≤ early_stop: MILP would solve in <1s anyway (d ≤ d_symp ≤ 4),
     #   but we can report d_symp directly as a valid upper bound and skip MILP.
     #   This saves hundreds of MILP calls per iteration.
-    if d_symp <= milp_early_stop:
+    if (
+        d_symp <= 2
+        or (milp_early_stop is not None and d_symp <= milp_early_stop)
+    ):
         result["d"] = d_symp
         result["d_is_exact"] = d_symp <= 2  # Only d≤2 is provably exact
         result["distance_trusted"] = True  # Valid upper bound
@@ -418,24 +421,23 @@ def evaluate_candidate_milp(
     result["milp_details"] = details
 
     if details.get("all_timeout"):
-        # No feasible solution at all -- solver couldn't even find an
-        # incumbent.  d > early_stop is a valid lower bound, but we have
-        # NO upper bound.  Don't report phantom FOM from a lower bound;
-        # it would inflate combined_score with fictitious values.
+        # A time limit with no incumbent proves neither an upper nor a lower
+        # distance bound. early_stop is only a stopping policy, not a model
+        # feasibility constraint.
         result["d"] = 0
-        result["d_lower_bound"] = milp_early_stop + 1
         result["d_is_exact"] = False
         result["distance_trusted"] = False
         result["fom"] = 0.0
-        result["score"] = 0.01  # Tiny positive: promising (d > early_stop)
-        result["stage"] = "milp_promising_timeout"
+        result["score"] = 0.0
+        result["distance_status"] = "unknown_no_incumbent"
+        result["stage"] = "milp_timeout_no_incumbent"
     else:
         result["d"] = d
         result["d_is_exact"] = details["exact"]
         result["distance_trusted"] = True  # Incumbent or optimal -- valid upper bound
         result["fom"] = compute_fom(n, k, d)
         result["score"] = result["fom"]
-        if d <= milp_early_stop:
+        if milp_early_stop is not None and d <= milp_early_stop:
             result["stage"] = "milp_low_d"
         elif details["exact"]:
             result["stage"] = "milp_exact"

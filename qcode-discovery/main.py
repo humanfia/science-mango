@@ -254,10 +254,15 @@ def main():
         top, rejected = deduplicate_css_results(top)
         for duplicate in rejected:
             audit = duplicate["structural_novelty"]
+            static = duplicate.get("static_eligibility") or {}
+            detail = audit.get("matched_reference") or ",".join(
+                static.get("failures", [])
+            ) or audit.get("relation")
             logger.info(
-                "Structural duplicate rejected: [[%d,%d,%d]] matches %s",
+                "Candidate rejected by %s: [[%d,%d,%d]] (%s)",
+                duplicate.get("structural_rejection", "structural_gate"),
                 duplicate["n"], duplicate["k"], duplicate["d"],
-                audit["matched_reference"],
+                detail,
             )
     top = top[:args.top]
     for r in top:

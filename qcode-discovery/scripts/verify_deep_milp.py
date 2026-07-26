@@ -32,6 +32,133 @@ INPUT_FILE = "results/campaign7_publication_merged.jsonl"
 OUTPUT_FILE = "results/campaign7_deep_milp.jsonl"
 
 
+def load_bliss_hash_filter(path: str) -> list[str]:
+    """Load a strict, ordered, non-empty explicit worklist.
+
+    An explicit hash file is an operator-selected verification queue, not a
+    second heuristic filter. Malformed or duplicate entries therefore fail
+    closed instead of being silently ignored.
+    """
+    with open(path, encoding="utf-8") as stream:
+        content = stream.read().strip()
+    if not content:
+        raise ValueError("bliss-hash worklist is empty")
+
+    if content.startswith("{") or content.startswith("["):
+        data = json.loads(content)
+        if isinstance(data, list):
+            entries = data
+        elif isinstance(data, dict) and isinstance(data.get("codes"), list):
+            entries = data["codes"]
+        else:
+            raise ValueError(
+                "JSON worklist must be a list or an object with a 'codes' list"
+            )
+    else:
+        entries = [
+            line.strip()
+            for line in content.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+
+    hashes: list[str] = []
+    seen: set[str] = set()
+    for index, entry in enumerate(entries):
+        if isinstance(entry, str):
+            value = entry.strip()
+        elif isinstance(entry, dict):
+            value = entry.get("bliss_hash")
+            value = value.strip() if isinstance(value, str) else ""
+        else:
+            value = ""
+        if not value:
+            raise ValueError(
+                f"worklist entry {index} must contain a non-empty bliss_hash"
+            )
+        if value in seen:
+            raise ValueError(f"duplicate bliss_hash in worklist: {value}")
+        seen.add(value)
+        hashes.append(value)
+    if not hashes:
+        raise ValueError("bliss-hash worklist contains no hashes")
+    return hashes
+
+
+def select_codes_for_verification(
+    all_codes,
+    *,
+    min_fom: float,
+    lat_filter=None,
+    hash_filter: list[str] | None = None,
+):
+    """Select unique codes for deep verification.
+
+    Automatic campaigns remain restricted to TRUSTED rows above ``min_fom``.
+    A supplied hash worklist is an exact operator allowlist and intentionally
+    overrides those two search heuristics, so PARTIAL or low-FOM rows explicitly
+    queued for adjudication cannot disappear before MILP. Lattice filters stay
+    active and every requested hash must resolve exactly once.
+    """
+    by_hash = defaultdict(list)
+    if hash_filter is not None:
+        requested = set(hash_filter)
+        for code in all_codes:
+            bliss_hash = code.get("bliss_hash")
+            if bliss_hash in requested:
+                by_hash[bliss_hash].append(code)
+        missing = [value for value in hash_filter if not by_hash[value]]
+        ambiguous = [value for value in hash_filter if len(by_hash[value]) > 1]
+        if missing:
+            raise ValueError(
+                "requested bliss_hash values were not found: "
+                + ", ".join(missing)
+            )
+        if ambiguous:
+            raise ValueError(
+                "requested bliss_hash values matched multiple input rows: "
+                + ", ".join(ambiguous)
+            )
+        candidates = [by_hash[value][0] for value in hash_filter]
+    else:
+        candidates = [
+            code for code in all_codes
+            if code.get("trust_level") == "TRUSTED"
+            and float(code.get("fom", 0) or 0) >= min_fom
+        ]
+
+    selected = []
+    seen_codes = set()
+    for code in candidates:
+        bliss_hash = code.get("bliss_hash")
+        try:
+            lattice = (int(code["ell"]), int(code["m"]))
+            key = (
+                str(code["A_terms"]),
+                str(code["B_terms"]),
+                str(code["C_terms"]),
+                str(code["D_terms"]),
+                lattice[0],
+                lattice[1],
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            if hash_filter is not None:
+                raise ValueError(
+                    f"explicitly selected code {bliss_hash!r} is malformed: {exc}"
+                ) from exc
+            continue
+        if lat_filter and lattice not in lat_filter:
+            if hash_filter is not None:
+                raise ValueError(
+                    f"explicitly selected code {bliss_hash!r} is excluded by --lattices"
+                )
+            continue
+        if key in seen_codes:
+            continue
+        seen_codes.add(key)
+        selected.append(code)
+    return selected
+
+
 def solve_single_logical(args):
     """Solve one logical -- runs in a worker process."""
     stab_matrix, logical_vec, timeout, code_idx, logical_idx = args
@@ -71,12 +198,16 @@ def main():
                         help="Filter to specific lattices, e.g. 9,6 12,6")
     parser.add_argument("--min-fom", type=float, default=5.0,
                         help="Only verify codes with FOM >= this")
+    parser.add_argument("--plan-only", action="store_true",
+                        help="Validate selection/resume state and print the todo count without "
+                             "building codes or launching any MILP solver.")
     parser.add_argument("--rerun-partial", action="store_true",
                         help="Re-run codes that finished as partial (not EXACT)")
     parser.add_argument("--bliss-hashes-file", type=str, default=None,
                         help="Path to a JSON or text file restricting work to the listed bliss_hashes. "
                              "JSON: a list of hashes, or an object with a 'codes' array of {bliss_hash}. "
-                             "Text: one hash per line, # for comments.")
+                             "Text: one hash per line, # for comments. This exact worklist overrides "
+                             "the automatic TRUSTED/min-FOM heuristics and fails if any hash is absent.")
     args = parser.parse_args()
 
     # Parse lattice filter
@@ -90,26 +221,10 @@ def main():
     # Parse bliss-hash filter
     hash_filter = None
     if args.bliss_hashes_file:
-        with open(args.bliss_hashes_file) as f:
-            content = f.read().strip()
-        hash_filter = set()
-        if content.startswith("{") or content.startswith("["):
-            data = json.loads(content)
-            if isinstance(data, list):
-                for entry in data:
-                    if isinstance(entry, str):
-                        hash_filter.add(entry)
-                    elif isinstance(entry, dict) and "bliss_hash" in entry:
-                        hash_filter.add(entry["bliss_hash"])
-            elif isinstance(data, dict) and "codes" in data:
-                for entry in data["codes"]:
-                    if "bliss_hash" in entry:
-                        hash_filter.add(entry["bliss_hash"])
-        else:
-            for line in content.splitlines():
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    hash_filter.add(line)
+        try:
+            hash_filter = load_bliss_hash_filter(args.bliss_hashes_file)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            parser.error(f"invalid --bliss-hashes-file: {exc}")
         print(f"  bliss-hash filter: {len(hash_filter)} hashes from {args.bliss_hashes_file}")
 
     # Load codes
@@ -122,38 +237,33 @@ def main():
                 continue
             all_codes.append(json.loads(line))
 
-    # Filter to TRUSTED codes with FOM >= threshold
-    trusted = []
-    seen = set()
-    for c in all_codes:
-        if c.get("trust_level") != "TRUSTED":
-            continue
-        if c.get("fom", 0) < args.min_fom:
-            continue
-        lat = (c["ell"], c["m"])
-        if lat_filter and lat not in lat_filter:
-            continue
-        if hash_filter is not None and c.get("bliss_hash") not in hash_filter:
-            continue
-        key = (str(c["A_terms"]), str(c["B_terms"]),
-               str(c["C_terms"]), str(c["D_terms"]), c["ell"], c["m"])
-        if key in seen:
-            continue
-        seen.add(key)
-        trusted.append(c)
+    try:
+        trusted = select_codes_for_verification(
+            all_codes,
+            min_fom=args.min_fom,
+            lat_filter=lat_filter,
+            hash_filter=hash_filter,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
 
     # Sort by n (smallest first)
-    trusted.sort(key=lambda c: (c["n"], -c.get("fom", 0)))
+    if hash_filter is None:
+        trusted.sort(key=lambda c: (c["n"], -c.get("fom", 0)))
 
-    print(f"  {len(trusted)} TRUSTED codes with FOM >= {args.min_fom}")
+    if hash_filter is None:
+        print(f"  {len(trusted)} TRUSTED codes with FOM >= {args.min_fom}")
+    else:
+        print(f"  {len(trusted)} explicitly selected codes")
     for lat in sorted(set((c["ell"], c["m"]) for c in trusted)):
         lat_codes = [c for c in trusted if (c["ell"], c["m"]) == lat]
         print(f"    ({lat[0]},{lat[1]}): {len(lat_codes)} codes")
 
     # Load already-verified codes (for resume)
     done_keys = set()
-    partial_records = {}  # key -> record (for rerun-partial with per-logical data)
+    partial_records = {}  # key -> latest partial record with per-logical data
     if os.path.exists(args.output):
+        latest_records = {}
         with open(args.output) as f:
             for line in f:
                 line = line.strip()
@@ -162,9 +272,12 @@ def main():
                 r = json.loads(line)
                 key = (str(r["A_terms"]), str(r["B_terms"]),
                        str(r["C_terms"]), str(r["D_terms"]), r["ell"], r["m"])
-                done_keys.add(key)
-                if args.rerun_partial and not r.get("milp_exact_deep", False):
-                    partial_records[key] = r
+                latest_records[key] = r
+        done_keys = set(latest_records)
+        partial_records = {
+            key: record for key, record in latest_records.items()
+            if not record.get("milp_exact_deep", False)
+        }
         if args.rerun_partial:
             print(f"  Resuming: {len(done_keys)} already verified, "
                   f"{len(partial_records)} partial (will re-run unsolved logicals)")
@@ -172,12 +285,32 @@ def main():
         else:
             print(f"  Resuming: {len(done_keys)} already verified")
 
+    selected_keys = {
+        (str(c["A_terms"]), str(c["B_terms"]), str(c["C_terms"]),
+         str(c["D_terms"]), c["ell"], c["m"])
+        for c in trusted
+    }
+    blocked_partials = selected_keys & set(partial_records)
+    if hash_filter is not None and blocked_partials and not args.rerun_partial:
+        parser.error(
+            "explicit worklist contains existing partial results; pass "
+            "--rerun-partial so they are not silently treated as complete"
+        )
+
     todo = []
     for c in trusted:
         key = (str(c["A_terms"]), str(c["B_terms"]),
                str(c["C_terms"]), str(c["D_terms"]), c["ell"], c["m"])
         if key not in done_keys:
             todo.append(c)
+
+    if args.plan_only:
+        print(f"  Plan only: {len(todo)} codes remain")
+        for code in todo:
+            print(f"    {code.get('bliss_hash', '<no-hash>')} "
+                  f"[[{code.get('n')},{code.get('k')},<={code.get('d')}]] "
+                  f"trust={code.get('trust_level')}")
+        return
 
     # Prepare tasks -- for partial reruns, only submit unsolved logicals
     print(f"\nPreparing logicals for {len(todo)} codes...")

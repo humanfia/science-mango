@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable, Protocol
@@ -41,6 +42,8 @@ class FlowConfig:
     review_model: str = "gpt-5.5"
     review_effort: str = "xhigh"
     api_base: str | None = None
+    evolution_config: Path | None = None
+    evolution_seed: Path | None = None
     milp_top: int = 3
     milp_timeout_per_logical: int = 300
     milp_total_timeout: int = 7200
@@ -54,6 +57,14 @@ class FlowConfig:
         value = asdict(self)
         value["repo_dir"] = str(self.repo_dir)
         value["candidate_file"] = str(self.candidate_file) if self.candidate_file else None
+        # Omit unset optional launch fields so pre-fix failed runs retain an
+        # identical serialized configuration and can resume their audit.
+        for name in ("evolution_config", "evolution_seed"):
+            path = value.get(name)
+            if path is None:
+                value.pop(name, None)
+            else:
+                value[name] = str(path)
         return value
 
     def validate(self) -> None:
@@ -67,6 +78,11 @@ class FlowConfig:
             raise ValueError("milp_early_stop must be non-negative")
         if self.patience < 1:
             raise ValueError("patience must be positive")
+
+        for name in ("evolution_config", "evolution_seed"):
+            path = getattr(self, name)
+            if path is not None and not path.is_file():
+                raise ValueError(f"{name} does not exist: {path}")
 
 
 def _latest_checkpoint(output_dir: Path) -> Path | None:
@@ -112,6 +128,10 @@ def run_openevolve(config: FlowConfig, state: dict[str, Any], round_dir: Path) -
     checkpoint = state.get("last_checkpoint")
     if checkpoint and Path(checkpoint).is_dir():
         command.extend(["--resume", checkpoint])
+    if config.evolution_config:
+        command.extend(["--config", str(config.evolution_config)])
+    if config.evolution_seed:
+        command.extend(["--seed", str(config.evolution_seed)])
     if config.api_base:
         command.extend(["--api-base", config.api_base])
     if config.codex_cli:
@@ -160,6 +180,11 @@ def evaluate_with_milp(candidate: dict[str, Any], config: FlowConfig) -> dict[st
         milp_early_stop=(config.milp_early_stop or None),
     )
     merged = merge_bp_milp_result(candidate, result)
+    # Preserve pre-MILP machine gates when an exact result replaces the BP row;
+    # final acceptance requires this replayable evidence.
+    for field in ("static_eligibility", "structural_novelty"):
+        if field in candidate:
+            merged[field] = candidate[field]
     merged["candidate_key"] = code_key(candidate)
     merged["milp_attempted"] = True
     # A reviewer must never be able to alter this machine-derived field.
@@ -182,33 +207,58 @@ def select_for_milp(
     archive: EliteArchive,
     audited_keys: set[str],
     limit: int,
+    audited_digests: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Select credible and diverse elites, never re-auditing an existing key."""
+    """Select diverse elites with one lane for high-upside BP outliers.
+
+    The sqrt(n) credibility heuristic remains useful for budget allocation, but
+    it is not a theorem and must not categorically exclude a real breakthrough.
+    """
     if limit <= 0:
         return []
     pool = _deduplicate(new_elites + archive.ranked())
-    pool = [
-        row for row in pool
-        if code_key(row) not in audited_keys and credible_bp_candidate(row)
-    ]
-    pool.sort(key=candidate_fom, reverse=True)
+    eligible = []
+    for row in pool:
+        if code_key(row) in audited_keys:
+            continue
+        static = row.get("static_eligibility") or {}
+        novelty = row.get("structural_novelty") or {}
+        if static and static.get("eligible") is not True:
+            continue
+        if novelty and novelty.get("novel") is not True:
+            continue
+        digest = novelty.get("canonical_digest")
+        if audited_digests and digest and digest in audited_digests:
+            continue
+        eligible.append(row)
+
+    credible = [row for row in eligible if credible_bp_candidate(row)]
+    exploratory = [row for row in eligible if not credible_bp_candidate(row)]
+    credible.sort(key=candidate_fom, reverse=True)
+    exploratory.sort(key=candidate_fom, reverse=True)
 
     selected: list[dict[str, Any]] = []
     used_cells: set[str] = set()
-    for row in pool:
-        cell = str(row.get("archive_cell", ""))
-        if cell and cell in used_cells:
-            continue
-        selected.append(row)
-        used_cells.add(cell)
-        if len(selected) == limit:
-            return selected
-    for row in pool:
-        if row in selected:
-            continue
-        selected.append(row)
-        if len(selected) == limit:
-            break
+
+    def add_from(rows: list[dict[str, Any]], target: int) -> None:
+        for require_new_cell in (True, False):
+            for row in rows:
+                if len(selected) >= target or len(selected) >= limit:
+                    return
+                if row in selected:
+                    continue
+                cell = str(row.get("archive_cell", ""))
+                if require_new_cell and cell and cell in used_cells:
+                    continue
+                selected.append(row)
+                if cell:
+                    used_cells.add(cell)
+
+    reserve_exploration = bool(exploratory) and limit > 1
+    add_from(credible, limit - int(reserve_exploration))
+    if reserve_exploration:
+        add_from(exploratory, len(selected) + 1)
+    add_from(credible + exploratory, limit)
     return selected
 
 
@@ -245,6 +295,109 @@ class HumanizeFlow:
     def candidate_log(self) -> Path:
         return self.config.candidate_file or self.evolution_output / "all_codes.jsonl"
 
+    @staticmethod
+    def _read_jsonl(path: Path) -> list[dict[str, Any]]:
+        if not path.is_file():
+            return []
+        return [
+            json.loads(line)
+            for line in path.read_text().splitlines()
+            if line.strip()
+        ]
+
+    @staticmethod
+    def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
+        with path.open("w", encoding="utf-8") as stream:
+            for row in rows:
+                stream.write(
+                    json.dumps(row, ensure_ascii=False, default=str) + "\n"
+                )
+
+    def _screen_candidates(
+        self, rows: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Apply static and BLISS gates before archive ranking or MILP.
+
+        Existing archive rows participate in the same pass. This both performs
+        cross-round structural deduplication and purges polluted archives left
+        by runs created before the gate moved to Tier 0.
+        """
+        from evaluation.structural_dedup import deduplicate_css_results
+
+        current = _deduplicate(rows)
+        current.sort(key=candidate_fom, reverse=True)
+        current_keys = {code_key(row) for row in current}
+        combined = _deduplicate(self.archive.ranked() + current)
+        combined.sort(key=candidate_fom, reverse=True)
+        kept, rejected = deduplicate_css_results(combined)
+        self.archive.replace(kept)
+        accepted = [row for row in kept if code_key(row) in current_keys]
+        return accepted, rejected
+
+    def _audit_selected(
+        self,
+        selected: list[dict[str, Any]],
+        *,
+        state: dict[str, Any],
+        milp_path: Path,
+    ) -> list[dict[str, Any]]:
+        """Audit selected candidates concurrently with durable checkpoints."""
+        existing = self._read_jsonl(milp_path)
+        by_key = {code_key(row): row for row in existing}
+        pending = [row for row in selected if code_key(row) not in by_key]
+        audited_keys = set(state.get("audited_keys", []))
+        audited_digests = set(state.get("audited_structural_digests", []))
+        failures: list[tuple[str, Exception]] = []
+
+        def persist(candidate: dict[str, Any], result: dict[str, Any]) -> None:
+            key = code_key(candidate)
+            result["candidate_key"] = key
+            result["milp_attempted"] = True
+            result["d_is_exact"] = _milp_is_fully_exact(result)
+            append_jsonl(milp_path, result)
+            append_jsonl(self.run_dir / "evaluations.jsonl", result)
+            by_key[key] = result
+            audited_keys.add(key)
+            state["audited_keys"] = sorted(audited_keys)
+            novelty = result.get("structural_novelty") or {}
+            digest = novelty.get("canonical_digest")
+            if digest:
+                audited_digests.add(str(digest))
+            state["audited_structural_digests"] = sorted(audited_digests)
+            state["round_phase"] = "audit"
+            self.store.write_state(state)
+
+        if len(pending) == 1:
+            candidate = pending[0]
+            persist(candidate, self.milp_evaluator(candidate, self.config))
+        elif pending:
+            # Candidate-level parallelism is intentionally capped at three for
+            # the 64 GiB cgroup. HiGHS releases the GIL and is thread-safe, so
+            # this also supports non-pickleable test evaluators.
+            with ThreadPoolExecutor(max_workers=min(3, len(pending))) as pool:
+                futures = {
+                    pool.submit(self.milp_evaluator, candidate, self.config): candidate
+                    for candidate in pending
+                }
+                for future in as_completed(futures):
+                    candidate = futures[future]
+                    try:
+                        result = future.result()
+                    except Exception as exc:
+                        failures.append((code_key(candidate), exc))
+                    else:
+                        persist(candidate, result)
+
+        if failures:
+            key, exc = failures[0]
+            raise RuntimeError(
+                f"MILP audit failed for {key}: {type(exc).__name__}: {exc}"
+            ) from exc
+
+        # Reviewer input follows selection order, independent of worker finish
+        # order and append order on disk.
+        return [by_key[code_key(row)] for row in selected if code_key(row) in by_key]
+
     def _write_run_meta(self, state: dict[str, Any]) -> None:
         meta = {
             "run_id": self.store.run_id,
@@ -271,6 +424,8 @@ class HumanizeFlow:
                 "reasoning_effort": self.config.reasoning_effort,
             },
             "promotion_gates": {
+                "static": "commuting, weight/degree <= 6, connected Tanner graph",
+                "novelty": "BLISS match plus explicit H_X/H_Z replay",
                 "bp_osd": "upper-bound candidate only",
                 "milp_top": self.config.milp_top,
                 "milp_exact": "all logical directions proven optimal",
@@ -332,6 +487,7 @@ class HumanizeFlow:
         state = self.store.initialize(serialized_config)
         if state["status"] in {"completed", "search-complete"}:
             return state
+        state.pop("failure", None)
         state["status"] = "running"
         self.store.write_state(state)
         self._write_run_meta(state)
@@ -342,6 +498,8 @@ class HumanizeFlow:
             self.store.event("round_started", round_number=number)
 
             try:
+                rejected_path = round_dir / "rejected-candidates.jsonl"
+                selected_path = round_dir / "selected.jsonl"
                 candidate_path = round_dir / "candidates.jsonl"
                 milp_path = round_dir / "milp.jsonl"
                 review_path = round_dir / "review.json"
@@ -352,44 +510,64 @@ class HumanizeFlow:
                     and milp_path.is_file()
                 )
                 if resume_review:
-                    candidates = [json.loads(line) for line in candidate_path.read_text().splitlines() if line.strip()]
-                    audited = [json.loads(line) for line in milp_path.read_text().splitlines() if line.strip()]
-                    self.store.event("round_resumed", round_number=number, phase=state.get("round_phase"))
+                    candidates = self._read_jsonl(candidate_path)
+                    audited = self._read_jsonl(milp_path)
+                    self.store.event(
+                        "round_resumed", round_number=number,
+                        phase=state.get("round_phase"),
+                    )
                 else:
-                    checkpoint = None
-                    if self.config.candidate_file is None:
-                        checkpoint = self.evolution_runner(self.config, state, round_dir)
-                    if checkpoint:
-                        state["last_checkpoint"] = str(checkpoint)
+                    resume_audit = candidate_path.is_file()
+                    if resume_audit:
+                        candidates = self._read_jsonl(candidate_path)
+                        self.store.event(
+                            "round_resumed", round_number=number,
+                            phase=state.get("round_phase", "audit"),
+                        )
+                    else:
+                        checkpoint = None
+                        if self.config.candidate_file is None:
+                            checkpoint = self.evolution_runner(
+                                self.config, state, round_dir
+                            )
+                        if checkpoint:
+                            state["last_checkpoint"] = str(checkpoint)
 
-                    candidates, new_offset = read_jsonl_since(
-                        self.candidate_log, int(state.get("candidate_offset", 0))
-                    )
-                    state["candidate_offset"] = new_offset
-                    candidates = _deduplicate(candidates)
-                    with candidate_path.open("w", encoding="utf-8") as stream:
-                        for row in candidates:
-                            stream.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+                        candidates, new_offset = read_jsonl_since(
+                            self.candidate_log,
+                            int(state.get("candidate_offset", 0)),
+                        )
+                        state["candidate_offset"] = new_offset
+                        candidates = _deduplicate(candidates)
+                        # Persist raw input and offset before any gate or solver
+                        # can fail; otherwise a resume starts after these rows.
+                        self._write_jsonl(candidate_path, candidates)
+                        state["pending_round"] = number
+                        state["round_phase"] = "screen"
+                        self.store.write_state(state)
 
-                    new_elites = self.archive.update(candidates, number)
+                    candidates, rejected = self._screen_candidates(candidates)
+                    self._write_jsonl(candidate_path, candidates)
+                    self._write_jsonl(rejected_path, rejected)
                     audited_keys = set(state.get("audited_keys", []))
-                    selected = select_for_milp(
-                        new_elites, self.archive, audited_keys, self.config.milp_top
+                    audited_digests = set(
+                        state.get("audited_structural_digests", [])
                     )
-                    audited = []
-                    for candidate in selected:
-                        result = self.milp_evaluator(candidate, self.config)
-                        result["candidate_key"] = code_key(candidate)
-                        result["milp_attempted"] = True
-                        result["d_is_exact"] = _milp_is_fully_exact(result)
-                        audited.append(result)
-                        audited_keys.add(result["candidate_key"])
-                        append_jsonl(self.run_dir / "evaluations.jsonl", result)
-                    state["audited_keys"] = sorted(audited_keys)
-                    with milp_path.open("w", encoding="utf-8") as stream:
-                        for row in audited:
-                            stream.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
+                    selected = self._read_jsonl(selected_path)
+                    if not selected:
+                        selected = select_for_milp(
+                            candidates, self.archive, audited_keys,
+                            self.config.milp_top, audited_digests,
+                        )
+                        self._write_jsonl(selected_path, selected)
+                    if not milp_path.exists():
+                        milp_path.write_text("")
                     state["pending_round"] = number
+                    state["round_phase"] = "audit"
+                    self.store.write_state(state)
+                    audited = self._audit_selected(
+                        selected, state=state, milp_path=milp_path
+                    )
                     state["round_phase"] = "review"
                     self.store.write_state(state)
 

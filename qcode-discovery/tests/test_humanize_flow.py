@@ -10,12 +10,12 @@ from humanize.reviewer import validate_review
 from humanize.state import EliteArchive, RunStore, code_key, read_jsonl_since
 
 
-def candidate(*, ell=6, m=6, d=6, fom=6.0, shift=0):
+def candidate(*, ell=6, m=6, k=12, d=6, fom=6.0, shift=0):
     return {
         "ell": ell,
         "m": m,
         "n": 2 * ell * m,
-        "k": 12,
+        "k": k,
         "d": d,
         "fom": fom,
         "score": fom,
@@ -40,6 +40,21 @@ def test_elite_archive_replaces_cell_winner_and_selects_diverse(tmp_path):
     selected = select_for_milp(ranked, archive, set(), 2)
     assert len(selected) == 2
     assert len({row["archive_cell"] for row in selected}) == 2
+
+
+def test_structural_digest_prevents_cross_round_reaudit(tmp_path):
+    archive = EliteArchive(tmp_path / "archive.json")
+    row = candidate(k=8)
+    row["static_eligibility"] = {"eligible": True}
+    row["structural_novelty"] = {
+        "checked": True,
+        "novel": True,
+        "canonical_digest": "same-tanner-graph",
+    }
+    archive.update([row], 1)
+    assert select_for_milp(
+        [row], archive, set(), 1, {"same-tanner-graph"}
+    ) == []
 
 
 def test_partial_milp_never_becomes_exact():
@@ -100,9 +115,9 @@ def fake_milp(row, _config):
         "distance_source": "milp_exact",
         "milp_details": {
             "exact": True,
-            "total_logicals": 24,
-            "num_logicals_checked": 24,
-            "logicals_optimal": 24,
+            "total_logicals": 2 * row["k"],
+            "num_logicals_checked": 2 * row["k"],
+            "logicals_optimal": 2 * row["k"],
         },
     })
     return result
@@ -112,7 +127,10 @@ def test_offline_round_persists_review_memory_and_lean_input(tmp_path):
     repo = tmp_path / "qcode"
     repo.mkdir()
     source = repo / "offline.jsonl"
-    rows = [candidate(), candidate(ell=12, m=6, d=8, fom=7.0, shift=2)]
+    rows = [
+        candidate(k=8),
+        candidate(ell=12, m=6, k=8, d=8, fom=7.0, shift=0),
+    ]
     source.write_text("".join(json.dumps(row) + "\n" for row in rows))
     config = FlowConfig(
         repo_dir=repo,

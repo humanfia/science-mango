@@ -73,8 +73,44 @@ from evaluation.evaluator import (
     DISTANCE_UNTRUST_RATIO,
 )
 from evaluation.results import save_code, update_pareto_front
+from evaluation.structural_dedup import (
+    check_css_static_eligibility,
+    deduplicate_css_results,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _definition_key(result: dict) -> tuple:
+    return (
+        int(result.get("ell", 0) or 0),
+        int(result.get("m", 0) or 0),
+        tuple(map(tuple, result.get("A_terms", []))),
+        tuple(map(tuple, result.get("B_terms", []))),
+    )
+
+
+def _filter_static_eligible(results: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Remove disconnected/invalid positive-k codes before they affect fitness."""
+    accepted = []
+    rejected = []
+    for result in results:
+        if int(result.get("k", 0) or 0) <= 0:
+            accepted.append(result)
+            continue
+        audit = check_css_static_eligibility(
+            result["ell"], result["m"],
+            result["A_terms"], result["B_terms"],
+            reported_n=result.get("n"),
+            reported_k=result.get("k"),
+        )
+        result["static_eligibility"] = audit
+        if audit["eligible"]:
+            accepted.append(result)
+        else:
+            result["structural_rejection"] = "static_ineligible"
+            rejected.append(result)
+    return accepted, rejected
 
 # Lattice subsets for staged evaluation
 # Stage 1: small/fast lattices for quick screening
@@ -285,6 +321,8 @@ def _run_evaluation(
     all_results = []
     total_candidates = 0
     errors = []
+    tier0_rejected_count = 0
+    structural_rejected_count = 0
 
     for ell, m in lattices:
         try:
@@ -308,6 +346,8 @@ def _run_evaluation(
                     fom_threshold_refine=6.0,
                     fom_threshold_exact=8.0,
                 )
+                results, static_rejected = _filter_static_eligible(results)
+                tier0_rejected_count += len(static_rejected)
             else:
                 # Two-pass: quick screen, then distance on top candidates.
                 # MILP path uses evaluate_batch_milp(quick=True) to get
@@ -320,6 +360,9 @@ def _run_evaluation(
                     quick_results = evaluate_batch(
                         ell, m, candidates, quick=True,
                     )
+                quick_results, static_rejected = _filter_static_eligible(quick_results)
+                tier0_rejected_count += len(static_rejected)
+
                 # Select diverse candidates for distance estimation.
                 # Diversify on BOTH k value AND polynomial A -- prevents
                 # wasting MILP budget on near-duplicate codes (e.g. 5 codes
@@ -360,6 +403,15 @@ def _run_evaluation(
                     if r not in top:
                         top.append(r)
 
+                top, novelty_rejected = deduplicate_css_results(top)
+                structural_rejected_count += len(novelty_rejected)
+                rejected_keys = {
+                    _definition_key(result) for result in novelty_rejected
+                }
+                quick_results = [
+                    result for result in quick_results
+                    if _definition_key(result) not in rejected_keys
+                ]
                 top_candidates = [
                     (r["A_terms"], r["B_terms"]) for r in top
                 ]
@@ -445,6 +497,8 @@ def _run_evaluation(
         "num_above_6": num_above_6,
         "num_above_12": num_above_12,
         "total_candidates": total_candidates,
+        "tier0_rejected": tier0_rejected_count,
+        "structural_rejected": structural_rejected_count,
         "best_encoding_rate": best_encoding_rate,
         "num_high_k": len(high_k_codes),
         "lattices_with_high_k": lattices_with_high_k,

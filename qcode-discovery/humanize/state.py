@@ -104,6 +104,23 @@ class EliteArchive:
         self.save()
         return promoted
 
+    def replace(self, rows: Iterable[dict[str, Any]]) -> None:
+        """Rebuild the archive from already-screened rows.
+
+        This is used to purge legacy disconnected/known entries from a failed
+        pre-gate run before any resumed MILP audit is scheduled.
+        """
+        cells: dict[str, dict[str, Any]] = {}
+        for original in rows:
+            row = dict(original)
+            row["candidate_key"] = code_key(row)
+            row["archive_cell"] = archive_cell(row)
+            current = cells.get(row["archive_cell"])
+            if current is None or candidate_fom(row) > candidate_fom(current):
+                cells[row["archive_cell"]] = row
+        self.cells = cells
+        self.save()
+
     def ranked(self) -> list[dict[str, Any]]:
         return sorted(self.cells.values(), key=candidate_fom, reverse=True)
 
@@ -178,6 +195,7 @@ class RunStore:
             "no_improvement_rounds": 0,
             "last_checkpoint": None,
             "audited_keys": [],
+            "audited_structural_digests": [],
             "config": config,
             "rounds": [],
         }

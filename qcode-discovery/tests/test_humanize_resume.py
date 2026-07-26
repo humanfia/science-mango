@@ -4,14 +4,15 @@ import pytest
 
 from humanize.flow import FlowConfig, HumanizeFlow
 from humanize.reviewer import ReviewError, validate_review
+from humanize.state import code_key
 
 
-def candidate():
+def candidate(*, ell=6, m=6):
     return {
-        "ell": 6,
-        "m": 6,
-        "n": 72,
-        "k": 12,
+        "ell": ell,
+        "m": m,
+        "n": 2 * ell * m,
+        "k": 8,
         "d": 6,
         "fom": 6.0,
         "score": 6.0,
@@ -60,7 +61,7 @@ def test_reviewer_failure_resumes_without_repeating_milp(tmp_path):
             "d_is_exact": False,
             "milp_details": {
                 "exact": False,
-                "total_logicals": 24,
+                "total_logicals": 16,
                 "num_logicals_checked": 4,
                 "logicals_optimal": 4,
             },
@@ -88,3 +89,76 @@ def test_reviewer_failure_resumes_without_repeating_milp(tmp_path):
         repo / "results/runs/resume-review/evaluations.jsonl"
     ).read_text().splitlines()
     assert len(evaluations) == 1
+
+
+class AcceptingReviewer:
+    def review(self, _prompt, _round_dir):
+        return validate_review({
+            "verdict": "continue",
+            "summary": "Audit recovery completed.",
+            "risks": [],
+            "recommended_focus": [],
+            "lessons": [],
+        })
+
+
+def test_milp_failure_resumes_only_unfinished_candidates(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    source = repo / "candidates.jsonl"
+    rows = [candidate(), candidate(ell=12, m=6)]
+    source.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    config = FlowConfig(
+        repo_dir=repo,
+        run_id="resume-audit",
+        max_rounds=1,
+        milp_top=2,
+        candidate_file=source,
+    )
+    fail_key = code_key(rows[1])
+    attempts = {code_key(row): 0 for row in rows}
+
+    def flaky_milp(row, _config):
+        key = code_key(row)
+        attempts[key] += 1
+        if key == fail_key and attempts[key] == 1:
+            raise ValueError("simulated solver crash")
+        result = dict(row)
+        result.update({
+            "stage": "milp_incumbent",
+            "d_is_exact": False,
+            "milp_details": {
+                "exact": False,
+                "total_logicals": 16,
+                "num_logicals_checked": 4,
+                "logicals_optimal": 4,
+            },
+        })
+        return result
+
+    first = HumanizeFlow(
+        config, reviewer=AcceptingReviewer(), milp_evaluator=flaky_milp
+    )
+    with pytest.raises(RuntimeError, match="simulated solver crash"):
+        first.run()
+
+    failed = json.loads(
+        (repo / "results/humanize/resume-audit/state.json").read_text()
+    )
+    assert failed["round_phase"] == "audit"
+    assert len(failed["audited_keys"]) == 1
+    assert len(failed["audited_structural_digests"]) == 1
+
+    completed = HumanizeFlow(
+        config, reviewer=AcceptingReviewer(), milp_evaluator=flaky_milp
+    ).run()
+    assert completed["status"] == "search-complete"
+    assert sorted(attempts.values()) == [1, 2]
+    evaluations = [
+        json.loads(line)
+        for line in (
+            repo / "results/runs/resume-audit/evaluations.jsonl"
+        ).read_text().splitlines()
+    ]
+    assert len(evaluations) == 2
+    assert len({row["candidate_key"] for row in evaluations}) == 2

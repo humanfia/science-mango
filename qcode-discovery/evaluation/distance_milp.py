@@ -24,6 +24,7 @@ import time
 
 import numpy as np
 from scipy.optimize import milp, LinearConstraint, Bounds
+from scipy.sparse import csr_matrix, eye, hstack, vstack
 
 from qldpc.objects import Pauli
 
@@ -88,27 +89,25 @@ def ilp_min_weight(check_matrix, logical_op, timeout=30):
     c = np.zeros(num_vars)
     c[:n] = 1.0
 
-    # Constraint matrix: stabilizer orthogonality + logical anticommutation
-    rows = []
-    for r in range(m):
-        row = np.zeros(num_vars)
-        row[:n] = check_matrix[r]
-        row[n + r] = -2
-        rows.append(row)
-
-    row = np.zeros(num_vars)
-    row[:n] = logical_op
-    row[n + m] = -2
-    rows.append(row)
-
-    A = np.array(rows)
-
+    # Sparse constraint matrix: [H, -2I, 0] plus the logical parity row.
+    # Keeping this sparse materially lowers memory use when many independent
+    # logical directions are solved in parallel.
+    stabilizer_rows = hstack((
+        csr_matrix(check_matrix, dtype=float),
+        -2.0 * eye(m, format="csr"),
+        csr_matrix((m, 1), dtype=float),
+    ), format="csr")
+    logical_row = hstack((
+        csr_matrix(np.asarray(logical_op, dtype=float).reshape(1, n)),
+        csr_matrix((1, m), dtype=float),
+        csr_matrix([[-2.0]]),
+    ), format="csr")
+    constraint_matrix = vstack((stabilizer_rows, logical_row), format="csr")
     b_lb = np.zeros(m + 1)
     b_ub = np.zeros(m + 1)
     b_lb[m] = 1
     b_ub[m] = 1
-
-    constraints = LinearConstraint(A, b_lb, b_ub)
+    constraints = LinearConstraint(constraint_matrix, b_lb, b_ub)
 
     # Bounds
     lb = np.zeros(num_vars)
@@ -227,12 +226,12 @@ def compute_distance_milp(
             if verbose:
                 logger.info("Z[%d]: no solution (%.1fs)", i,
                             time.monotonic() - t_start)
-        if early_stop is not None and d_z <= early_stop:
+        if early_stop is not None and any_z_found and d_z <= early_stop:
             break
 
     # --- Cross-type early exit ---
     # d = min(d_X, d_Z). If d_Z is already very low, no point computing d_X.
-    if early_stop is not None and d_z <= early_stop:
+    if early_stop is not None and any_z_found and d_z <= early_stop:
         d = d_z
         elapsed = time.monotonic() - t_start
         # d_z ≤ early_stop was found as a feasible solution (optimal or
@@ -281,22 +280,18 @@ def compute_distance_milp(
                 logger.info("X[%d]: no solution (%.1fs)", i,
                             time.monotonic() - t_start)
         # Early exit: d_X already below d_Z, no need to check more
-        if early_stop is not None and d_x <= early_stop:
+        if early_stop is not None and any_x_found and d_x <= early_stop:
             if i + 1 < k:
                 all_solved = False
             break
 
     elapsed = time.monotonic() - t_start
 
-    # If no feasible solution was found on either side, distance is unknown.
-    # Use d = early_stop + 1 as a conservative lower bound: if d ≤ early_stop,
-    # the solver would have found it near-instantly, so d > early_stop.
+    # A time limit with no incumbent proves no distance bound. ``early_stop``
+    # only controls when a found solution ends the search; it does not constrain
+    # the MILP to weights at or below that threshold.
     if not any_z_found and not any_x_found:
-        # No logical solved on either side.  See compute_distance_milp_symplectic
-        # for the rationale: early_stop+1 is a real lower bound when the caller
-        # supplied a threshold; otherwise return the vacuous d=n.
-        d_lower = (early_stop + 1) if early_stop is not None else n
-        return d_lower, {
+        return n, {
             "d_x": 0,
             "d_z": 0,
             "k": k,
@@ -309,7 +304,9 @@ def compute_distance_milp(
             "time_s": elapsed,
             "timeout_per_logical": timeout_per_logical,
             "all_timeout": True,
-            "d_is_lower_bound": early_stop is not None,
+            "no_incumbent": True,
+            "distance_status": "unknown",
+            "d_is_lower_bound": False,
         }
 
     # Use the best feasible values found. Unsolved sides stay at n
@@ -320,7 +317,7 @@ def compute_distance_milp(
         "d_x": d_x if any_x_found else 0,
         "d_z": d_z if any_z_found else 0,
         "k": k,
-        "exact": all_solved,
+        "exact": all_solved and logicals_checked == logicals_optimal == 2 * k,
         "d_x_computed": True,
         "num_logicals_checked": logicals_checked,
         "logicals_optimal": logicals_optimal,
@@ -391,57 +388,49 @@ def ilp_min_weight_symplectic(stabilizer_matrix, logical_op, timeout=30):
     c = np.zeros(num_vars)
     c[idx_w] = 1.0
 
-    # --- Constraints ---
-    rows = []
-    row_lb = []
-    row_ub = []
+    # Sparse block model. The dense predecessor materialized two copies of a
+    # mostly-zero matrix for every logical direction, which amplified memory
+    # pressure under the deep verifier's process pool.
+    identity_n = eye(n, format="csr")
+    zero_n = csr_matrix((n, n), dtype=float)
+    zero_n_slack = csr_matrix((n, num_stabs), dtype=float)
+    zero_n_t = csr_matrix((n, 1), dtype=float)
+    weight_x_rows = hstack((
+        -identity_n, zero_n, identity_n, zero_n_slack, zero_n_t,
+    ), format="csr")
+    weight_z_rows = hstack((
+        zero_n, -identity_n, identity_n, zero_n_slack, zero_n_t,
+    ), format="csr")
 
-    # 1. w_j >= x_j  =>  w_j - x_j >= 0
-    for j in range(n):
-        row = np.zeros(num_vars)
-        row[2 * n + j] = 1   # w_j
-        row[j] = -1           # -x_j
-        rows.append(row)
-        row_lb.append(0)
-        row_ub.append(np.inf)
+    stabilizer_x = csr_matrix(stabilizer_matrix[:, :n], dtype=float)
+    stabilizer_z = csr_matrix(stabilizer_matrix[:, n:], dtype=float)
+    stabilizer_rows = hstack((
+        stabilizer_z,
+        stabilizer_x,
+        csr_matrix((num_stabs, n), dtype=float),
+        -2.0 * eye(num_stabs, format="csr"),
+        csr_matrix((num_stabs, 1), dtype=float),
+    ), format="csr")
 
-    # 2. w_j >= z_j  =>  w_j - z_j >= 0
-    for j in range(n):
-        row = np.zeros(num_vars)
-        row[2 * n + j] = 1   # w_j
-        row[n + j] = -1       # -z_j
-        rows.append(row)
-        row_lb.append(0)
-        row_ub.append(np.inf)
+    logical_x = csr_matrix(
+        np.asarray(logical_op[:n], dtype=float).reshape(1, n)
+    )
+    logical_z = csr_matrix(
+        np.asarray(logical_op[n:], dtype=float).reshape(1, n)
+    )
+    logical_row = hstack((
+        logical_z, logical_x, csr_matrix((1, n), dtype=float),
+        csr_matrix((1, num_stabs), dtype=float), csr_matrix([[-2.0]]),
+    ), format="csr")
 
-    # 3. Commutation with each stabilizer:
-    #    sum_j(s_xj * z_j + s_zj * x_j) - 2*s_r = 0
-    for r in range(num_stabs):
-        row = np.zeros(num_vars)
-        s_x = stabilizer_matrix[r, :n]   # X-part of stabilizer
-        s_z = stabilizer_matrix[r, n:]   # Z-part of stabilizer
-        # symplectic inner product: s_x . z + s_z . x
-        row[idx_z] = s_x      # s_xj * z_j
-        row[idx_x] = s_z      # s_zj * x_j
-        row[3 * n + r] = -2   # -2 * s_r (slack)
-        rows.append(row)
-        row_lb.append(0)
-        row_ub.append(0)
-
-    # 4. Anticommutation with target logical:
-    #    sum_j(L_xj * z_j + L_zj * x_j) - 2*t = 1
-    row = np.zeros(num_vars)
-    L_x = logical_op[:n]
-    L_z = logical_op[n:]
-    row[idx_z] = L_x
-    row[idx_x] = L_z
-    row[idx_t] = -2
-    rows.append(row)
-    row_lb.append(1)
-    row_ub.append(1)
-
-    A_mat = np.array(rows)
-    constraints = LinearConstraint(A_mat, row_lb, row_ub)
+    constraint_matrix = vstack((
+        weight_x_rows, weight_z_rows, stabilizer_rows, logical_row,
+    ), format="csr")
+    row_lb = np.concatenate((np.zeros(2 * n + num_stabs), [1.0]))
+    row_ub = np.concatenate((
+        np.full(2 * n, np.inf), np.zeros(num_stabs), [1.0],
+    ))
+    constraints = LinearConstraint(constraint_matrix, row_lb, row_ub)
 
     # Bounds
     lb = np.zeros(num_vars)
@@ -556,26 +545,17 @@ def compute_distance_milp_symplectic(
             if verbose:
                 logger.info("L[%d]: no solution (%.1fs)", i,
                             time.monotonic() - t_start)
-        if early_stop is not None and d_best <= early_stop:
+        if early_stop is not None and any_found and d_best <= early_stop:
+            if i + 1 < num_logicals:
+                all_solved = False
             break
 
     elapsed = time.monotonic() - t_start
 
     if not any_found:
-        # No logical was solved.  If the caller supplied an early-stop
-        # threshold, "no solution found" implies d > early_stop (the solver
-        # would have hit a small d quickly), so report early_stop+1 as a
-        # lower bound.  If early_stop is None we have no informative bound;
-        # report d = n (vacuous upper bound) so the standard
-        # ``milp_worked = d_milp < n`` check at call sites correctly rejects
-        # the result.
-        if early_stop is not None:
-            d_lower = early_stop + 1
-            d_is_lb = True
-        else:
-            d_lower = n
-            d_is_lb = False
-        return d_lower, {
+        # Preserve n as the legacy "MILP did not work" sentinel, but attach no
+        # mathematical bound to it. A timeout without an incumbent is unknown.
+        return n, {
             "k": k,
             "exact": False,
             "num_logicals_checked": logicals_checked,
@@ -585,12 +565,14 @@ def compute_distance_milp_symplectic(
             "time_s": elapsed,
             "timeout_per_logical": timeout_per_logical,
             "all_timeout": True,
-            "d_is_lower_bound": d_is_lb,
+            "no_incumbent": True,
+            "distance_status": "unknown",
+            "d_is_lower_bound": False,
         }
 
     return d_best, {
         "k": k,
-        "exact": all_solved,
+        "exact": all_solved and logicals_checked == logicals_optimal == num_logicals,
         "num_logicals_checked": logicals_checked,
         "logicals_optimal": logicals_optimal,
         "logicals_incumbent": logicals_incumbent,
