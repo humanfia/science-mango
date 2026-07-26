@@ -260,13 +260,65 @@ def test_digest_dedup_never_hides_a_verified_rejection():
     assert merged["triage_identity"]["merged_record_count"] == 2
 
 
-def test_empty_direction_list_falls_through_to_sector_evidence():
-    row = candidate(trial=8, directions=[])
-    row["sectors"] = [{
-        "sector": "X",
-        "objective": 2,
-        "witness_verified": True,
-    }]
+def _schema2_xor_record(*, status, sectors):
+    row = candidate(trial=8, directions=[], k=2)
+    claim = {
+        name: row.pop(name)
+        for name in ("ell", "m", "A_terms", "B_terms")
+    }
+    row.update({
+        "schema_version": 2,
+        "claim": claim,
+        "status": status,
+        "expected_directions": 4,
+        "completed_directions": 0,
+        "completed_sectors": len(sectors),
+        "sectors": sectors,
+    })
+    return row
+
+
+def test_schema2_empty_directions_uses_xor_rejection():
+    row = _schema2_xor_record(
+        status="REJECTED",
+        sectors=[{
+            "sector": "X",
+            "objective": 2,
+            "witness_verified": True,
+            "operator": {"weight": 2},
+        }],
+    )
     score = evidence_score(row)
     assert score["status"] == "REJECTED"
     assert score["rejected"] is True
+    assert score["expected_directions"] == 2
+    assert score["completed_directions"] == 1
+
+
+def test_schema2_empty_directions_uses_xor_threshold_proof():
+    row = _schema2_xor_record(
+        status="THRESHOLD_PROVEN",
+        sectors=[
+            {
+                "sector": "X",
+                "threshold_infeasible": True,
+                "status_name": "INFEASIBLE",
+                "max_weight": 9,
+                "operator": None,
+            },
+            {
+                "sector": "Z",
+                "threshold_infeasible": True,
+                "status_name": "INFEASIBLE",
+                "max_weight": 9,
+                "operator": None,
+            },
+        ],
+    )
+    score = evidence_score(row)
+    assert score["status"] == "THRESHOLD_PROVEN"
+    assert score["rejected"] is False
+    assert score["expected_directions"] == 2
+    assert score["completed_directions"] == 2
+    assert score["threshold_safe_directions"] == 2
+    assert score["coverage"] == 1.0

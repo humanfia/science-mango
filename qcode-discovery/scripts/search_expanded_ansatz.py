@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -187,6 +188,24 @@ def _load_existing_keys(path: Path) -> set[tuple[Any, ...]]:
     return keys
 
 
+def _load_persisted_digests(path: Path) -> set[str]:
+    """Recover digests whose evidence was durable before a crash."""
+
+    digests: set[str] = set()
+    if not path.exists():
+        return digests
+    with path.open() as stream:
+        for line in stream:
+            try:
+                row = json.loads(line)
+            except (OSError, TypeError, ValueError):
+                continue
+            digest = row.get("canonical_digest")
+            if digest:
+                digests.add(str(digest))
+    return digests
+
+
 def _load_state(
     path: Path,
     *,
@@ -346,6 +365,15 @@ def _screen_code(
     )
 
 
+def _complete_claim(
+    dedup: CampaignDedup | None,
+    digest: str,
+    stats: dict[str, int],
+) -> None:
+    if dedup is not None and not dedup.complete(digest):
+        stats["dedup_completion_lost"] += 1
+
+
 def _evaluate_claim(
     claim: dict[str, Any],
     *,
@@ -406,6 +434,7 @@ def _evaluate_claim(
     )
     if len(lx) != k or len(lz) != k:
         stats["logical_basis_rejected"] += 1
+        _complete_claim(dedup, digest, stats)
         return None
     required_distance = minimum_winning_distance(n, k)
     basis_weights = [
@@ -414,6 +443,7 @@ def _evaluate_claim(
     basis_bound = min(basis_weights, default=0)
     if basis_bound < required_distance:
         stats["basis_bound_rejected"] += 1
+        _complete_claim(dedup, digest, stats)
         return None
     stats["basis_bound_pass"] += 1
 
@@ -555,6 +585,26 @@ def _certify(
     )
 
 
+def _persist_record(stream: Any, record: dict[str, Any]) -> None:
+    """Durably append one JSONL record."""
+
+    stream.write(json.dumps(record) + "\n")
+    stream.flush()
+    os.fsync(stream.fileno())
+
+
+def _persist_and_complete(
+    stream: Any,
+    record: dict[str, Any],
+    dedup: CampaignDedup | None,
+    stats: dict[str, int],
+) -> None:
+    """Make completion permanent only after its evidence is durable."""
+
+    _persist_record(stream, record)
+    _complete_claim(dedup, record["canonical_digest"], stats)
+
+
 def main() -> int:
     project = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
@@ -676,6 +726,7 @@ def main() -> int:
         "registry_known": 0,
         "cross_shard_duplicate": 0,
         "canonical_unique": 0,
+        "dedup_completion_lost": 0,
         "logical_basis_rejected": 0,
         "basis_bound_rejected": 0,
         "basis_bound_pass": 0,
@@ -722,7 +773,26 @@ def main() -> int:
                 # next complete record starts on its own JSONL line.
                 recovery_stream.seek(0, 2)
                 recovery_stream.write(b"\n")
-    dedup = CampaignDedup(args.dedup_db) if args.dedup_db else None
+    dedup = (
+        CampaignDedup(
+            args.dedup_db,
+            lease_seconds=max(
+                60.0,
+                args.total_timeout_per_code
+                + 2 * args.xor_prefilter_timeout + 60.0,
+            ),
+            owner_id=(
+                f"seed={args.seed}/shards={args.shard_count}"
+                f"/shard={args.shard_index}"
+            ),
+        )
+        if args.dedup_db else None
+    )
+    if dedup is not None and args.resume:
+        for persisted_digest in _load_persisted_digests(args.output):
+            # The stable shard owner closes the fsync->complete crash window.
+            # A digest already completed or reclaimed by another owner is safe.
+            dedup.complete(persisted_digest)
     dedup_summary = None
     processed_since_checkpoint = 0
     started = time.monotonic()
@@ -775,21 +845,28 @@ def main() -> int:
                         and record["novelty"].get("novel") is True
                         and record["fom_lower_bound"] > 12
                     )
+                    claim_completed = False
                     if needs_certificate:
                         # Persist the threshold proof and advance campaign
                         # state before the potentially hours-long exact build.
                         # If certification is interrupted, the audit lane can
                         # resume from this self-contained candidate record.
                         stats["certificates_attempted"] += 1
-                        stream.write(json.dumps(record) + "\n")
-                        stream.flush()
+                        _persist_and_complete(
+                            stream, record, dedup, stats,
+                        )
+                        claim_completed = True
                         checkpoint(next_trial)
                         processed_since_checkpoint = 0
                         record["certification"], won = _certify(
                             record, args=args,
                         )
-                    stream.write(json.dumps(record) + "\n")
-                    stream.flush()
+                    if claim_completed:
+                        _persist_record(stream, record)
+                    else:
+                        _persist_and_complete(
+                            stream, record, dedup, stats,
+                        )
                     if won:
                         stats["wins"] += 1
                 processed_since_checkpoint += 1

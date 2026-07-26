@@ -224,3 +224,22 @@ def test_xor_prefilter_can_prove_both_sectors(monkeypatch):
     )
     assert status == "THRESHOLD_PROVEN"
     assert [item["sector"] for item in sectors] == ["X", "Z"]
+
+
+def test_persist_record_is_fsynced_before_dedup_completion(tmp_path, monkeypatch):
+    events = []
+
+    class FakeDedup:
+        def complete(self, digest):
+            events.append(("complete", digest))
+            return True
+
+    monkeypatch.setattr(expanded.os, "fsync", lambda descriptor: events.append(("fsync", descriptor)))
+    record = {"canonical_digest": "digest", "status": "REJECTED"}
+    stats = {"dedup_completion_lost": 0}
+    with (tmp_path / "results.jsonl").open("w") as stream:
+        expanded._persist_and_complete(stream, record, FakeDedup(), stats)
+
+    assert events[0][0] == "fsync"
+    assert events[1] == ("complete", "digest")
+    assert stats["dedup_completion_lost"] == 0

@@ -298,6 +298,14 @@ def _expected_directions(
     record: Mapping[str, Any], evidence: Sequence[Mapping[str, Any]],
 ) -> int:
     normalized = normalize_record(record)
+    # A pair of whole-sector XOR results covers all logical combinations in
+    # X and Z. Optimized schema-v2 rows also carry the direction-level ``2k``
+    # expectation when ``directions`` is empty, so sector evidence must select
+    # its own two-unit proof domain before consulting that field.
+    if evidence and all(
+        item.get("sector") in {"X", "Z"} for item in evidence
+    ):
+        return 2
     explicit = normalized.get("expected_directions")
     try:
         if explicit is not None and int(explicit) > 0:
