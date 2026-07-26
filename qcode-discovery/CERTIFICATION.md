@@ -57,10 +57,54 @@ python scripts/search_expanded_ansatz.py \
 ```
 
 The expanded search covers sparse CSS/BB checks of total weight four through
-six instead of only the original fixed 3+3 PBB subset family.  Search output
-records every candidate that reaches MILP, including concrete low-weight
-counter-witnesses that rigorously exclude a win.  Existing PBB search artifacts
-can be upgraded to the same self-contained format with:
+six instead of only the original fixed 3+3 PBB subset family. The optimized
+lane can mix uniform exploration with replayable, bounded mutations of labelled
+frontier templates. Shards use deterministic global trial numbers and claim
+canonical structures in one SQLite database before logical-basis construction
+or MILP:
+
+```bash
+python scripts/search_expanded_ansatz.py \
+  --sampler mixed --structured-probability 0.7 \
+  --shard-count 8 --shard-index 0 \
+  --dedup-db results/win_search/dedup.sqlite3 \
+  --output results/win_search/shard-00.jsonl \
+  --xor-prefilter-timeout 1 --xor-prefilter-workers 1 \
+  --screen-mode exact --resume
+```
+
+Each candidate that passes static and basis gates first receives a short
+native-XOR whole-sector counterexample search. Cheap low-weight witnesses stop
+the candidate before any direction MILP; two sector infeasibility results prove
+the challenge threshold directly. Unresolved sectors fall through to the
+direction solver.
+
+Every record separates `distance_upper_bound`/`fom_upper_bound` from a
+proved lower bound and sets `fom` only for an exact distance. Thus a large
+timeout incumbent is never treated as a certified FOM. Use distinct output and
+state files for each shard, but the same `--dedup-db`.
+
+Merge both new and historical search rows with the proof-oriented audit lane:
+
+```bash
+python scripts/audit_candidate_pool.py results/win_search/*.jsonl \
+  --top 20 \
+  --state-dir results/win_search/audit-state \
+  --ranked-output results/win_search/ranked.jsonl \
+  --summary-output results/win_search/audit-summary.json \
+  --candidate-workers 2 --solver-workers 4 --max-total-workers 8
+```
+
+Ranking uses verified threshold-safe directions and MILP dual-bound progress,
+not incumbent FOM. The deep lane uses native CP-SAT XOR constraints, parity
+cuts, and verified BB translation orbits. It atomically checkpoints each X/Z
+sector. A threshold proof automatically enters the complete exact certificate
+builder and independent MILP replay; the threshold artifact alone is not a
+release certificate. The worker-product guard prevents solver oversubscription.
+
+Search output records every candidate that reaches proof screening, including
+concrete low-weight counter-witnesses that rigorously exclude a win. Existing
+PBB search artifacts can be upgraded to the same self-contained format with:
 
 ```bash
 python scripts/backfill_search_witnesses.py results/real_win_search*.jsonl \

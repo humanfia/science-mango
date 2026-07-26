@@ -1,7 +1,9 @@
 from scripts.screen_frontier_candidate import classify_results
 from scripts.screen_frontier_xor import (
     classify_xor_results,
+    load_replayable_sectors,
     verify_bb_translation_symmetry,
+    write_artifact,
 )
 
 
@@ -126,3 +128,70 @@ def test_known_bb_translation_orbits_are_verified():
         and generator["hz_row_set_preserved"]
         for generator in audit["generators"]
     )
+
+
+def test_xor_resume_recovers_completed_threshold_sector(tmp_path):
+    candidate = {
+        "trial": 1,
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[3, 0], [0, 1], [0, 2]],
+        "B_terms": [[0, 3], [1, 0], [2, 0]],
+        "required_distance": 7,
+    }
+    symmetry = verify_bb_translation_symmetry(candidate)
+    output = tmp_path / "xor.json"
+    write_artifact(
+        output,
+        candidate,
+        [{
+            "sector": "X",
+            "status_name": "INFEASIBLE",
+            "threshold_infeasible": True,
+            "max_weight": 6,
+            "operator": None,
+            "anchor_indices": [0, 36],
+        }],
+        threshold_only=True,
+        translation_symmetry=symmetry,
+    )
+    recovered = load_replayable_sectors(
+        output,
+        candidate,
+        threshold_only=True,
+        translation_symmetry=symmetry,
+    )
+    assert [item["sector"] for item in recovered] == ["X"]
+    assert recovered[0]["resumed_solver_proof"] is True
+
+
+def test_xor_resume_discards_wrong_threshold(tmp_path):
+    candidate = {
+        "trial": 1,
+        "ell": 6,
+        "m": 6,
+        "A_terms": [[3, 0], [0, 1], [0, 2]],
+        "B_terms": [[0, 3], [1, 0], [2, 0]],
+        "required_distance": 7,
+    }
+    symmetry = verify_bb_translation_symmetry(candidate)
+    output = tmp_path / "xor.json"
+    write_artifact(
+        output,
+        candidate,
+        [{
+            "sector": "Z",
+            "status_name": "INFEASIBLE",
+            "threshold_infeasible": True,
+            "max_weight": 5,
+            "operator": None,
+        }],
+        threshold_only=True,
+        translation_symmetry=symmetry,
+    )
+    assert load_replayable_sectors(
+        output,
+        candidate,
+        threshold_only=True,
+        translation_symmetry=symmetry,
+    ) == []

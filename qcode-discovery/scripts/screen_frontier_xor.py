@@ -22,6 +22,9 @@ from evaluation.certificate import (
 from evaluation.distance_milp import get_code_matrices
 from scripts.screen_frontier_candidate import build_candidate_code, load_candidate
 
+
+TERMINAL_STATUSES = {"THRESHOLD_PROVEN", "EXACT_PROVEN", "REJECTED"}
+
 def verify_bb_translation_symmetry(candidate: dict[str, Any]) -> dict[str, Any]:
     """Verify the two torus translations and their two qubit orbits."""
     code = build_candidate_code(candidate)
@@ -173,6 +176,78 @@ def write_artifact(
     return artifact
 
 
+def load_replayable_sectors(
+    path: Path,
+    candidate: dict[str, Any],
+    *,
+    threshold_only: bool,
+    translation_symmetry: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Recover completed sector proofs while discarding timed-out work.
+
+    Feasible witnesses are replayed against the reconstructed code. A bounded
+    INFEASIBLE result is retained only when its stored threshold and solver
+    status match this run. Final publication certificates still rerun their
+    independent exact-distance gate; this checkpoint is campaign state, not a
+    substitute for that certificate.
+    """
+    if not path.exists():
+        return []
+    try:
+        artifact = json.loads(path.read_text())
+    except (OSError, TypeError, ValueError):
+        return []
+    if (
+        artifact.get("candidate") != candidate
+        or artifact.get("threshold_only") is not threshold_only
+        or artifact.get("translation_symmetry") != translation_symmetry
+    ):
+        return []
+
+    code = build_candidate_code(candidate)
+    hx, hz, lx, lz = (
+        np.asarray(value, dtype=np.uint8) & 1
+        for value in get_code_matrices(code)
+    )
+    required = int(candidate["required_distance"])
+    recovered: dict[str, dict[str, Any]] = {}
+    for raw in artifact.get("sectors", []):
+        stored = dict(raw)
+        sector = stored.get("sector")
+        if sector not in {"X", "Z"}:
+            continue
+        checks, targets = (hx, lx) if sector == "Z" else (hz, lz)
+        if stored.get("operator") is not None:
+            failures = verify_css_sector_witness(stored, checks, targets)
+            stored["witness_verified"] = not failures
+            stored["witness_failures"] = failures
+            objective = stored.get("objective")
+            low_witness = (
+                not failures
+                and objective is not None
+                and int(objective) < required
+            )
+            exact_sector = (
+                not threshold_only
+                and not failures
+                and stored.get("exact") is True
+            )
+            if low_witness or exact_sector:
+                stored["resumed_replay_verified"] = True
+                recovered[str(sector)] = stored
+            continue
+        bounded_proof = (
+            threshold_only
+            and stored.get("threshold_infeasible") is True
+            and stored.get("status_name") == "INFEASIBLE"
+            and int(stored.get("max_weight", -1)) == required - 1
+        )
+        if bounded_proof:
+            stored["resumed_solver_proof"] = True
+            recovered[str(sector)] = stored
+    return [recovered[name] for name in ("X", "Z") if name in recovered]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("screen_results", type=Path)
@@ -185,6 +260,12 @@ def main() -> int:
         "--parallel-sectors",
         action="store_true",
         help="solve X/Z concurrently, splitting workers between them",
+    )
+    parser.add_argument(
+        "--resume",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="resume replayable completed sectors from the output artifact",
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -199,9 +280,44 @@ def main() -> int:
     anchors = tuple(translation_symmetry["orbit_representatives"])
     threshold_only = not args.exact
     max_weight = int(candidate["required_distance"]) - 1 if threshold_only else None
-    sectors: list[dict[str, Any]] = []
+    sectors = (
+        load_replayable_sectors(
+            args.output,
+            candidate,
+            threshold_only=threshold_only,
+            translation_symmetry=translation_symmetry,
+        )
+        if args.resume else []
+    )
+
+    resumed_artifact = (
+        write_artifact(
+            args.output,
+            candidate,
+            sectors,
+            threshold_only=threshold_only,
+            translation_symmetry=translation_symmetry,
+        )
+        if sectors else None
+    )
+    if resumed_artifact and resumed_artifact["status"] in TERMINAL_STATUSES:
+        print(json.dumps({
+            "status": resumed_artifact["status"],
+            "resumed": True,
+            "completed_sectors": resumed_artifact["completed_sectors"],
+            "output": str(args.output),
+        }, indent=2))
+        return {
+            "THRESHOLD_PROVEN": 0,
+            "EXACT_PROVEN": 0,
+            "REJECTED": 1,
+        }[resumed_artifact["status"]]
 
     def record(result: dict[str, Any]) -> None:
+        sectors[:] = [
+            item for item in sectors
+            if item.get("sector") != result.get("sector")
+        ]
         sectors.append(result)
         artifact = write_artifact(
             args.output,
@@ -221,7 +337,9 @@ def main() -> int:
             flush=True,
         )
 
-    if args.parallel_sectors:
+    completed = {str(item.get("sector")) for item in sectors}
+    pending = [sector for sector in ("X", "Z") if sector not in completed]
+    if args.parallel_sectors and len(pending) > 1:
         solver_workers = max(1, args.workers // 2)
         with ProcessPoolExecutor(max_workers=2) as executor:
             futures = [
@@ -232,12 +350,12 @@ def main() -> int:
                         solver_workers, args.seed, anchors,
                     ),
                 )
-                for sector in ("X", "Z")
+                for sector in pending
             ]
             for future in as_completed(futures):
                 record(future.result())
     else:
-        for sector in ("X", "Z"):
+        for sector in pending:
             record(solve_sector((
                 candidate, sector, args.timeout, max_weight,
                 args.workers, args.seed, anchors,
