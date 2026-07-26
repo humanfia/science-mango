@@ -1,0 +1,287 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0223.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0223.source.json
+
+\chapter{Physics problem phyx\_mini\_0223}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0223}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A tuning fork is set into vibration above a vertical open tube filled with water (figure). The water level is allowed to drop slowly. As it does so, the air in the tube above the water level is heard to resonate with the tuning fork when the distance from the tube opening to the water level is \textbackslash{}( 0.125\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) and again at \textbackslash{}( 0.395\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}).
+
+\#\# Question
+
+What is the frequency of the tuning fork?
+
+\#\# Answer choices
+
+- A: A: 615Hz
+
+- B: B: 675Hz
+
+- C: C: 655Hz
+
+- D: D: 635Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a vertical cylindrical tube partially filled with a liquid. Above the tube, there is a tuning fork emitting sound waves, indicated by blue curved lines. 
+
+The heights are labeled to show specific measurements:
+- The distance from the top of the tube to the liquid level is marked as 0.125 meters.
+- The total height of the liquid in the tube is indicated as 0.395 meters. 
+
+The insertion of dashed lines within the liquid suggests different segments or levels for reference.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 635Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/223.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0223.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0223:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0223.problem_phyx_mini_0223}
+\uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesproblemandfiguredata, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasstandardairsoundspeed, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasphysicalwaveparameters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-satisfiesclosedopenaircolumnlaws, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-recordedanswerchoice, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.LengthQuantity}
+  A physical length, represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.FrequencyQuantity}
+  A physical cyclic frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.SpeedQuantity}
+  A physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.lengthInMeters}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyquantity}
+  Hertz readout (cycles per SI second) of a physical cyclic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedquantity}
+  Metres-per-second readout of a physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Resonance Observation]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-resonanceobservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.ResonanceObservation}
+  The two resonances encountered as the water level falls
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resonance Observation.
+\end{proof}
+\begin{definition}[Air Column Boundary]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-aircolumnboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.AirColumnBoundary}
+  The two boundaries of the resonating air column
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Column Boundary.
+\end{proof}
+\begin{definition}[Boundary Kind]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-boundarykind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.BoundaryKind}
+  Physical kind of an air-column boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boundary Kind.
+\end{proof}
+\begin{definition}[Displacement Boundary Behavior]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-displacementboundarybehavior}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.DisplacementBoundaryBehavior}
+  Displacement behavior of the acoustic standing wave at a boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Boundary Behavior.
+\end{proof}
+\begin{definition}[Tube Orientation]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tubeorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.TubeOrientation}
+  Orientation of the cylindrical tube in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Orientation.
+\end{proof}
+\begin{definition}[Fork Position]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-forkposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.ForkPosition}
+  Position of the tuning fork relative to the tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fork Position.
+\end{proof}
+\begin{definition}[Water Level Marker]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-waterlevelmarker}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.WaterLevelMarker}
+  The solid and dashed water-level marks visible in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Level Marker.
+\end{proof}
+\begin{definition}[Water Level Motion]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-waterlevelmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.WaterLevelMotion}
+  The slow motion of the water level described in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Level Motion.
+\end{proof}
+\begin{definition}[Tuning Fork Tube Setup]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.TuningForkTubeSetup}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthquantity, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyquantity, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedquantity, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-resonanceobservation, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-aircolumnboundary, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-boundarykind, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-displacementboundarybehavior, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tubeorientation, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-forkposition, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-waterlevelmarker, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-waterlevelmotion}
+  The physical quantities and labeled geometry of the tuning-fork experiment. openingEndCorrection is the common correction added to each measured geometrical air-column length. resonanceModeIndex = n labels the closed-open mode whose effective length is (2n+1) λ/4. No field fixes the requested frequency or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tuning Fork Tube Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Data]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesproblemandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.MatchesProblemAndFigureData}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup}
+  Problem-statement and primary-image readouts. The solid water level gives the shorter 0.125 m air column, and the dashed lower level gives the later 0.395 m air column. The wording "and again" while the level falls is modeled as consecutive closed-open resonance modes. These data contain no frequency value and no answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Data.
+\end{proof}
+\begin{definition}[Has Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.HasStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedinmeterspersecond, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup}
+  The standard room-condition sound-speed calibration used by the multiple choice problem. This is an external calibrated physical parameter, not the requested tuning-fork frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Has Physical Wave Parameters]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasphysicalwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.HasPhysicalWaveParameters}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyinhertz, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedinmeterspersecond, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup}
+  Positivity conditions selecting the physical wave branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wave Parameters.
+\end{proof}
+\begin{definition}[Satisfies Closed Open Air Column Laws]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-satisfiesclosedopenaircolumnlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.SatisfiesClosedOpenAirColumnLaws}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyinhertz, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-speedinmeterspersecond, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-resonanceobservation, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup}
+  Governing laws for a tube open to the atmosphere at its top and effectively closed by the water surface below. At an open end, air displacement has an antinode; at the water surface it has a node. Each resonant effective length is an odd quarter wavelength. The last field is the nondispersive acoustic relation v = f λ, expressed in coherent SI readouts. These are general physical laws and do not state the requested numerical frequency or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Open Air Column Laws.
+\end{proof}
+\begin{lemma}[successive Resonance Spacing]
+  \label{lem:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-successiveresonancespacing}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.successiveResonanceSpacing}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesproblemandfiguredata, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-satisfiesclosedopenaircolumnlaws}
+  Successive closed-open resonances are separated by half a wavelength. The common opening-end correction cancels when their effective lengths are subtracted
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of successive Resonance Spacing.
+\end{proof}
+\begin{lemma}[sound Wavelength meters eq]
+  \label{lem:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-soundwavelength-meters-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.soundWavelength_meters_eq}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-lengthinmeters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesproblemandfiguredata, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-satisfiesclosedopenaircolumnlaws}
+  The two measured resonance positions determine λ = 0.540 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sound Wavelength meters eq.
+\end{proof}
+\begin{lemma}[tuning Fork Frequency hertz eq]
+  \label{lem:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforkfrequency-hertz-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.tuningForkFrequency_hertz_eq}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyinhertz, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-tuningforktubesetup, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesproblemandfiguredata, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasstandardairsoundspeed, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-hasphysicalwaveparameters, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-satisfiesclosedopenaircolumnlaws}
+  With sound speed 343 m/s, the inferred cyclic frequency is exactly 17150/27 Hz, approximately 635.185 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tuning Fork Frequency hertz eq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.AnswerChoice}
+  Labels of the four answers printed in the dataset item
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-answerchoice}
+  Frequency in hertz displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0223.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyquantity, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-frequencyinhertz, def:physics:phyx-mini-0223:phyxminiproblems-problemphyxmini0223-answerchoice}
+  Agreement with a whole-hertz displayed answer. The half-hertz interval expresses rounding to the nearest hertz rather than falsely identifying the derived 17150/27 Hz with the integer 635 Hz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

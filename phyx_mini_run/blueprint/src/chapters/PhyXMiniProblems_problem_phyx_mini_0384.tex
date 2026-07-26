@@ -1,0 +1,282 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0384.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0384.source.json
+
+\chapter{Physics problem phyx\_mini\_0384}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0384}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A piston/cylinder with a cross-sectional area of 0.01 \textbackslash{}m\textasciicircum{}2\textbackslash{} has a piston mass of 100 kg resting on the stops, as shown in the figure.
+
+\#\# Question
+
+With an outside atmospheric pressure of 100 kPa, what should the water pressure be to lift the piston?
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 198kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram of a container filled with water. Above the water, there's a horizontal piston inside the container. The piston appears to be sealing the container at the top, and there are downward arrows indicating the force of gravity labeled as "g."
+
+Text elements in the image include:
+
+- "Water" is written inside the container, denoting the liquid's content.
+- "P₀" is written above the piston, indicating the atmospheric or external pressure exerted on the piston.
+
+The components are enclosed within walls, and the setup suggests a study of fluid mechanics involving pressure and gravity interactions with the water in the container.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 198kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/384.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0384.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0384:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0384.waterPressureToLiftPiston_eq_198_kPa}
+\uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinkilopascals, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-matchesprimaryfigure, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-matchesproblemdata, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-haspositivephysicalparameters, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-atincipientlift}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.AccelerationQuantity}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.AreaQuantity}
+  A nonnegative physical cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.PressureQuantity}
+  A physical absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.massInKilograms}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massquantity}
+  Coherent-SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationquantity}
+  Coherent-SI metre-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areaquantity}
+  Coherent-SI square-metre readout of an area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.pressureInPascals}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressurequantity}
+  Coherent-SI pascal readout of an absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressurequantity, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals}
+  Kilopascal readout used by the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Cylinder Fluid]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-cylinderfluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.CylinderFluid}
+  The fluid occupying the cylinder below the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Fluid.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.FigureRegion}
+  Regions distinguished by the supplied cross-sectional diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.VerticalDirection}
+  Vertical direction of a force or acceleration arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Initial Piston Support]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-initialpistonsupport}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.InitialPistonSupport}
+  The piston's support condition before the water pressure is increased
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Initial Piston Support.
+\end{proof}
+\begin{definition}[Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.PistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-figureregion, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-verticaldirection}
+  Labels and placements read directly from the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Piston Cylinder Setup]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.PistonCylinderSetup}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massquantity, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationquantity, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areaquantity, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressurequantity, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-cylinderfluid, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-initialpistonsupport, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylinderfigure}
+  The piston/cylinder and the physical quantities relevant at the threshold of lift. liftThresholdWaterPressure is an unknown physical pressure field; no definition assigns it the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  The apparatus and labels visible in the source diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massinkilograms, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areainsquaremeters, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  Numerical readouts supplied by the prose, together with the standard g = 9.8 m/s² value used by the recorded multiple-choice calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Positive Physical Parameters]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-haspositivephysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.HasPositivePhysicalParameters}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massinkilograms, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areainsquaremeters, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  Positivity assumptions selecting the intended physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Physical Parameters.
+\end{proof}
+\begin{definition}[upward Water Pressure Force In Newtons]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-upwardwaterpressureforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.upwardWaterPressureForceInNewtons}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areainsquaremeters, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  Upward force readout, in newtons, exerted by the water on the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of upward Water Pressure Force In Newtons.
+\end{proof}
+\begin{definition}[downward Atmospheric Force In Newtons]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-downwardatmosphericforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.downwardAtmosphericForceInNewtons}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-areainsquaremeters, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pressureinpascals, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  Downward force readout, in newtons, due to the outside atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of downward Atmospheric Force In Newtons.
+\end{proof}
+\begin{definition}[piston Weight In Newtons]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistonweightinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.pistonWeightInNewtons}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-massinkilograms, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup}
+  Downward gravitational force readout, in newtons, on the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of piston Weight In Newtons.
+\end{proof}
+\begin{definition}[At Incipient Lift]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-atincipientlift}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.AtIncipientLift}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistoncylindersetup, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-upwardwaterpressureforceinnewtons, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-downwardatmosphericforceinnewtons, def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-pistonweightinnewtons}
+  The ideal vertical force balance at the instant the piston loses contact with the stops. This governing law includes no numerical value for the unknown water pressure and no answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of At Incipient Lift.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-answerpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.answerPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-answerchoice}
+  Kilopascal value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0384.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0384:phyxminiproblems-problemphyxmini0384-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

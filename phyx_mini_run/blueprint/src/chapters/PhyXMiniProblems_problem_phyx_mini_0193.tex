@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0193.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0193.source.json
+
+\chapter{Physics problem phyx\_mini\_0193}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0193}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A police car's siren emits a sinusoidal wave with frequency f\_S = 300 \textbackslash{}, \textbackslash{}mathrm\{Hz\}. The speed of sound is 340 \textbackslash{}, \textbackslash{}mathrm\{m/s\} and the air is still. And it is moving at 30 \textbackslash{}, \textbackslash{}mathrm\{m/s\}.
+
+\#\# Question
+
+Find the wavelengths of the waves in front of the siren.
+
+\#\# Answer choices
+
+- A: A: 1.03m
+
+- B: B: 1.24m
+
+- C: C: 2.06m
+
+- D: D: 2.32m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a simplified scenario related to the Doppler effect involving a police car. 
+
+- **Central Object**: A police car is shown moving to the right, with speed lines to indicate motion.
+- **Symbols**: There is a symbol “S” above the car indicating the siren or sound source.
+- **Text**: Above the car, it says "Police car." To the right of the car, there is text "vₛ = 30 m/s" with an arrow pointing in the car's direction of motion.
+- **Waves**: 
+  - To the left and right of the car are representations of sound waves, with those behind the car drawn more spread out and labeled “λ₍bₑₕᵢₙd₎ = ?”.
+  - The waves in front of the car are compressed and labeled “λ₍ᵢₙ ₋ fᵣₒₙₜ₎ = ?”.
+
+The illustration is a conceptual representation of how the frequency of sound waves changes relative to an observer due to the motion of the source (Doppler effect).
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1.03m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/193.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0193.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0193:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0193.frontWavelength_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-matchesproblemandfigure, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-hassubsonicphysicalparameters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-satisfiesmovingsourcewavefrontlaw, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-matchesanswerchoice, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AcousticFrequency}
+  A nonnegative physical acoustic frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AcousticLength}
+  A nonnegative physical acoustic wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Axial Velocity]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AxialVelocity}
+  A signed velocity along the figure's horizontal axis. This is distinct from Physlib's unsigned DimSpeed because source and air motion have directions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Velocity.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticfrequency}
+  Read a physical acoustic frequency in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.lengthInMeters}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticlength}
+  Read a physical wavelength in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.speedInMetersPerSecond}
+  Read Physlib's nonnegative physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[axial Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.axialVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocity}
+  Read a signed axial velocity in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Vehicle Label]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-vehiclelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.VehicleLabel}
+  The police car depicted as carrying the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vehicle Label.
+\end{proof}
+\begin{definition}[Sound Source Label]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-soundsourcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.SoundSourceLabel}
+  The source label S printed above the siren in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Source Label.
+\end{proof}
+\begin{definition}[Wave Region]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-waveregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.WaveRegion}
+  The two sides of the moving source whose wavelengths are marked ?
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Region.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AxialDirection}
+  The two orientations along the horizontal axis in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Waveform Kind]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-waveformkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.WaveformKind}
+  The waveform type explicitly stated for the siren
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Waveform Kind.
+\end{proof}
+\begin{definition}[Moving Police Siren Setup]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.MovingPoliceSirenSetup}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticfrequency, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticlength, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocity, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-vehiclelabel, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-soundsourcelabel, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-waveregion, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialdirection, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-waveformkind}
+  The moving-source acoustic setup. Both wavelength .behind and wavelength .inFront are unknown physical lengths corresponding to the two question-mark labels in the figure. In particular, the requested front wavelength is not assigned a numerical value by this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Police Siren Setup.
+\end{proof}
+\begin{definition}[source Velocity Relative To Air In Meters Per Second]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-sourcevelocityrelativetoairinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.sourceVelocityRelativeToAirInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocityinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup}
+  The source velocity relative to the air, read in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Velocity Relative To Air In Meters Per Second.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frequencyinhertz, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-speedinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-axialvelocityinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup}
+  Problem-text and primary-figure data. The siren S is attached to the police car, emits a 300 Hz sinusoid, and moves rightward at 30 m/s. The air is still, the sound speed is 340 m/s, the front wave travels rightward, and the behind wave travels leftward. The drawing also depicts the front wavefronts as more closely spaced than the wavefronts behind the car. No numerical wavelength occurs in these data premises
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Subsonic Physical Parameters]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-hassubsonicphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.HasSubsonicPhysicalParameters}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frequencyinhertz, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-speedinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-sourcevelocityrelativetoairinmeterspersecond}
+  Positivity and subsonic assumptions selecting the physical branch in which sound propagating in front of the car outruns the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Subsonic Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Moving Source Wavefront Law]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-satisfiesmovingsourcewavefrontlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.SatisfiesMovingSourceWavefrontLaw}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frequencyinhertz, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-speedinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-sourcevelocityrelativetoairinmeterspersecond}
+  The classical wavefront-spacing law for a source moving rightward through a medium. During one source period, a forward wavefront advances at the sound speed while the source advances with its air-relative speed, whereas the separation behind is enlarged by the same source displacement: lambda\_front * f = c - v\_source/air and lambda\_behind * f = c + v\_source/air. These are governing relations among independent physical quantities; neither field states the requested numerical front wavelength or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Moving Source Wavefront Law.
+\end{proof}
+\begin{lemma}[front Wavelength formula]
+  \label{lem:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frontwavelength-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.frontWavelength_formula}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-frequencyinhertz, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-speedinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-movingpolicesirensetup, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-sourcevelocityrelativetoairinmeterspersecond, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-hassubsonicphysicalparameters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-satisfiesmovingsourcewavefrontlaw}
+  The general forward-wavelength formula derived from the wavefront-spacing law. It still depends on the setup's independent frequency, sound speed, and air-relative source velocity and therefore contains no numerical answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of front Wavelength formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-answerchoice-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.AnswerChoice.meters}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-answerchoice}
+  Metre readout printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-acousticlength, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-lengthinmeters, def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-answerchoice}
+  A wavelength agrees with a displayed answer to the nearest hundredth of a metre. The half-increment tolerance is 0.005 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0193.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0193:phyxminiproblems-problemphyxmini0193-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

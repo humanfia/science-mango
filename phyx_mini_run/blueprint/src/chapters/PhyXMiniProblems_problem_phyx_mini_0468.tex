@@ -1,0 +1,423 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0468.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0468.source.json
+
+\chapter{Physics problem phyx\_mini\_0468}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0468}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A steel bar 10.0 \textbackslash{}, \textbackslash{}mathrm\{cm\} long is welded end to end to a copper bar 20.0 \textbackslash{}, \textbackslash{}mathrm\{cm\} long. Each bar has a square cross section, 2.00 \textbackslash{}, \textbackslash{}mathrm\{cm\} on a side.Suppose the two bars are separated. One end of each bar is kept at 100\textasciicircum{}\textbackslash{}circ \textbackslash{}mathrm\{C\} and the other end of each bar is kept at 0\textasciicircum{}\textbackslash{}circ \textbackslash{}mathrm\{C\}.
+
+\#\# Question
+
+What is the total heat current in the two bars?
+
+\#\# Answer choices
+
+- A: A: 98.2W
+
+- B: B: 97.1W
+
+- C: C: 96.9W
+
+- D: D: 95.2W
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a cross-sectional diagram of two different materials, copper and steel, in a thermal conduction setup. Here's the detailed description:
+
+1. **Materials:**
+   - The upper horizontal section is made of copper.
+   - The lower horizontal section is made of steel.
+
+2. **Dimensions:**
+   - The copper section has a thickness of 2.00 cm and a horizontal length of 20.0 cm.
+   - The steel section has a thickness of 2.00 cm and a horizontal length of 10.0 cm.
+
+3. **Temperature Labels:**
+   - On the left side of both the copper and steel sections, there is a label, \textbackslash{}(T\_H = 100\textasciicircum{}\textbackslash{}circ C\textbackslash{}), indicating high temperature.
+   - On the right side of both the copper and steel sections, there is a label, \textbackslash{}(T\_C = 0\textasciicircum{}\textbackslash{}circ C\textbackslash{}), indicating low temperature.
+
+4. **Connections and Orientation:**
+   - Both sections are drawn connected with each other at angles, forming a stepped path.
+   - The diagram indicates thermal interaction between the two sections with temperature gradients.
+
+The setup visually communicates the concept of heat conduction through different materials with specified temperatures.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 97.1W
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/468.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0468.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0468:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0468.problem_phyx_mini_0468}
+\uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesseparatedbarscenario, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchessuppliedfigure, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesproblemreadouts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessquarecrosssectiongeometry, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-usestextbookthermalconductivities, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-hasphysicalseparatedbarparameters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessteadyonedimensionalfourierlaw, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiesparallelheatcurrentadditivity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.LengthQuantity}
+  A nonnegative physical length, independent of the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.AreaQuantity}
+  A nonnegative physical area, carrying dimension length²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Heat Current Quantity]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.HeatCurrentQuantity}
+  A nonnegative heat-transfer rate, whose coherent SI unit is the watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Current Quantity.
+\end{proof}
+\begin{definition}[Thermal Conductivity Quantity]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.ThermalConductivityQuantity}
+  Thermal conductivity, whose coherent SI unit is watt per metre-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Conductivity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.lengthReadout}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.areaReadout}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areaquantity}
+  Read a physical area in the square of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[heat Current Readout]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.heatCurrentReadout}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentquantity}
+  Read a heat current in the coherent power unit induced by the selected mass, length, and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Current Readout.
+\end{proof}
+\begin{definition}[thermal Conductivity Readout]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.thermalConductivityReadout}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityquantity}
+  Read thermal conductivity in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Conductivity Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.lengthInMeters}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthreadout}
+  Centimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areaquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areareadout}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[area In Square Centimeters]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areainsquarecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.areaInSquareCentimeters}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areaquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areareadout}
+  Square-centimetre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Centimeters.
+\end{proof}
+\begin{definition}[heat Current In Watts]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.heatCurrentInWatts}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentreadout}
+  SI watt readout of a heat current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Current In Watts.
+\end{proof}
+\begin{definition}[thermal Conductivity In Watts Per Meter Kelvin]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityinwattspermeterkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.thermalConductivityInWattsPerMeterKelvin}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityreadout}
+  SI watt-per-metre-kelvin readout of a thermal conductivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Conductivity In Watts Per Meter Kelvin.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.CelsiusTemperatureReading}
+  Celsius is an affine scale, whereas Physlib's Temperature is an absolute, zero-preserving quantity. This record keeps both roles and explicitly states their kelvin calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Bar]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-bar}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.Bar}
+  The two physical bars shown in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar.
+\end{proof}
+\begin{definition}[Bar Material]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-barmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.BarMaterial}
+  The two materials named by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Material.
+\end{proof}
+\begin{definition}[Bar End]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-barend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.BarEnd}
+  Thermally distinguished ends of either separated bar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar End.
+\end{proof}
+\begin{definition}[Cross Section Shape]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-crosssectionshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.CrossSectionShape}
+  Shape of a bar's transverse cross section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cross Section Shape.
+\end{proof}
+\begin{definition}[Bar Arrangement]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-bararrangement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.BarArrangement}
+  Relative thermal arrangement of the two bars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Arrangement.
+\end{proof}
+\begin{definition}[Thermal Regime]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.ThermalRegime}
+  Time dependence of the temperature profile
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Regime.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.FigureObject}
+  Physical objects visibly present in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.FigureLabel}
+  Literal material, geometry, and temperature labels in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Separated Bars Figure]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarsfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.SeparatedBarsFigure}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-bar, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-figureobject, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-figurelabel}
+  Qualitative and label-level evidence read from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Separated Bars Figure.
+\end{proof}
+\begin{definition}[Separated Bar Conduction Setup]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.SeparatedBarConductionSetup}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areaquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-celsiustemperaturereading, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-bar, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-barmaterial, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-barend, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-crosssectionshape, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-bararrangement, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalregime, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarsfigure}
+  The total and per-bar heat currents are independent physical observables. In particular, totalHeatCurrent is not defined from 97.1 W, from an answer choice, or from the Fourier formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Separated Bar Conduction Setup.
+\end{proof}
+\begin{definition}[Matches Separated Bar Scenario]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesseparatedbarscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.MatchesSeparatedBarScenario}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Categorical scenario stated in the prose after the bars are separated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Separated Bar Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Detailed transcription of the labels and geometry in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthincentimeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Numerical geometry and endpoint thermometer readouts stated by the problem and printed in the figure. It contains no heat-current value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Satisfies Square Cross Section Geometry]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessquarecrosssectiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.SatisfiesSquareCrossSectionGeometry}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthincentimeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areainsquarecentimeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Euclidean area law for the square cross sections
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Square Cross Section Geometry.
+\end{proof}
+\begin{definition}[Uses Textbook Thermal Conductivities]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-usestextbookthermalconductivities}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.UsesTextbookThermalConductivities}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  The extracted prompt omits the material table needed for a numerical choice. The recorded answer is obtained from the standard textbook values k\_copper = 385 W/(m K) and k\_steel = 50.2 W/(m K); they are exposed as a separate material calibration rather than hidden in the target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Thermal Conductivities.
+\end{proof}
+\begin{definition}[Has Physical Separated Bar Parameters]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-hasphysicalseparatedbarparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.HasPhysicalSeparatedBarParameters}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthinmeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areainsquaremeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Positivity and hot-to-cold ordering of the physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Separated Bar Parameters.
+\end{proof}
+\begin{definition}[Satisfies Steady One Dimensional Fourier Law]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessteadyonedimensionalfourierlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.SatisfiesSteadyOneDimensionalFourierLaw}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-lengthinmeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-areainsquaremeters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  Steady one-dimensional Fourier conduction in each homogeneous bar: heat current = conductivity * area * temperature drop / length. This is a governing law over both independent paths and contains no numerical total or answer-choice relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Steady One Dimensional Fourier Law.
+\end{proof}
+\begin{definition}[Satisfies Parallel Heat Current Additivity]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiesparallelheatcurrentadditivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.SatisfiesParallelHeatCurrentAdditivity}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup}
+  For the two separated bars bridging the same reservoirs, total heat current is the sum of the two simultaneous path currents. This conservation/additivity law does not prescribe the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Parallel Heat Current Additivity.
+\end{proof}
+\begin{theorem}[individual Heat Currents exact]
+  \label{thm:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-individualheatcurrents-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.individualHeatCurrents_exact}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesseparatedbarscenario, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesproblemreadouts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessquarecrosssectiongeometry, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-usestextbookthermalconductivities, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-hasphysicalseparatedbarparameters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessteadyonedimensionalfourierlaw}
+  The two Fourier-law currents before they are added: 77 W in copper and 20.08 W in steel
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of individual Heat Currents exact.
+\end{proof}
+\begin{theorem}[total Heat Current exact]
+  \label{thm:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-totalheatcurrent-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.totalHeatCurrent_exact}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesseparatedbarscenario, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchessuppliedfigure, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesproblemreadouts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessquarecrosssectiongeometry, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-usestextbookthermalconductivities, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-hasphysicalseparatedbarparameters, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiessteadyonedimensionalfourierlaw, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-satisfiesparallelheatcurrentadditivity}
+  The exact total heat current is 97.08 W
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Heat Current exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.AnswerChoice}
+  Labels of the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Current In Watts]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-displayedheatcurrentinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.displayedHeatCurrentInWatts}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-answerchoice}
+  Watt value printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Current In Watts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-answerchoice}
+  Dataset metadata recording that the supplied answer label is B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Tenth Watt]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-roundstodisplayedtenthwatt}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.RoundsToDisplayedTenthWatt}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentquantity, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-heatcurrentinwatts}
+  Agreement with a one-decimal-place watt display
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Tenth Watt.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0468.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-separatedbarconductionsetup, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-answerchoice, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-displayedheatcurrentinwatts, def:physics:phyx-mini-0468:phyxminiproblems-problemphyxmini0468-roundstodisplayedtenthwatt}
+  The total physical heat current rounds to the display for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

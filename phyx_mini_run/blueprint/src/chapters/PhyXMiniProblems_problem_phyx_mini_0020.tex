@@ -1,0 +1,196 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0020.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0020.source.json
+
+\chapter{Physics problem phyx\_mini\_0020}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0020}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A transparent cylinder of radius \textbackslash{}( R = 2.00 \textbackslash{}text\{ m\} \textbackslash{}) has a mirrored surface on its right half as shown in figure. A light ray traveling in air is incident on the left side of the cylinder. The incident light ray and exiting light ray are parallel, and \textbackslash{}( d = 2.00 \textbackslash{}text\{ m\} \textbackslash{}).
+
+\#\# Question
+
+Determine the index of refraction of the material.
+
+\#\# Answer choices
+
+- A: A: 1.77
+
+- B: B: 1.52
+
+- C: C: 1.93
+
+- D: D: 1.87
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates the reflection of light on a concave mirrored surface.
+
+- **Components:**
+  - The circular shape represents the mirrored surface, shown in blue with a thick border on the right to indicate the reflective surface.
+  - Two blue arrows indicate the paths of the light rays.
+  - The "Incoming ray" is labeled on the left, entering horizontally towards the mirror.
+  - The "Outgoing ray" is shown reflecting from the mirrored surface and is labeled as well.
+
+- **Text and Labels:**
+  - "Incoming ray" and "Outgoing ray" labels identify the respective light paths.
+  - "Mirrored surface" designates the concave boundary on the right.
+  - A dashed line connects the center "C" of the circle to the point where the incoming ray hits the mirrored surface.
+  - The center of the circle is labeled as "C."
+  - The distance from the center to the mirrored surface is labeled as "R."
+  - The perpendicular distance between the incoming and outgoing rays is marked as "d."
+  - The angle at which the outgoing ray reflects relative to the normal, which is a dotted line, is labeled with "n."
+
+- **Relationships:**
+  - The light rays illustrate reflection, showing that the angle of incidence equals the angle of reflection relative to the normal on the mirrored surface.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.93
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/20.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0020.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0020:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0020.refractiveIndex_eq_answerChoiceC}
+\uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylindermirrorexperiment, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylinderfigurereadout, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-geometricalopticslaws, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-answerchoicevalue, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-roundstonearesthundredth}
+For the pictured \(R=d=2.00\,\mathrm m\) cylinder, the parallel incoming and
+outgoing rays, circular geometry, two refractions, and one specular reflection
+determine the material index as
+\(\sqrt{2+\sqrt3}\).  This rounds to \(1.93\), answer C.
+\end{theorem}
+\begin{proof}
+Use the rightmost mirror hit and the inscribed half-angle relation to express
+the reflection angles in terms of the entry angle.  The parallel external
+rays identify the exit geometry.  Eliminating these angles from the entry
+Snell law, reflection law, and exit Snell law gives
+\(n^2=2+\sqrt3\); positivity selects the positive square root, whose certified
+interval rounds to \(1.93\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Plane]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-plane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.Plane}
+  The two-dimensional Euclidean cross-section shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane.
+\end{proof}
+\begin{definition}[si Length Value]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-silengthvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.siLengthValue}
+  The real-valued readout of a physical length when expressed in SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of si Length Value.
+\end{proof}
+\begin{definition}[Light Ray]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-lightray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.LightRay}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-plane}
+  An oriented geometrical-optics ray. Its source and direction live in the cylinder's Euclidean cross-section; the nonzero condition excludes a degenerate path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Light Ray.
+\end{proof}
+\begin{definition}[Passes Through]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-lightray-passesthrough}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.LightRay.PassesThrough}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-plane, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-lightray}
+  A point lies forward along an oriented light ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Passes Through.
+\end{proof}
+\begin{definition}[right Semicircle]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-rightsemicircle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.rightSemicircle}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-plane}
+  The half of a circular boundary lying in the nonnegative direction of a chosen horizontal axis. This is the right mirrored semicircle in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of right Semicircle.
+\end{proof}
+\begin{definition}[Cylinder Mirror Experiment]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylindermirrorexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.CylinderMirrorExperiment}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-plane, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-silengthvalue, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-lightray}
+  All named physical quantities and figure labels for the transparent circular cylinder. Lengths retain their physical dimension through Physlib's Dimensionful (WithDim L𝓭 ℝ) type. Refractive indices and radian angle readouts are dimensionless real numbers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Mirror Experiment.
+\end{proof}
+\begin{definition}[Snell Law At Interface]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-snelllawatinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.SnellLawAtInterface}
+  Snell's law at an interface, using dimensionless refractive indices and angle magnitudes measured in radians from the local surface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Interface.
+\end{proof}
+\begin{definition}[Specular Reflection At Mirror]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-specularreflectionatmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.SpecularReflectionAtMirror}
+  The optical law of specular reflection at the mirrored boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specular Reflection At Mirror.
+\end{proof}
+\begin{definition}[Cylinder Figure Readout]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylinderfigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.CylinderFigureReadout}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-silengthvalue, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-rightsemicircle, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylindermirrorexperiment}
+  The calibrated measurements and planar geometry read from the figure. Besides the SI readouts R = d = 2 m, this records the circular boundary, the rightmost mirror hit, the complete ray path, the opposite but parallel external ray directions, and the normal-referenced angle relations. The relation mirrorIncidenceAngle = entryIncidenceAngle / 2 is the inscribed half-angle relation for the chord from the entry point to the rightmost point of the circle;
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Figure Readout.
+\end{proof}
+\begin{definition}[Geometrical Optics Laws]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-geometricalopticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.GeometricalOpticsLaws}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-cylindermirrorexperiment, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-snelllawatinterface, def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-specularreflectionatmirror}
+  The governing optical laws: Snell refraction at entry and exit and equal incidence/reflection angles at the mirrored surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Geometrical Optics Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.AnswerChoice}
+  The four multiple-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Value]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-answerchoicevalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.answerChoiceValue}
+  \uses{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-answerchoice}
+  The dimensionless refractive-index value printed for each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Value.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0020:phyxminiproblems-problemphyxmini0020-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0020.RoundsToNearestHundredth}
+  A dimensionless value rounds to the reported value at the hundredth place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

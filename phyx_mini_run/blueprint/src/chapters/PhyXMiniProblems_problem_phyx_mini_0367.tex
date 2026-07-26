@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0367.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0367.source.json
+
+\chapter{Physics problem phyx\_mini\_0367}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0367}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+8.0\textbackslash{},\textbackslash{}text\{g\} of helium gas follows the process \textbackslash{}( 1 \textbackslash{}rightarrow 2 \textbackslash{}rightarrow 3 \textbackslash{}) shown in figure.
+
+\#\# Question
+
+Find the value of \textbackslash{}( T\_3 \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 657\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 556\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 636\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 784\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a thermodynamic process on a pressure-volume (p-V) diagram. Here's the fine-grained content:
+
+- **Axes**: 
+  - The vertical axis is labeled \textbackslash{}( p \textbackslash{}) (pressure) and shows a value of \textbackslash{}( 2 \textbackslash{}, \textbackslash{}text\{atm\} \textbackslash{}).
+  - The horizontal axis is labeled \textbackslash{}( V \textbackslash{}) (volume).
+
+- **Points and Path**:
+  - Three points are marked: 1, 2, and 3.
+  - Point 1 to 2: A vertical line from point 1 to point 2. 
+    - Point 1 is labeled as \textbackslash{}( 37\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\} \textbackslash{}).
+    - Point 2 is labeled as \textbackslash{}( 657\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\} \textbackslash{}) and is above \textbackslash{}( p\_2 \textbackslash{}).
+  - Point 2 to 3: A curved line from point 2 to point 3, labeled "Isothermal."
+
+- **Labels**:
+  - \textbackslash{}( p\_2 \textbackslash{}) is marked on the vertical axis, corresponding to the pressure at point 2.
+  - Volumes \textbackslash{}( V\_1 \textbackslash{}) and \textbackslash{}( V\_3 \textbackslash{}) are marked on the horizontal axis.
+  
+The diagram represents a thermodynamic process moving from point 1 to 2 isobarically (constant pressure), and then from point 2 to 3 isothermally (constant temperature).
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 657\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/367.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0367.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0367:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0367.temperatureAtStateThree_eq_657_celsius}
+\uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureincelsius, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-heliumpvprocesssetup, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-hasphysicalparameters, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-satisfiesprocesssemantics, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-hasscenarioandfiguredata}
+The curved leg \(2\to3\) is isothermal, so state 3 has the same
+\(657^\circ\mathrm C\) temperature printed at state 2.
+\end{theorem}
+\begin{proof}
+The figure data identify leg \(2\to3\) as the isothermal leg.  Applying the
+process law to that leg gives equality of the two dimensionful absolute
+temperatures.  Applying the Celsius readout to this equality and substituting
+the printed state-2 value yields
+\(T_3=657^\circ\mathrm C\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.MassQuantity}
+  A nonnegative physical mass, of dimension mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.VolumeQuantity}
+  A nonnegative physical volume, of dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.massInGrams}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massquantity}
+  Read a physical mass in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.pressureInPascals}
+  Read a physical pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.temperatureInKelvin}
+  Physlib's Temperature has an arbitrary absolute scale. For this problem that scale is calibrated in kelvin, so Temperature.toReal is the kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.temperatureInCelsius}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureinkelvin}
+  Celsius readout obtained from the calibrated absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ProcessState}
+  The three equilibrium states labelled 1, 2, and 3 in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ProcessLeg}
+  The two directed process legs shown by arrows in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ProcessLeg.initialState}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processstate, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg}
+  Initial state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ProcessLeg.finalState}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processstate, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg}
+  Final state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ProcessKind}
+  Thermodynamic character of a process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Working Substance]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-workingsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.WorkingSubstance}
+  Working substance named in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Substance.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.FigureAxis}
+  Horizontal or vertical axis of the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Axis Quantity]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-figureaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.FigureAxisQuantity}
+  Physical quantity assigned to a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Quantity.
+\end{proof}
+\begin{definition}[PVSegment Shape]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pvsegmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.PVSegmentShape}
+  Qualitative geometric shape of a process segment in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVSegment Shape.
+\end{proof}
+\begin{definition}[Thermodynamic State Data]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-thermodynamicstatedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.ThermodynamicStateData}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumequantity}
+  Pressure, volume, and absolute temperature at one equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State Data.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processstate, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-figureaxis, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-figureaxisquantity, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pvsegmentshape}
+  Qualitative evidence retained from the supplied raster. Coordinates record only relative placement in the drawing; physical state quantities are stored separately in HeliumPVProcessSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Helium PVProcess Setup]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-heliumpvprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.HeliumPVProcessSetup}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massquantity, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumequantity, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processstate, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processleg, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-processkind, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-workingsubstance, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-thermodynamicstatedata, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pressurevolumefigure}
+  Independent physical quantities in the scenario, including the labels V₁, V₃, and p₂. No field fixes the requested temperature at state 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Helium PVProcess Setup.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massingrams, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-volumeincubicmeters, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-pressureinpascals, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureinkelvin, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-heliumpvprocesssetup}
+  Positivity conditions selecting physical pressures, volumes, and temperatures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Process Semantics]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-satisfiesprocesssemantics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.SatisfiesProcessSemantics}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-heliumpvprocesssetup}
+  Governing semantics of the two named process kinds. These are general laws: an isochoric leg preserves physical volume, and an isothermal leg preserves absolute temperature. They contain no numerical value for T₃
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Process Semantics.
+\end{proof}
+\begin{definition}[Has Scenario And Figure Data]
+  \label{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-hasscenarioandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0367.HasScenarioAndFigureData}
+  \uses{def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-massingrams, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-temperatureincelsius, def:physics:phyx-mini-0367:phyxminiproblems-problemphyxmini0367-heliumpvprocesssetup}
+  Scenario data and direct readouts from the primary image. In particular, states 1 and 3 lie at the 2 atm height, states 1 and 2 lie over V₁, state 3 lies over V₃, and the image labels the temperature of state 2 as 657 °C. The requested state-3 temperature is deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Scenario And Figure Data.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

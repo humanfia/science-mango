@@ -1,0 +1,408 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0368.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0368.source.json
+
+\chapter{Physics problem phyx\_mini\_0368}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0368}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows two different processes by which 1.0\textbackslash{},\textbackslash{}text\{g\} of nitrogen gas moves from state 1 to state 2. The temperature of state 1 is 25\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\}.
+
+\#\# Question
+
+What is temperature at \textbackslash{}( T\_4 \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 398\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 556\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 636\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 784\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a cycle with pressure \textbackslash{}( p \textbackslash{}) along the vertical axis and volume \textbackslash{}( V \textbackslash{}) (in cm\textbackslash{}(\textasciicircum{}3\textbackslash{})) along the horizontal axis. The axes are labeled as follows:
+
+- Vertical axis: \textbackslash{}( p \textbackslash{}), ranging from 0 to \textbackslash{}( 2.0p\_1 \textbackslash{})
+- Horizontal axis: \textbackslash{}( V \textbackslash{}), ranging from 0 to 150 cm\textbackslash{}(\textasciicircum{}3\textbackslash{})
+
+The graph shows a cyclic process represented as a diamond shape with four points, labeled 1, 2, 3, and 4. The process involves the following transitions with directed arrows:
+
+1. From point 1 to point 2: Vertical upward
+2. From point 2 to point 3: Horizontal to the left
+3. From point 3 to point 4: Vertical downward
+4. From point 4 to point 1: Horizontal to the right
+
+The points form a loop, indicating a cyclical process in a pressure-volume diagram. The labels on the axes suggest relationships based on the ideal gas law or a similar thermodynamic cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 398\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/368.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0368.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0368:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0368.problem_phyx_mini_0368}
+\uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureindegreescelsius, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesnitrogengasscenario, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesproblemreadouts, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchessuppliedpressurevolumediagram, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-hasphysicalparameters, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-satisfiesidealnitrogengaslaws, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-roundstodisplayedwholedegree, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-isuniqueclosestdisplayedtemperature}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.VolumeQuantity}
+  A nonnegative physical gas volume with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.MassQuantity}
+  A nonnegative physical mass with the mass dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.AmountOfSubstanceScale}
+  Physlib currently has no amount-of-substance base dimension. This interface keeps amount of substance abstract and exposes only its calibrated mole readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumequantity, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubicmeters}
+  Read a physical volume in the cubic-centimetre unit printed on the axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.pressureInPascals}
+  Read a dimensionful pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.massInKilograms}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massquantity}
+  Read a physical mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.massInGrams}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massquantity, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massinkilograms}
+  Read a physical mass in grams, the unit used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[Thermodynamic Point]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.ThermodynamicPoint}
+  The four equilibrium states labelled 1, 2, 3, and 4
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Point.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.ProcessLeg}
+  The four directed straight segments visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[Process Route]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.ProcessRoute}
+  The two alternative processes from state 1 to state 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Route.
+\end{proof}
+\begin{definition}[leg Start]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-legstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.legStart}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg}
+  Initial state of a directed segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Start.
+\end{proof}
+\begin{definition}[leg Finish]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-legfinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.legFinish}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg}
+  Final state of a directed segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Finish.
+\end{proof}
+\begin{definition}[route Legs]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-routelegs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.routeLegs}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processroute}
+  Ordered segments forming each complete route from state 1 to state 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of route Legs.
+\end{proof}
+\begin{definition}[Segment Direction]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-segmentdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.SegmentDirection}
+  Direction of a straight segment as drawn in the pressure--volume plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Direction.
+\end{proof}
+\begin{definition}[displayed Segment Direction]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-displayedsegmentdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.displayedSegmentDirection}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-segmentdirection}
+  Direction shown for each of the four arrows in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Segment Direction.
+\end{proof}
+\begin{definition}[Diagram Axis Quantity]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.DiagramAxisQuantity}
+  Physical quantities represented by the two plot axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis Quantity.
+\end{proof}
+\begin{definition}[Diagram Axis]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.DiagramAxis}
+  Horizontal or vertical plot axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis.
+\end{proof}
+\begin{definition}[Diagram Coordinate Unit]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramcoordinateunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.DiagramCoordinateUnit}
+  Units in which the primary figure's coordinates are transcribed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Coordinate Unit.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.GasModel}
+  Equation-of-state model assigned to the nitrogen sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.GasSpecies}
+  Working-gas species named in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Thermodynamic State Data]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicstatedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.ThermodynamicStateData}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumequantity}
+  Physical observables at one labelled equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State Data.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-processleg, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-segmentdirection, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramaxisquantity, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramaxis, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-diagramcoordinateunit}
+  Literal and coordinate information transcribed from the supplied image. Pressure coordinates are dimensionless multiples of the plotted reference pressure p\_1; volume coordinates are cubic-centimetre readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Nitrogen Gas Diagram Setup]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.NitrogenGasDiagramSetup}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massquantity, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasmodel, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasspecies, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicstatedata, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressurevolumediagram}
+  Independent data for the fixed 1.0 g nitrogen sample. The amount of gas is a single physical quantity shared by all four states. Neither state 4's temperature nor a selected answer is stored as a field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nitrogen Gas Diagram Setup.
+\end{proof}
+\begin{definition}[gas Amount In Moles]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasamountinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.gasAmountInMoles}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup}
+  Mole readout of the amount of nitrogen in the fixed sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gas Amount In Moles.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup}
+  Kelvin readout of a state's absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureinkelvins}
+  Degree-Celsius readout, using the exact offset 273.15 K
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[pressure Multiple Of P1]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressuremultipleofp1}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.pressureMultipleOfP1}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressureinpascals, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-thermodynamicpoint, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup}
+  Pressure at a state as a dimensionless multiple of the reference p\_1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Multiple Of P1.
+\end{proof}
+\begin{definition}[Matches Nitrogen Gas Scenario]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesnitrogengasscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.MatchesNitrogenGasScenario}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup}
+  Qualitative scenario data, including the selected absolute-temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Nitrogen Gas Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massingrams, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureindegreescelsius}
+  Numerical readouts stated in the prose, with no state-4 temperature data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchessuppliedpressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.MatchesSuppliedPressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubiccentimeters, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-legstart, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-legfinish, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-displayedsegmentdirection, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressuremultipleofp1}
+  All information read directly from the primary raster. In particular, the figure shows two directed routes from state 1 to state 2, not the directed four-leg cycle described by the auxiliary caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubicmeters, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressureinpascals, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massingrams, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasamountinmoles, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureinkelvins}
+  Positivity and nondegeneracy conditions for the physical gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Nitrogen Gas Laws]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-satisfiesidealnitrogengaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.SatisfiesIdealNitrogenGasLaws}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-volumeincubicmeters, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-pressureinpascals, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-massingrams, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-gasamountinmoles, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureinkelvins}
+  General physical laws used in the calculation. The mass--amount relation identifies the amount of the 1.0 g nitrogen sample, while p V = n R T is imposed uniformly at every equilibrium state. Neither law contains the requested temperature or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Nitrogen Gas Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.AnswerChoice}
+  The four answer letters printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Temperature Degrees Celsius]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-displayedtemperaturedegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.displayedTemperatureDegreesCelsius}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-answerchoice}
+  Whole-degree Celsius temperature printed beside each answer letter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Temperature Degrees Celsius.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Whole Degree]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-roundstodisplayedwholedegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.RoundsToDisplayedWholeDegree}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureindegreescelsius, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-answerchoice, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-displayedtemperaturedegreescelsius}
+  The computed state-4 temperature rounds to a displayed whole degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Whole Degree.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Temperature]
+  \label{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-isuniqueclosestdisplayedtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.IsUniqueClosestDisplayedTemperature}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureindegreescelsius, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-answerchoice, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-displayedtemperaturedegreescelsius}
+  The selected displayed value is strictly closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Temperature.
+\end{proof}
+\begin{lemma}[state4 temperature in kelvins exact]
+  \label{lem:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-state4-temperature-in-kelvins-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0368.state4_temperature_in_kelvins_exact}
+  \uses{def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-amountofsubstancescale, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-nitrogengasdiagramsetup, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-temperatureinkelvins, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesnitrogengasscenario, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchesproblemreadouts, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-matchessuppliedpressurevolumediagram, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-hasphysicalparameters, def:physics:phyx-mini-0368:phyxminiproblems-problemphyxmini0368-satisfiesidealnitrogengaslaws}
+  The state-4 pressure--volume product is 9/4 of the state-1 product. Since the amount and gas constant are common to all states, the ideal-gas law gives T\_4 = (9/4) T\_1 = 53667/80 K = 670.8375 K
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of state4 temperature in kelvins exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

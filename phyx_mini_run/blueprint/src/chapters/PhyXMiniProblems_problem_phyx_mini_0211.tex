@@ -1,0 +1,345 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0211.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0211.source.json
+
+\chapter{Physics problem phyx\_mini\_0211}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0211}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Autofocusing cameras emit a pulse of very high frequency (ultrasonic) sound that travels to the object being photographed, and include a sensor that detects the returning reflected sound, as shown in figure.
+
+\#\# Question
+
+Calculate the travel time of the pulse for an object \textbackslash{}( 20\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) away.
+
+\#\# Answer choices
+
+- A: A: 180ms
+
+- B: B: 160ms
+
+- C: C: 140ms
+
+- D: D: 120ms
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating the workings of a camera focusing system in relation to a subject. 
+
+- On the left, there's a graphic of a camera.
+- To the right of the camera, there are several blue dashed curves representing lens elements or optical components.
+- Green arrows are shown between these elements, indicating the direction of the light path and focusing process.
+- On the far right, there is a blurred depiction of a person's face, suggesting the subject being photographed.
+
+The image visually represents the process of light traveling from the subject through the various lens elements into the camera, emphasizing the organization and focus mechanism of the camera system.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 120ms
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/211.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0211.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0211:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0211.roundTripTravelTime_matches_recordedChoiceD}
+\uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinmilliseconds, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-matchesprimaryfigure, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasstatedobjectdistance, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-emitsultrasonicpulse, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-usesstandardairsoundspeed, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasphysicalechoparameters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-satisfiesechopropagationlaws, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-recordeddatasetanswer, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AcousticLength}
+  A nonnegative physical acoustic-path length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AxialPosition}
+  A signed physical axial position used to preserve the left-to-right figure geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Acoustic Duration]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AcousticDuration}
+  A nonnegative physical propagation duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Duration.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AcousticFrequency}
+  A nonnegative physical acoustic frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AcousticSpeed}
+  The nonnegative dimensionful propagation speed supplied by Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.lengthReadout}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticlength}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.positionReadout}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialposition}
+  Read a signed axial position in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.durationReadout}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticduration}
+  Read a physical duration in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.frequencyReadout}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticfrequency}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.speedReadout}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticspeed}
+  Read a physical speed in the selected coherent length-per-time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.lengthInMeters}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticlength, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthreadout}
+  Metre readout used for the camera-to-subject separation and both pulse legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.positionInMeters}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialposition, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-positionreadout}
+  Metre readout of a signed position along the image's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.durationInSeconds}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticduration, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationreadout}
+  Second readout used in the propagation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Milliseconds]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.durationInMilliseconds}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticduration, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationreadout}
+  Millisecond readout used by the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Milliseconds.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticfrequency, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-frequencyreadout}
+  Hertz readout used to express the stated ultrasonic character of the pulse
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticspeed, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedreadout}
+  Metres-per-second readout of the propagation speed in air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.FigureObject}
+  The camera, its two autofocus components, and the photographed subject
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Pulse Leg]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-pulseleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.PulseLeg}
+  The two legs of the pulse path shown by oppositely directed arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulse Leg.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AxialDirection}
+  The two horizontal propagation directions in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Autofocus Echo Setup]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AutofocusEchoSetup}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticlength, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialposition, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticduration, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticfrequency, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticspeed, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-figureobject, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-pulseleg, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-axialdirection}
+  The autofocus apparatus and its physical observables. roundTripTravelTime is an unknown physical duration. This structure assigns it no numerical readout and does not select an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Autofocus Echo Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthinmeters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-positioninmeters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  Qualitative and geometric evidence from the problem text and primary image. The emitter and detector are co-located with the camera, the subject is to the right, and the emitted and reflected legs traverse the same separation in opposite directions. The sensor detects the returned leg. No numerical travel-time readout or answer label occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Stated Object Distance]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasstatedobjectdistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.HasStatedObjectDistance}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthinmeters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  The object's stated one-way distance from the camera is 20 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Object Distance.
+\end{proof}
+\begin{definition}[Is Ultrasonic]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-isultrasonic}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.IsUltrasonic}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-acousticfrequency, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-frequencyinhertz}
+  Conventional lower-edge characterization of an ultrasonic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Ultrasonic.
+\end{proof}
+\begin{definition}[Emits Ultrasonic Pulse]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-emitsultrasonicpulse}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.EmitsUltrasonicPulse}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-isultrasonic}
+  The emitted autofocus pulse is ultrasonic, as stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emits Ultrasonic Pulse.
+\end{proof}
+\begin{definition}[Uses Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-usesstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.UsesStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedinmeterspersecond, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  The standard textbook calibration 340 m/s used to evaluate the answer choices. The supplied question does not print air temperature or sound speed, so this datum is kept separate from the figure and propagation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Has Physical Echo Parameters]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasphysicalechoparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.HasPhysicalEchoParameters}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthinmeters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinseconds, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-frequencyinhertz, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedinmeterspersecond, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  Positivity conditions selecting a nondegenerate physical echo experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Echo Parameters.
+\end{proof}
+\begin{definition}[Satisfies Echo Propagation Laws]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-satisfiesechopropagationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.SatisfiesEchoPropagationLaws}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-lengthinmeters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinseconds, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-speedinmeterspersecond, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup}
+  The governing constant-speed and composition laws for the echo pulse. Each homogeneous air leg obeys distance = speed × time, and the full emission-to-detection duration is the sum of the outgoing and return durations. Neither law contains 120 ms, 2000/17 ms, or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Echo Propagation Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[milliseconds]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-answerchoice-milliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.AnswerChoice.milliseconds}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-answerchoice}
+  Millisecond value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of milliseconds.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-answerchoice}
+  A displayed choice is uniquely closest to the physical millisecond readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{lemma}[round Trip Travel Time milliseconds eq]
+  \label{lem:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-roundtriptraveltime-milliseconds-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0211.roundTripTravelTime_milliseconds_eq}
+  \uses{def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-durationinmilliseconds, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-autofocusechosetup, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-matchesprimaryfigure, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasstatedobjectdistance, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-emitsultrasonicpulse, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-usesstandardairsoundspeed, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-hasphysicalechoparameters, def:physics:phyx-mini-0211:phyxminiproblems-problemphyxmini0211-satisfiesechopropagationlaws}
+  Before answer-choice rounding, two 20 m legs at 340 m/s give the exact idealized round-trip duration 2000/17 ms
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of round Trip Travel Time milliseconds eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,385 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0366.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0366.source.json
+
+\chapter{Physics problem phyx\_mini\_0366}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0366}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The U-shaped tube in figure has a total length of 1.0 m. It is open at one end, closed at the other, and is initially filled with air at 20\textasciicircum{}\textbackslash{}circ C and 1.0 atm pressure. Mercury is poured slowly into the open end without letting any air escape, thus compressing the air. This is continued until the open side of the tube is completely filled with mercury.
+
+\#\# Question
+
+What is the length \textbackslash{}( L \textbackslash{}) of the column of mercury?
+
+\#\# Answer choices
+
+- A: A: 24cm
+
+- B: B: 22cm
+
+- C: C: 20cm
+
+- D: D: 21cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a U-shaped tube containing mercury (Hg) and air. The tube is labeled with "Open" on the left side and "Closed" on the right side. The left side of the tube has mercury, while the right side contains air. 
+
+There is an arrow labeled "L" pointing upward, indicating a measurement or distance from the mercury level to the top of the tube. The labels "Hg" and "Air" identify the substances in each side of the tube. The left side is marked "Open," which means it is exposed to the atmosphere, whereas the right side is marked "Closed," indicating that it is sealed.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 24cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/366.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0366.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0366:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0366.problem_phyx_mini_0366}
+\uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthincentimeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-matchesstatedproblemdata, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-matchesprimaryutubefigure, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-usesatmosphericmercurycalibration, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-hasphysicalutubeparameters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesuniformtubegeometry, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesisothermalfixedsampleidealgaslaw, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesmercuryhydrostaticequilibrium, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-displayedlengthcentimeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.AreaQuantity}
+  A nonnegative physical cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.VolumeQuantity}
+  A nonnegative physical volume, with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.PressureQuantity}
+  A physical pressure, using Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.MassDensityQuantity}
+  A nonnegative mass density, with dimension mass per volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.lengthInMeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthquantity}
+  Read a physical length in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areaquantity}
+  Read a physical area in SI square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.pressureInPascals}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressurequantity}
+  Read a physical pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[mass Density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.massDensityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityquantity}
+  Read a physical mass density in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationquantity}
+  Read an acceleration magnitude in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.temperatureInKelvins}
+  Kelvin readout of Physlib's absolute-temperature object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.temperatureInCelsius}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-temperatureinkelvins}
+  Celsius readout relative to the conventional 273.15 K offset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.GasModel}
+  Thermodynamic model used for the trapped air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Substance]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-substance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.Substance}
+  Material names appearing in the problem and primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Substance.
+\end{proof}
+\begin{definition}[End Boundary]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-endboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.EndBoundary}
+  Boundary condition at either end of the U-tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of End Boundary.
+\end{proof}
+\begin{definition}[Tube End]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-tubeend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.TubeEnd}
+  The two explicitly labelled ends of the tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube End.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.FigureRegion}
+  Regions distinguished by the material labels in the final figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.FigurePoint}
+  Distinguished endpoints of the arrow marked L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.FigureLengthLabel}
+  The literal length symbol printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[Figure Arrow Direction]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurearrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.FigureArrowDirection}
+  Direction of the double-ended length marker in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow Direction.
+\end{proof}
+\begin{definition}[Compression Regime]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-compressionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.CompressionRegime}
+  Slow-pouring and containment information from the prose scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compression Regime.
+\end{proof}
+\begin{definition}[Air Containment]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-aircontainment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.AirContainment}
+  Whether the initially trapped sample can escape during compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Containment.
+\end{proof}
+\begin{definition}[UTube Figure]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.UTubeFigure}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-substance, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-endboundary, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-tubeend, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figureregion, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurepoint, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurelengthlabel, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-figurearrowdirection}
+  Qualitative transcription of the supplied U-tube image. The physical length represented by the arrow is stored independently of its later numerical solution
+\end{definition}
+\begin{proof}
+  This is the declared model definition of UTube Figure.
+\end{proof}
+\begin{definition}[UTube Compression Setup]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.UTubeCompressionSetup}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areaquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumequantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressurequantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationquantity, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-gasmodel, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-substance, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-compressionregime, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-aircontainment, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubefigure}
+  Independent physical quantities for the initial and final equilibrium states. In particular, mercuryColumnLength is a field, not a definition of the requested 24 cm result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of UTube Compression Setup.
+\end{proof}
+\begin{definition}[Matches Stated Problem Data]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-matchesstatedproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.MatchesStatedProblemData}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-temperatureincelsius, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Numerical and qualitative data stated in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary UTube Figure]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-matchesprimaryutubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.MatchesPrimaryUTubeFigure}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Primary-image evidence: the left end is open, the right end is closed, mercury occupies the open-leg column, and the arrow L runs vertically from the mercury--air interface to the open top
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary UTube Figure.
+\end{proof}
+\begin{definition}[Uses Atmospheric Mercury Calibration]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-usesatmosphericmercurycalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.UsesAtmosphericMercuryCalibration}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthincentimeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  School-level pressure calibration used by the answer choices: one atmosphere supports a mercury column of 76 cm. This is reference data, not the unknown mercury length L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Atmospheric Mercury Calibration.
+\end{proof}
+\begin{definition}[Has Physical UTube Parameters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-hasphysicalutubeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.HasPhysicalUTubeParameters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areainsquaremeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumeincubicmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressureinpascals, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Positivity and containment conditions selecting the physical, nonzero branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical UTube Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Tube Geometry]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesuniformtubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.SatisfiesUniformTubeGeometry}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-areainsquaremeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumeincubicmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Uniform-cross-section geometry. Initially the air occupies the whole tube; finally it occupies the remaining centre-line length after the vertical mercury column of length L is filled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Tube Geometry.
+\end{proof}
+\begin{definition}[Satisfies Isothermal Fixed Sample Ideal Gas Law]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesisothermalfixedsampleidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.SatisfiesIsothermalFixedSampleIdealGasLaw}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-volumeincubicmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressureinpascals, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Fixed-sample isothermal ideal-gas law. Slow compression keeps the trapped air at its initial temperature, and Boyle's product pV is therefore conserved
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isothermal Fixed Sample Ideal Gas Law.
+\end{proof}
+\begin{definition}[Satisfies Mercury Hydrostatic Equilibrium]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesmercuryhydrostaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.SatisfiesMercuryHydrostaticEquilibrium}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-pressureinpascals, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup}
+  Hydrostatic equilibrium for mercury. The first relation defines the atmosphere-equivalent mercury head; the second gives the pressure increase at the lower mercury--air interface. Both are general Δp = ρ g h relations and neither prescribes the requested column length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mercury Hydrostatic Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.AnswerChoice}
+  Labels of the four answer choices displayed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Length Centimeters]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-displayedlengthcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.displayedLengthCentimeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-answerchoice}
+  Centimetre value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Length Centimeters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[mercury Column Length In Meters]
+  \label{lem:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-mercurycolumnlengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0366.mercuryColumnLengthInMeters}
+  \uses{def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-lengthinmeters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-utubecompressionsetup, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-matchesstatedproblemdata, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-usesatmosphericmercurycalibration, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-hasphysicalutubeparameters, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesuniformtubegeometry, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesisothermalfixedsampleidealgaslaw, def:physics:phyx-mini-0366:phyxminiproblems-problemphyxmini0366-satisfiesmercuryhydrostaticequilibrium}
+  The physical laws first determine the exact SI length L = 0.24 m = 6/25 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mercury Column Length In Meters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

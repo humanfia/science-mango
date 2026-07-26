@@ -1,0 +1,195 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0220.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0220.source.json
+
+\chapter{Physics problem phyx\_mini\_0220}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0220}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You look directly overhead and see a plane exactly \textbackslash{}( 1.45\textbackslash{},\textbackslash{}mathrm\{km\} \textbackslash{}) above the ground flying faster than the speed of sound. By the time you hear the sonic boom, the plane has traveled a horizontal distance of \textbackslash{}( 2.0\textbackslash{},\textbackslash{}mathrm\{km\} \textbackslash{}). See figure.
+
+\#\# Question
+
+Determine the angle of the shock cone, \textbackslash{}( \textbackslash{}theta \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 30°
+
+- B: B: 60°
+
+- C: C: 45°
+
+- D: D: 36°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a jet aircraft flying at high speed, creating a shockwave represented by a cone. The jet is on the right side, illustrated with a streamlined design, and is moving from right to left. Lines are drawn to show the Mach cone, with one horizontal line indicating the flight path and another forming an angle labeled as "θ" with the top line, representing the Mach angle. Additional lines suggest motion, likely indicating speed or airflow around the jet. The background is a gradient blue, suggesting sky.
+
+\#\# Dataset metadata
+
+Wave Properties; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 36°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/220.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0220.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0220:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0220.problem_phyx_mini_0220}
+\uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-sonicboomsetup, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-matchesproblemandsuppliedfigure, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-hasphysicalsupersonicparameters, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-satisfiessonicboommachconegeometry, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-matchesanswertonearestdegree}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.LengthQuantity}
+  A nonnegative physical length, represented coherently in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.lengthReadout}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.speedInMetersPerSecond}
+  Read a nonnegative physical speed in SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Spatial Orientation]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-spatialorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.SpatialOrientation}
+  The two perpendicular directions used in the observer--aircraft cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Orientation.
+\end{proof}
+\begin{definition}[Mach Cone Ray]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-machconeray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.MachConeRay}
+  The two rays bounding the angle θ in the supplied Mach-cone image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mach Cone Ray.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.FigureLabel}
+  The only mathematical label printed in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Mach Cone Figure]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-machconefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.MachConeFigure}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-machconeray, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-figurelabel}
+  Qualitative evidence read from the primary image. It depicts the aircraft, the horizontal flight-path ray, a trailing shock-cone boundary below that ray, and θ between those two rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mach Cone Figure.
+\end{proof}
+\begin{definition}[Sonic Boom Setup]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-sonicboomsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.SonicBoomSetup}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthquantity, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-spatialorientation, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-machconefigure}
+  The independent physical quantities in the problem. In particular, shockConeHalfAngleTheta is an unknown angle and is not defined to equal an answer formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonic Boom Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Supplied Figure]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-matchesproblemandsuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.MatchesProblemAndSuppliedFigure}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthreadout, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-sonicboomsetup}
+  Assumptions The following predicate records only problem-text measurements and qualitative facts from the supplied image. It gives no numerical value for θ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Supersonic Parameters]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-hasphysicalsupersonicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.HasPhysicalSupersonicParameters}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthreadout, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-speedinmeterspersecond, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-sonicboomsetup}
+  Positivity, supersonic motion, and the acute physical branch for the Mach half-angle. Comparing the dimensionful speeds through a common SI readout is dimensionally meaningful
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Supersonic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Sonic Boom Mach Cone Geometry]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-satisfiessonicboommachconegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.SatisfiesSonicBoomMachConeGeometry}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-lengthreadout, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-sonicboomsetup}
+  The sonic-boom arrival law specialized to the vertical cross-section shown by the problem: when the observer hears the boom, the observer lies on the shock boundary. Thus the altitude is the side opposite θ and the aircraft's horizontal travel since passing overhead is the adjacent side. This is a general governing relation among the independent quantities; it does not state the requested angle or any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sonic Boom Mach Cone Geometry.
+\end{proof}
+\begin{definition}[angle Of Degrees]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-angleofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.angleOfDegrees}
+  Convert a real-valued degree readout into Mathlib's physical angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Of Degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.degreeReadout}
+  Read the principal representative of a physical angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[degree Value]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-answerchoice-degreevalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.AnswerChoice.degreeValue}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-answerchoice}
+  Degree values printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Value.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Degree]
+  \label{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-matchesanswertonearestdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0220.MatchesAnswerToNearestDegree}
+  \uses{def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-degreereadout, def:physics:phyx-mini-0220:phyxminiproblems-problemphyxmini0220-answerchoice}
+  A displayed whole-degree choice agrees with the angle to the nearest degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

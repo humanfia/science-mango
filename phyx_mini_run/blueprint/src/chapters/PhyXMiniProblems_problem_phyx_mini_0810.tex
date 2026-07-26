@@ -1,0 +1,374 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0810.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0810.source.json
+
+\chapter{Physics problem phyx\_mini\_0810}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0810}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You throw a 0.145 kg baseball straight up, giving it an initial velocity of magnitude 20.0 m/s.
+
+\#\# Question
+
+Find how high it goes, ignoring air resistance.
+
+\#\# Answer choices
+
+- A: A: 23.1m
+
+- B: B: 20.4m
+
+- C: C: 27.2m
+
+- D: D: 16.5m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a physics problem involving a baseball being thrown vertically. 
+
+- At the bottom, a hand is shown throwing a baseball upwards with a velocity \textbackslash{}( v\_1 = 20.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}).
+- The baseball has a mass \textbackslash{}( m = 0.145 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}).
+- The initial position of the baseball is marked as \textbackslash{}( y\_1 = 0 \textbackslash{}).
+- Toward the top, the baseball reaches a point where its velocity \textbackslash{}( v\_2 = 0 \textbackslash{}), which represents the peak of its trajectory.
+- This peak position is labeled as \textbackslash{}( y\_2 \textbackslash{}). 
+- An arrow pointing upwards from the hand represents the direction of the throw.
+- The baseball is depicted twice: once at the hand and once at the peak.
+
+The scene models the motion of the baseball under gravitational effects from an initial upward throw to its highest point.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 20.4m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/810.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0810.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0810:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0810.maximumHeight_matches_answerB}
+\uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-heightgaininmeters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesproblemdescription, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesprimaryfigure, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-usesstandardearthgravity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-hasphysicalthrowparameters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-satisfiesuniformgravitykinematics, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-fitsdisplayedheight}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[vertical Velocity Dimension]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalvelocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.verticalVelocityDimension}
+  The physical dimension of signed vertical velocity, L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Velocity Dimension.
+\end{proof}
+\begin{definition}[vertical Acceleration Dimension]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.verticalAccelerationDimension}
+  The physical dimension of signed vertical acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Vertical Position Quantity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.VerticalPositionQuantity}
+  A signed vertical position relative to the coordinate origin in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Position Quantity.
+\end{proof}
+\begin{definition}[Vertical Velocity Quantity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.VerticalVelocityQuantity}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalvelocitydimension}
+  A signed component of vertical velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Velocity Quantity.
+\end{proof}
+\begin{definition}[Vertical Acceleration Quantity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.VerticalAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationdimension}
+  A signed component of vertical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Acceleration Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationdimension}
+  A nonnegative magnitude of gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.massReadout}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massquantity}
+  Read a physical mass in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.positionReadout}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalpositionquantity}
+  Read a signed vertical position in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.velocityReadout}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalvelocityquantity}
+  Read a signed vertical velocity in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.accelerationReadout}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationquantity}
+  Read a signed vertical acceleration in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[acceleration Magnitude Readout]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.accelerationMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudequantity}
+  Read a nonnegative acceleration magnitude in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude Readout.
+\end{proof}
+\begin{definition}[Motion Event]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-motionevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.MotionEvent}
+  The two endpoint states explicitly drawn in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Event.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.VerticalDirection}
+  Vertical directions used for the coordinate convention and launch arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Thrown Object Kind]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-thrownobjectkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.ThrownObjectKind}
+  The physical object identified by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thrown Object Kind.
+\end{proof}
+\begin{definition}[Vertical Motion Model]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalmotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.VerticalMotionModel}
+  The idealized dynamics selected by the phrase "ignoring air resistance."
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Motion Model.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.FigureQuantityLabel}
+  The five symbolic quantity labels visible in image 810.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Baseball Vertical Throw Figure]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.BaseballVerticalThrowFigure}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-motionevent, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticaldirection, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-figurequantitylabel}
+  Literal content retained from the primary raster. The numerical fields are displayed SI readouts; y₂ is retained only as a visible symbolic label and is not assigned a numerical value in the figure data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Baseball Vertical Throw Figure.
+\end{proof}
+\begin{definition}[Baseball Vertical Throw Setup]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.BaseballVerticalThrowSetup}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massquantity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalpositionquantity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalvelocityquantity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationquantity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudequantity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-motionevent, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticaldirection, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-thrownobjectkind, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalmotionmodel, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowfigure}
+  Independent physical quantities of the throw. In particular, the position at highestPoint is an unconstrained observable here; it is neither defined from the recorded answer nor from a closed-form height formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Baseball Vertical Throw Setup.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.massInKilograms}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  Coherent-SI kilogram readout of the baseball mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.positionInMeters}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positionreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-motionevent, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  Coherent-SI metre readout of the position at a labeled event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-motionevent, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  Coherent-SI metre-per-second readout at a labeled event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[vertical Acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-verticalaccelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.verticalAccelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  Coherent-SI metre-per-second-squared readout of signed acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[gravity Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-gravitymagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.gravityMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudereadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  Coherent-SI metre-per-second-squared readout of the magnitude g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gravity Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[height Gain In Meters]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-heightgaininmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.heightGainInMeters}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positioninmeters}
+  The requested height is the peak position minus the release position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height Gain In Meters.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  The prose assumptions: a baseball is thrown upward in ideal uniform gravity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massinkilograms, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positioninmeters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityinmeterspersecond}
+  Exact transcription of the primary bitmap. The physical readouts are tied to the displayed numbers, while the unknown label y₂ receives no numerical premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-gravitymagnitudeinmeterspersecondsquared}
+  The conventional near-Earth value used by the multiple-choice calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Throw Parameters]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-hasphysicalthrowparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.HasPhysicalThrowParameters}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-massinkilograms, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityinmeterspersecond, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-gravitymagnitudeinmeterspersecondsquared}
+  Positivity conditions select the physical upward-throw branch without fixing the requested numerical height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Throw Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Gravity Kinematics]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-satisfiesuniformgravitykinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.SatisfiesUniformGravityKinematics}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-positionreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-velocityreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationreadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-accelerationmagnitudereadout, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup}
+  The constant-gravity kinematic laws, stated for every coherent unit choice. They relate the independent endpoint observables and contain neither 1000 / 49, the rounded value 20.4, nor any answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Gravity Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Height In Meters]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-answerchoice-displayedheightinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.AnswerChoice.displayedHeightInMeters}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-answerchoice}
+  Height in metres printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Height In Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Fits Displayed Height]
+  \label{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-fitsdisplayedheight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.FitsDisplayedHeight}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-heightgaininmeters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-answerchoice}
+  A tenth-metre display represents the ideal height when the discrepancy is strictly less than half of the last displayed metre digit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fits Displayed Height.
+\end{proof}
+\begin{lemma}[height Gain exact]
+  \label{lem:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-heightgain-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0810.heightGain_exact}
+  \uses{def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-baseballverticalthrowsetup, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-heightgaininmeters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesproblemdescription, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-matchesprimaryfigure, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-usesstandardearthgravity, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-hasphysicalthrowparameters, def:physics:phyx-mini-0810:phyxminiproblems-problemphyxmini0810-satisfiesuniformgravitykinematics}
+  Under the ideal model, the exact height gain is 20² / (2 * 9.8)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of height Gain exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

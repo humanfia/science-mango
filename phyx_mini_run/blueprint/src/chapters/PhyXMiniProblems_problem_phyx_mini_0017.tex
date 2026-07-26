@@ -1,0 +1,186 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0017.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0017.source.json
+
+\chapter{Physics problem phyx\_mini\_0017}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0017}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A light ray traveling in air is incident on one face of a right-angle prism with index of refraction \textbackslash{}( n = 1.50 \textbackslash{}) as shown in figure, and the ray follows the path shown in the figure. Assuming \textbackslash{}( \textbackslash{}theta = 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) and the base of the prism is mirrored.
+
+\#\# Question
+
+determine the angle \textbackslash{}( \textbackslash{}phi \textbackslash{}) made by the outgoing ray with the normal to the right face of the prism.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 8.83\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 12.35\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 7.91\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 6.42\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic of a light path involving a mirror base and a prism. Here's a detailed description of the components:
+
+1. **Prism**: The prism has a triangular shape and appears to have a right angle marked at its top corner.
+
+2. **Mirror Base**: At the bottom of the image, there is a horizontal line labeled "Mirror base," which serves as the reflective surface.
+
+3. **Incoming Ray**: A ray labeled "Incoming ray" comes from above, striking the prism at an angle. This angle is marked with the Greek letter \textbackslash{}(\textbackslash{}theta\textbackslash{}) on both sides of the incoming light path.
+
+4. **Outgoing Ray**: After bouncing off the inner surface of the prism, the ray exits and is labeled "Outgoing ray" at the top right. The angle of the outgoing ray relative to the normal line is marked with the Greek letter \textbackslash{}(\textbackslash{}phi\textbackslash{}).
+
+5. **Normal Lines**: Dashed lines represent normal lines perpendicular to the surfaces where the light rays interact. These help in measuring angles of incidence and reflection/refraction.
+
+6. **Label 'n'**: Inside the triangular prism, the letter "n" is present, possibly representing the refractive index of the material.
+
+This diagram illustrates how light behaves when passing through a prism and reflecting off a base, demonstrating concepts like refraction and reflection.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 7.91\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/17.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0017.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0017:target}
+\lean{PhyXMiniProblems.Problem0017.outgoingRayAngle}
+\uses{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-opticalmedium, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-radiansofdegrees, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-isphysicalnormalangle, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-prismfiguredata, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-snelllaw, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-specularreflectionlaw, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-answerangledegrees, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-roundstohundredthdegree}
+For the pictured right-angle prism of dimensionless index $3/2$, with
+$60^\circ$ entry incidence and a mirrored base, impose entry and exit Snell
+refraction, specular reflection at the base, and the displayed triangular
+geometry. The outgoing angle from the right-face normal rounds to
+$7.91^\circ$, answer C. The formal model must keep media, surfaces, ray
+segments, and normal-referenced angles as distinct roles and must inspect
+Physlib before introducing local optics-law predicates.
+\end{theorem}
+\begin{proof}
+Entry Snell refraction determines $r$ by
+$\sin r=\sin60^\circ/(3/2)$. The base-incidence angle is $60^\circ-r$ and
+specular reflection preserves it. The remaining acute prism angle is
+$30^\circ$, so the incidence at the right face is
+$30^\circ-(60^\circ-r)$. Exit Snell refraction therefore determines the
+outgoing angle $\phi$ by
+$\sin\phi=(3/2)\sin(30^\circ-(60^\circ-r))$. On the physical branches this
+gives approximately $7.91^\circ$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-opticalmedium}
+  \lean{PhyXMiniProblems.Problem0017.OpticalMedium}
+  The two optical media occurring in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Prism Surface]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-prismsurface}
+  \lean{PhyXMiniProblems.Problem0017.PrismSurface}
+  The three prism surfaces met or identified by the ray path in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Surface.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-raysegment}
+  \lean{PhyXMiniProblems.Problem0017.RaySegment}
+  The four directed ray segments drawn in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-answerchoice}
+  \lean{PhyXMiniProblems.Problem0017.AnswerChoice}
+  The answer labels displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians Of Degrees]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-radiansofdegrees}
+  \lean{PhyXMiniProblems.Problem0017.radiansOfDegrees}
+  Convert a scalar angle readout in degrees to its value in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Of Degrees.
+\end{proof}
+\begin{definition}[degrees Of Radians]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-degreesofradians}
+  \lean{PhyXMiniProblems.Problem0017.degreesOfRadians}
+  Convert a scalar angle readout in radians to its value in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees Of Radians.
+\end{proof}
+\begin{definition}[Is Physical Normal Angle]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-isphysicalnormalangle}
+  \lean{PhyXMiniProblems.Problem0017.IsPhysicalNormalAngle}
+  An angle measured from a surface normal is on its physical principal range
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Normal Angle.
+\end{proof}
+\begin{definition}[Prism Figure Data]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-prismfiguredata}
+  \lean{PhyXMiniProblems.Problem0017.PrismFigureData}
+  \uses{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-prismsurface, def:physics:phyx-mini-0017:phyxminiproblems-problem0017-raysegment}
+  The figure-derived data for the right-angle prism. All angle fields are scalar readouts in radians; the ray and surface lists retain the labels and order shown in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Figure Data.
+\end{proof}
+\begin{definition}[Snell Law]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-snelllaw}
+  \lean{PhyXMiniProblems.Problem0017.SnellLaw}
+  \uses{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-opticalmedium}
+  Snell's law for angles measured from the normal when a ray passes from one optical medium to another. Refractive indices are dimensionless real readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law.
+\end{proof}
+\begin{definition}[Specular Reflection Law]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-specularreflectionlaw}
+  \lean{PhyXMiniProblems.Problem0017.SpecularReflectionLaw}
+  The law of specular reflection at the mirrored base
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specular Reflection Law.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-answerangledegrees}
+  \lean{PhyXMiniProblems.Problem0017.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-answerchoice}
+  The four numerical answer readouts, in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[Rounds To Hundredth Degree]
+  \label{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-roundstohundredthdegree}
+  \lean{PhyXMiniProblems.Problem0017.RoundsToHundredthDegree}
+  \uses{def:physics:phyx-mini-0017:phyxminiproblems-problem0017-degreesofradians}
+  RoundsToHundredthDegree angle reported says that the radian-valued physical angle rounds to the displayed two-decimal degree readout reported
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Hundredth Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,305 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0403.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0403.source.json
+
+\chapter{Physics problem phyx\_mini\_0403}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0403}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+At a constant pressure of \textbackslash{}( 400\textbackslash{},\textbackslash{}mathrm\{kPa\} \textbackslash{}), the gas expands from an initial volume of \textbackslash{}( 100\textbackslash{},\textbackslash{}mathrm\{cm\}\textasciicircum{}3 \textbackslash{}) to a final volume of \textbackslash{}( 300\textbackslash{},\textbackslash{}mathrm\{cm\}\textasciicircum{}3 \textbackslash{}).
+
+\#\# Question
+
+How much work is done on the gas in the process shown in figure?
+
+\#\# Answer choices
+
+- A: A: 0J
+
+- B: B: 80J
+
+- C: C: -80J
+
+- D: D: -40J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a pressure-volume (p-V) diagram.
+
+1. **Axes**:
+   - The vertical axis is labeled "p (kPa)", representing pressure in kilopascals. It ranges from 0 to 400.
+   - The horizontal axis is labeled "V (cm³)", representing volume in cubic centimeters. It ranges from 0 to 300.
+
+2. **Data Plot**:
+   - There is a horizontal arrowed line indicating a change in state from "i" (initial) to "f" (final).
+   - The initial point (i) is at about 100 cm³ on the V-axis and 400 kPa on the p-axis.
+   - The final point (f) is at about 300 cm³ on the V-axis and 400 kPa on the p-axis.
+
+3. **Text and Labeling**:
+   - The initial state is labeled with "i" and the final state with "f".
+   - The line is a straight horizontal line, indicating constant pressure during the volume change.
+
+The diagram represents a constant pressure process where the volume increases.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -80J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/403.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0403.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0403:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0403.workDoneOnGas_eq_negative_eighty_joules}
+\uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workinjoules, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-matchesproblemandprimaryfigure, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-hasphysicalpressurevolumecoordinates, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-satisfiesconstantpressureboundaryworklaw, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-usesworkongassignconvention}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.VolumeQuantity}
+  A nonnegative physical volume, carrying dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.PressureQuantity}
+  Thermodynamic pressure, represented by Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Work Quantity]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.WorkQuantity}
+  Signed mechanical work, represented by Physlib's dimensionful energy type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumequantity}
+  SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumequantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubicmeters}
+  Cubic-centimetre readout used on the horizontal axis of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.pressureInPascals}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurequantity}
+  SI pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurequantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinpascals}
+  Kilopascal readout used on the vertical axis of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[work In Joules]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.workInJoules}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workquantity}
+  Joule readout of a signed physical work quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work In Joules.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.StateLabel}
+  The two state labels printed in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumequantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurequantity}
+  Pressure and volume at one equilibrium state of the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.ProcessKind}
+  The physical classification of the depicted process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Volume Change Direction]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumechangedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.VolumeChangeDirection}
+  The direction of volume change shown by the arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Change Direction.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.FigureAxis}
+  The two Cartesian axes in the pressure-volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.AxisQuantity}
+  Physical quantity assigned to a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.AxisDisplayUnit}
+  Unit text printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.AxisSymbol}
+  Literal quantity symbol printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.PathGeometry}
+  Geometric appearance of the directed path in the p-V plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumequantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurequantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-statelabel, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-figureaxis, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axisquantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axisdisplayunit, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-axissymbol, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pathgeometry}
+  Structured transcription of image 403.png. Physical coordinates are stored as dimensionful quantities; the match predicate below supplies their labelled numeric readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Constant Pressure Expansion Setup]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.ConstantPressureExpansionSetup}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workquantity, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-statelabel, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-thermodynamicstate, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-processkind, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumechangedirection, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressurevolumefigure}
+  The gas process and its two signed work quantities. Neither work field is defined from the answer table or assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Constant Pressure Expansion Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubiccentimeters, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinkilopascals, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-statelabel, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup}
+  Exact transcription of the prose and primary bitmap: p is vertical in kPa, V is horizontal in cm³, and the arrow runs horizontally from i to f. No work value occurs in these fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Pressure Volume Coordinates]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-hasphysicalpressurevolumecoordinates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.HasPhysicalPressureVolumeCoordinates}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubicmeters, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinpascals, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-statelabel, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup}
+  Positivity conditions selecting physically meaningful state coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pressure Volume Coordinates.
+\end{proof}
+\begin{definition}[Satisfies Constant Pressure Boundary Work Law]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-satisfiesconstantpressureboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.SatisfiesConstantPressureBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-volumeincubicmeters, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-pressureinpascals, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workinjoules, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup}
+  Boundary work for an isobaric process, with work positive when done by the gas: W\_by = p\_i (V\_f - V\_i). This is a general governing relation over the setup's physical state variables; it contains no numerical work result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Pressure Boundary Work Law.
+\end{proof}
+\begin{definition}[Uses Work On Gas Sign Convention]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-usesworkongassignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.UsesWorkOnGasSignConvention}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workinjoules, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup}
+  The requested convention is work done *on* the gas. It is the negative of boundary work done by the gas. This law fixes the sign convention without supplying either numerical work value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Work On Gas Sign Convention.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.AnswerChoice}
+  The four labels printed beside the multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Work On Gas In Joules]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-displayedworkongasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.displayedWorkOnGasInJoules}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-answerchoice}
+  Work-on-gas readout in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Work On Gas In Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[work Done By Gas eq eighty joules]
+  \label{lem:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workdonebygas-eq-eighty-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0403.workDoneByGas_eq_eighty_joules}
+  \uses{def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-workinjoules, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-constantpressureexpansionsetup, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-matchesproblemandprimaryfigure, def:physics:phyx-mini-0403:phyxminiproblems-problemphyxmini0403-satisfiesconstantpressureboundaryworklaw}
+  The constant-pressure boundary-work law and the exact figure readouts first give 80 J of work done by the gas. This intermediate value is a conclusion, not a field of any assumption structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of work Done By Gas eq eighty joules.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

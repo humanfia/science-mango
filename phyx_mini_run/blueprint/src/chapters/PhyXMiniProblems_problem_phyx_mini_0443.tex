@@ -1,0 +1,281 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0443.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0443.source.json
+
+\chapter{Physics problem phyx\_mini\_0443}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0443}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \$1 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3\$ rigid tank with air at \$1 \textbackslash{}, \textbackslash{}text\{MPa\}\$ and \$400 \textbackslash{}, \textbackslash{}text\{K\}\$ is connected to an air line as shown in figure. The valve is opened and air flows into the tank until the pressure reaches \$5 \textbackslash{}, \textbackslash{}text\{MPa\}\$, at which point the valve is closed and the temperature inside is \$450 \textbackslash{}, \textbackslash{}text\{K\}\$. The tank eventually cools to room temperature, \$300 \textbackslash{}, \textbackslash{}text\{K\}\$.
+
+\#\# Question
+
+What is the pressure inside the tank then?
+
+\#\# Answer choices
+
+- A: A: 1.00 MPa
+
+- B: B: 5.00 MPa
+
+- C: C: 2.67 MPa
+
+- D: D: 3.33 MPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a simple diagram with the following elements:
+
+- A large rectangular shape labeled "Tank" filled with a blue color, representing a tank or container.
+- Connected to the tank is a horizontal pipe or line that extends to the right.
+- Along the line, there is a circular object, likely a valve, indicated by an 'X' symbol on the pipe.
+- The pipe leads to a vertical structure labeled "Air line" on the right.
+- The components are connected, suggesting a system involving a tank, valve, and air line.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 3.33 MPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/443.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0443.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0443:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0443.cooledTankPressureAndAnswer}
+\uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinmegapascals, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-matchessuppliedtankairlinefigure, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-hassuppliedtankprocessdata, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-hasphysicaltankparameters, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-satisfiesclosedrigidtankidealgaslaw, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.VolumeQuantity}
+  A nonnegative physical volume with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Air Mass Quantity]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.AirMassQuantity}
+  A nonnegative physical mass used to identify the trapped air sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Mass Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Megapascals]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinmegapascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.pressureInMegapascals}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinpascals}
+  Read a physical pressure in megapascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Megapascals.
+\end{proof}
+\begin{definition}[air Mass In Kilograms]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.airMassInKilograms}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassquantity}
+  Read a physical air mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of air Mass In Kilograms.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.GasSpecies}
+  The gas species named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.GasModel}
+  The thermodynamic equation-of-state model used for the tank air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.ProcessStage}
+  Named stages of the filling, valve-closing, and cooling process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Is Post Closure Stage]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-ispostclosurestage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.IsPostClosureStage}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-processstage}
+  Whether a stage occurs after filling has ended and the valve was closed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Post Closure Stage.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.ValvePosition}
+  The two valve positions relevant to filling and sealing the tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.FigureObject}
+  Individually identifiable objects in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Tank Air Line Figure]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-suppliedtankairlinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.SuppliedTankAirLineFigure}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-figureobject}
+  Qualitative information read from the primary image: a light-blue rectangular tank on the left is joined by a horizontal pipe and circled-cross valve to a vertical air line on the right. The image supplies no numerical dimensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Tank Air Line Figure.
+\end{proof}
+\begin{definition}[Tank Air State]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-tankairstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.TankAirState}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumequantity, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassquantity}
+  One equilibrium state of the air inside the rigid tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Air State.
+\end{proof}
+\begin{definition}[Rigid Tank Air Line Setup]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.RigidTankAirLineSetup}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-gasspecies, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-gasmodel, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-processstage, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-valveposition, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-suppliedtankairlinefigure, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-tankairstate}
+  The apparatus and its observables. The cooled pressure is stored as an independent physical observable; it is not defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Tank Air Line Setup.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.temperatureInKelvin}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-processstage, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup}
+  Read an absolute temperature in kelvins. The storage unit is explicit because Physlib's Temperature permits an arbitrary zero-preserving unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[Matches Supplied Tank Air Line Figure]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-matchessuppliedtankairlinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.MatchesSuppliedTankAirLineFigure}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup}
+  The qualitative topology and labels visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Tank Air Line Figure.
+\end{proof}
+\begin{definition}[Has Supplied Tank Process Data]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-hassuppliedtankprocessdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.HasSuppliedTankProcessData}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumeincubicmeters, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinmegapascals, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassinkilograms, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-temperatureinkelvin}
+  Numerical readouts and process facts supplied by the prose. In particular, this structure contains no cooled-pressure value and no answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Supplied Tank Process Data.
+\end{proof}
+\begin{definition}[Has Physical Tank Parameters]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-hasphysicaltankparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.HasPhysicalTankParameters}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-volumeincubicmeters, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinpascals, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-airmassinkilograms, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-temperatureinkelvin}
+  Positivity and nondegeneracy conditions for the physical states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tank Parameters.
+\end{proof}
+\begin{definition}[Satisfies Closed Rigid Tank Ideal Gas Law]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-satisfiesclosedrigidtankidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.SatisfiesClosedRigidTankIdealGasLaw}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinpascals, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-ispostclosurestage, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-temperatureinkelvin}
+  Governing physics after the valve closes. Rigidity preserves tank volume, the closed valve preserves trapped air mass, and the fixed-mass, fixed-volume ideal-gas law makes pressure proportional to absolute temperature. The cross-multiplied law is quantified over arbitrary post-closure stages and contains no solved cooled pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Rigid Tank Ideal Gas Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.AnswerChoice}
+  The four answer labels printed with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Megapascals]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-displayedpressureinmegapascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.displayedPressureInMegapascals}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-answerchoice}
+  Each displayed answer converted to megapascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Megapascals.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-answerchoice}
+  Dataset metadata recording the supplied answer label; never a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Pressure]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-matchesdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.MatchesDisplayedPressure}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-pressureinmegapascals, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-answerchoice, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-displayedpressureinmegapascals}
+  A choice matches when its displayed pressure is the exact result rounded to the nearest hundredth of a megapascal. The strict half-unit tolerance also rules out ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Pressure.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0443.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-rigidtankairlinesetup, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-answerchoice, def:physics:phyx-mini-0443:phyxminiproblems-problemphyxmini0443-matchesdisplayedpressure}
+  A displayed choice is the unique rounded match among all four alternatives
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

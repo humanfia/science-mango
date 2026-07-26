@@ -1,0 +1,376 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0724.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0724.source.json
+
+\chapter{Physics problem phyx\_mini\_0724}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0724}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Water flows through the pipes shown in figure. The water's speed through the lower pipe is \textbackslash{}(5.0\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}) and a pressure gauge reads \textbackslash{}(75\textbackslash{},\textbackslash{}mathrm\{kPa\}\textbackslash{}).
+
+\#\# Question
+
+What is the reading of the pressure gauge on the upper pipe?
+
+\#\# Answer choices
+
+- A: A: 4.4kPa
+
+- B: B: 4.8kPa
+
+- C: C: 4.6kPa
+
+- D: D: 5.0kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a fluid dynamics scenario involving flow through a pipe that changes in diameter and elevation. Here’s a detailed description:
+
+- **Flow Direction**: Indicated by green arrows, the flow proceeds from left to right.
+
+- **Section 1**: 
+  - The pipe has a diameter of 6.0 cm.
+  - A pressure gauge shows 75 kPa.
+  - The flow velocity is labeled as 5.0 m/s.
+  - This section is marked with the number "1".
+
+- **Section 2**: 
+  - The pipe reduces in diameter to 4.0 cm.
+  - There is an unknown pressure indicated by a question mark on the gauge.
+  - The flow velocity is labeled as \textbackslash{}( v\_2 \textbackslash{}).
+  - This section is marked with the number "2" and is 2.0 m higher in elevation compared to section 1.
+
+The pipe has an upward slope between sections 1 and 2, indicating a change in height and possibly pressure and velocity between the two sections.
+
+\#\# Dataset metadata
+
+Dynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.6kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/724.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0724.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0724:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0724.problem_phyx_mini_0724}
+\uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinpascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinkilopascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesidealwaterpipescenario, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesprimarypipefigure, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesproblemreadouts, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-usestextbookwaterdensityandgravity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiescircularrisingpipegeometry, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiesidealpipeflowlaws, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-isuniquematchinguppergaugepressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.LengthQuantity}
+  A nonnegative physical length, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-massdensitydimension}
+  A nonnegative physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.lengthInMeters}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthquantity}
+  Coherent-SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthquantity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthinmeters}
+  Centimetre readout used by the two pipe-diameter labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.areaInSquareMeters}
+  Coherent-SI square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.speedInMetersPerSecond}
+  Coherent-SI metre-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.pressureInPascals}
+  Coherent-SI pascal readout of a pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinpascals}
+  Kilopascal readout used by both pressure gauges and all answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-massdensityquantity}
+  Coherent-SI kilogram-per-cubic-metre readout of a mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationquantity}
+  Coherent-SI metre-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Pipe Section]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pipesection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.PipeSection}
+  The numbered cross sections marked by black dots in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipe Section.
+\end{proof}
+\begin{definition}[Fluid Kind]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-fluidkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.FluidKind}
+  Fluids relevant to the physical role of the pipe contents
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fluid Kind.
+\end{proof}
+\begin{definition}[Pressure Reference]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressurereference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.PressureReference}
+  The reference convention used by a pressure-gauge readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Reference.
+\end{proof}
+\begin{definition}[Horizontal Figure Location]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-horizontalfigurelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.HorizontalFigureLocation}
+  Horizontal ordering of the two marked sections in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Figure Location.
+\end{proof}
+\begin{definition}[Vertical Figure Location]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-verticalfigurelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.VerticalFigureLocation}
+  Vertical ordering of the two marked sections in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Figure Location.
+\end{proof}
+\begin{definition}[Horizontal Flow Direction]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-horizontalflowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.HorizontalFlowDirection}
+  Direction of a green flow arrow in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Flow Direction.
+\end{proof}
+\begin{definition}[Water Pipe Figure]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-waterpipefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.WaterPipeFigure}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pipesection, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-horizontalfigurelocation, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-verticalfigurelocation, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-horizontalflowdirection}
+  Literal labels and qualitative features visible in image 724.png. The unknown upper gauge is represented by its question-mark label, not by a numerical pressure value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Pipe Figure.
+\end{proof}
+\begin{definition}[Pipe Section State]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pipesectionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.PipeSectionState}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthquantity}
+  The physical state at one marked cross section. In particular, the pressure and speed at section 2 are independent observables; neither is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipe Section State.
+\end{proof}
+\begin{definition}[Rising Pipe Setup]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.RisingPipeSetup}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthquantity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-massdensityquantity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationquantity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pipesection, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-fluidkind, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressurereference, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-waterpipefigure, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pipesectionstate}
+  The independent physical quantities and ideal-flow descriptors for the experiment. verticalRise is the centreline rise from section 1 to section 2, as indicated by the vertical 2.0 m dimension arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rising Pipe Setup.
+\end{proof}
+\begin{definition}[Matches Ideal Water Pipe Scenario]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesidealwaterpipescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.MatchesIdealWaterPipeScenario}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  The textbook Bernoulli model used for the stated water-flow scenario. Gauge pressures share the same atmospheric reference, so their difference may be used in Bernoulli's equation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Water Pipe Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Pipe Figure]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesprimarypipefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.MatchesPrimaryPipeFigure}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  Transcription of the literal labels, section ordering, green arrows, gauge taps, diameter markers, and rising connector in the primary raster. This contains no numerical value for the upper gauge pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pipe Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthinmeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthincentimeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-speedinmeterspersecond, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinkilopascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  The five numerical values supplied by the prose and the primary raster. The upper speed and upper pressure deliberately do not occur as numerical data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Textbook Water Density And Gravity]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-usestextbookwaterdensityandgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.UsesTextbookWaterDensityAndGravity}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-densityinkilogramspercubicmeter, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  Standard textbook calibration implicit in the numerical answer: water has density 1000 kg/m³, and gravitational acceleration is taken as 9.8 m/s²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Water Density And Gravity.
+\end{proof}
+\begin{definition}[Satisfies Circular Rising Pipe Geometry]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiescircularrisingpipegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.SatisfiesCircularRisingPipeGeometry}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthinmeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-areainsquaremeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  Both labelled diameters describe circular cross sections, and the marked 2.0 m arrow is the centreline elevation difference. These are geometric relations, not solved pressure or velocity formulas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Rising Pipe Geometry.
+\end{proof}
+\begin{definition}[Satisfies Ideal Pipe Flow Laws]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiesidealpipeflowlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.SatisfiesIdealPipeFlowLaws}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-lengthinmeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-areainsquaremeters, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-speedinmeterspersecond, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinpascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-densityinkilogramspercubicmeter, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup}
+  The steady incompressible continuity equation and Bernoulli equation between the two marked section centres, written in coherent SI readouts. The latter uses a common gauge-pressure reference and contains no problem-specific solved upper pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Pipe Flow Laws.
+\end{proof}
+\begin{lemma}[upper speed from continuity]
+  \label{lem:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-upper-speed-from-continuity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.upper_speed_from_continuity}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-speedinmeterspersecond, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesproblemreadouts, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiescircularrisingpipegeometry, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiesidealpipeflowlaws}
+  Circular-section geometry and continuity give v₂ = 5 (6/4)² = 45/4 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of upper speed from continuity.
+\end{proof}
+\begin{lemma}[upper gauge pressure in pascals]
+  \label{lem:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-upper-gauge-pressure-in-pascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.upper_gauge_pressure_in_pascals}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinpascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesproblemreadouts, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-usestextbookwaterdensityandgravity, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiescircularrisingpipegeometry, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-satisfiesidealpipeflowlaws}
+  Substitution into Bernoulli's equation gives the exact idealized upper gauge pressure 18475/4 Pa = 739/160 kPa
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of upper gauge pressure in pascals.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.AnswerChoice}
+  Labels of the four pressure readings printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Gauge Pressure Kilopascals]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-displayedgaugepressurekilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.displayedGaugePressureKilopascals}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-answerchoice}
+  Kilopascal value printed beside each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Gauge Pressure Kilopascals.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Kilopascal]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-roundstonearesttenthkilopascal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.RoundsToNearestTenthKilopascal}
+  A reading displayed to the nearest 0.1 kPa differs from the exact idealized readout by strictly less than 0.05 kPa
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Kilopascal.
+\end{proof}
+\begin{definition}[Matches Displayed Upper Gauge Pressure]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesdisplayeduppergaugepressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.MatchesDisplayedUpperGaugePressure}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-pressureinkilopascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-answerchoice, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-displayedgaugepressurekilopascals, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-roundstonearesttenthkilopascal}
+  A displayed choice agrees with the modeled upper gauge to its precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Upper Gauge Pressure.
+\end{proof}
+\begin{definition}[Is Unique Matching Upper Gauge Pressure]
+  \label{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-isuniquematchinguppergaugepressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0724.IsUniqueMatchingUpperGaugePressure}
+  \uses{def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-risingpipesetup, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-answerchoice, def:physics:phyx-mini-0724:phyxminiproblems-problemphyxmini0724-matchesdisplayeduppergaugepressure}
+  Exactly one printed choice agrees with the modeled upper gauge reading
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Upper Gauge Pressure.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

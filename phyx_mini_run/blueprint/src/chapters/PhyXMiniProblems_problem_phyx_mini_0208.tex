@@ -1,0 +1,188 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0208.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0208.source.json
+
+\chapter{Physics problem phyx\_mini\_0208}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0208}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A string can have a free end if that end is attached to a ring that can slide without friction on a vertical pole (figure).
+
+\#\# Question
+
+Dtermine the wavelengths of the resonant vibrations of such a string with one end fixed and the other free.
+
+\#\# Answer choices
+
+- A: A: \$\textbackslash{}lambda = \textbackslash{}frac\{4\textbackslash{}ell\}\{2n + 1\}
+
+- B: B: \$\textbackslash{}lambda = \textbackslash{}frac\{4\textbackslash{}ell\}\{n\}
+
+- C: C: \$\textbackslash{}lambda = \textbackslash{}frac\{2\textbackslash{}ell\}\{2n - 1\}
+
+- D: D: \$\textbackslash{}lambda = \textbackslash{}frac\{4\textbackslash{}ell\}\{2n - 1\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram featuring a rod and a cylindrical pole. The rod is labeled with two points: a "Fixed end" on the left and a "Free end" on the right. The rod is curved and extends from the fixed end to the free end, passing through a ring on the pole. The pole appears to be vertical, and a length symbol "\textbackslash{}(\textbackslash{}ell\textbackslash{})" is shown between the fixed end and the pole, indicating the distance covered by the rod.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$\textbackslash{}lambda = \textbackslash{}frac\{4\textbackslash{}ell\}\{2n - 1\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/208.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0208.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0208:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0208.resonantWavelengths_iff}
+\uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-matchesprimaryfigure, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-hasphysicalstringgeometry, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-isresonantwavelength}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.LengthQuantity}
+  A signed physical length, represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.WaveNumberQuantity}
+  A physical spatial wave number, carrying inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.lengthReadout}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[wave Number Readout]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.waveNumberReadout}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberquantity}
+  Read a physical wave number in the inverse of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number Readout.
+\end{proof}
+\begin{definition}[String Endpoint]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-stringendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.StringEndpoint}
+  The endpoint labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Endpoint.
+\end{proof}
+\begin{definition}[Endpoint Support]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-endpointsupport}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.EndpointSupport}
+  The mechanical attachment at an endpoint of the string
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Endpoint Support.
+\end{proof}
+\begin{definition}[Pole Orientation]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-poleorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.PoleOrientation}
+  Orientation of the pole that guides the sliding ring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pole Orientation.
+\end{proof}
+\begin{definition}[Ring Pole Contact]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-ringpolecontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.RingPoleContact}
+  Friction model for the contact between the ring and its guiding pole
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ring Pole Contact.
+\end{proof}
+\begin{definition}[Fixed Free String Setup]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.FixedFreeStringSetup}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-stringendpoint, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-endpointsupport, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-poleorientation, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-ringpolecontact}
+  Physical quantities and qualitative roles in the pictured apparatus. vibratingSpan is the length denoted by ℓ in the figure. Axial positions are dimensionful; their scalar readouts will serve as inputs to a mode shape
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fixed Free String Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup}
+  Data read directly from the primary figure and its physical description. No resonant wavelength is specified here. The equalities are required in every selected length unit so they describe the physical endpoint geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical String Geometry]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-hasphysicalstringgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.HasPhysicalStringGeometry}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup}
+  Positivity of the nondegenerate physical string span
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical String Geometry.
+\end{proof}
+\begin{definition}[Standing Wave Mode]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-standingwavemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.StandingWaveMode}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup}
+  Data witnessing one spatial standing-wave mode at a proposed wavelength. The displacement function uses scalar coordinate and displacement readouts in the selected length unit. Its amplitude and wave number remain physical, dimension-carrying quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Wave Mode.
+\end{proof}
+\begin{definition}[Satisfies Fixed Free Standing Wave Laws]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-satisfiesfixedfreestandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.SatisfiesFixedFreeStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-standingwavemode}
+  Governing relations for a nontrivial fixed--free normal mode. A normal mode has a sinusoidal spatial profile. The fixed endpoint is a displacement node. The frictionless sliding ring gives the free endpoint zero spatial slope, i.e. a displacement antinode. Spatial wave number and wavelength obey k λ = 2π. These fields contain no odd-quarter-wave formula and no mode number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fixed Free Standing Wave Laws.
+\end{proof}
+\begin{definition}[Is Resonant Wavelength]
+  \label{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-isresonantwavelength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.IsResonantWavelength}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-standingwavemode, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-satisfiesfixedfreestandingwavelaws}
+  A wavelength is resonant when a nontrivial fixed--free standing mode exists
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Resonant Wavelength.
+\end{proof}
+\begin{lemma}[fixed Free phase quantization]
+  \label{lem:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfree-phase-quantization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0208.fixedFree_phase_quantization}
+  \uses{def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthquantity, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-lengthreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-wavenumberreadout, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-fixedfreestringsetup, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-matchesprimaryfigure, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-hasphysicalstringgeometry, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-standingwavemode, def:physics:phyx-mini-0208:phyxminiproblems-problemphyxmini0208-satisfiesfixedfreestandingwavelaws}
+  The fixed node and free zero-slope boundary quantize the phase accumulated over the string to an odd multiple of π / 2. This is an intermediate conclusion derived from the boundary laws, not an assumed field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fixed Free phase quantization.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

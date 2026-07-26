@@ -1,0 +1,517 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0771.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0771.source.json
+
+\chapter{Physics problem phyx\_mini\_0771}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0771}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thin, light wire is wrapped around the rim of a wheel as shown in figure. The wheel rotates without friction about a station-ary horizontal axis that passes through the cen-ter of the wheel. The wheel is a uniform disk with radius \textbackslash{}(R = 0.280\textbackslash{}text\{ m\}\textbackslash{}). An object of mass \textbackslash{}(m = 4.20\textbackslash{}text\{ kg\}\textbackslash{}) is suspended from the free end of the wire. The system is released from rest and the suspended object descends with constant ac-celeration.
+
+\#\# Question
+
+If the suspended object moves down-ward a distance of 3.00 m in 2.00 s, what is the mass of the wheel?
+
+\#\# Answer choices
+
+- A: A: 42.3kg
+
+- B: B: 46.5kg
+
+- C: C: 41.9kg
+
+- D: D: 58.0kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a simple mechanical system consisting of a large orange circle, which resembles a pulley, and a smaller orange square, resembling a weight or block, connected by a thin gray line, representing a rope or string. The circle has a black dot at its center. The circle is positioned above the square, indicating the pulley system can lift or lower the weight. There are no additional objects, scenes, or text present in the image.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 46.5kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/771.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0771.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0771:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0771.problem_phyx_mini_0771}
+\uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massinkilograms, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-matchesproblemreadouts, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-matchesprimaryfigure, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-usesstandardearthgravity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-usestautnoslipunwinding, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-hasphysicalparameters, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesuniformdiskinertialaw, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiescoupledtranslationrotationdynamics, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesconstantaccelerationkinematics, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-isuniqueclosestdisplayedwheelmass}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[speed Dimension]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.speedDimension}
+  The physical dimension of speed, L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.forceDimension}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationdimension}
+  The physical dimension of force, M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.momentOfInertiaDimension}
+  The physical dimension of axial moment of inertia, M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[angular Acceleration Dimension]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.angularAccelerationDimension}
+  Angular acceleration has physical dimension T⁻²; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.LengthQuantity}
+  A nonnegative, unit-independent physical length or distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.TimeQuantity}
+  A nonnegative, unit-independent duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.SpeedQuantity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speeddimension}
+  A nonnegative speed in the downward direction chosen as positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationdimension}
+  A nonnegative downward linear-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.ForceQuantity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcedimension}
+  A nonnegative tension-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiadimension}
+  A nonnegative scalar moment of inertia about the fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Angular Acceleration Quantity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AngularAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationdimension}
+  A nonnegative angular acceleration in the sense in which the wire unwinds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Acceleration Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.massReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massquantity}
+  Read a mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.lengthReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthquantity}
+  Read a length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.timeReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timequantity}
+  Read a duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.speedReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedquantity}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.accelerationReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationquantity}
+  Read a linear acceleration in coherent selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[force Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.forceReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcequantity}
+  Read a force in coherent selected mechanical units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiaquantity}
+  Read an axial moment of inertia in coherent mass and length units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[angular Acceleration Readout]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.angularAccelerationReadout}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationquantity}
+  Read angular acceleration in inverse square units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.massInKilograms}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout}
+  SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.lengthInMeters}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout}
+  SI meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.timeInSeconds}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timequantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timereadout}
+  SI second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedreadout}
+  SI meter-per-second readout of a speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout}
+  SI meter-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Wheel Mass Distribution]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WheelMassDistribution}
+  Idealized distribution of the wheel's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel Mass Distribution.
+\end{proof}
+\begin{definition}[Wire Mass Model]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wiremassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WireMassModel}
+  Mass idealization of the wire
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Mass Model.
+\end{proof}
+\begin{definition}[Wire Routing]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wirerouting}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WireRouting}
+  Route taken by the wire at the wheel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Routing.
+\end{proof}
+\begin{definition}[Axle Location]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axlelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AxleLocation}
+  Location of the wheel's fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Location.
+\end{proof}
+\begin{definition}[Axle Orientation]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axleorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AxleOrientation}
+  Orientation of the wheel's fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Orientation.
+\end{proof}
+\begin{definition}[Axle Motion Model]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axlemotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AxleMotionModel}
+  Whether the wheel's axle moves relative to the laboratory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Motion Model.
+\end{proof}
+\begin{definition}[Axle Resistance Model]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axleresistancemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AxleResistanceModel}
+  Dissipative resistance at the fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Resistance Model.
+\end{proof}
+\begin{definition}[Wire Wheel Contact]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wirewheelcontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WireWheelContact}
+  Contact model between the wrapped wire and the wheel rim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Wheel Contact.
+\end{proof}
+\begin{definition}[Motion Profile]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-motionprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.MotionProfile}
+  Time dependence of the suspended object's downward acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Profile.
+\end{proof}
+\begin{definition}[Release Condition]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-releasecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.ReleaseCondition}
+  How the motion begins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Release Condition.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.FigureFeature}
+  Individually visible objects or marks in primary image 771.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Wheel And Block Figure]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblockfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WheelAndBlockFigure}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-figurefeature}
+  Structured transcription of the unlabeled primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel And Block Figure.
+\end{proof}
+\begin{definition}[Wheel And Block Setup]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.WheelAndBlockSetup}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timequantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcequantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiaquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationquantity, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelmassdistribution, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wiremassmodel, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wirerouting, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axlelocation, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axleorientation, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axlemotionmodel, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-axleresistancemodel, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wirewheelcontact, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-motionprofile, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-releasecondition, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblockfigure}
+  The physical response fields are independent quantities. In particular, wheelMass, downwardAcceleration, wireTension, wheelMomentOfInertia, and wheelAngularAcceleration are not defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel And Block Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massinkilograms, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthinmeters, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timeinseconds, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Numerical data and qualitative idealizations stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Literal qualitative evidence transcribed from primary image 771.png. The raster contains no printed symbolic or numerical labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Standard near-Earth gravitational acceleration used in the numerical multiple-choice evaluation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Uses Taut No Slip Unwinding]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-usestautnoslipunwinding}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.UsesTautNoSlipUnwinding}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Standard ideal-wire contact convention used to turn the observed wrapped wire into the kinematic coupling a = R α. The exercise does not print this convention, so it is kept separate from MatchesProblemReadouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Taut No Slip Unwinding.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timereadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Positivity and nondegeneracy of the physical parameters needed when the governing equations are solved
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Disk Inertia Law]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesuniformdiskinertialaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.SatisfiesUniformDiskInertiaLaw}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiareadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Axial moment of inertia of a uniform disk about the central axis normal to its plane: I = (1/2) M R²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Disk Inertia Law.
+\end{proof}
+\begin{definition}[Satisfies Coupled Translation Rotation Dynamics]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiescoupledtranslationrotationdynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.SatisfiesCoupledTranslationRotationDynamics}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-forcereadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-momentofinertiareadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-angularaccelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  Downward is positive for the suspended object, and positive wheel rotation is the direction in which the wire unwinds: m g - T = m a for the suspended object; T R = I α about the wheel's central axle; a = R α for a taut wire that does not slip on the rim. None of these laws states the requested wheel mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Coupled Translation Rotation Dynamics.
+\end{proof}
+\begin{definition}[Satisfies Constant Acceleration Kinematics]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesconstantaccelerationkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.SatisfiesConstantAccelerationKinematics}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timereadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup}
+  With downward positive and constant acceleration, the measured endpoint obeys distance = initialSpeed * time + (1/2) * acceleration * time². This is a generic kinematic law, not the solved acceleration or wheel mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Acceleration Kinematics.
+\end{proof}
+\begin{lemma}[downward Acceleration formula]
+  \label{lem:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-downwardacceleration-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.downwardAcceleration_formula}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-lengthreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-timereadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-speedreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-hasphysicalparameters, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesconstantaccelerationkinematics}
+  Solving the constant-acceleration endpoint equation for the downward acceleration. This is an intermediate conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of downward Acceleration formula.
+\end{proof}
+\begin{lemma}[wheel Mass formula]
+  \label{lem:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelmass-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.wheelMass_formula}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-accelerationreadout, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-hasphysicalparameters, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiesuniformdiskinertialaw, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-satisfiescoupledtranslationrotationdynamics}
+  Eliminating the tension, angular acceleration, and disk moment of inertia from the coupled laws gives M = 2 m (g/a - 1). This is the requested physical relation, derived rather than assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wheel Mass formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.AnswerChoice}
+  Answer labels displayed with the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Wheel Mass In Kilograms]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-displayedwheelmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.displayedWheelMassInKilograms}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-answerchoice}
+  Wheel masses printed beside the answer choices, in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Wheel Mass In Kilograms.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-answerchoice}
+  Dataset metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Wheel Mass]
+  \label{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-isuniqueclosestdisplayedwheelmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0771.IsUniqueClosestDisplayedWheelMass}
+  \uses{def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-massinkilograms, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-wheelandblocksetup, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-answerchoice, def:physics:phyx-mini-0771:phyxminiproblems-problemphyxmini0771-displayedwheelmassinkilograms}
+  The modeled wheel mass is strictly closer to one displayed value than to every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Wheel Mass.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

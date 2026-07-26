@@ -1,0 +1,339 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0472.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0472.source.json
+
+\chapter{Physics problem phyx\_mini\_0472}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0472}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The compression ratio of a diesel engine is 15.0 to 1; that is, air in a cylinder is compressed to \textbackslash{}frac\{1\}\{15.0\} of its initial volume (figure).The initial volume of the cylinder is 1.00 L = 1.00 \textbackslash{}times 10\textasciicircum{}\{-3\} m\textasciicircum{}3.Use the values C\_V = 20.8 J/mol\textbackslash{}cdot K and \textbackslash{}gamma = 1.400 for air.
+
+\#\# Question
+
+How much work does the gas do during the compression?
+
+\#\# Answer choices
+
+- A: A: -453J
+
+- B: B: -494J
+
+- C: C: 494J
+
+- D: D: 453J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows two diagrams of a piston in a cylindrical container, illustrating different volume states.
+
+- **Left Diagram:**
+  - Labeled "Initial volume."
+  - Shows a piston with a larger volume of gas (shaded green) above it.
+  - The gas volume is labeled \textbackslash{}( V\_1 \textbackslash{}).
+
+- **Right Diagram:**
+  - Labeled "Maximum compression."
+  - Shows the piston in a compressed state with a smaller volume of gas above it (also shaded green).
+  - The compressed volume is labeled \textbackslash{}( V\_2 \textbackslash{}).
+  - There’s a mathematical expression: \textbackslash{}( V\_2 = \textbackslash{}frac\{1\}\{(15.0)\} V\_1 \textbackslash{}).
+
+The diagrams illustrate the concept of volume change due to piston compression, with the right side showing a compressed state where the volume is a fraction of the initial.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: -494J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/472.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0472.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0472:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0472.problem_phyx_mini_0472}
+\uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesdieselcompressionscenario, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesprimarycompressionfigure, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchescompressionproblemreadouts, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-hasphysicalcompressionparameters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-satisfiescaloricallyperfectgascompressionlaws}
+The source-supported signed work is $W_{\rm by\ gas}=Q-n(104/5)(T_2-T_1)$.  Heat transfer, amount of gas, and endpoint temperatures remain symbolic, so the unsupported numerical answer is not asserted.
+\end{theorem}
+\begin{proof}
+Apply the caloric law $U=nC_VT$ at the initial and maximum-compression states and use the readout $C_V=104/5$.  Substitute both endpoint energies into $U_2-U_1=Q-W_{\rm by\ gas}$, then rearrange to isolate $W_{\rm by\ gas}$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.GasVolume}
+  A physical gas volume, carrying length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Molar Energy Per Temperature]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.MolarEnergyPerTemperature}
+  Energy per absolute temperature. Its inverse-mole role is represented by explicitly named mole readouts, since Physlib's dimension system has no amount-of-substance component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Per Temperature.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-gasvolume}
+  Read a physical gas volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.volumeInLiters}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-gasvolume, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters}
+  Read a physical gas volume in litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.energyInJoules}
+  Read a signed physical energy in coherent SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.temperatureInKelvins}
+  Read an absolute temperature in kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Energy Per Temperature In SI]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperatureinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.molarEnergyPerTemperatureInSI}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperature}
+  Read a molar heat capacity or molar gas constant in J/(mol K)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Energy Per Temperature In SI.
+\end{proof}
+\begin{definition}[Compression State]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.CompressionState}
+  The two labeled cylinder states in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compression State.
+\end{proof}
+\begin{definition}[Figure Panel]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-figurepanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.FigurePanel}
+  The two side-by-side panels in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Panel.
+\end{proof}
+\begin{definition}[Figure Volume Label]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-figurevolumelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.FigureVolumeLabel}
+  The volume symbols printed in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Volume Label.
+\end{proof}
+\begin{definition}[Cylinder Gas]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-cylindergas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.CylinderGas}
+  The gas species specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Gas.
+\end{proof}
+\begin{definition}[Engine Kind]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-enginekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.EngineKind}
+  The kind of engine cylinder specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Engine Kind.
+\end{proof}
+\begin{definition}[Compression Model]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.CompressionModel}
+  Thermodynamic idealization used to interpret the compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compression Model.
+\end{proof}
+\begin{definition}[Diesel Compression Figure]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcompressionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.DieselCompressionFigure}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionstate, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-figurepanel, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-figurevolumelabel}
+  Primary-image metadata is kept distinct from the thermodynamic state. Piston coordinates and rendered gas heights are schematic image readouts; they are not physical lengths or volumes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diesel Compression Figure.
+\end{proof}
+\begin{definition}[Diesel Cylinder Compression]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.DieselCylinderCompression}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-gasvolume, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperature, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionstate, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-cylindergas, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-enginekind, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionmodel, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcompressionfigure}
+  The independent physical quantities for the cylinder compression. The work done by the gas, heat supplied to the gas, and internal energies are independent dimensionful fields. In particular, workDoneByGas is not defined to be any displayed answer or derived adiabatic formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diesel Cylinder Compression.
+\end{proof}
+\begin{definition}[Matches Diesel Compression Scenario]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesdieselcompressionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.MatchesDieselCompressionScenario}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  Qualitative problem setup, without any requested work value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Diesel Compression Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Compression Figure]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesprimarycompressionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.MatchesPrimaryCompressionFigure}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  Transcription of the primary raster image. The left panel is labeled "Initial volume" with symbol V₁; the right panel is labeled "Maximum compression" with symbol V₂. The right piston is higher and its green gas region is shorter. The printed equation is tied to the physical endpoint volumes using the independently stored compression ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Compression Figure.
+\end{proof}
+\begin{definition}[Matches Compression Problem Readouts]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchescompressionproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.MatchesCompressionProblemReadouts}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeinliters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperatureinsi, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  Numerical readouts stated in the problem. Both stated forms of the initial volume are retained. The compression ratio, heat capacity, and adiabatic index are dimensionless or explicitly unit-tagged scalar readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Compression Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Atmosphere Intake Calibration]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-usesstandardatmosphereintakecalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.UsesStandardAtmosphereIntakeCalibration}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  The source text omits an initial pressure, although a pressure calibration is needed to obtain a numerical work from a volume alone. This separate premise makes explicit the standard-atmosphere intake calibration used to interpret the recorded numerical answer; it is not presented as figure or prose data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Atmosphere Intake Calibration.
+\end{proof}
+\begin{definition}[Uses Adiabatic Compression Model]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-usesadiabaticcompressionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.UsesAdiabaticCompressionModel}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  The recorded answer also requires treating the compression as adiabatic; the prose does not say this explicitly. The premise exposes that modeling choice instead of folding it into the numerical target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Adiabatic Compression Model.
+\end{proof}
+\begin{definition}[Has Physical Compression Parameters]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-hasphysicalcompressionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.HasPhysicalCompressionParameters}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-pressureinpascals, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperatureinsi, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Compression Parameters.
+\end{proof}
+\begin{definition}[Satisfies Adiabatic Ideal Gas Compression Laws]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-satisfiesadiabaticidealgascompressionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.SatisfiesAdiabaticIdealGasCompressionLaws}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-pressureinpascals, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperatureinsi, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionstate, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  Generic endpoint laws for a calorically perfect ideal gas undergoing reversible adiabatic compression: pV = nRT at both endpoints; U = n C\_V T at both endpoints; R = (gamma - 1) C\_V for an ideal gas with constant heat capacities; T₂/T₁ = (V₁/V₂)\textasciicircum{}(gamma-1) for the adiabatic endpoints; no heat enters the gas during the compression; Delta U = Q - W\_by\_gas. These relate independently stored physical quantities. They contain neither the requested numerical work nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Adiabatic Ideal Gas Compression Laws.
+\end{proof}
+\begin{definition}[adiabatic Work Prediction In Joules]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-adiabaticworkpredictioninjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.adiabaticWorkPredictionInJoules}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-volumeincubicmeters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-pressureinpascals, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression}
+  The general adiabatic-work expression obtained after eliminating the amount, gas constant, and initial temperature. This definition does not identify the independent field workDoneByGas with the expression; that equality remains a substantive conclusion below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of adiabatic Work Prediction In Joules.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Work By Gas In Joules]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-displayedworkbygasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.displayedWorkByGasInJoules}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-answerchoice}
+  Work done by the gas printed beside each answer, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Work By Gas In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-answerchoice}
+  Dataset answer metadata, deliberately absent from all theorem premises
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Work]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-isuniqueclosestdisplayedwork}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.IsUniqueClosestDisplayedWork}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-answerchoice, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-displayedworkbygasinjoules}
+  A choice is uniquely closest to an exact modeled joule readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Work.
+\end{proof}
+\begin{lemma}[compressed to initial temperature ratio]
+  \label{lem:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressed-to-initial-temperature-ratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.compressed_to_initial_temperature_ratio}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesprimarycompressionfigure, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchescompressionproblemreadouts, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-hasphysicalcompressionparameters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-satisfiesadiabaticidealgascompressionlaws}
+  The endpoint laws first determine the temperature multiplier T₂/T₁ = 15\textasciicircum{}(2/5). This is an intermediate conclusion rather than a field of the data or law structures
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of compressed to initial temperature ratio.
+\end{proof}
+\begin{lemma}[exact work done by gas during compression]
+  \label{lem:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-exact-work-done-by-gas-during-compression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.exact_work_done_by_gas_during_compression}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchesprimarycompressionfigure, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-matchescompressionproblemreadouts, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-usesstandardatmosphereintakecalibration, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-usesadiabaticcompressionmodel, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-hasphysicalcompressionparameters, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-satisfiesadiabaticidealgascompressionlaws, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-adiabaticworkpredictioninjoules}
+  Combining the ideal-gas, internal-energy, adiabatic, and first-law relations gives the signed work-by-gas prediction. Compression makes this value negative under the stated sign convention
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exact work done by gas during compression.
+\end{proof}
+\begin{definition}[Calorically perfect gas compression laws]
+  \label{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-satisfiescaloricallyperfectgascompressionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0472.SatisfiesCaloricallyPerfectGasCompressionLaws}
+  \uses{def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-dieselcylindercompression, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-compressionstate, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-energyinjoules, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-temperatureinkelvins, def:physics:phyx-mini-0472:phyxminiproblems-problemphyxmini0472-molarenergypertemperatureinsi}
+  At each endpoint $U=nC_VT$, and the signed first law is $\Delta U=Q-W_{\rm by\ gas}$.  No unreported adiabatic or intake-pressure calibration is included.
+\end{definition}
+\begin{proof}
+  This packages the caloric equation of state and the stated sign convention for the first law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

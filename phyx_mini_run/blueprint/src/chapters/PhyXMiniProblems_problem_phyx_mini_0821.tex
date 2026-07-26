@@ -1,0 +1,387 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0821.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0821.source.json
+
+\chapter{Physics problem phyx\_mini\_0821}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0821}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+We wrap a light, nonstretching cable around a solid cylinder with mass \textbackslash{}( M \textbackslash{}) and radius \textbackslash{}( R \textbackslash{}). The cylinder rotates with negligible friction about a stationary horizontal axis. We tie the free end of the cable to a block of mass \textbackslash{}( m \textbackslash{}) and release the block from rest at a distance \textbackslash{}( h \textbackslash{}) above the floor as shown in figure. As the block falls, the cable unwinds without stretching or slipping.
+
+\#\# Question
+
+Find the angular speed of the cylinder as the block strikes the floor.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(2v/R\textbackslash{})
+
+- B: B: \textbackslash{}(v/R\textbackslash{})
+
+- C: C: \textbackslash{}(v/2R\textbackslash{})
+
+- D: D: \textbackslash{}(2v/3R\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram involving a pulley system. Here's a detailed description:
+
+- **Pulley**: At the top, there is a circular pulley labeled with a radius "R" and a mass "M."
+- **String and Block**: A string is wound around the pulley and connected to a block. The block is labeled "m," indicating its mass.
+- **Height**: Below the block, there is a measurement labeled "h," indicating the distance from the block to the ground surface.
+- **Ground**: The ground is represented by a horizontal line with diagonal hatching below it, indicating the surface on which the block will land.
+
+The system appears to illustrate a basic mechanics problem involving potential and kinetic energy, considering the masses of the pulley and the block, and the height from which the block can fall.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}(v/R\textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/821.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0821.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0821:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0821.angularSpeedAtImpact_eq_blockSpeed_div_radius}
+\uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthinmeters, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedinmeterspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedinradianspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-matchesprimaryfigure, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-matchesproblemdescription, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-hasphysicalparameters, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-satisfiescylindercablelaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.accelerationDimension}
+  The physical dimension L T⁻² of gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.momentOfInertiaDimension}
+  The physical dimension M L² of an axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.SpeedQuantity}
+  A nonnegative linear-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiadimension}
+  A nonnegative scalar moment of inertia about the cylinder axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.EnergyQuantity}
+  A physical energy, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.massInKilograms}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  Kilogram readout of a mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.lengthInMeters}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  Metre readout of a length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  Metre-per-second readout of a linear speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  Radian-per-second readout of an angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiaquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-nonnegativesireadout}
+  kg m² readout of a scalar moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.energyInJoules}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-energyquantity}
+  Joule readout of an energy, calibrated by Physlib's joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.FigureElement}
+  Individually recognizable elements of the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.FigureLabel}
+  Literal symbolic labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Cylinder Side]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylinderside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CylinderSide}
+  Side of the cylinder at which the pictured straight cable is tangent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Side.
+\end{proof}
+\begin{definition}[Cable Segment Orientation]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablesegmentorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CableSegmentOrientation}
+  Orientation of the straight cable segment drawn between cylinder and block
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Segment Orientation.
+\end{proof}
+\begin{definition}[Cylinder Cable Figure]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CylinderCableFigure}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figureelement, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figurelabel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylinderside, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablesegmentorientation}
+  Qualitative placement information transcribed from primary image 821.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Cable Figure.
+\end{proof}
+\begin{definition}[Cylinder Mass Model]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindermassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CylinderMassModel}
+  The rigid body's mass-distribution idealization
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Mass Model.
+\end{proof}
+\begin{definition}[Axis Orientation]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AxisOrientation}
+  Orientation of the cylinder's rotation axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Orientation.
+\end{proof}
+\begin{definition}[Axis Motion]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axismotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AxisMotion}
+  Motion of the axis relative to the laboratory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Motion.
+\end{proof}
+\begin{definition}[Axle Friction Model]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axlefrictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AxleFrictionModel}
+  Bearing-friction idealization used by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Friction Model.
+\end{proof}
+\begin{definition}[Cable Mass Model]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablemassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CableMassModel}
+  Cable-mass idealization represented by the word "light"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Mass Model.
+\end{proof}
+\begin{definition}[Cable Stretch Model]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablestretchmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CableStretchModel}
+  Cable-extension idealization represented by "nonstretching"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Stretch Model.
+\end{proof}
+\begin{definition}[Cable Contact Model]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablecontactmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CableContactModel}
+  Contact behavior between the cable and cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Contact Model.
+\end{proof}
+\begin{definition}[Cable Attachment]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cableattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CableAttachment}
+  Attachment of the cable's free end
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Attachment.
+\end{proof}
+\begin{definition}[Cylinder Cable Setup]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.CylinderCableSetup}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiaquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-energyquantity, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablefigure, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindermassmodel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axisorientation, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axismotion, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-axlefrictionmodel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablemassmodel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablestretchmodel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cablecontactmodel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cableattachment}
+  Independent quantities and qualitative data of the cylinder-cable-block system. In particular, the impact angular speed is an unconstrained physical quantity here and is not defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Cable Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figureelement, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-figurelabel, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup}
+  Literal graphical evidence from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedinmeterspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedinradianspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup}
+  Qualitative assumptions and initial/impact conditions stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massinkilograms, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthinmeters, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup}
+  Positivity and nondegeneracy of the physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Cylinder Cable Laws]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-satisfiescylindercablelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.SatisfiesCylinderCableLaws}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-massinkilograms, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthinmeters, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedinmeterspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedinradianspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-energyinjoules, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup}
+  Governing mechanics for the ideal system. The no-slip condition is kept in its physical rim-speed form through an independently represented cable speed; the requested solved relation ω = v / R does not occur in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cylinder Cable Laws.
+\end{proof}
+\begin{lemma}[block Impact Speed eq radius mul angular Speed]
+  \label{lem:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-blockimpactspeed-eq-radius-mul-angularspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.blockImpactSpeed_eq_radius_mul_angularSpeed}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-lengthinmeters, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-speedinmeterspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-angularspeedinradianspersecond, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-cylindercablesetup, def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-satisfiescylindercablelaws}
+  The cable constraints combine to identify the block speed with rim speed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of block Impact Speed eq radius mul angular Speed.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.AnswerChoice}
+  Labels of the four formulas printed as answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0821.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0821:phyxminiproblems-problemphyxmini0821-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

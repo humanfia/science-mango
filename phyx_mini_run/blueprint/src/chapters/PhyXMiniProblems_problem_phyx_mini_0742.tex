@@ -1,0 +1,430 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0742.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0742.source.json
+
+\chapter{Physics problem phyx\_mini\_0742}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0742}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Upon spotting an insect on a twig overhanging water, an archer fish squirts water drops at the insect to knock it into the water. Although the fish sees the insect along a straight-line path at angle \$\textbackslash{}phi\$ and distance \$d\$, a drop must be launched at a different angle \$\textbackslash{}theta\_0\$ if its parabolic path is to intersect the insect.
+
+\#\# Question
+
+If \$\textbackslash{}phi = 36.0\textasciicircum{}\textbackslash{}circ\$ and \$d = 0.900\textbackslash{} m\$, what launch angle \$\textbackslash{}theta\_0\$ is required for the drop to be at the top of the parabolic path when it reaches the insect?
+
+\#\# Answer choices
+
+- A: A: \$38.8\textasciicircum{}\textbackslash{}circ\$
+
+- B: B: \$46.2\textasciicircum{}\textbackslash{}circ\$
+
+- C: C: \$55.5\textasciicircum{}\textbackslash{}circ\$
+
+- D: D: \$61.2\textasciicircum{}\textbackslash{}circ\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an archer fish underwater, extending a dotted line towards an insect on a twig above the water's surface. The line illustrates the trajectory or sight line from the fish to the insect. Two variables are labeled along the line: "φ" represents the angle from the water's surface, and "d" denotes the distance between the fish and the insect. The text labels "Archer fish" and "Insect on twig" identify the fish and the insect, respectively. The illustration highlights the fish's potential target.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$55.5\textasciicircum{}\textbackslash{}circ\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/742.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0742.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0742:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0742.problem_phyx_mini_0742}
+\uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-degrees, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesarcherfishscenario, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchessuppliedfigure, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesproblemreadouts, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiessightlinegeometry, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-hasphysicalparameters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiesidealprojectilemotion, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-reachesinsectattop, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-requiredlaunchangle, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesanswerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-isuniqueclosestdisplayedanglechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[speed Dimension]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.speedDimension}
+  The physical dimension L T⁻¹ of a signed velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.accelerationDimension}
+  The physical dimension L T⁻² of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.SignedLengthQuantity}
+  A signed Cartesian position component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.TimeQuantity}
+  A nonnegative, unit-independent physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.SpeedQuantity}
+  A nonnegative, unit-independent speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Signed Speed Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.SignedSpeedQuantity}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speeddimension}
+  A signed velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.lengthInMeters}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthquantity}
+  Read a physical length in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[signed Length In Meters]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.signedLengthInMeters}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthquantity}
+  Read a signed Cartesian length component in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.timeInSeconds}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timequantity}
+  Read a duration in SI seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedquantity}
+  Read a speed magnitude in SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[signed Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.signedSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedquantity}
+  Read a signed velocity component in SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationquantity}
+  Read an acceleration magnitude in SI metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.degrees}
+  Convert a numerical degree readout to Mathlib's physical angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.FigureObject}
+  Physical objects and geometric features visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.FigureLabel}
+  Literal or symbolic labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Line Style]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figurelinestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.FigureLineStyle}
+  Line styles relevant to the drawn line of sight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Line Style.
+\end{proof}
+\begin{definition}[Archer Fish Figure]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.ArcherFishFigure}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figureobject, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figurelabel, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figurelinestyle}
+  Typed evidence transcribed from the primary image. The marked distance and angle remain physical quantities. The last field records that the unknown launch angle is not itself displayed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Archer Fish Figure.
+\end{proof}
+\begin{definition}[Projectile Kind]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-projectilekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.ProjectileKind}
+  The kind of projectile named in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Projectile Kind.
+\end{proof}
+\begin{definition}[Projectile Model]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-projectilemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.ProjectileModel}
+  The idealized dynamics used between launch and arrival
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Projectile Model.
+\end{proof}
+\begin{definition}[Angle Reference]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-anglereference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.AngleReference}
+  Reference direction from which an elevation angle is measured
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angle Reference.
+\end{proof}
+\begin{definition}[Archer Fish Drop Setup]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.ArcherFishDropSetup}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timequantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationquantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishfigure, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-projectilekind, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-projectilemodel, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-anglereference}
+  Independent physical quantities and trajectory observables. Horizontal displacement is positive toward the insect and vertical displacement is positive upward. In particular, launchAngleTheta0 is not defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Archer Fish Drop Setup.
+\end{proof}
+\begin{definition}[Matches Archer Fish Scenario]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesarcherfishscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.MatchesArcherFishScenario}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  Qualitative assumptions stated or implicit in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Archer Fish Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figureobject, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-figurelabel, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  Exact labeled and qualitative evidence from the supplied bitmap. This predicate identifies d and φ but supplies no value or formula for θ₀
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-degrees, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  Numerical readouts supplied in the prose: d = 0.900 m and φ = 36.0°
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Satisfies Sight Line Geometry]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiessightlinegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.SatisfiesSightLineGeometry}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  Polar-coordinate geometry of the straight sight line. These assumptions assign no value to the launch angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sight Line Geometry.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timeinseconds, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedinmeterspersecond, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  Positivity and acute-angle conditions selecting the pictured shot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Projectile Motion]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiesidealprojectilemotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.SatisfiesIdealProjectileMotion}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timequantity, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-timeinseconds, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-speedinmeterspersecond, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedinmeterspersecond, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  The ideal two-dimensional projectile equations under uniform downward gravity. They are general laws and contain neither the insect boundary condition nor the required launch-angle relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Projectile Motion.
+\end{proof}
+\begin{definition}[Reaches Insect At Top]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-reachesinsectattop}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.ReachesInsectAtTop}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-lengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedlengthinmeters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-signedspeedinmeterspersecond, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup}
+  The event condition in the question: the drop is at the insect and its vertical velocity vanishes at one positive physical time. With positive downward gravity, that instant is the top of the parabola
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaches Insect At Top.
+\end{proof}
+\begin{definition}[required Launch Angle]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-requiredlaunchangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.requiredLaunchAngle}
+  The acute launch angle predicted after eliminating launch speed, gravity, flight time, and sight distance. This does not assign the independent setup angle this value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of required Launch Angle.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Angle Degrees]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-displayedanswerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.displayedAnswerAngleDegrees}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice}
+  Degree readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[angle In Degrees]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-angleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.angleInDegrees}
+  The standard representative of a physical angle, read in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle In Degrees.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Degree]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-roundstonearesttenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.RoundsToNearestTenthDegree}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-angleindegrees}
+  An angle rounds to a displayed tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Degree.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-displayedanswerangledegrees, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-roundstonearesttenthdegree}
+  The launch angle agrees, to displayed precision, with an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[displayed Choice Error]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-displayedchoiceerror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.displayedChoiceError}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-displayedanswerangledegrees, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-angleindegrees}
+  Absolute degree error between an angle and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Choice Error.
+\end{proof}
+\begin{definition}[Is Closest Displayed Angle Choice]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-isclosestdisplayedanglechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.IsClosestDisplayedAngleChoice}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-displayedchoiceerror}
+  One answer is at least as close as every displayed alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Angle Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Angle Choice]
+  \label{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-isuniqueclosestdisplayedanglechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.IsUniqueClosestDisplayedAngleChoice}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-answerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-isclosestdisplayedanglechoice}
+  One answer is the unique closest displayed alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Angle Choice.
+\end{proof}
+\begin{lemma}[launch tangent eq twice sight tangent]
+  \label{lem:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-launch-tangent-eq-twice-sight-tangent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.launch_tangent_eq_twice_sight_tangent}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiessightlinegeometry, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-hasphysicalparameters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiesidealprojectilemotion, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-reachesinsectattop}
+  At the apex, v₀ sin θ₀ = g t. Substitution into the displacement equations and comparison with the sight-line components yields tan θ₀ = 2 tan φ
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of launch tangent eq twice sight tangent.
+\end{proof}
+\begin{lemma}[launch angle eq required Launch Angle]
+  \label{lem:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-launch-angle-eq-requiredlaunchangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.launch_angle_eq_requiredLaunchAngle}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-archerfishdropsetup, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiessightlinegeometry, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-hasphysicalparameters, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-satisfiesidealprojectilemotion, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-reachesinsectattop, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-requiredlaunchangle}
+  The acute-angle branch of the tangent relation selects the arctangent
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of launch angle eq required Launch Angle.
+\end{proof}
+\begin{lemma}[required angle for thirty six degrees matches choice C]
+  \label{lem:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-required-angle-for-thirty-six-degrees-matches-choice-c}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0742.required_angle_for_thirty_six_degrees_matches_choice_C}
+  \uses{def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-degrees, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-requiredlaunchangle, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-matchesanswerchoice, def:physics:phyx-mini-0742:phyxminiproblems-problemphyxmini0742-isuniqueclosestdisplayedanglechoice}
+  For φ = 36.0°, the predicted angle is approximately 55.46°, so it rounds to 55.5° and is uniquely closest to displayed choice C
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of required angle for thirty six degrees matches choice C.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

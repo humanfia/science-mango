@@ -1,0 +1,494 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0987.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0987.source.json
+
+\chapter{Physics problem phyx\_mini\_0987}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0987}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In the circuit, switch \textbackslash{}( S\_1 \textbackslash{}) has been closed for a long enough time so that the current reads a steady 3.50 A. Suddenly, switch \textbackslash{}( S\_2 \textbackslash{}) is closed and \textbackslash{}( S\_1 \textbackslash{}) is opened at the same instant.
+
+\#\# Question
+
+What is the maximum charge that the capacitor will receive?
+
+\#\# Answer choices
+
+- A: A: 0.0350mC
+
+- B: B: 0.350mC
+
+- C: C: 0.0700mC
+
+- D: D: 1.75mC
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows an electrical circuit diagram with the following components:
+
+1. **Battery (\textbackslash{}( \textbackslash{}mathcal\{E\} \textbackslash{}))**: Located on the left side, labeled with a positive (+) sign, indicating the polarity.
+
+2. **Ammeter (A)**: Positioned next to the battery, used to measure current.
+
+3. **Resistor (R)**: Represented by a zig-zag line to the right of the battery.
+
+4. **Switches (S1 and S2)**: Two switches. S1 is next to the ammeter, and S2 is next to the inductor.
+
+5. **Inductor**: Labeled as "2.0 mH," represented by a coil, located in the middle part of the circuit.
+
+6. **Capacitor**: Labeled as "5.0 µF," shown as two parallel lines to the right of S2.
+
+The components are connected in series: battery, ammeter, switch S1, inductor, switch S2, and the capacitor. The diagram includes labels indicating specific values for the inductor and capacitor.
+
+\#\# Dataset metadata
+
+Electric Circuits; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.350mC
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/987.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0987.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0987:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0987.maximum_capacitor_charge_and_answer}
+\uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeinmillicoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-matchesprimaryfigureandreadouts, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-matchessimultaneousswitchingprotocol, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-ismaximumcapacitorchargeat, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-recordeddatasetanswer, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answermatchesmaximumcapacitorcharge}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.energyDimension}
+  Energy has physical dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.electricCurrentDimension}
+  Electric current is charge per unit time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-energydimension}
+  Electric potential difference is energy per unit charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electriccurrentdimension, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricpotentialdimension}
+  Electrical resistance is potential difference divided by current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.inductanceDimension}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-energydimension, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electriccurrentdimension}
+  Inductance is energy divided by current squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.capacitanceDimension}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricpotentialdimension}
+  Capacitance is charge divided by potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[Voltage Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltagemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.VoltageMagnitude}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricpotentialdimension}
+  A nonnegative, unit-independent voltage magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Magnitude.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Current Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.CurrentMagnitude}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Current Magnitude.
+\end{proof}
+\begin{definition}[Inductance Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.InductanceMagnitude}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancedimension}
+  A nonnegative, unit-independent inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Magnitude.
+\end{proof}
+\begin{definition}[Capacitance Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.CapacitanceMagnitude}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancedimension}
+  A nonnegative, unit-independent capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Magnitude.
+\end{proof}
+\begin{definition}[Charge Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.ChargeMagnitude}
+  A nonnegative, unit-independent electric-charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude.
+\end{proof}
+\begin{definition}[Time Magnitude]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.TimeMagnitude}
+  A nonnegative, unit-independent physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Magnitude.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[voltage In Volts]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.voltageInVolts}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltagemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read a voltage magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.currentInAmperes}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentmagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries}
+  Read an inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read a capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads}
+  Read a capacitance in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-nonnegativesireadout}
+  Read a charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Millicoulombs]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeinmillicoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.chargeInMillicoulombs}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs}
+  Read a charge magnitude in millicoulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Millicoulombs.
+\end{proof}
+\begin{definition}[Switch Label]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.SwitchLabel}
+  The two ideal switches labelled in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch Label.
+\end{proof}
+\begin{definition}[Switch State]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.SwitchState}
+  Open and closed states of an ideal switch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch State.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.CircuitComponent}
+  Every electrical component explicitly visible in image 987.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.CircuitNode}
+  Named junctions sufficient to preserve the topology in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Circuit Configuration]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.CircuitConfiguration}
+  The two operating configurations described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Configuration.
+\end{proof}
+\begin{definition}[expected Endpoints]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-expectedendpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.expectedEndpoints}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitcomponent, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitnode}
+  Endpoints of each component in the primary circuit drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Endpoints.
+\end{proof}
+\begin{definition}[expected Component Label]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-expectedcomponentlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.expectedComponentLabel}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitcomponent}
+  Literal text printed beside each component in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Component Label.
+\end{proof}
+\begin{definition}[Switched LCFigure]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.SwitchedLCFigure}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchlabel, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitcomponent, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitnode}
+  Presentation and scalar-label data transcribed from image 987.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched LCFigure.
+\end{proof}
+\begin{definition}[Switched LCCircuit]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.SwitchedLCCircuit}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltagemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentmagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitancemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchlabel, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchstate, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-circuitconfiguration, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlcfigure}
+  The physical quantities are independent fields. In particular, the charge history is not defined from an answer number, and no maximum-charge value is stored in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched LCCircuit.
+\end{proof}
+\begin{definition}[Matches Primary Figure And Readouts]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-matchesprimaryfigureandreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.MatchesPrimaryFigureAndReadouts}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinmillihenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinmicrofarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-expectedendpoints, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-expectedcomponentlabel, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  Literal topology, labels, polarity, and numerical labels in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure And Readouts.
+\end{proof}
+\begin{definition}[Matches Simultaneous Switching Protocol]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-matchessimultaneousswitchingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.MatchesSimultaneousSwitchingProtocol}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  Switch states before and after the simultaneous reconfiguration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Simultaneous Switching Protocol.
+\end{proof}
+\begin{definition}[Has Positive Circuit Parameters]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.HasPositiveCircuitParameters}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltageinvolts, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistanceinohms, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  Positivity conditions selecting the nondegenerate physical circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Circuit Parameters.
+\end{proof}
+\begin{definition}[inductor Energy In Joules]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductorenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.inductorEnergyInJoules}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentmagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  Magnetic energy of the inductor, expressed in coherent-SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductor Energy In Joules.
+\end{proof}
+\begin{definition}[capacitor Energy In Joules]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitorenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.capacitorEnergyInJoules}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  Electric energy of the capacitor, expressed in coherent-SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitor Energy In Joules.
+\end{proof}
+\begin{definition}[total LCEnergy In Joules]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-totallcenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.totalLCEnergyInJoules}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductorenergyinjoules, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitorenergyinjoules}
+  Total magnetic plus electric energy at a time in the isolated loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total LCEnergy In Joules.
+\end{proof}
+\begin{definition}[Satisfies Ideal Switched LCLaws]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.SatisfiesIdealSwitchedLCLaws}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-voltageinvolts, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-resistanceinohms, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-totallcenergyinjoules}
+  The local abstraction below records the standard ideal-circuit laws needed by the solution. The zero-current transfer state is qualitative LC dynamics; it does not state the charge at that state or that it is a maximum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Switched LCLaws.
+\end{proof}
+\begin{definition}[Is Maximum Capacitor Charge At]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-ismaximumcapacitorchargeat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.IsMaximumCapacitorChargeAt}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit}
+  A time realizes the maximum charge magnitude over the modeled LC history
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Maximum Capacitor Charge At.
+\end{proof}
+\begin{lemma}[capacitor charge squared le initial magnetic scale]
+  \label{lem:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitor-charge-squared-le-initial-magnetic-scale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.capacitor_charge_squared_le_initial_magnetic_scale}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws}
+  Energy conservation bounds the square of every capacitor charge
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of capacitor charge squared le initial magnetic scale.
+\end{proof}
+\begin{lemma}[charge at zero current eq initial Current mul sqrt inductance capacitance]
+  \label{lem:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-charge-at-zero-current-eq-initialcurrent-mul-sqrt-inductance-capacitance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.charge_at_zero_current_eq_initialCurrent_mul_sqrt_inductance_capacitance}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-timemagnitude, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws}
+  At a zero-current transfer state, the charge obeys Q = I₀ √(LC)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of charge at zero current eq initial Current mul sqrt inductance capacitance.
+\end{proof}
+\begin{lemma}[exists maximum capacitor charge formula]
+  \label{lem:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-exists-maximum-capacitor-charge-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.exists_maximum_capacitor_charge_formula}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-currentinamperes, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-inductanceinhenries, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-capacitanceinfarads, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeincoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-ismaximumcapacitorchargeat}
+  The ideal exchange reaches a maximum whose value is I₀ √(LC)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exists maximum capacitor charge formula.
+\end{proof}
+\begin{lemma}[maximum capacitor charge is three tenths and five hundredths m C]
+  \label{lem:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-maximum-capacitor-charge-is-three-tenths-and-five-hundredths-mc}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.maximum_capacitor_charge_is_three_tenths_and_five_hundredths_mC}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeinmillicoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-matchesprimaryfigureandreadouts, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-haspositivecircuitparameters, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-satisfiesidealswitchedlclaws, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-ismaximumcapacitorchargeat}
+  Substitution of I₀ = 3.50 A, L = 2.0 mH, and C = 5.0 μF gives Q\_max = 3.50 * √(0.002 * 0.000005) C = 0.350 mC
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum capacitor charge is three tenths and five hundredths m C.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Charge In Millicoulombs]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchargeinmillicoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.answerChargeInMillicoulombs}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchoice}
+  Charge in millicoulombs printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Charge In Millicoulombs.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Maximum Capacitor Charge]
+  \label{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answermatchesmaximumcapacitorcharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0987.AnswerMatchesMaximumCapacitorCharge}
+  \uses{def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-chargeinmillicoulombs, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-switchedlccircuit, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-ismaximumcapacitorchargeat, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchoice, def:physics:phyx-mini-0987:phyxminiproblems-problemphyxmini0987-answerchargeinmillicoulombs}
+  A displayed choice agrees with an independently derived maximum charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Maximum Capacitor Charge.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

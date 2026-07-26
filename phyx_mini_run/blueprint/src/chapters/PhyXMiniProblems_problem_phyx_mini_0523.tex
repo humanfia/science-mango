@@ -1,0 +1,226 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0523.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0523.source.json
+
+\chapter{Physics problem phyx\_mini\_0523}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0523}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The truck in figure is moving at a speed of \textbackslash{}(10.0 \textbackslash{}, \textbackslash{}text\{m/s\}\textbackslash{}) relative to the ground. The person on the truck throws a baseball in the backward direction at a speed of \textbackslash{}(20.0 \textbackslash{}, \textbackslash{}text\{m/s\}\textbackslash{}) relative to the truck.
+
+\#\# Question
+
+What is the velocity of the baseball as measured by the observer on the ground?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(30.0 \textbackslash{}
+
+- B: B: \textbackslash{}(20.0 \textbackslash{}
+
+- C: C: \textbackslash{}(-30.0 \textbackslash{}
+
+- D: D: \textbackslash{}(-10.0 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene involving a gray pickup truck with a person standing in its bed who is throwing a ball. The truck is moving to the right. There are two velocity vectors labeled: one for the ball (\textbackslash{}(\textbackslash{}overrightarrow\{v\}\textbackslash{})) pointing to the left, and one for the truck (\textbackslash{}(\textbackslash{}overrightarrow\{v\}\_\{\textbackslash{}text\{truck\}\}\textbackslash{})) pointing to the right. 
+
+The scene also includes a person kneeling on the ground behind the truck, observing the action. The ground is a flat surface on which the truck is positioned.
+
+The image conveys the concept of relative motion, showing the contrast between the velocity of the ball and the truck.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}(-10.0 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/523.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0523.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0523:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0523.problem_phyx_mini_0523}
+\uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityinmeterspersecond, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchestruckbaseballscenario, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchessuppliedtruckbaseballfigure, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchesproblemvelocityreadouts, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-satisfiesgalileanvelocitycomposition, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-recordeddatasetanswer, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchesanswerchoice}
+The backward-thrown baseball has ground-frame velocity
+\(-10\,\mathrm{m/s}\), answer D.
+\end{theorem}
+\begin{proof}
+Take rightward as positive, as in the figure.  Galilean composition gives
+\[
+ v_{\rm ball,ground}
+ =v_{\rm ball,truck}+v_{\rm truck,ground}
+ =-20+10=-10\,\mathrm{m/s}.
+\]
+Expanding the recorded answer and its displayed-velocity map identifies this
+same value with D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.SignedVelocityQuantity}
+  A signed one-dimensional physical velocity, independent of unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.velocityReadout}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-signedvelocityquantity}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-signedvelocityquantity, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityreadout}
+  Read a signed velocity in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.InertialFrameLabel}
+  The two inertial frames used in the relative-motion calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.HorizontalDirection}
+  Directions along the horizontal axis of the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Velocity Arrow]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-figurevelocityarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.FigureVelocityArrow}
+  The two velocity arrows drawn in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Velocity Arrow.
+\end{proof}
+\begin{definition}[Printed Velocity Label]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-printedvelocitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.PrintedVelocityLabel}
+  The mathematical labels printed above the two velocity arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Printed Velocity Label.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.FigureFeature}
+  Named physical features visible in phyx\_data/test\_image/523.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Truck Baseball Figure]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.TruckBaseballFigure}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-horizontaldirection, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-figurevelocityarrow, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-printedvelocitylabel, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-figurefeature}
+  Qualitative data carried by the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Truck Baseball Figure.
+\end{proof}
+\begin{definition}[Truck Baseball Relative Motion Setup]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.TruckBaseballRelativeMotionSetup}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-signedvelocityquantity, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-inertialframelabel, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-horizontaldirection, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballfigure}
+  Independent physical quantities in the scenario. In particular, baseballVelocityRelativeGround is an observable field; it is not defined by the requested answer or by the Galilean addition law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Truck Baseball Relative Motion Setup.
+\end{proof}
+\begin{definition}[Matches Truck Baseball Scenario]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchestruckbaseballscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.MatchesTruckBaseballScenario}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup}
+  Frame assignments and sign convention stated or implied by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Truck Baseball Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Truck Baseball Figure]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchessuppliedtruckbaseballfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.MatchesSuppliedTruckBaseballFigure}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballfigure}
+  Evidence transcribed from the primary image: truck and thrower, baseball, ground observer, and ground are visible; the arrow labelled v points left, whereas the arrow labelled v\_truck points right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Truck Baseball Figure.
+\end{proof}
+\begin{definition}[Matches Problem Velocity Readouts]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchesproblemvelocityreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.MatchesProblemVelocityReadouts}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityinmeterspersecond, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup}
+  Numerical velocity readouts stated in the prose, using the figure's convention that rightward is positive. The truck has velocity +10 m/s relative to the ground, and the backward-thrown ball has velocity -20 m/s relative to the truck. No ground-frame baseball velocity occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Velocity Readouts.
+\end{proof}
+\begin{definition}[Satisfies Galilean Velocity Composition]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-satisfiesgalileanvelocitycomposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.SatisfiesGalileanVelocityComposition}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityreadout, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup}
+  The one-dimensional Galilean velocity-composition law v\_ball,ground = v\_ball,truck + v\_truck,ground, required in every coherent choice of length and time units. This is a governing law and does not assign the current problem's numerical answer to the ground-frame baseball velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Galilean Velocity Composition.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.AnswerChoice}
+  Labels of the four multiple-choice answers in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-displayedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.displayedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-answerchoice}
+  Signed velocity printed beside each answer choice, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0523.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-velocityinmeterspersecond, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-truckbaseballrelativemotionsetup, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-answerchoice, def:physics:phyx-mini-0523:phyxminiproblems-problemphyxmini0523-displayedvelocityinmeterspersecond}
+  The ground observer's baseball-velocity readout agrees with a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

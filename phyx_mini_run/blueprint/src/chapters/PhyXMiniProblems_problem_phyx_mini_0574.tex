@@ -1,0 +1,286 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0574.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0574.source.json
+
+\chapter{Physics problem phyx\_mini\_0574}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0574}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows part of the decay scheme of \$\textasciicircum{}\{237\}\textbackslash{}text\{Np\}\$ on a plot of mass number \$A\$ versus proton number \$Z\$; five lines that represent either alpha decay or beta-minus decay connect dots that represent isotopes.
+
+\#\# Question
+
+What is the isotope at the end of the five decays (as marked with a question mark in figure)?
+
+\#\# Answer choices
+
+- A: A: \{\}\textasciicircum{}\{225\}Ra
+
+- B: B: \{\}\textasciicircum{}\{229\}Ac
+
+- C: C: \{\}\textasciicircum{}\{225\}Ac
+
+- D: D: \{\}\textasciicircum{}\{223\}Th
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a section of a graph with two axes labeled "A" (vertical axis) and "Z" (horizontal axis). It appears to represent nuclear properties or isotopes.
+
+- The graph has a series of connected black dots linked by a green line, forming a zigzag path.
+- The dots are plotted on a grid. 
+- The path starts at a lower-left point and moves to the upper-right.
+- The path ends at a point labeled with the isotope \textbackslash{}( \textasciicircum{}\{237\}\textbackslash{}text\{Np\} \textbackslash{}) on the top right.
+- There is a question mark next to the second point on the path, which suggests an unknown or unspecified isotope at that position.
+- The axes have a break symbol near the origin, indicating a discontinuity or a skipped range of values.
+
+The graph likely depicts a series of nuclear reactions or decay paths.
+
+\#\# Dataset metadata
+
+Nuclear Physics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \{\}\textasciicircum{}\{225\}Ac
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/574.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0574.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0574:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0574.questionMark_isotope_is_choice_C}
+\uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-answerisotope, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-fivestepdecayscheme, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-matchessupplieddecayfigure, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-satisfiesdecaynumberlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Chemical Element]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-chemicalelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.ChemicalElement}
+  Chemical elements occurring in the displayed decay-chain segment or choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chemical Element.
+\end{proof}
+\begin{definition}[atomic Number]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-chemicalelement-atomicnumber}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.ChemicalElement.atomicNumber}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-chemicalelement}
+  Proton number Z of each chemical element relevant to this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of atomic Number.
+\end{proof}
+\begin{definition}[Nuclear Isotope]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.NuclearIsotope}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-chemicalelement}
+  A nuclide specified by mass number A and chemical element. Its proton number is the atomic number of the element; the inequality excludes nuclides with more protons than nucleons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nuclear Isotope.
+\end{proof}
+\begin{definition}[proton Number]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope-protonnumber}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.NuclearIsotope.protonNumber}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  Proton-number coordinate Z of a nuclide on the supplied plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of proton Number.
+\end{proof}
+\begin{definition}[neptunium237]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-neptunium237}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.neptunium237}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  The labelled source nuclide, neptunium-237
+\end{definition}
+\begin{proof}
+  This is the declared model definition of neptunium237.
+\end{proof}
+\begin{definition}[radium225]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-radium225}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.radium225}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  Radium-225, displayed as answer choice A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radium225.
+\end{proof}
+\begin{definition}[actinium229]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-actinium229}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.actinium229}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  Actinium-229, displayed as answer choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of actinium229.
+\end{proof}
+\begin{definition}[actinium225]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-actinium225}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.actinium225}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  Actinium-225, displayed as answer choice C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of actinium225.
+\end{proof}
+\begin{definition}[thorium223]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-thorium223}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.thorium223}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope}
+  Thorium-223, displayed as answer choice D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thorium223.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Isotope]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-answerisotope}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.answerIsotope}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-radium225, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-actinium229, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-actinium225, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-thorium223, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-answerchoice}
+  Isotope printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Isotope.
+\end{proof}
+\begin{definition}[Plot Axis]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-plotaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.PlotAxis}
+  Geometric axes of the supplied decay-scheme plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis.
+\end{proof}
+\begin{definition}[Nuclear Plot Quantity]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearplotquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.NuclearPlotQuantity}
+  Nuclear count plotted on an axis; both quantities are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nuclear Plot Quantity.
+\end{proof}
+\begin{definition}[physical Dimension]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearplotquantity-physicaldimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.NuclearPlotQuantity.physicalDimension}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearplotquantity}
+  Physical dimension of either nuclear count plotted in the figure. Physlib's multiplicative identity dimension records that A and Z are dimensionless; their integer readouts remain natural numbers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of physical Dimension.
+\end{proof}
+\begin{definition}[Decay Path Point]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaypathpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecayPathPoint}
+  The six black dots, ordered from neptunium-237 toward the question mark
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Path Point.
+\end{proof}
+\begin{definition}[Decay Step]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecayStep}
+  The five green line segments, ordered in the physical decay direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Step.
+\end{proof}
+\begin{definition}[start Point]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep-startpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecayStep.startPoint}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaypathpoint, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep}
+  Initial plotted point of a green decay segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Point.
+\end{proof}
+\begin{definition}[end Point]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecayStep.endPoint}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaypathpoint, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep}
+  Final plotted point of a green decay segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of end Point.
+\end{proof}
+\begin{definition}[Decay Mode]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaymode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecayMode}
+  The two kinds of radioactive decay stipulated for the plotted segments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Mode.
+\end{proof}
+\begin{definition}[Decay Scheme Figure]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decayschemefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.DecaySchemeFigure}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-plotaxis, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearplotquantity, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaypathpoint, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep}
+  Raster-level content of the supplied A-versus-Z diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Scheme Figure.
+\end{proof}
+\begin{definition}[Five Step Decay Scheme]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-fivestepdecayscheme}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.FiveStepDecayScheme}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaypathpoint, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaystep, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaymode, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decayschemefigure}
+  Independent quantities in the five-step scheme. In particular, the isotope at the question mark is an unconstrained field until figure evidence and the general decay laws are supplied
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Five Step Decay Scheme.
+\end{proof}
+\begin{definition}[Matches Supplied Decay Figure]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-matchessupplieddecayfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.MatchesSuppliedDecayFigure}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-neptunium237, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-fivestepdecayscheme}
+  Facts read from the primary image. The sloping down-left displacements in the decay direction are alpha steps, while the same-A, one-column-right displacements are beta-minus steps. No endpoint isotope is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Decay Figure.
+\end{proof}
+\begin{definition}[Is Decay Product]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-isdecayproduct}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.IsDecayProduct}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-nuclearisotope, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-decaymode}
+  Conservation-number effect of one decay. Alpha decay removes two protons and four nucleons from the parent; beta-minus decay preserves A and converts a neutron into a proton, increasing the daughter's Z by one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Decay Product.
+\end{proof}
+\begin{definition}[Satisfies Decay Number Laws]
+  \label{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-satisfiesdecaynumberlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.SatisfiesDecayNumberLaws}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-fivestepdecayscheme, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-isdecayproduct}
+  Every pictured segment obeys the number law for its classified mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Decay Number Laws.
+\end{proof}
+\begin{theorem}[question Mark coordinates]
+  \label{thm:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-questionmark-coordinates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0574.questionMark_coordinates}
+  \uses{def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-fivestepdecayscheme, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-matchessupplieddecayfigure, def:physics:phyx-mini-0574:phyxminiproblems-problemphyxmini0574-satisfiesdecaynumberlaws}
+  The five decay-number updates determine the two endpoint coordinates: mass number A = 225 and proton number Z = 89
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of question Mark coordinates.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

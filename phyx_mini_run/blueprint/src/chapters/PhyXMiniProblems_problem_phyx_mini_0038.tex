@@ -1,0 +1,244 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0038.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0038.source.json
+
+\chapter{Physics problem phyx\_mini\_0038}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0038}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A concave mirror forms an image, on a wall 3.00 m in front of the mirror, of a headlamp filament 10.0 cm in front of the mirror.
+
+\#\# Question
+
+What is the focal length of the mirror?
+
+\#\# Answer choices
+
+- A: A: 8.68cm
+
+- B: B: 9.68cm
+
+- C: C: 9.66cm
+
+- D: D: 9.05cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating ray tracing for a mirror with labeled components. Key elements include:
+
+- **Mirror**: A concave mirror is on the right side.
+- **Object**: Positioned on the right near the mirror; labeled with height \textbackslash{}( h = 5.00 \textbackslash{}, \textbackslash{}text\{mm\} \textbackslash{}).
+- **Rays**: Drawn from the object, reflecting off the mirror, and converging at a point.
+- **Screen**: On the left side, displaying the image.
+- **Image**: Projected on the screen with unknown height \textbackslash{}( h' = ? \textbackslash{}).
+- **Distances**: 
+  - \textbackslash{}( s = 10.0 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}) (distance from object to mirror).
+  - \textbackslash{}( s' = 3.00 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}) (distance from mirror to screen).
+- **Optic Axis**: A dashed line marking the principal axis of the system.
+- **C**: Center of curvature of the mirror.
+- **Radius**: \textbackslash{}( R = ? \textbackslash{}) (implies the radius of curvature is unknown).
+
+The diagram represents the geometric relationships and parameters needed for understanding mirror optics.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 9.68cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/38.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0038.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0038:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0038.problem_phyx_mini_0038}
+\uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-centimetersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-matchesfigurereadouts, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-hasphysicallengthsigns, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-obeyssphericalmirrorequation, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-obeysradiusfocallengthlaw, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-answerchoice, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-isnearesthundredthreadout}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.OpticalLength}
+  A signed physical length whose numerical value changes coherently with unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[choices With Length Unit]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-choiceswithlengthunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.choicesWithLengthUnit}
+  Unit choices obtained from SI by changing only the length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of choices With Length Unit.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.lengthReadout}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-choiceswithlengthunit}
+  The scalar readout of a physical length in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.metersValue}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength}
+  The scalar SI readout of a physical length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.centimetersValue}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-lengthreadout}
+  The scalar readout of a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[millimeters Value]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-millimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.millimetersValue}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-lengthreadout}
+  The scalar readout of a physical length in millimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of millimeters Value.
+\end{proof}
+\begin{definition}[Spherical Mirror Kind]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-sphericalmirrorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.SphericalMirrorKind}
+  Spherical-mirror kind as viewed from the incident-light side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Mirror Kind.
+\end{proof}
+\begin{definition}[Mirror Image Nature]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-mirrorimagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.MirrorImageNature}
+  Whether the reflected rays physically meet or only appear to meet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Image Nature.
+\end{proof}
+\begin{definition}[Image Receiver]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-imagereceiver}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.ImageReceiver}
+  The surface on which the image is received in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Receiver.
+\end{proof}
+\begin{definition}[Image Orientation]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-imageorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.ImageOrientation}
+  Transverse orientation of the image relative to the object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Orientation.
+\end{proof}
+\begin{definition}[Principal Axis Orientation]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-principalaxisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.PrincipalAxisOrientation}
+  Orientation of the principal optical axis displayed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Principal Axis Orientation.
+\end{proof}
+\begin{definition}[Concave Mirror Imaging Setup]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.ConcaveMirrorImagingSetup}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-opticallength, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-sphericalmirrorkind, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-mirrorimagenature, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-imagereceiver, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-imageorientation, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-principalaxisorientation}
+  The physical quantities and qualitative labels in the ray diagram. radiusOfCurvature is the axial distance from the mirror vertex to the point labelled C; objectHeight is the displayed h, and imageHeight is the unknown displayed h'. Object and image distances are positive distances in front of the mirror under the real-is-positive convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Concave Mirror Imaging Setup.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-metersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-centimetersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-millimetersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup}
+  Readouts and qualitative facts supplied by the problem and its figure: a concave mirror, a real inverted image on the wall/screen, s = 10.0 cm, s' = 3.00 m, and object height h = 5.00 mm on a horizontal optic axis. The unknown h', R, and focal length are deliberately not fixed here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Length Signs]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-hasphysicallengthsigns}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.HasPhysicalLengthSigns}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-metersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup}
+  Positivity conditions for the length magnitudes in the depicted real-image configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Length Signs.
+\end{proof}
+\begin{definition}[Obeys Spherical Mirror Equation]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-obeyssphericalmirrorequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.ObeysSphericalMirrorEquation}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup}
+  The paraxial spherical-mirror equation 1/f = 1/s + 1/s', expressed in the division-free, dimensionally homogeneous form f * (s + s') = s * s' in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Spherical Mirror Equation.
+\end{proof}
+\begin{definition}[Obeys Radius Focal Length Law]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-obeysradiusfocallengthlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.ObeysRadiusFocalLengthLaw}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup}
+  For a paraxial spherical mirror, the radius of curvature is twice its focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Radius Focal Length Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[focal Length Centimeters]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-answerchoice-focallengthcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.AnswerChoice.focalLengthCentimeters}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-answerchoice}
+  The focal-length readout printed beside each answer choice, in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of focal Length Centimeters.
+\end{proof}
+\begin{definition}[Is Nearest Hundredth Readout]
+  \label{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-isnearesthundredthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.IsNearestHundredthReadout}
+  reported is a nearest-hundredth decimal readout of exact: it is an integer number of hundredths and differs from the exact value by at most half a hundredth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Hundredth Readout.
+\end{proof}
+\begin{lemma}[focal Length Centimeters eq three Hundred div thirty One]
+  \label{lem:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-focallengthcentimeters-eq-threehundred-div-thirtyone}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0038.focalLengthCentimeters_eq_threeHundred_div_thirtyOne}
+  \uses{def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-centimetersvalue, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-concavemirrorimagingsetup, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-matchesfigurereadouts, def:physics:phyx-mini-0038:phyxminiproblems-problemphyxmini0038-obeyssphericalmirrorequation}
+  The mirror equation and the two stated axial distances determine the exact focal length as 300/31 cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of focal Length Centimeters eq three Hundred div thirty One.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

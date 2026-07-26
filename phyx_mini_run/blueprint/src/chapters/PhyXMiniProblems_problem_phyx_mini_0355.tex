@@ -1,0 +1,437 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0355.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0355.source.json
+
+\chapter{Physics problem phyx\_mini\_0355}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0355}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In an ideal Stirling engine, \$n\$ moles of an ideal gas are isothermally compressed, pressurized at constant volume, allowed to expand isothermally, and then cooled at constant volume, as shown in figure. The expansion takes place at temperature \$T\_H\$ and the compression at temperature \$T\_C\$.
+
+\#\# Question
+
+An ideal Stirling engine uses 1 mole of helium as its working substance and has a CR of 10, temperature reservoirs at \$100\textasciicircum{}\{\textbackslash{}circ\}C\$ and \$20\textasciicircum{}\{\textbackslash{}circ\}C\$, and a frequency of operation of 100 Hz. What is its power output?
+
+\#\# Answer choices
+
+- A: A: 203kW
+
+- B: B: 153kW
+
+- C: C: 156kW
+
+- D: D: 143kW
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a p-V (pressure-volume) diagram representing the Stirling cycle. It features a closed loop with four distinct points labeled a, b, c, and d, indicating different states in the cycle. 
+
+- The cycle is depicted with blue arrows showing the progression through the states:
+  - From a to b: A vertical line indicating constant volume (isochoric process).
+  - From b to c: A curved line indicating an isothermal expansion.
+  - From c to d: Another vertical line indicating constant volume.
+  - From d to a: A curved line indicating an isothermal compression.
+
+- The axes are labeled "p" for pressure (vertical axis) and "V" for volume (horizontal axis), with the origin point labeled "O."
+- The text "Stirling cycle" is written near the top center of the diagram.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 153kW
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/355.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0355.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0355:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0355.problem_phyx_mini_0355}
+\uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinwatts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchesidealstirlingscenario, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchessuppliedpressurevolumefigure, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchesproblemreadouts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-hasphysicalstirlingparameters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-satisfiesidealgasstirlinglaws, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-idealstirlingpowerformulawatts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-roundstodisplayedkilowatt, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-isuniqueclosestdisplayedpower}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.VolumeQuantity}
+  A nonnegative physical volume, of dimension length\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.FrequencyQuantity}
+  A nonnegative cycle frequency, of dimension time⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.powerDimension}
+  The physical dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3 of power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.PowerQuantity}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerdimension}
+  A nonnegative physical power output, whose SI unit is the watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.AmountOfSubstanceScale}
+  Physlib currently has no amount-of-substance dimension. This abstract carrier and its calibrated mole readout preserve the physical role of the gas amount without identifying the quantity itself with a real number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.pressureInPascals}
+  Read a physical pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.energyInJoules}
+  Read physical work or energy in SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyquantity}
+  Read a physical operating frequency in cycles per SI second (hertz)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.powerInWatts}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerquantity}
+  Read a physical power in SI watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[power In Kilowatts]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinkilowatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.powerInKilowatts}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerquantity, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinwatts}
+  Read a physical power in kilowatts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Kilowatts.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.temperatureInKelvin}
+  The scenario below fixes Physlib's arbitrary absolute-temperature scale to kelvin. Under that calibration, Temperature.toReal is the kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.temperatureInCelsius}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin}
+  Celsius readout obtained from an absolute kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[universal Molar Gas Constant J per mol K]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-universalmolargasconstant-j-per-mol-k}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.universalMolarGasConstant_J_per_mol_K}
+  The SI readout of the universal molar gas constant, in joules per mole-kelvin. The rational value 8.314 is the precision used by the displayed calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of universal Molar Gas Constant J per mol K.
+\end{proof}
+\begin{definition}[Cycle State]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.CycleState}
+  The four equilibrium states labelled in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle State.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.CycleLeg}
+  The four directed legs shown by the arrows in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.CycleLeg.initialState}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg}
+  Initial state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.CycleLeg.finalState}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg}
+  Final state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.ProcessKind}
+  Physical role of a leg of the ideal Stirling cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Is Isothermal]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind-isisothermal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.ProcessKind.IsIsothermal}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind}
+  Whether a process kind is one of the two isothermal legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Isothermal.
+\end{proof}
+\begin{definition}[Is Isochoric]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind-isisochoric}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.ProcessKind.IsIsochoric}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind}
+  Whether a process kind is one of the two constant-volume legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Isochoric.
+\end{proof}
+\begin{definition}[Figure Axis Quantity]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-figureaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.FigureAxisQuantity}
+  The physical quantities assigned to the two plotted axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Quantity.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.FigureAxis}
+  Horizontal or vertical orientation of a plotted axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[PVSegment Shape]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pvsegmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.PVSegmentShape}
+  Qualitative geometric shape of a process segment in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVSegment Shape.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.GasModel}
+  Thermodynamic model of the working gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Working Substance]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-workingsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.WorkingSubstance}
+  Working substance named in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Substance.
+\end{proof}
+\begin{definition}[Engine Model]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-enginemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.EngineModel}
+  Engine idealization stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Engine Model.
+\end{proof}
+\begin{definition}[Thermodynamic State Data]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-thermodynamicstatedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.ThermodynamicStateData}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumequantity}
+  Physical data at one equilibrium state on the p--V cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State Data.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-figureaxisquantity, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-figureaxis, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pvsegmentshape}
+  Qualitative evidence retained from the primary image. The coordinate functions record relative placement in the drawing; the dimensionful state quantities are stored independently in StirlingEngineSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Stirling Engine Setup]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.StirlingEngineSetup}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyquantity, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerquantity, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-processkind, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-gasmodel, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-workingsubstance, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-enginemodel, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-thermodynamicstatedata, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressurevolumefigure}
+  Independent physical quantities and observables of the engine. In particular, neither netWorkDoneByGasPerCycle nor powerOutput is defined from the desired answer; governing laws below relate them to the cycle data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stirling Engine Setup.
+\end{proof}
+\begin{definition}[Matches Ideal Stirling Scenario]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchesidealstirlingscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.MatchesIdealStirlingScenario}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup}
+  The ideal Stirling interpretation from the prose. It identifies the working substance, temperature scale, four process roles, and reservoir contact. It contains no work or power conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Stirling Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchessuppliedpressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.MatchesSuppliedPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressureinpascals, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumeincubicmeters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup}
+  Primary-image evidence. The raster makes a → b and c → d curved and b → c and d → a vertical. It puts b,c in the left column and a,d in the right column
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Pressure Volume Figure.
+\end{proof}
+\begin{definition}[compression Ratio]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-compressionratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.compressionRatio}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumeincubicmeters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup}
+  The dimensionless maximum-to-minimum volume ratio of the engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of compression Ratio.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyinhertz, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureincelsius, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-compressionratio}
+  Numerical readouts supplied in the question: one mole of helium, compression ratio ten, reservoir temperatures 100 °C and 20 °C, and operation at 100 Hz. There is no work or power value in this record
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Stirling Parameters]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-hasphysicalstirlingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.HasPhysicalStirlingParameters}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressureinpascals, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumeincubicmeters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyinhertz, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-compressionratio}
+  Positivity and nondegeneracy conditions for the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Stirling Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Stirling Laws]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-satisfiesidealgasstirlinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.SatisfiesIdealGasStirlingLaws}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-pressureinpascals, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-volumeincubicmeters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-energyinjoules, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyinhertz, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinwatts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-universalmolargasconstant-j-per-mol-k, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cyclestate, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-cycleleg, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup}
+  Governing laws for the calculation: the ideal-gas equation of state, quasistatic isothermal boundary work, zero isochoric boundary work, additivity of the four leg works, and average power as work per cycle times cycles per second. These fields contain neither the requested 153 kW conclusion nor an answer-choice selection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Stirling Laws.
+\end{proof}
+\begin{definition}[ideal Stirling Power Formula Watts]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-idealstirlingpowerformulawatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.idealStirlingPowerFormulaWatts}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-frequencyinhertz, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-universalmolargasconstant-j-per-mol-k, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-compressionratio}
+  The ideal Stirling power formula in calibrated physical readouts. This is not the definition of setup.powerOutput; the theorem must relate that independent physical observable to this formula using the governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ideal Stirling Power Formula Watts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.AnswerChoice}
+  Labels of the four displayed answers in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power Kilowatts]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-displayedpowerkilowatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.displayedPowerKilowatts}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-answerchoice}
+  Kilowatt value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power Kilowatts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-answerchoice}
+  The dataset's recorded answer label, retained only as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Kilowatt]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-roundstodisplayedkilowatt}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.RoundsToDisplayedKilowatt}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinkilowatts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-answerchoice, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-displayedpowerkilowatts}
+  The physical power rounds to a displayed whole-kilowatt value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Kilowatt.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Power]
+  \label{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-isuniqueclosestdisplayedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.IsUniqueClosestDisplayedPower}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-powerinkilowatts, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-answerchoice, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-displayedpowerkilowatts}
+  The selected display is strictly closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Power.
+\end{proof}
+\begin{lemma}[net Work Per Cycle eq ideal Stirling Formula]
+  \label{lem:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-networkpercycle-eq-idealstirlingformula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0355.netWorkPerCycle_eq_idealStirlingFormula}
+  \uses{def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-amountofsubstancescale, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-energyinjoules, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-temperatureinkelvin, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-universalmolargasconstant-j-per-mol-k, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-stirlingenginesetup, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchesidealstirlingscenario, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-matchessuppliedpressurevolumefigure, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-compressionratio, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-hasphysicalstirlingparameters, def:physics:phyx-mini-0355:phyxminiproblems-problemphyxmini0355-satisfiesidealgasstirlinglaws}
+  The net cycle work is the hot-isotherm work minus the cold-isotherm work: n R (T\_H - T\_C) log(CR)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net Work Per Cycle eq ideal Stirling Formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

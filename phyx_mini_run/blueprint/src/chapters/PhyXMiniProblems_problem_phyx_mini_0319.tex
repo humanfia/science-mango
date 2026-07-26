@@ -1,0 +1,295 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0319.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0319.source.json
+
+\chapter{Physics problem phyx\_mini\_0319}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0319}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a French submarine and a U.S. submarine move toward each other during maneuvers in motionless water in the North Atlantic. The French sub moves at speed \$v\_F = 50.00\$ km/h, and the U.S. sub at \$v\_\{US\} = 70.00\$ km/h. The French sub sends out a sonar signal (sound wave in water) at \$1.000 \textbackslash{}times 10\textasciicircum{}3\$ Hz. Sonar waves travel at \$5470\$ km/h.
+
+\#\# Question
+
+What frequency is detected by the French sub in the signal reflected back to it by the U.S. sub?
+
+\#\# Answer choices
+
+- A: A: \$1.005\textbackslash{}times 10\textasciicircum{}\{3\}\$ Hz
+
+- B: B: \$1.021\textbackslash{}times 10\textasciicircum{}\{3\}\$ Hz
+
+- C: C: \$1.032\textbackslash{}times 10\textasciicircum{}\{3\}\$ Hz
+
+- D: D: \$1.045\textbackslash{}times 10\textasciicircum{}\{3\}\$ Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two submarines facing each other. On the left is a submarine labeled "French" with a velocity vector labeled \textbackslash{}( v\_F \textbackslash{}) pointing to the right. On the right is a submarine labeled "U.S." with a velocity vector labeled \textbackslash{}( v\_\{US\} \textbackslash{}) pointing to the left. Between the submarines are broken pink lines, with an arrow indicating a direction from the U.S. submarine to the French submarine, suggesting a meaningful exchange or interaction such as a signal or wave.
+
+\#\# Dataset metadata
+
+Sound; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$1.045\textbackslash{}times 10\textasciicircum{}\{3\}\$ Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/319.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0319.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0319:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0319.problem_phyx_mini_0319}
+\uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesprimaryfigure, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesproblemreadouts, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-hasphysicalacousticparameters, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiestwolegacousticdopplerlaw, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiesidealreflectioninunitedstatesframe, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-roundstonearesthertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.FrequencyQuantity}
+  A nonnegative physical frequency carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.SpeedQuantity}
+  A nonnegative physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.frequencyReadout}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.speedReadout}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.speedInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedreadout}
+  Kilometers-per-hour readout of a physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[Submarine]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarine}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.Submarine}
+  The two physical bodies in the sonar experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Submarine.
+\end{proof}
+\begin{definition}[Maneuver Region]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-maneuverregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.ManeuverRegion}
+  The geographic setting named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Maneuver Region.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.FigureLabel}
+  The two submarine labels printed in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.HorizontalDirection}
+  Horizontal directions in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Horizontal Motion]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontalmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.HorizontalMotion}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontaldirection}
+  One-dimensional motion with dimensionful speed magnitude and direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Motion.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedreadout, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontalmotion}
+  Signed velocity readout, positive toward the right of the figure, in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[signed Velocity In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-signedvelocityinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.signedVelocityInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontalmotion, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-signedvelocityreadout}
+  Signed velocity in kilometers per hour, positive to the image's right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[propagation Sign]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-propagationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.propagationSign}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontaldirection}
+  Propagation sign along the same right-positive horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of propagation Sign.
+\end{proof}
+\begin{definition}[Submarine Sonar Figure]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.SubmarineSonarFigure}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-figurelabel, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontaldirection}
+  Qualitative information read directly from the primary bitmap. Pixel coordinates preserve only horizontal ordering, not physical distance. The upper black arrow is the reflected leftward wave and the lower arrow is the outbound rightward wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Submarine Sonar Figure.
+\end{proof}
+\begin{definition}[Submarine Sonar Reflection Setup]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.SubmarineSonarReflectionSetup}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarine, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-maneuverregion, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontaldirection, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-horizontalmotion, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarfigure}
+  Independent physical quantities for the emitted, incident, reflected, and detected sonar waves. In particular, the detected frequency is not defined from a Doppler formula or from an answer choice; the governing laws below relate it to the other quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Submarine Sonar Reflection Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  Primary-image evidence: the French submarine is left of the U.S. submarine; its v\_F arrow points right, the v\_US arrow points left, the outbound and return arrows point right and left respectively, and broken wavefronts are drawn between the submarines
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedinkilometersperhour, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  Problem-statement data: the two submarines approach one another at 50 km/h and 70 km/h, the emitted sonar frequency is 1000 Hz, the wave speed is 5470 km/h, and the North Atlantic water is motionless. No value of the requested detected frequency occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedinkilometersperhour, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-signedvelocityinkilometersperhour, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  Positivity and subsonic conditions under which both classical acoustic Doppler relations are physically meaningful
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Two Leg Acoustic Doppler Law]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiestwolegacousticdopplerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.SatisfiesTwoLegAcousticDopplerLaw}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyreadout, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-speedreadout, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-signedvelocityreadout, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-propagationsign, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  The classical one-dimensional acoustic Doppler relation on both signal legs. For propagation sign q, source velocity v\_s, observer velocity v\_o, water velocity v\_m, and sonar speed c relative to the water, the multiplicative factor is (c - q * (v\_o - v\_m)) / (c - q * (v\_s - v\_m)). On the outbound leg the French submarine emits and the U.S. submarine observes. On the return leg the U.S. submarine emits the reflected signal in its rest frame and the French submarine observes.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Leg Acoustic Doppler Law.
+\end{proof}
+\begin{definition}[Satisfies Ideal Reflection In United States Frame]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiesidealreflectioninunitedstatesframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.SatisfiesIdealReflectionInUnitedStatesFrame}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyreadout, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup}
+  Ideal reflection preserves the incident frequency in the U.S. submarine's rest frame. This boundary law relates two independent physical frequency quantities; it does not state the frequency later received by the French submarine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Reflection In United States Frame.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency In Hertz]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-displayedanswerfrequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.displayedAnswerFrequencyInHertz}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-answerchoice}
+  Frequency in hertz printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency In Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-answerchoice}
+  The answer label recorded in the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hertz]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-roundstonearesthertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.RoundsToNearestHertz}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyquantity, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz}
+  A physical frequency readout rounds to the displayed whole-hertz value when it lies strictly within half a hertz of that value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hertz.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-answerchoice, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-displayedanswerfrequencyinhertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-roundstonearesthertz}
+  The modeled reflected signal agrees with a displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[detected Reflected Frequency doppler readout]
+  \label{lem:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-detectedreflectedfrequency-doppler-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0319.detectedReflectedFrequency_doppler_readout}
+  \uses{def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-frequencyinhertz, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-submarinesonarreflectionsetup, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesprimaryfigure, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-matchesproblemreadouts, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-hasphysicalacousticparameters, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiestwolegacousticdopplerlaw, def:physics:phyx-mini-0319:phyxminiproblems-problemphyxmini0319-satisfiesidealreflectioninunitedstatesframe}
+  The two Doppler shifts and the rest-frame reflection law give the unrounded double-shifted readout 1000 * (5470 + 70) / (5470 - 50) * (5470 + 50) / (5470 - 70) hertz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of detected Reflected Frequency doppler readout.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

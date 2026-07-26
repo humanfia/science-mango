@@ -1,0 +1,449 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0464.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0464.source.json
+
+\chapter{Physics problem phyx\_mini\_0464}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0464}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A vertical cylinder fitted with a piston contains \$5 \textbackslash{}, \textbackslash{}text\{kg\}\$ of R-410a at \$10 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, as shown in figure. Heat is transferred to the system, causing the piston to rise until it reaches a set of stops, at which point the volume has doubled. Additional heat is transferred until the temperature inside reaches \$50 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, at which point the pressure inside the cylinder is \$1.4 \textbackslash{}, \textbackslash{}text\{MPa\}\$.
+
+\#\# Question
+
+Calculate the heat transfer for the overall process.
+
+\#\# Answer choices
+
+- A: A: 518.3 kJ
+
+- B: B: 840.6 kJ
+
+- C: C: 653.5 kJ
+
+- D: D: 725.0 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a container. The container has vertical gray sides and two protruding rectangular shapes at the top, which might represent connections or supports. Inside the container, there is a liquid with a light blue color occupying the lower part, labeled "R-410a." Above the liquid is a horizontal black and white line pattern, possibly indicating a valve or barrier separating the liquid from the upper part of the container, which is empty. The label "R-410a" suggests the liquid is a refrigerant commonly used in air conditioning systems.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 725.0 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/464.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0464.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0464:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0464.problem_phyx_mini_0464}
+\uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesheatingpistoncylinderscenario, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesproblemreadouts, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchessuppliedpistoncylinderfigure, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesreferencer410apropertydata, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-hasphysicalheatingpistonparameters, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiesr410aequilibriumpropertymodel, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiespistonboundaryworklaws, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiesclosedsystemfirstlaw, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-agreeswithdisplayedheatwithinonekilojoule, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-isuniqueclosestdisplayedheat}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[specific Volume Dimension]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.specificVolumeDimension}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumedimension}
+  The physical dimension of specific volume, L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Dimension.
+\end{proof}
+\begin{definition}[specific Energy Dimension]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificenergydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.specificEnergyDimension}
+  The physical dimension of specific internal energy, L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumedimension}
+  A nonnegative physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SpecificVolumeQuantity}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumedimension}
+  A nonnegative specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Internal Energy Quantity]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SpecificInternalEnergyQuantity}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificenergydimension}
+  Specific internal energy has a conventional reference zero, so its coherent SI reading is real-valued rather than restricted to a nonnegative scalar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Internal Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.massInKilograms}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massquantity}
+  Read a physical mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Metres Per Kilogram]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumeincubicmetresperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.specificVolumeInCubicMetresPerKilogram}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumequantity}
+  Read a specific volume in cubic metres per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Metres Per Kilogram.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.pressureInPascals}
+  Read a pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinpascals}
+  Read a pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[pressure In Megapascals]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinmegapascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.pressureInMegapascals}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinpascals}
+  Read a pressure in megapascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Megapascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.energyInJoules}
+  Read an energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinjoules}
+  Read an energy in kilojoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[specific Internal Energy In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.specificInternalEnergyInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyquantity}
+  Read a specific internal energy in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Internal Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.specificInternalEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyquantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyinjoulesperkilogram}
+  Read a specific internal energy in kilojoules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.CelsiusTemperatureReading}
+  Physlib's Temperature is an absolute, zero-preserving temperature. The affine Celsius reading printed in the exercise is retained alongside it with an explicit kelvin calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.ProcessState}
+  The three states needed to separate the moving- and fixed-piston legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.ProcessLeg}
+  The two heat-transfer legs of the overall process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.ProcessLeg.initialState}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processstate, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg}
+  Initial state of each directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.ProcessLeg.finalState}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processstate, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg}
+  Final state of each directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Refrigerant Kind]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-refrigerantkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.RefrigerantKind}
+  Refrigerant identity, kept distinct from its scalar property readings
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerant Kind.
+\end{proof}
+\begin{definition}[Phase Region]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-phaseregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.PhaseRegion}
+  Qualitative phase region of an equilibrium refrigerant state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Phase Region.
+\end{proof}
+\begin{definition}[Cylinder Orientation]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-cylinderorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.CylinderOrientation}
+  Orientation of the cylinder axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Orientation.
+\end{proof}
+\begin{definition}[Piston Constraint]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pistonconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.PistonConstraint}
+  Mechanical constraint acting on the piston at a modeled state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Constraint.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.FigureObject}
+  Physical objects visible in the supplied cross-sectional raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.FigureLabel}
+  Literal text labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Supplied Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-suppliedpistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SuppliedPistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-figureobject, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-figurelabel}
+  Qualitative evidence from the primary image. Coordinates describe only the vertical ordering in the drawing and carry no thermodynamic measurement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Refrigerant State]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-refrigerantstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.RefrigerantState}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumequantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumequantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyquantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-celsiustemperaturereading, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-phaseregion}
+  Extensive and specific properties of R-410a at one equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerant State.
+\end{proof}
+\begin{definition}[R410 AEquilibrium Property Table]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-r410aequilibriumpropertytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.R410AEquilibriumPropertyTable}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumequantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyquantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-celsiustemperaturereading, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-phaseregion}
+  An abstract equilibrium-property table for R-410a. A relation is used rather than a function because temperature and pressure alone do not select a unique state on the saturation curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of R410 AEquilibrium Property Table.
+\end{proof}
+\begin{definition}[Heating Piston Cylinder Setup]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.HeatingPistonCylinderSetup}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massquantity, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processstate, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-processleg, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-refrigerantkind, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-cylinderorientation, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pistonconstraint, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-suppliedpistoncylinderfigure, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-refrigerantstate, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-r410aequilibriumpropertytable}
+  The complete closed-system experiment. Heat and work are signed positive into the refrigerant and by the refrigerant, respectively. The overall heat is an independent physical observable; its relation to state changes is imposed only by the first-law hypotheses below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heating Piston Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Heating Piston Cylinder Scenario]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesheatingpistoncylinderscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.MatchesHeatingPistonCylinderScenario}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinjoules, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Qualitative process conditions stated or implied by the piston model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Heating Piston Cylinder Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massinkilograms, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumeincubicmetres, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinmegapascals, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Numerical readings stated in the prose. No field constrains any heat-transfer observable or mentions a displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchessuppliedpistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.MatchesSuppliedPistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-suppliedpistoncylinderfigure}
+  Facts transcribed from the primary piston-cylinder image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Matches Reference R410 AProperty Data]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-matchesreferencer410apropertydata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.MatchesReferenceR410APropertyData}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinkilopascals, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Representative equilibrium-property readings needed to make the numerical question determinate. These are constitutive R-410a data at the initial and final states, not heat-transfer data. The values are retained at sufficient precision for identifying the multiple-choice result despite table rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference R410 AProperty Data.
+\end{proof}
+\begin{definition}[Has Physical Heating Piston Parameters]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-hasphysicalheatingpistonparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.HasPhysicalHeatingPistonParameters}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massinkilograms, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumeincubicmetres, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinpascals, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Positivity and nondegeneracy conditions selecting physical states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Heating Piston Parameters.
+\end{proof}
+\begin{definition}[Satisfies R410 AEquilibrium Property Model]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiesr410aequilibriumpropertymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SatisfiesR410AEquilibriumPropertyModel}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massinkilograms, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumeincubicmetres, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Each modeled state is admitted by the R-410a equilibrium table, and total volume equals mass times specific volume in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies R410 AEquilibrium Property Model.
+\end{proof}
+\begin{definition}[Satisfies Piston Boundary Work Laws]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiespistonboundaryworklaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SatisfiesPistonBoundaryWorkLaws}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-volumeincubicmetres, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-pressureinkilopascals, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinkilojoules, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Mechanical process laws. The freely moving piston produces a constant- pressure first leg; after the piston reaches the stops the volume is fixed. For the first leg, kPa * m³ = kJ, while the fixed-volume leg does no boundary work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Piston Boundary Work Laws.
+\end{proof}
+\begin{definition}[Satisfies Closed System First Law]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-satisfiesclosedsystemfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.SatisfiesClosedSystemFirstLaw}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-massinkilograms, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinkilojoules, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-specificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup}
+  Closed-system first law on each leg, Q\_in = m (u\_final - u\_initial) + W\_by, together with additivity of heat over the two legs. This is a governing law; it contains no numerical value for the requested overall heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed System First Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.AnswerChoice}
+  Labels of the four heat-transfer answers printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Transfer Kilojoules]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-displayedheattransferkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.displayedHeatTransferKilojoules}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-answerchoice}
+  Heat-transfer value in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Transfer Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-answerchoice}
+  Answer label recorded by the source dataset, retained as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Agrees With Displayed Heat Within One Kilojoule]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-agreeswithdisplayedheatwithinonekilojoule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.AgreesWithDisplayedHeatWithinOneKilojoule}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinkilojoules, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-answerchoice, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-displayedheattransferkilojoules}
+  Agreement within 1 kJ accommodates the rounding variation between standard R-410a property correlations while remaining tiny compared with the gaps between answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Displayed Heat Within One Kilojoule.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Heat]
+  \label{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-isuniqueclosestdisplayedheat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0464.IsUniqueClosestDisplayedHeat}
+  \uses{def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-energyinkilojoules, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-heatingpistoncylindersetup, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-answerchoice, def:physics:phyx-mini-0464:phyxminiproblems-problemphyxmini0464-displayedheattransferkilojoules}
+  The chosen displayed heat is strictly closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Heat.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,296 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0956.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0956.source.json
+
+\chapter{Physics problem phyx\_mini\_0956}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0956}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You are a technician testing the operation of a cyclotron. An alpha particle in the device moves in a circular path in a magnetic field \textbackslash{}( \textbackslash{}vec\{B\} \textbackslash{}) that is directed perpendicular to the path of the alpha particle. You measure the number of revolutions per second (the frequency \textbackslash{}( f \textbackslash{})) of the alpha particle as a function of the magnetic field strength \textbackslash{}( B \textbackslash{}). Your results and the best straight-line fit to your data.
+
+\#\# Question
+
+With \textbackslash{}( B = 0.300\textbackslash{},\textbackslash{}text\{T\} \textbackslash{}), what are the cyclotron frequencies \textbackslash{}( f \textbackslash{}) of an electron?
+
+\#\# Answer choices
+
+- A: A: 4.58MHz
+
+- B: B: 8.4GHz
+
+- C: C: 8.4MHz
+
+- D: D: 16.8MHz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a plotted line. Here are the details:
+
+- **Axes**:
+  - The x-axis is labeled \textbackslash{}( B \textbackslash{}) (T), representing the magnetic field in Tesla (T), ranging from 0.00 to 0.40 with increments of 0.10.
+  - The y-axis is labeled \textbackslash{}( f \textbackslash{}) (10\textbackslash{}(\textasciicircum{}5\textbackslash{}) Hz), representing frequency in units of \textbackslash{}( 10\textasciicircum{}5 \textbackslash{}) Hertz, ranging from 6.00 to 34.00 with increments of 4.00.
+
+- **Data Points**:
+  - There are seven data points plotted on the graph as black dots.
+  - The data points are connected by a blue line, indicating a trend.
+
+- **Line**:
+  - The blue line shows a positive, linear relationship, with frequency increasing as the magnetic field increases.
+
+- **Grid**:
+  - The graph has a grid with both vertical and horizontal lines to help estimate values.
+
+The overall trend exhibits a linear increase in frequency with an increase in the magnetic field.
+
+\#\# Dataset metadata
+
+Magnetism; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 8.4GHz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/956.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0956.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0956:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0956.electronCyclotronFrequency_matches_answer_B}
+\uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyinhertz, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotronfrequencygraph, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-matchesproblemstatement, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-matchesprimarycyclotrongraph, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-usesstandardparticledata, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-satisfiescyclotronfrequencylaw, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-roundstonearest, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.magneticFluxDensityDimension}
+  Magnetic flux density has physical dimension M T⁻¹ C⁻¹ (tesla in SI)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[Charge Magnitude Quantity]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.ChargeMagnitudeQuantity}
+  A nonnegative physical electric-charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.MassQuantity}
+  A nonnegative physical rest mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude Quantity]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensitymagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.MagneticFluxDensityMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensitydimension}
+  A nonnegative magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.FrequencyQuantity}
+  A nonnegative revolution frequency, with physical dimension T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[charge Magnitude In Coulombs]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.chargeMagnitudeInCoulombs}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudequantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-nonnegativesireadout}
+  Read an electric-charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Coulombs.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.massInKilograms}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massquantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-nonnegativesireadout}
+  Read a rest mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensitymagnitudequantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-nonnegativesireadout}
+  Read a magnetic-flux-density magnitude in tesla
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyquantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-nonnegativesireadout}
+  Read a revolution frequency in hertz (revolutions per second)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.ParticleSpecies}
+  Particle species used in the calibration and in the requested prediction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Orbit Geometry]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-orbitgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.OrbitGeometry}
+  The idealized shape of the particle trajectory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orbit Geometry.
+\end{proof}
+\begin{definition}[Magnetic Field Orbit Orientation]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfieldorbitorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.MagneticFieldOrbitOrientation}
+  The orientation of the magnetic-field vector relative to the orbit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Field Orbit Orientation.
+\end{proof}
+\begin{definition}[Cyclotron Regime]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotronregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.CyclotronRegime}
+  The dynamical regime in which the elementary cyclotron law is used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cyclotron Regime.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.AnswerChoice}
+  The four answer labels printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[Horizontal Axis Label]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-horizontalaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.HorizontalAxisLabel}
+  The symbol printed on the graph's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Axis Label.
+\end{proof}
+\begin{definition}[Vertical Axis Label]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-verticalaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.VerticalAxisLabel}
+  The symbol printed on the graph's vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Axis Label.
+\end{proof}
+\begin{definition}[Displayed Graph Point]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-displayedgraphpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.DisplayedGraphPoint}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensityinteslas}
+  One plotted graph point, recorded in the units displayed on the axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displayed Graph Point.
+\end{proof}
+\begin{definition}[Cyclotron Test Setup]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.CyclotronTestSetup}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudequantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massquantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensitymagnitudequantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyquantity, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-particlespecies, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-orbitgeometry, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfieldorbitorientation, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotronregime, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-answerchoice}
+  The physical cyclotron configuration at the field setting in the question. Charge, mass, and frequency remain species-indexed so that the alpha-particle calibration and electron prediction refer to the same apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cyclotron Test Setup.
+\end{proof}
+\begin{definition}[Cyclotron Frequency Graph]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotronfrequencygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.CyclotronFrequencyGraph}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-particlespecies, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-horizontalaxislabel, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-verticalaxislabel, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-displayedgraphpoint}
+  Typed information carried by the primary raster 956.png. dataPoint has domain Fin 7, so the declaration records exactly the seven visible black points without inventing precise coordinates for all of them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cyclotron Frequency Graph.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensityinteslas, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup}
+  Prose data and answer values supplied by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Cyclotron Graph]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-matchesprimarycyclotrongraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.MatchesPrimaryCyclotronGraph}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensityinteslas, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyinhertz, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotronfrequencygraph}
+  Primary-image readouts. Vertical graph coordinates are multiples of 10⁵ Hz. The fit value 23 at 0.300 T is the visual graph estimate, not the requested electron answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Cyclotron Graph.
+\end{proof}
+\begin{definition}[Uses Standard Particle Data]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-usesstandardparticledata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.UsesStandardParticleData}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudeincoulombs, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massinkilograms, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup}
+  Standard charge-magnitude and rest-mass data used for the two species
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Particle Data.
+\end{proof}
+\begin{definition}[Satisfies Cyclotron Frequency Law]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-satisfiescyclotronfrequencylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.SatisfiesCyclotronFrequencyLaw}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-chargemagnitudeincoulombs, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-massinkilograms, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-magneticfluxdensityinteslas, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-frequencyinhertz, def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-cyclotrontestsetup}
+  The governing nonrelativistic cyclotron law. This is a species-independent physical relation, not a restatement of the requested electron value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cyclotron Frequency Law.
+\end{proof}
+\begin{definition}[Rounds To Nearest]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-roundstonearest}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.RoundsToNearest}
+  reported is the nearest multiple of quantum to actual
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0956.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0956:phyxminiproblems-problemphyxmini0956-answerchoice}
+  A displayed answer is strictly closer than every other displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

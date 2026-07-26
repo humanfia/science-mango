@@ -1,0 +1,276 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0000.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0000.source.json
+
+\chapter{Physics problem phyx\_mini\_0000}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0000}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a refracted light beam in linseed oil making an angle of \textbackslash{}( \textbackslash{}phi = 20.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{}) with the normal line \textbackslash{}( NN' \textbackslash{}). The index of refraction of linseed oil is 1.48.
+
+\#\# Question
+
+Determine the angles\textbackslash{}( \textbackslash{}theta' \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 28.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- B: B: \textbackslash{}(  30.4\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- C: C: \textbackslash{}( 22.3\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- D: D: \textbackslash{}( 31.1\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram illustrating the refraction of light through different media: air, linseed oil, and water. 
+
+- **Layers**: 
+  - The top layer is labeled "Air."
+  - The middle layer is labeled "Linseed oil."
+  - The bottom layer is labeled "Water."
+
+- **Arrows**: A blue arrow represents the path of light as it travels through the three layers, bending at each interface between the different media.
+
+- **Angles**: 
+  - The angle of incidence in the air is labeled "θ."
+  - The angle of refraction as the light enters the linseed oil is labeled "ϕ₁."
+  - The angle of refraction as the light enters the water is labeled "θ'."
+
+- **Normals**: 
+  - Dashed lines perpendicular to the interfaces indicate the normals at the points of refraction.
+  - Points on these lines are labeled "N" at the linseed oil interface and "N'" at the water interface.
+
+This diagram is typically used to demonstrate Snell's Law, which describes how light refracts as it passes through different media.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 22.3\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/0.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0000.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0000:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0000.thetaPrime_matches_choice_C}
+\uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-degrees, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-isphysicalrefractionangle, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-haspositiverefractiveindices, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-satisfiessnelllawat, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-phione, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-thetaprime, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-hasparallelinterfacegeometry, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.OpticalMedium}
+  The three optical media, in their top-to-bottom order in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Refraction Interface]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface}
+  The two parallel material interfaces shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refraction Interface.
+\end{proof}
+\begin{definition}[Normal Label]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-normallabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.NormalLabel}
+  Labels for the dashed normals through the two refraction points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Normal Label.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RaySegment}
+  The three segments of the single light path, one in each medium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface.incidentMedium}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-opticalmedium, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface}
+  This def records the incident Medium component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface.transmittedMedium}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-opticalmedium, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface}
+  This def records the transmitted Medium component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[incident Ray]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface-incidentray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface.incidentRay}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-raysegment}
+  This def records the incident Ray component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Ray.
+\end{proof}
+\begin{definition}[transmitted Ray]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface-transmittedray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface.transmittedRay}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-raysegment}
+  This def records the transmitted Ray component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Ray.
+\end{proof}
+\begin{definition}[normal]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface-normal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.RefractionInterface.normal}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-normallabel}
+  This def records the normal component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of normal.
+\end{proof}
+\begin{definition}[Three Layer Refraction Setup]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.ThreeLayerRefractionSetup}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-opticalmedium, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-normallabel, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-raysegment}
+  Physical data attached to the three-layer refraction diagram. Refractive indices are dimensionless scalar readouts. Angles are physical angles modulo a full turn, represented by Mathlib's Real.Angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Layer Refraction Setup.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.degrees}
+  Convert a numerical degree reading into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.degreeReadout}
+  The representative of an acute physical angle, expressed in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Is Physical Refraction Angle]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-isphysicalrefractionangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.IsPhysicalRefractionAngle}
+  Refraction angles in this diagram lie between the ray and its normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Refraction Angle.
+\end{proof}
+\begin{definition}[Has Positive Refractive Indices]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-haspositiverefractiveindices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.HasPositiveRefractiveIndices}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  The dimensionless refractive index is physically positive in every layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Refractive Indices.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-satisfiessnelllawat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.SatisfiesSnellLawAt}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-refractioninterface, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  Snell's law at one of the two interfaces in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At.
+\end{proof}
+\begin{definition}[theta]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-theta}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.theta}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  The angle labelled θ in the air layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta.
+\end{proof}
+\begin{definition}[phi One]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-phione}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.phiOne}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  The angle labelled φ₁, measured from normal N in the oil layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of phi One.
+\end{proof}
+\begin{definition}[theta Prime]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-thetaprime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.thetaPrime}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup}
+  The requested angle θ', measured from normal N' in the water layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta Prime.
+\end{proof}
+\begin{definition}[Has Parallel Interface Geometry]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-hasparallelinterfacegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.HasParallelInterfaceGeometry}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-phione}
+  Parallel interfaces make the oil ray have the same angle to N and N'
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Parallel Interface Geometry.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.AnswerChoice}
+  The four numerical answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer In Degrees]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-answerindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.answerInDegrees}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-answerchoice}
+  This def records the answer In Degrees component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer In Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-degreereadout, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-answerchoice, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-answerindegrees}
+  A displayed one-decimal-place choice matches an angle when their degree readouts differ by at most half of one tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{lemma}[oil angle at lower interface]
+  \label{lem:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-oil-angle-at-lower-interface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0000.oil_angle_at_lower_interface}
+  \uses{def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-threelayerrefractionsetup, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-degrees, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-phione, def:physics:phyx-mini-0000:phyxminiproblems-problemphyxmini0000-hasparallelinterfacegeometry}
+  The given 20.0° oil angle transfers from N to N' because the two interfaces, and hence their normals, are parallel
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of oil angle at lower interface.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,259 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0198.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0198.source.json
+
+\chapter{Physics problem phyx\_mini\_0198}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0198}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An airplane is flying at Mach 1.75 at an altitude of 8000 \textbackslash{}, \textbackslash{}mathrm\{m\}, where the speed of sound is 320 \textbackslash{}, \textbackslash{}mathrm\{m/s\}.The plane passes directly overhead.
+
+\#\# Question
+
+How long will you hear the sonic boom?
+
+\#\# Answer choices
+
+- A: A: 23.1s
+
+- B: B: 20.5s
+
+- C: C: 19.2s
+
+- D: D: 18.9s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a supersonic aircraft causing a shock wave, exhibiting a phenomenon known as a sonic boom.
+
+1. **Aircraft**: The diagram shows an aircraft moving to the right at a supersonic speed denoted as \textbackslash{}(v\_s\textbackslash{}), with a label indicating it is traveling at Mach 1.75.
+
+2. **Shock Wave**: The aircraft is emitting circular wavefronts, which are increasingly spaced in the direction of travel, illustrating the concept of shock waves. The shock wave forms a cone shape with the aircraft at the vertex.
+
+3. **Angle and Lines**:
+   - The angle of the shock wave, labeled as \textbackslash{}(\textbackslash{}alpha\textbackslash{}), is highlighted.
+   - A line represents the path of the shock wave extending from the aircraft to the "Listener" position.
+
+4. **Listener**: Marked by a circle labeled "L", representing the position of the listener.
+
+5. **Distances and Labels**:
+   - \textbackslash{}(v\_s t\textbackslash{}) is the horizontal distance from the listener to the point below the aircraft.
+   - The vertical distance from the aircraft to the ground is labeled as 8000 m.
+   - The text "Shock wave" is positioned along the hypotenuse of the right triangle.
+
+6. **Arrows and Motion**: Green arrows depict the direction of the aircraft's travel and the propagation direction of the shock wave.
+
+This diagram is likely illustrating how shock waves form around supersonic aircraft and how they affect observers on the ground.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 20.5s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/198.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0198.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0198:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0198.boomDelay_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationinseconds, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-matchesproblemandfigure, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-hasphysicalsonicboomparameters, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-satisfiesmachconeandflightlaws, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-matchesanswerchoice, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AcousticLength}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Duration]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AcousticDuration}
+  A nonnegative physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Duration.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.lengthReadout}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticlength}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.durationReadout}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticduration}
+  Read a physical elapsed time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.speedReadout}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.lengthInMeters}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticlength, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthreadout}
+  Metre readout used for the numerical and geometric data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.durationInSeconds}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticduration, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationreadout}
+  Second readout used by the requested time and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedreadout}
+  Metres-per-second readout used for the stated sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Aircraft Label]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-aircraftlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AircraftLabel}
+  The aircraft depicted at the vertex of the Mach cone
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aircraft Label.
+\end{proof}
+\begin{definition}[Listener Label]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-listenerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.ListenerLabel}
+  The listener label printed as L in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Listener Label.
+\end{proof}
+\begin{definition}[Wavefront Label]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-wavefrontlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.WavefrontLabel}
+  The blue slanted wavefront labeled Shock wave in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavefront Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AxialDirection}
+  Orientations along the horizontal flight axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Sonic Boom Setup]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.SonicBoomSetup}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticlength, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticduration, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-aircraftlabel, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-listenerlabel, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-wavefrontlabel, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-axialdirection}
+  The independent physical quantities and named objects in the sonic-boom experiment. boomDelay is the unknown elapsed time from the overhead passage until the shock front reaches listener; it is not assigned a numerical value by this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonic Boom Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthinmeters, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedinmeterspersecond, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup}
+  The numerical and qualitative data stated in the problem and read from the primary figure. The airplane passes directly over L, moves right at Mach 1.75, has altitude 8000 m, and flies in air with sound speed 320 m/s. No readout of boomDelay occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Sonic Boom Parameters]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-hasphysicalsonicboomparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.HasPhysicalSonicBoomParameters}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthinmeters, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationinseconds, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedinmeterspersecond, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup}
+  Positivity, supersonic motion, and the acute physical branch of the Mach cone. These conditions rule out degenerate geometry and the nonphysical trigonometric branches without fixing the requested delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Sonic Boom Parameters.
+\end{proof}
+\begin{definition}[Satisfies Mach Cone And Flight Laws]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-satisfiesmachconeandflightlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.SatisfiesMachConeAndFlightLaws}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthreadout, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationreadout, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedreadout, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup}
+  The governing relations for a steady airplane and its Mach cone. v\_s = M c defines the Mach-number speed relation. sin alpha = c / v\_s is the Mach-cone law. the horizontal figure leg is v\_s t. tan alpha = h / (v\_s t) and the Pythagorean relation describe the right triangle whose hypotenuse is the labeled shock wave. The quantified readout laws use compatible units on both sides. They express general physics and geometry and contain no numerical answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mach Cone And Flight Laws.
+\end{proof}
+\begin{lemma}[boom Delay formula]
+  \label{lem:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-boomdelay-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.boomDelay_formula}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-lengthinmeters, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationinseconds, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-speedinmeterspersecond, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-sonicboomsetup, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-hasphysicalsonicboomparameters, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-satisfiesmachconeandflightlaws}
+  The general delay formula obtained from the Mach-cone and right-triangle laws. It still depends on the setup's independent altitude, Mach number, and sound speed, so it does not encode the numerical answer to this instance
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of boom Delay formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-answerchoice}
+  Seconds printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-acousticduration, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-durationinseconds, def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-answerchoice}
+  A physical delay agrees with a displayed tenth-second answer. The tolerance 0.05 s is half of the displayed 0.1 s increment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0198.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0198:phyxminiproblems-problemphyxmini0198-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

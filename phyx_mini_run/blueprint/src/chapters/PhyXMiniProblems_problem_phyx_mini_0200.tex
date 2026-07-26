@@ -1,0 +1,215 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0200.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0200.source.json
+
+\chapter{Physics problem phyx\_mini\_0200}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0200}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A spider of mass \textbackslash{}(0.30\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) waits in its web of negligible mass (figure). A slight movement causes the web to vibrate with a frequency of about \textbackslash{}(15\textbackslash{},\textbackslash{}mathrm\{Hz\}\textbackslash{}).An insect of mass \textbackslash{}(0.10\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) were trapped in addition to the spider.
+
+\#\# Question
+
+At what frequency would you expect the web to vibrate?
+
+\#\# Answer choices
+
+- A: A: 19Hz
+
+- B: B: 16Hz
+
+- C: C: 10Hz
+
+- D: D: 13Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene of a spider web with a spider and an insect. 
+
+- The spider is located on the right side of the web, positioned prominently with visible legs and a detailed body.
+- On the left side of the web, there is a smaller insect caught in the threads.
+- The web itself is a typical spiral orb design, with concentric circles and radial lines connecting the center to the outer edges.
+- The background is a blurred green, suggesting foliage or grass, giving the scene a natural and outdoor setting.
+- No text is present in the image.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 13Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/200.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0200.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0200:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0200.loadedFrequency_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-spiderwebsetup, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-matchesproblemdata, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-satisfiessharedharmonicoscillatormodel, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-recordedanswerchoice, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-matchesanswerchoice}
+Adding the \(0.10\,\mathrm g\) insect to the \(0.30\,\mathrm g\) spider,
+without changing the web stiffness, lowers the oscillation frequency to a
+value rounding to \(13\,\mathrm{Hz}\), answer D.
+\end{theorem}
+\begin{proof}
+For a harmonic oscillator \(f\) is proportional to
+\(\sqrt{k/m}\).  The two configurations share \(k\), while their effective
+masses are \(0.30\,\mathrm g\) and \(0.40\,\mathrm g\); hence
+\[
+ f_{\rm loaded}=f_{\rm spider}\sqrt{\frac{0.30}{0.40}}
+                =f_{\rm spider}\frac{\sqrt3}{2}.
+\]
+The reported \(15\,\mathrm{Hz}\) value means
+\(14.5\le f_{\rm spider}\le15.5\).  Squaring positive quantities with the
+standard bounds on \(\sqrt3\) places the loaded frequency in
+\([12.5,13.5]\), which is precisely the answer-D tolerance.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.MassQuantity}
+  A physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Stiffness Quantity]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-stiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.StiffnessQuantity}
+  The effective stiffness of the web, with dimension force per length, equivalently mass per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stiffness Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.FrequencyQuantity}
+  A physical cyclic frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.massInKilograms}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.massInGrams}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massquantity, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massinkilograms}
+  Gram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-stiffnessquantity}
+  Newton-per-metre readout of the web's effective stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyquantity}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[Figure Side]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-figureside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.FigureSide}
+  The two sides used to describe the occupants' locations in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Side.
+\end{proof}
+\begin{definition}[Web Geometry]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-webgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.WebGeometry}
+  The web geometry visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Web Geometry.
+\end{proof}
+\begin{definition}[Spider Web Setup]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-spiderwebsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.SpiderWebSetup}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massquantity, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-stiffnessquantity, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyquantity, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-figureside, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-webgeometry}
+  The physical quantities and labeled image features in the two-load experiment. The two HarmonicOscillator fields are Physlib's scalar oscillator models for the spider-only and spider-plus-insect configurations. Their masses and stiffnesses are related to the dimensionful quantities only by the governing law below. In particular, this structure assigns no requested value to loadedFrequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spider Web Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massingrams, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyinhertz, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-spiderwebsetup}
+  The numerical and visual data supplied by the problem and its primary image. The 1/2 Hz interval records the wording "about 15 Hz" at whole-hertz precision. It is a calibration of the spider-only configuration, not an assumption about the frequency after the insect is added
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Satisfies Shared Harmonic Oscillator Model]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-satisfiessharedharmonicoscillatormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.SatisfiesSharedHarmonicOscillatorModel}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-massinkilograms, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-stiffnessinnewtonspermeter, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyinhertz, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-spiderwebsetup}
+  For slight vibrations, the web and its occupants form a linear harmonic oscillator. The effective mass is the web plus the occupants present in each configuration. The web has the same effective stiffness in both cases, and the physical cyclic frequency f is related to Physlib's angular frequency by ω = 2 π f. This interface states the physical modeling law. It does not assume the requested loaded frequency or any answer-choice relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Shared Harmonic Oscillator Model.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-answerchoice}
+  Frequency in hertz printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0200.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyquantity, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-frequencyinhertz, def:physics:phyx-mini-0200:phyxminiproblems-problemphyxmini0200-answerchoice}
+  Agreement with a displayed whole-hertz answer. The half-hertz tolerance makes the conclusion a rounding claim rather than an unphysical exact identification of the oscillator's frequency with an integer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

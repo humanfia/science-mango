@@ -1,0 +1,341 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0694.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0694.source.json
+
+\chapter{Physics problem phyx\_mini\_0694}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0694}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The pincube machine was an ill-fated predecessor of the pinball machine. A \textbackslash{}(100\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) cube is launched by pulling a spring back \textbackslash{}(20\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) and releasing it. The spring constant is \textbackslash{}(20\textbackslash{},\textbackslash{}mathrm\{N/m\}\textbackslash{}) and the surface is frictionless.
+
+\#\# Question
+
+What is the cube's launch speed, as it leaves the spring?
+
+\#\# Answer choices
+
+- A: A: 2.5m/s
+
+- B: B: 3.1m/s
+
+- C: C: 2.8m/s
+
+- D: D: 3.4m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a horizontal spring-mass system. On the left, there's a compressed spring attached to a vertical wall. Beside the spring, there's a small block labeled with a mass, \textbackslash{}( m = 0.10 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}).
+
+The block is displaced to the right, indicated by a horizontal arrow pointing in that direction. The displacement is labeled as \textbackslash{}( \textbackslash{}Delta r = 20 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}). 
+
+There is also a vertical axis marked with \textbackslash{}( x \textbackslash{}) and a position labeled as the "Equilibrium position of spring," located to the right of the spring. There's a line marking the equilibrium position at \textbackslash{}( 0 \textbackslash{}).
+
+The composition suggests a scenario where the spring is initially compressed by 20 cm from its equilibrium position.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 2.8m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/694.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0694.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0694:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0694.springCubeLaunchSpeed}
+\uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-speedinmeterspersecond, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesfrictionlessspringlaunchscenario, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesgivenproblemdata, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesprimaryspringcubefigure, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-hasphysicalspringcubeparameters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfieselasticpotentialenergylaw, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfiestranslationalkineticenergylaw, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfiesmechanicalenergyconservation, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-agreeswithonedecimalspeedreadout, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoicereportslaunchspeed}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SpringStiffnessQuantity}
+  A nonnegative, unit-independent spring stiffness. Since N/m = kg/s², its dimension is mass * time⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.lengthReadout}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.lengthInMeters}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthreadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthreadout}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.massReadout}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.massInKilograms}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massreadout}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.massInGrams}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massreadout}
+  Read a physical mass in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.speedInMetersPerSecond}
+  Read a speed in coherent SI units, metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[spring Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.springStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessquantity}
+  Read a spring stiffness in coherent SI units, newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.energyInJoules}
+  Read an energy in coherent SI units, joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Launch Instant]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-launchinstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.LaunchInstant}
+  The two instants used in the energy balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Launch Instant.
+\end{proof}
+\begin{definition}[Spring Configuration]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SpringConfiguration}
+  The qualitative state of the spring at a launch instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Configuration.
+\end{proof}
+\begin{definition}[Spring Mount]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springmount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SpringMount}
+  How the spring is supported in the pictured apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Mount.
+\end{proof}
+\begin{definition}[Surface Interaction]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-surfaceinteraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SurfaceInteraction}
+  Frictional character of the horizontal contact surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Interaction.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.HorizontalDirection}
+  Horizontal directions used by the displacement and launch arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.AxisSymbol}
+  Literal coordinate-axis symbols that a mechanics figure may display
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Spring Cube Figure]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SpringCubeFigure}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-horizontaldirection, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-axissymbol}
+  Raster-visible content of image 694.png. The two numerical fields are label readouts, not definitions of the corresponding physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Cube Figure.
+\end{proof}
+\begin{definition}[Spring Cube Launch Setup]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SpringCubeLaunchSetup}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessquantity, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-launchinstant, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springconfiguration, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springmount, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-surfaceinteraction, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-horizontaldirection, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubefigure}
+  Independent physical quantities and state functions for the spring--cube system. In particular, the launch speed is an unconstrained physical field; it is not defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Cube Launch Setup.
+\end{proof}
+\begin{definition}[Matches Frictionless Spring Launch Scenario]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesfrictionlessspringlaunchscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.MatchesFrictionlessSpringLaunchScenario}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthinmeters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-speedinmeterspersecond, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  The release-from-rest and equilibrium-departure conditions described by the problem. No field fixes the value of the departure speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Frictionless Spring Launch Scenario.
+\end{proof}
+\begin{definition}[Matches Given Problem Data]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesgivenproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.MatchesGivenProblemData}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthincentimeters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massingrams, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Numerical data stated in the prose of the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Given Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Spring Cube Figure]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-matchesprimaryspringcubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.MatchesPrimarySpringCubeFigure}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthincentimeters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massinkilograms, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Literal evidence transcribed from the primary bitmap, including the displayed 0.10 kg, Δr = 20 cm, rightward arrow, and equilibrium marker at x = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Spring Cube Figure.
+\end{proof}
+\begin{definition}[Has Physical Spring Cube Parameters]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-hasphysicalspringcubeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.HasPhysicalSpringCubeParameters}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthinmeters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massinkilograms, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Positivity conditions selecting a nondegenerate physical launch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Spring Cube Parameters.
+\end{proof}
+\begin{definition}[Satisfies Elastic Potential Energy Law]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfieselasticpotentialenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SatisfiesElasticPotentialEnergyLaw}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-lengthinmeters, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-energyinjoules, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Hooke-spring potential energy U = (1/2) k x² at both launch instants
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Elastic Potential Energy Law.
+\end{proof}
+\begin{definition}[Satisfies Translational Kinetic Energy Law]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfiestranslationalkineticenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SatisfiesTranslationalKineticEnergyLaw}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-massinkilograms, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-speedinmeterspersecond, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-energyinjoules, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Translational kinetic energy K = (1/2) m v² at both launch instants
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Translational Kinetic Energy Law.
+\end{proof}
+\begin{definition}[total Mechanical Energy In Joules]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-totalmechanicalenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.totalMechanicalEnergyInJoules}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-energyinjoules, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-launchinstant, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup}
+  Total mechanical energy of the spring--cube system at one instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Mechanical Energy In Joules.
+\end{proof}
+\begin{definition}[Satisfies Mechanical Energy Conservation]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-satisfiesmechanicalenergyconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.SatisfiesMechanicalEnergyConservation}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-totalmechanicalenergyinjoules}
+  With no dissipative work, total mechanical energy is conserved
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mechanical Energy Conservation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.AnswerChoice}
+  The four answer labels printed by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoicespeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.answerChoiceSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoice}
+  The speed in metres per second printed next to an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Agrees With One Decimal Speed Readout]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-agreeswithonedecimalspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.AgreesWithOneDecimalSpeedReadout}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-speedinmeterspersecond}
+  Agreement with a speed displayed to the nearest tenth of a metre per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With One Decimal Speed Readout.
+\end{proof}
+\begin{definition}[Answer Choice Reports Launch Speed]
+  \label{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoicereportslaunchspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0694.AnswerChoiceReportsLaunchSpeed}
+  \uses{def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-springcubelaunchsetup, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoice, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-answerchoicespeedinmeterspersecond, def:physics:phyx-mini-0694:phyxminiproblems-problemphyxmini0694-agreeswithonedecimalspeedreadout}
+  An answer choice reports the launch speed to the displayed precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice Reports Launch Speed.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,255 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0629.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0629.source.json
+
+\chapter{Physics problem phyx\_mini\_0629}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0629}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The circuit shown in figure, which is called a half-wave rectifier. The triangular symbol with the flat lower edge represents a diode, such that a forward bias drives the current downward. Use a typical value for the saturation current: \$I\_S = 5 \textbackslash{}times 10\textasciicircum{}\{-13\}\textbackslash{} A\$. Use a temperature of \$300\textbackslash{} K\$.
+
+\#\# Question
+
+What is the current \$I\$ in that case?
+
+\#\# Answer choices
+
+- A: A: 0.006A
+
+- B: B: 0.007A
+
+- C: C: 0.06A
+
+- D: D: 0.005A
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic of an electrical circuit. It includes:
+
+- **AC Voltage Source:** Labeled \textbackslash{}( V\_\{\textbackslash{}text\{in\}\} \textbackslash{}), shown as a circle with a sine wave symbol inside, indicating an alternating current source. It has positive (+) and negative (−) terminals.
+
+- **Resistor:** Represented by a zigzag line labeled \textbackslash{}( R \textbackslash{}), connected in series with the voltage source.
+
+- **Diode:** Displayed with a triangle pointing to a line, indicating the direction of conventional current flow. It's connected in parallel to the output path of the circuit.
+
+- **Current Arrow:** Labeled \textbackslash{}( I \textbackslash{}), indicating the direction of current flow, pointing downward from the resistor through the diode.
+
+- **Output Voltage:** Labeled \textbackslash{}( V\_\{\textbackslash{}text\{out\}\} \textbackslash{}), shown across the open terminals on the right side, with positive (+) on top and negative (−) on the bottom.
+
+The schematic represents a simple rectifier circuit where the diode allows current to flow in one direction, potentially converting AC to DC.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 0.006A
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/629.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0629.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0629:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0629.rectifier_current_matches_choice_A}
+\uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-currentinamperes, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-matchesstatedrectifierdata, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-matchessuppliedhalfwaverectifierfigure, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-isforwardbiasedoperatingpoint, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-satisfieshalfwaverectifierlaws, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-answerchoicecurrentinamperes}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.electricCurrentDimension}
+  Electric current has physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.electricPotentialDimension}
+  Electric potential difference has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentdimension, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialdimension}
+  Electrical resistance has physical dimension potential per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentdimension}
+  A signed, unit-independent electric current. Its sign is relative to a chosen branch orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialdimension}
+  A signed, unit-independent electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electrical Resistance Quantity]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.ElectricalResistanceQuantity}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Resistance Quantity.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.currentInAmperes}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentquantity}
+  Read an electric current in coherent SI units, hence in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.potentialInVolts}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialquantity}
+  Read a potential difference in coherent SI units, hence in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricalresistancequantity}
+  Read a resistance in coherent SI units, hence in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[elementary Charge In Coulombs]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-elementarychargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.elementaryChargeInCoulombs}
+  The numerical size, in coulombs, of one elementary positive charge. Physlib represents this calibrated constant as a charge-unit scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of elementary Charge In Coulombs.
+\end{proof}
+\begin{definition}[Resistor]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-resistor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.Resistor}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentquantity, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialquantity, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricalresistancequantity}
+  The resistor marked R in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor.
+\end{proof}
+\begin{definition}[Diode]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-diode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.Diode}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentquantity, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialquantity}
+  The forward-oriented diode in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diode.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.VerticalDirection}
+  Vertical directions used to transcribe the current arrow and diode orientation in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Half Wave Rectifier Figure]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifierfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.HalfWaveRectifierFigure}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-verticaldirection}
+  Labels, polarity marks, and topology read directly from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Half Wave Rectifier Figure.
+\end{proof}
+\begin{definition}[Half Wave Rectifier Operating Point]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.HalfWaveRectifierOperatingPoint}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electriccurrentquantity, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-electricpotentialquantity, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-resistor, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-diode, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifierfigure}
+  A single instantaneous operating point of the depicted half-wave rectifier. In particular, inputVoltage is the instantaneous AC-source voltage, not an amplitude or RMS value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Half Wave Rectifier Operating Point.
+\end{proof}
+\begin{definition}[Matches Stated Rectifier Data]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-matchesstatedrectifierdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.MatchesStatedRectifierData}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-currentinamperes, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint}
+  The two numerical data supplied by the prose. The temperature value is paired with an explicit kelvin-unit assertion because Temperature itself is stored in an arbitrary absolute-temperature scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Rectifier Data.
+\end{proof}
+\begin{definition}[Matches Supplied Half Wave Rectifier Figure]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-matchessuppliedhalfwaverectifierfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.MatchesSuppliedHalfWaveRectifierFigure}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint}
+  Direct transcription of the component labels, polarity marks, topology, and downward current orientation in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Half Wave Rectifier Figure.
+\end{proof}
+\begin{definition}[Is Forward Biased Operating Point]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-isforwardbiasedoperatingpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.IsForwardBiasedOperatingPoint}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-currentinamperes, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-potentialinvolts, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint}
+  The operating point lies on the source's forward half-cycle relative to the polarities and current direction drawn in the figure. These sign facts do not prescribe the magnitude of the requested current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Forward Biased Operating Point.
+\end{proof}
+\begin{definition}[Satisfies Half Wave Rectifier Laws]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-satisfieshalfwaverectifierlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.SatisfiesHalfWaveRectifierLaws}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-currentinamperes, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-potentialinvolts, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-resistanceinohms, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-elementarychargeincoulombs, def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-halfwaverectifieroperatingpoint}
+  Kirchhoff/Ohm laws for the one-loop circuit and the ideal Shockley law for the diode. The exponential argument is the dimensionless SI ratio q V\_D / (n k\_B T). No field or hypothesis mentions the requested 0.006 A conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Half Wave Rectifier Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.AnswerChoice}
+  Labels of the four current-valued answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Current In Amperes]
+  \label{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-answerchoicecurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0629.answerChoiceCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0629:phyxminiproblems-problemphyxmini0629-answerchoice}
+  Numerical current in amperes printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Current In Amperes.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

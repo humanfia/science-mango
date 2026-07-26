@@ -1,0 +1,457 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0898.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0898.source.json
+
+\chapter{Physics problem phyx\_mini\_0898}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0898}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the magnitude of the force \textbackslash{}( \textbackslash{}vec\{F\} \textbackslash{}) on the \textbackslash{}( 5.0\textbackslash{},\textbackslash{}mathrm\{nC\} \textbackslash{}) charge in figure?
+
+\#\# Answer choices
+
+- A: A: 7.25 \textbackslash{}times 10\textasciicircum{}\{-4\}N
+
+- B: B: 6.35 \textbackslash{}times 10\textasciicircum{}\{-4\}N
+
+- C: C: 1.7 \textbackslash{}times 10\textasciicircum{}\{-4\}N
+
+- D: D: 1.33 \textbackslash{}times 10\textasciicircum{}\{-4\}N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram with three charged particles arranged in a right triangle formation. Here's a detailed description:
+
+- **Top Left:** A red circle with a plus sign inside representing a positive charge labeled "10 nC."
+- **Top Right:** A blue circle with a minus sign inside representing a negative charge labeled "-10 nC."
+- **Bottom Left:** A red circle with a plus sign inside representing a positive charge labeled "5.0 nC."
+- **Connection Lines:** 
+  - A horizontal dashed line connects the top two charges, labeled as "3.0 cm."
+  - A vertical dashed line connects the top left and bottom left charges, labeled as "4.0 cm."
+  - A dashed line connects the top right and bottom left charges, forming the hypotenuse of the triangle.
+
+Each charge is enclosed within its respective colored circle, indicating their nature (positive or negative), and lines denote the spatial relationships and distances between them.
+
+\#\# Dataset metadata
+
+Electrostatics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.7 \textbackslash{}times 10\textasciicircum{}\{-4\}N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/898.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0898.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0898:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0898.problem_phyx_mini_0898}
+\uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcemagnitudeinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-matchessuppliedthreechargefigure, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-usesschoolcoulombconstant, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-hasphysicalthreechargeparameters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfiespairwisecoulombforcelaw, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfieselectrostaticforcesuperposition, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-recordeddatasetanswer, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-roundstonearesttenmicronewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-isuniquenearestdisplayedforce}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Planar Vector]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.PlanarVector}
+  A Cartesian vector in the plane of the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Vector.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.SignedChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.PlanarPositionQuantity}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector}
+  A unit-independent physical position in the plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Planar Force Quantity]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.PlanarForceQuantity}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcedimension}
+  A unit-independent physical force vector in the plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Force Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.lengthInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthquantity}
+  Coherent-SI metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthquantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthinmeters}
+  Centimetre readout used by the two dimension labels in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-signedchargequantity}
+  Coherent-SI coulomb readout of a signed physical charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-signedchargequantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeincoulombs}
+  Nanocoulomb readout used by the three printed charge labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[position Vector In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-positionvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.positionVectorInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarpositionquantity}
+  Cartesian metre readout of a physical planar position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector In Meters.
+\end{proof}
+\begin{definition}[force Vector In Newtons]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcevectorinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.forceVectorInNewtons}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarforcequantity}
+  Cartesian newton readout of a physical planar force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Vector In Newtons.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarforcequantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcevectorinnewtons}
+  Euclidean magnitude, in newtons, of a physical planar force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[Rectangle Corner]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectanglecorner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.RectangleCorner}
+  The four corners of the dashed rectangle in image 898.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangle Corner.
+\end{proof}
+\begin{definition}[Charge Label]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.ChargeLabel}
+  The three physical charges, named by value and role in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Label.
+\end{proof}
+\begin{definition}[Source Charge]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.SourceCharge}
+  The two charges exerting force on the lower-left target charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Charge.
+\end{proof}
+\begin{definition}[source Charge Label]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcechargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.sourceChargeLabel}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge}
+  Charge label associated with each source role
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Charge Label.
+\end{proof}
+\begin{definition}[target Charge Label]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetchargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.targetChargeLabel}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel}
+  The charge whose force is requested
+\end{definition}
+\begin{proof}
+  This is the declared model definition of target Charge Label.
+\end{proof}
+\begin{definition}[expected Charge Corner]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargecorner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.expectedChargeCorner}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectanglecorner, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel}
+  Corner occupied by each charge in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Corner.
+\end{proof}
+\begin{definition}[Figure Charge Sign]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.FigureChargeSign}
+  Sign glyph drawn inside a charge circle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Sign.
+\end{proof}
+\begin{definition}[Figure Charge Color]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.FigureChargeColor}
+  Fill colour used to distinguish positive and negative charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Color.
+\end{proof}
+\begin{definition}[expected Charge Sign]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.expectedChargeSign}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargesign}
+  Sign glyph expected for each of the three charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Sign.
+\end{proof}
+\begin{definition}[expected Charge Color]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.expectedChargeColor}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargecolor}
+  Circle colour expected for each of the three charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Color.
+\end{proof}
+\begin{definition}[expected Charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.expectedChargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel}
+  Signed nanocoulomb number printed beside each charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[Rectangle Edge]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectangleedge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.RectangleEdge}
+  The four dashed sides of the rectangle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangle Edge.
+\end{proof}
+\begin{definition}[Dimension Label Side]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-dimensionlabelside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.DimensionLabelSide}
+  The two sides carrying numerical dimension labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dimension Label Side.
+\end{proof}
+\begin{definition}[Three Charge Rectangle Figure]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threechargerectanglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.ThreeChargeRectangleFigure}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectanglecorner, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargesign, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-figurechargecolor, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectangleedge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-dimensionlabelside}
+  Literal presentation data transcribed from the primary bitmap. It contains no force readout and no answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Charge Rectangle Figure.
+\end{proof}
+\begin{definition}[Three Point Charge Force Setup]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.ThreePointChargeForceSetup}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthquantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-signedchargequantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarpositionquantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarforcequantity, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-rectanglecorner, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threechargerectanglefigure}
+  Independent physical quantities and force observables. The resultant force is not defined from the recorded answer; the governing-law premises below relate it to the two independent pair forces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Point Charge Force Setup.
+\end{proof}
+\begin{definition}[charge Position In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargepositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.chargePositionInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-positionvectorinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup}
+  Position of a named charge in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Position In Meters.
+\end{proof}
+\begin{definition}[source Position In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcepositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.sourcePositionInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcechargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargepositioninmeters}
+  Position of a named source charge in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Position In Meters.
+\end{proof}
+\begin{definition}[target Position In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetpositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.targetPositionInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetchargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargepositioninmeters}
+  Position of the lower-left target charge in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of target Position In Meters.
+\end{proof}
+\begin{definition}[source To Target Displacement In Meters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacementinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.sourceToTargetDisplacementInMeters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-planarvector, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcepositioninmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetpositioninmeters}
+  Displacement from a source to the target. This orientation makes k q\_target q\_source r / ‖r‖³ point away for like charges and toward for unlike charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source To Target Displacement In Meters.
+\end{proof}
+\begin{definition}[Matches Supplied Three Charge Figure]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-matchessuppliedthreechargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.MatchesSuppliedThreeChargeFigure}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthincentimeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeinnanocoulombs, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-positionvectorinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargecorner, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargesign, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargecolor, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-expectedchargeinnanocoulombs, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup}
+  Facts read from image 898.png, together with their association to the dimensionful charges, lengths, and positions. No resultant-force value appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Three Charge Figure.
+\end{proof}
+\begin{definition}[Uses School Coulomb Constant]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-usesschoolcoulombconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.UsesSchoolCoulombConstant}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup}
+  Rounded free-space calibration used in the textbook multiple-choice calculation. Physlib's scalar has coherent-SI units N m² / C² here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses School Coulomb Constant.
+\end{proof}
+\begin{definition}[Has Physical Three Charge Parameters]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-hasphysicalthreechargeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.HasPhysicalThreeChargeParameters}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-lengthinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeincoulombs, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacementinmeters}
+  Nondegeneracy and positivity conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Three Charge Parameters.
+\end{proof}
+\begin{definition}[Satisfies Pairwise Coulomb Force Law]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfiespairwisecoulombforcelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.SatisfiesPairwiseCoulombForceLaw}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeincoulombs, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcevectorinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcechargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetchargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacementinmeters}
+  Vector Coulomb law for the force of each source on the target. For displacement r from source to target, this is F = k q\_target q\_source r / ‖r‖³. It is a governing law and contains no requested numerical magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pairwise Coulomb Force Law.
+\end{proof}
+\begin{definition}[Satisfies Electrostatic Force Superposition]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfieselectrostaticforcesuperposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.SatisfiesElectrostaticForceSuperposition}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcevectorinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup}
+  The resultant force on the target is the vector sum of both pair forces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electrostatic Force Superposition.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.AnswerChoice}
+  Labels attached to the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-answerchoice-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.AnswerChoice.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcemagnitudeinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-answerchoice}
+  Force magnitude in newtons printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-answerchoice}
+  Answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Ten Micro Newtons]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-roundstonearesttenmicronewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.RoundsToNearestTenMicroNewtons}
+  A magnitude rounds to a displayed reading at the nearest 10⁻⁵ N; the half-step tolerance is 5 * 10⁻⁶ N
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Ten Micro Newtons.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Force]
+  \label{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-isuniquenearestdisplayedforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.IsUniqueNearestDisplayedForce}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcemagnitudeinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-answerchoice}
+  A displayed force is strictly nearer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Force.
+\end{proof}
+\begin{lemma}[source To Target Displacements from figure]
+  \label{lem:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacements-from-figure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.sourceToTargetDisplacements_from_figure}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacementinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-matchessuppliedthreechargefigure}
+  The primary-image coordinates give the vertical 4 cm displacement to the positive source and the 3-4-5 diagonal displacement to the negative source
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of source To Target Displacements from figure.
+\end{proof}
+\begin{lemma}[resultant Force On Target eq coulomb Sum]
+  \label{lem:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-resultantforceontarget-eq-coulombsum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.resultantForceOnTarget_eq_coulombSum}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-chargeincoulombs, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcevectorinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcecharge, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcechargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-targetchargelabel, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-sourcetotargetdisplacementinmeters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-hasphysicalthreechargeparameters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfiespairwisecoulombforcelaw, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfieselectrostaticforcesuperposition}
+  Coulomb's law and superposition express the resultant in terms of only the independent source data and the governing electromagnetic constant
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resultant Force On Target eq coulomb Sum.
+\end{proof}
+\begin{lemma}[resultant Force Magnitude numerical Bounds]
+  \label{lem:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-resultantforcemagnitude-numericalbounds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0898.resultantForceMagnitude_numericalBounds}
+  \uses{def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-forcemagnitudeinnewtons, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-threepointchargeforcesetup, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-matchessuppliedthreechargefigure, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-usesschoolcoulombconstant, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-hasphysicalthreechargeparameters, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfiespairwisecoulombforcelaw, def:physics:phyx-mini-0898:phyxminiproblems-problemphyxmini0898-satisfieselectrostaticforcesuperposition}
+  For the three charge labels and rectangle dimensions in the image, the resultant magnitude is approximately 1.7465e-4 N
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resultant Force Magnitude numerical Bounds.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

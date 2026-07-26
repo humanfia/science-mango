@@ -1,0 +1,281 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0402.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0402.source.json
+
+\chapter{Physics problem phyx\_mini\_0402}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0402}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gas is compressed in two stages. First, its volume decreases while pressure rises. Then, its volume further decreases as pressure declines, resulting in a smaller final volume.
+
+\#\# Question
+
+How much work is done on the gas in the process shown in figure?
+
+\#\# Answer choices
+
+- A: A: 0J
+
+- B: B: -60J
+
+- C: C: 60J
+
+- D: D: 30
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with pressure (p) in kilopascals (kPa) on the vertical axis and volume (V) in cubic centimeters (cm³) on the horizontal axis. The graph shows a plot with two notable points labeled "f" and "i." 
+
+- A point labeled "f" is located at approximately 90 cm³ and 200 kPa.
+- A point labeled "i" is located at around 285 cm³ and 200 kPa.
+- The plot consists of two line segments: 
+  - An upward-sloping line from point "f" to a peak.
+  - A downward-sloping line from the peak to point "i." 
+- Each segment is marked with arrows indicating the direction of movement along the plot. 
+- The peak between the two points is around 190 cm³ and 400 kPa. 
+
+The graph appears to depict a thermodynamic cycle or process involving changes in pressure and volume.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 60J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/402.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0402.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0402:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0402.work_done_on_gas_is_sixty_joules}
+\uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-energyinjoules, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-twostagegascompression, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-matchestwostagecompressionscenario, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-obeyspiecewiselinearpressurevolumeworklaw}
+For the two straight compression legs shown in the primary pressure--volume
+figure, the total work done on the gas is \(60\) joules.
+\end{theorem}
+\begin{proof}
+The plotted states are
+\[
+ (300\ {\rm cm^3},200\ {\rm kPa}),\quad
+ (200\ {\rm cm^3},400\ {\rm kPa}),\quad
+ (100\ {\rm cm^3},200\ {\rm kPa}).
+\]
+On a straight segment the work on the gas is the average endpoint pressure
+times the decrease in volume.  Each leg therefore contributes
+\[
+ \frac{200+400}{2}\,(300-200)\,10^{-3}=30\ {\rm J}
+\]
+and
+\[
+ \frac{400+200}{2}\,(200-100)\,10^{-3}=30\ {\rm J},
+\]
+respectively.  The total-work law adds the two contributions, giving
+\(60\) joules.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.GasVolume}
+  A nonnegative physical gas volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-gasvolume}
+  Read a physical gas volume in cubic centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureinpascals}
+  Read a physical pressure in kilopascals, the figure's vertical unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.energyInJoules}
+  Read a signed physical work or energy quantity in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[joules Per Kilopascal Cubic Centimeter]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-joulesperkilopascalcubiccentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.joulesPerKilopascalCubicCentimeter}
+  One kPa · cm³ is 10⁻³ J
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Kilopascal Cubic Centimeter.
+\end{proof}
+\begin{definition}[straight Segment Work On Gas In Joules]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-straightsegmentworkongasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.straightSegmentWorkOnGasInJoules}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-joulesperkilopascalcubiccentimeter}
+  Work done on the gas along one straight segment of a p--V diagram. The average pressure on a straight segment is the arithmetic mean of its endpoint pressures. The factor initialVolume - finalVolume implements the work-on-the-gas sign convention, so a compression has positive work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of straight Segment Work On Gas In Joules.
+\end{proof}
+\begin{definition}[Diagram Point]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-diagrampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.DiagramPoint}
+  The two labelled endpoints and the unlabelled peak in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Point.
+\end{proof}
+\begin{definition}[Process Segment]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ProcessSegment}
+  The two directed straight segments shown by arrows in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Segment.
+\end{proof}
+\begin{definition}[initial Point]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment-initialpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ProcessSegment.initialPoint}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-diagrampoint, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment}
+  Initial diagram point of each directed segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Point.
+\end{proof}
+\begin{definition}[final Point]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment-finalpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ProcessSegment.finalPoint}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-diagrampoint, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment}
+  Final diagram point of each directed segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Point.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.AxisQuantity}
+  Physical quantity assigned to an axis in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Volume Axis Unit]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-volumeaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.VolumeAxisUnit}
+  Unit printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Axis Unit.
+\end{proof}
+\begin{definition}[Pressure Axis Unit]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.PressureAxisUnit}
+  Unit printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Axis Unit.
+\end{proof}
+\begin{definition}[Segment Shape]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-segmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.SegmentShape}
+  Geometric shape of each process leg in the p--V plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Shape.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ProcessKind}
+  Thermodynamic role of each leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Pressure Trend]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressuretrend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.PressureTrend}
+  Qualitative pressure change along a directed leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Trend.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-gasvolume}
+  Physical pressure and volume at one point of the process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-diagrampoint, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-axisquantity, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-volumeaxisunit, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureaxisunit, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-segmentshape}
+  The axes, plotted coordinates, labels, segments, and arrows visible in the primary image. Coordinates are scalar readouts in the units stored alongside the axes; they are not replacements for physical pressure or volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Two Stage Gas Compression]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-twostagegascompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.TwoStageGasCompression}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-diagrampoint, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processsegment, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-processkind, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressuretrend, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-thermodynamicstate, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressurevolumefigure}
+  A gas sample and its two-stage compression. The gas carrier is abstract, while all plotted state variables and work values retain physical dimensions. The segment works and total work are independent fields; no requested numerical answer is assigned here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Stage Gas Compression.
+\end{proof}
+\begin{definition}[Matches Two Stage Compression Scenario]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-matchestwostagecompressionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.MatchesTwoStageCompressionScenario}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-twostagegascompression}
+  The prose classification of the two legs. It contains no numerical work claim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Two Stage Compression Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-volumeincubiccentimeters, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureinkilopascals, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-twostagegascompression}
+  Exact transcription of the primary pressure-volume raster, including the axis roles and units, the three plotted coordinates, endpoint labels, straight segments, and arrow directions. The physical state readouts are explicitly calibrated to these coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Obeys Piecewise Linear Pressure Volume Work Law]
+  \label{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-obeyspiecewiselinearpressurevolumeworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0402.ObeysPiecewiseLinearPressureVolumeWorkLaw}
+  \uses{def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-volumeincubiccentimeters, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-pressureinkilopascals, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-energyinjoules, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-straightsegmentworkongasinjoules, def:physics:phyx-mini-0402:phyxminiproblems-problemphyxmini0402-twostagegascompression}
+  For each straight leg, work on the gas is average pressure times the decrease in volume, with the explicit kPa · cm³ to joule conversion. The total work is the sum of the two independent leg works. These laws are generic in the state data and do not contain the requested 60 J conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Piecewise Linear Pressure Volume Work Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

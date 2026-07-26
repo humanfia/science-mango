@@ -1,0 +1,327 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0212.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0212.source.json
+
+\chapter{Physics problem phyx\_mini\_0212}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0212}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The sound level measured \textbackslash{}( 30\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) from a jet plane is \textbackslash{}( 140\textbackslash{},\textbackslash{}mathrm\{dB\} \textbackslash{}).(Ignore reflections from the ground.)
+
+\#\# Question
+
+Estimate the sound level at \textbackslash{}( 300\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 160dB
+
+- B: B: 140dB
+
+- C: C: 100dB
+
+- D: D: 120dB
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows an airport ground crew worker directing an aircraft. The worker is wearing a high-visibility orange vest, navy blue sleeves with reflective stripes, and protective ear muffs. They are holding two-hand wands with red cones at the tips, which are used for signaling during aircraft operations. The person is standing in front of the airplane, which is partially visible, indicating a scene at an airport. The atmosphere is clear with a blue sky, and another airplane can be seen in the background to the right.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 120dB
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/212.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0212.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0212:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0212.problem_phyx_mini_0212}
+\uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-soundlevelindecibels, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesjetplanescenario, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchessuppliedairportfigure, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesproblemdata, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-usesstandardsoundintensityreference, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-hasphysicalacousticparameters, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-satisfiesisotropicinversesquarelaw, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-recordedanswerchoice, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-isclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.LengthMagnitude}
+  A nonnegative physical source-to-observer distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Acoustic Power Quantity]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AcousticPowerQuantity}
+  Acoustic power has SI unit watt and dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Power Quantity.
+\end{proof}
+\begin{definition}[Acoustic Intensity Quantity]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AcousticIntensityQuantity}
+  Acoustic intensity is power per area, with SI unit watt per square metre and dimension mass / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Intensity Quantity.
+\end{proof}
+\begin{definition}[distance Readout]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.distanceReadout}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-lengthmagnitude}
+  Read a physical distance in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Readout.
+\end{proof}
+\begin{definition}[acoustic Power Readout]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.acousticPowerReadout}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerquantity}
+  Read a physical acoustic power in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power Readout.
+\end{proof}
+\begin{definition}[acoustic Intensity Readout]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.acousticIntensityReadout}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityquantity}
+  Read a physical acoustic intensity in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity Readout.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.distanceInMeters}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-lengthmagnitude, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distancereadout}
+  SI metre readout of a source-to-observer distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[acoustic Power In Watts]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.acousticPowerInWatts}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerquantity, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerreadout}
+  SI watt readout of an emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power In Watts.
+\end{proof}
+\begin{definition}[acoustic Intensity In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.acousticIntensityInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityquantity, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityreadout}
+  SI watt-per-square-metre readout of an acoustic intensity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Observation Point]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-observationpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.ObservationPoint}
+  The measured and requested observer positions in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observation Point.
+\end{proof}
+\begin{definition}[Airport Figure Label]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-airportfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AirportFigureLabel}
+  Qualitative objects visible in the supplied airport photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Airport Figure Label.
+\end{proof}
+\begin{definition}[Airport Figure]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-airportfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AirportFigure}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-airportfigurelabel}
+  Visibility information extracted from the supplied airport photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Airport Figure.
+\end{proof}
+\begin{definition}[Acoustic Source Kind]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AcousticSourceKind}
+  Type of idealized acoustic source used for the estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Source Kind.
+\end{proof}
+\begin{definition}[Emission Regime]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-emissionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.EmissionRegime}
+  Time dependence of the jet's emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emission Regime.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AcousticMedium}
+  Propagation medium between the jet and the observers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Spreading Geometry]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-spreadinggeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.SpreadingGeometry}
+  Geometric spreading model used for the sound field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spreading Geometry.
+\end{proof}
+\begin{definition}[Ground Reflection Treatment]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-groundreflectiontreatment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.GroundReflectionTreatment}
+  How sound reflected from the ground is treated in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ground Reflection Treatment.
+\end{proof}
+\begin{definition}[Jet Plane Sound Setup]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.JetPlaneSoundSetup}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-lengthmagnitude, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerquantity, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityquantity, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-observationpoint, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-airportfigure, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticsourcekind, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-emissionregime, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticmedium, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-spreadinggeometry, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-groundreflectiontreatment}
+  Physical quantities for the two-position jet-sound estimate. The intensity at the far observation point is an independent physical field; neither its numerical value nor the requested far sound level is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Jet Plane Sound Setup.
+\end{proof}
+\begin{definition}[sound Level In Decibels]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-soundlevelindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.soundLevelInDecibels}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-observationpoint, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  The sound-intensity level at an observation point, in decibels. This is the standard generic definition 10 log10 (I / I\_ref) applied to same-unit SI readouts; it contains no distance-specific numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Level In Decibels.
+\end{proof}
+\begin{definition}[Matches Jet Plane Scenario]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesjetplanescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.MatchesJetPlaneScenario}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  The idealized physical scenario used for the estimate: a constant-power jet point source radiates spherically through ambient air, and ground reflections are omitted as required by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Jet Plane Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Airport Figure]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchessuppliedairportfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.MatchesSuppliedAirportFigure}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  Qualitative evidence in the primary image: a ground-crew worker wearing hearing protection raises two signal wands beside a foreground aircraft, with another aircraft in the background. The image supplies no numerical distance or sound-level readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Airport Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distanceinmeters, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-soundlevelindecibels}
+  The numerical data stated in the problem. The near measurement is 140 dB at 30 m, while the requested observation position is 300 m away. No far sound level or answer choice occurs in these data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Uses Standard Sound Intensity Reference]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-usesstandardsoundintensityreference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.UsesStandardSoundIntensityReference}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  The conventional reference intensity for sound intensity level is 10\textasciicircum{}-12 W/m\textasciicircum{}2. This convention is independent of either observation distance and does not determine the requested far level by itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Sound Intensity Reference.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distanceinmeters, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerinwatts, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-observationpoint, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  Strict positivity and nondegeneracy of the physical acoustic quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Isotropic Inverse Square Law]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-satisfiesisotropicinversesquarelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.SatisfiesIsotropicInverseSquareLaw}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-distancereadout, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticpowerreadout, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityreadout, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-observationpoint, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup}
+  The free-field inverse-square intensity law for an isotropic point source. In every coherent unit system, the acoustic power crossing the sphere of radius r is 4 * pi * r\textasciicircum{}2 * I. This general law contains neither the 1/100 far-intensity result nor the requested 120 dB conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isotropic Inverse Square Law.
+\end{proof}
+\begin{lemma}[far Intensity eq near Intensity div hundred]
+  \label{lem:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-farintensity-eq-nearintensity-div-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.farIntensity_eq_nearIntensity_div_hundred}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesproblemdata, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-hasphysicalacousticparameters, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-satisfiesisotropicinversesquarelaw}
+  Increasing the distance from 30 m to 300 m reduces the acoustic intensity by a factor of 100. This is a derived result, not a model assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of far Intensity eq near Intensity div hundred.
+\end{proof}
+\begin{lemma}[far Sound Level eq near Sound Level sub twenty]
+  \label{lem:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-farsoundlevel-eq-nearsoundlevel-sub-twenty}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.farSoundLevel_eq_nearSoundLevel_sub_twenty}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-jetplanesoundsetup, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-soundlevelindecibels, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-matchesproblemdata, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-hasphysicalacousticparameters, def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-satisfiesisotropicinversesquarelaw}
+  The inverse-square intensity change across a tenfold distance increase lowers the sound intensity level by 20 dB. This conclusion is derived directly from the problem data and governing law
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of far Sound Level eq near Sound Level sub twenty.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[decibels]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-answerchoice-decibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.AnswerChoice.decibels}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-answerchoice}
+  Sound-level readout in decibels printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of decibels.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0212.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0212:phyxminiproblems-problemphyxmini0212-answerchoice}
+  A displayed choice is uniquely closest to a computed sound-level estimate. This generic comparison does not privilege the recorded choice by definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

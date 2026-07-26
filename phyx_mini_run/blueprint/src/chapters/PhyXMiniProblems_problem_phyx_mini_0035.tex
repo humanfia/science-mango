@@ -1,0 +1,196 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0035.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0035.source.json
+
+\chapter{Physics problem phyx\_mini\_0035}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0035}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a thin converging lens for which the radii of curvature of its surfaces have magnitudes of \textbackslash{}( 9.00 \textbackslash{}text\{ cm\} \textbackslash{}) and \textbackslash{}( 11.0 \textbackslash{}text\{ cm\} \textbackslash{}). The lens is in front of a con- cave spherical mirror with the radius of curvature \textbackslash{}( R = 8.00 \textbackslash{}text\{ cm\} \textbackslash{}). Assume the focal points \textbackslash{}( F\_1 \textbackslash{}) and \textbackslash{}( F\_2 \textbackslash{}) of the lens are \textbackslash{}( 5.00 \textbackslash{}text\{ cm\} \textbackslash{}) from the center of the lens.
+
+\#\# Question
+
+Determine the index of refraction of the lens material. The lens and mirror are \textbackslash{}( 20.0 \textbackslash{}text\{ cm\} \textbackslash{}) apart, and an object is placed \textbackslash{}( 8.00 \textbackslash{}text\{ cm\} \textbackslash{}) to the left of the lens
+
+\#\# Answer choices
+
+- A: A: 1.32
+
+- B: B: 1.44
+
+- C: C: 1.50
+
+- D: D: 1.99
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an optical setup involving lenses and an eye. Here's a detailed description:
+
+- On the left, there is an illustration of an eye looking in the direction of the setup.
+- Next to the eye, there is an upright arrow on a horizontal line, likely representing the object being viewed.
+- To the right of the arrow, there is a convex lens situated on the same horizontal line. This lens is shown with a symmetrical double convex shape, indicating it is designed to converge light.
+- Further to the right, there is a concave mirror with a curved reflective surface facing the lens and the eye.
+- The setup likely illustrates a concept related to optics, such as image formation through lenses and mirrors.
+
+The line represents the optical axis, connecting all elements in the setup. No text is present in the image.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.99
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/35.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0035.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0035:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0035.problem_phyx_mini_0035}
+\uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-matchesfigurereadouts, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-useslensmakersignconvention, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-hasphysicalopticalparameters, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-obeysthinlenslensmakerequation, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-answerrefractiveindex}
+For the converging lens with focal length \(5\,\mathrm{cm}\), signed surface
+radii \(R_1=9\,\mathrm{cm}\) and \(R_2=-11\,\mathrm{cm}\), and surrounding
+index one, the lens material has refractive index \(199/100=1.99\), answer D.
+\end{theorem}
+\begin{proof}
+In centimetre readouts the lensmaker equation is
+\[
+ \frac15=(n-1)\left(\frac19-\frac1{-11}\right)
+          =(n-1)\frac{20}{99}.
+\]
+The displayed focal length and the sign convention give nonzero
+denominators.  Clearing them yields \(n-1=99/100\), hence
+\(n=199/100\).  The answer table assigns this same rational value to D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.LengthQuantity}
+  A signed physical length, independent of the unit in which it is read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.centimeterUnitChoices}
+  Unit choices whose length component is the centimeter used in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthquantity, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-centimeterunitchoices}
+  The signed scalar centimeter readout of a dimensionful length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.FigurePoint}
+  Labeled points shown on the common horizontal optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Thin Lens Kind]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-thinlenskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.ThinLensKind}
+  The optical type of the thin lens depicted in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thin Lens Kind.
+\end{proof}
+\begin{definition}[Spherical Mirror Kind]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-sphericalmirrorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.SphericalMirrorKind}
+  The optical type of the spherical mirror depicted in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Mirror Kind.
+\end{proof}
+\begin{definition}[Lens Mirror Setup]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.LensMirrorSetup}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthquantity, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-figurepoint, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-thinlenskind, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-sphericalmirrorkind}
+  The physical lens--mirror apparatus and its labeled one-dimensional geometry. The two surface radii are signed according to the Cartesian convention. The focal length and all axial positions are also signed physical lengths. Both refractive indices are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Mirror Setup.
+\end{proof}
+\begin{definition}[axial Separation Centimeters]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-axialseparationcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.axialSeparationCentimeters}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthincentimeters, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-figurepoint, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup}
+  The centimeter separation of two labeled points along the optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Separation Centimeters.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthincentimeters, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-axialseparationcentimeters}
+  Figure and problem-statement readouts. The eye and object lie to the left of the lens; the mirror lies to its right. The lens--mirror and object--lens separations are respectively 20.0 cm and 8.00 cm. The two labeled focal points are each 5.00 cm from the lens center. Only magnitudes of the lens surface radii are supplied here, exactly as in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Uses Lensmaker Sign Convention]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-useslensmakersignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.UsesLensmakerSignConvention}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthincentimeters, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup}
+  The Cartesian sign branch appropriate to light traveling from the object, through the lens, toward the mirror. It converts the stated radius magnitudes to the signed radii R₁ = +9 cm and R₂ = -11 cm used by lensmaker's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Lensmaker Sign Convention.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lengthincentimeters, def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup}
+  Qualitative positivity conditions for the physical optical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Obeys Thin Lens Lensmaker Equation]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-obeysthinlenslensmakerequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.ObeysThinLensLensmakerEquation}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-lensmirrorsetup}
+  The thin-lens lensmaker equation in a surrounding medium, 1 / f = (n\_lens / n\_medium - 1) * (1 / R₁ - 1 / R₂). It is required in every choice of units. Consequently all three inverse length readouts scale together, while the refractive-index factor is dimensionless. This is a governing law, not the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Thin Lens Lensmaker Equation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Refractive Index]
+  \label{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-answerrefractiveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0035.answerRefractiveIndex}
+  \uses{def:physics:phyx-mini-0035:phyxminiproblems-problemphyxmini0035-answerchoice}
+  The dimensionless refractive-index readout printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Refractive Index.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

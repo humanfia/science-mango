@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0171.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0171.source.json
+
+\chapter{Physics problem phyx\_mini\_0171}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0171}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two train whistles, \textbackslash{}( A \textbackslash{}) and \textbackslash{}( B \textbackslash{}), each have a frequency of \textbackslash{}( 392\textbackslash{},\textbackslash{}text\{Hz\} \textbackslash{}). \textbackslash{}( A \textbackslash{}) is stationary and \textbackslash{}( B \textbackslash{}) is moving toward the right (away from \textbackslash{}( A \textbackslash{})) at a speed of \textbackslash{}( 35.0\textbackslash{},\textbackslash{}text\{m/s\} \textbackslash{}). A listener is between the two whistles and is moving toward the right with a speed of \textbackslash{}( 15.0\textbackslash{},\textbackslash{}text\{m/s\} \textbackslash{}) (\textbackslash{}textbf\{figure\}). No wind is blowing.
+
+\#\# Question
+
+What is the frequency from \textbackslash{}( A \textbackslash{}) as heard by the listener?
+
+\#\# Answer choices
+
+- A: A: 375Hz
+
+- B: B: 380Hz
+
+- C: C: 896Hz
+
+- D: D: 385Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scenario with two trains labeled A and B on parallel tracks. 
+
+- **Train A (left side):**
+  - Accompanied by blue wave symbols in front, indicating the emission of waves or signals originating from train A.
+  - Labeled with \textbackslash{}( v\_A = 0 \textbackslash{}), indicating it is stationary.
+  - Positioned further left in the image.
+
+- **Train B (right side):**
+  - Also accompanied by blue wave symbols in front, similar to train A, indicating the emission of waves or signals.
+  - Labeled with \textbackslash{}( v\_B = 35.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}), indicating it is moving to the right at a speed of 35.0 meters per second.
+  - Positioned further right in the image.
+
+- **Person on Cart:**
+  - Positioned between trains A and B, facing train B.
+  - Moving rightward, with a labeled speed of \textbackslash{}( v\_L = 15.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}), denoted by a green arrow pointing to the right.
+
+The scene likely depicts a physics or mechanics scenario, possibly relating to wave propagation or doppler effect.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 375Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/171.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0171.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0171:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0171.frequencyFromA_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-matchesproblemandfigure, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-usesstandardairsoundspeed, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-hassubsonicphysicalparameters, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-satisfiesrightwardacousticdopplerlaw, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-matchesanswerchoice, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-recordedanswerchoice}
+The right-moving listener hears the stationary whistle A at approximately
+\(375\,\mathrm{Hz}\), the whole-hertz value printed as answer A.
+\end{theorem}
+\begin{proof}
+With still air, stationary source A, listener speed \(15\,\mathrm{m/s}\), and
+sound speed \(343\,\mathrm{m/s}\), the rightward Doppler law gives
+\[
+ f_A'=392\frac{343-15}{343}
+     =392\frac{328}{343}.
+\]
+This rational value lies between \(374.5\) and \(375.5\), so it matches the
+whole-hertz answer \(375\,\mathrm{Hz}\).  The positivity and subsonic
+hypotheses justify the nonzero denominator.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AcousticFrequency}
+  A physical acoustic frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AxialPosition}
+  A signed physical coordinate along the horizontal track axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Axial Velocity]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AxialVelocity}
+  A signed physical velocity along the track axis. Physlib's DimSpeed is unsigned, so a signed quantity is needed to distinguish leftward and rightward motion and to express velocities relative to the air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Velocity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.frequencyReadout}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-acousticfrequency}
+  Read a physical frequency in inverse units of the chosen time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-acousticfrequency, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyreadout}
+  Hertz readout of an acoustic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.positionReadout}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialposition}
+  Read a signed axial position in the chosen length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.positionInMeters}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialposition, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-positionreadout}
+  Metre readout of an axial position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[axial Velocity Readout]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.axialVelocityReadout}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocity}
+  Read a signed axial velocity in the selected length and time units. Positive values point to the right in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity Readout.
+\end{proof}
+\begin{definition}[axial Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.axialVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocity, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityreadout}
+  Metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.speedInMetersPerSecond}
+  Read Physlib's unsigned dimensionful speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Whistle Label]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-whistlelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.WhistleLabel}
+  The two train whistles named in the problem and primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Whistle Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AxialDirection}
+  The two orientations along the horizontal track axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Two Train Whistle Setup]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.TwoTrainWhistleSetup}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-acousticfrequency, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialposition, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocity, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-whistlelabel, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialdirection}
+  The dimensionful quantities and labels in the two-train whistle experiment. The two drawn parallel tracks are idealized by their common horizontal axis. The field heardFrequencyFromA is an unknown measured physical frequency; no field assigns it a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Train Whistle Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyinhertz, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-positioninmeters, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup}
+  The numerical and geometric readouts stated by the problem and shown in the primary figure. The listener is between A and B; both whistles emit 392 Hz; A is stationary; the listener and B move rightward at 15 m/s and 35 m/s; and no wind means that the air is stationary in this frame. This predicate records setup data only. It gives no readout for the requested frequency heardFrequencyFromA
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Uses Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-usesstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.UsesStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-speedinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup}
+  The conventional room-temperature air calibration c = 343 m/s used to evaluate the whole-hertz answer choices. The problem source does not print a sound speed, so this standard auxiliary datum is kept separate from the figure and from the Doppler law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Has Subsonic Physical Parameters]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-hassubsonicphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.HasSubsonicPhysicalParameters}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyinhertz, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-speedinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup}
+  Positivity and subsonic conditions for the source, observer, and sound wave. Velocities are compared relative to the air so that the Doppler denominator is nonzero and the rightward wave overtakes the listener
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Subsonic Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rightward Acoustic Doppler Law]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-satisfiesrightwardacousticdopplerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.SatisfiesRightwardAcousticDopplerLaw}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyinhertz, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-axialvelocityinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-speedinmeterspersecond, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-twotrainwhistlesetup}
+  The one-dimensional classical Doppler law for sound travelling to the right. Both source and listener velocities are measured relative to the air. This is a governing physical relation: it does not assert any displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rightward Acoustic Doppler Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-answerchoice}
+  Whole-hertz frequency printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-acousticfrequency, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-frequencyinhertz, def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-answerchoice}
+  Agreement with a displayed whole-hertz answer. A half-hertz tolerance models rounding to the nearest integer rather than replacing the physical frequency by an exact integer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0171.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0171:phyxminiproblems-problemphyxmini0171-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

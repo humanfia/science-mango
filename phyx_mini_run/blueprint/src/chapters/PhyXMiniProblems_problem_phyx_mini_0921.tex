@@ -1,0 +1,397 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0921.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0921.source.json
+
+\chapter{Physics problem phyx\_mini\_0921}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0921}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In one form of Tesla coil (a high-voltage generator popular in science museums), a long solenoid with length \textbackslash{}( l \textbackslash{}) and cross-sectional area \textbackslash{}( A \textbackslash{}) is closely wound with \textbackslash{}( N\_1 \textbackslash{}) turns of wire. A coil with \textbackslash{}( N\_2 \textbackslash{}) turns surrounds it at its center.
+
+\#\# Question
+
+Find the mutual inductance \textbackslash{}( M \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 50μH
+
+- B: B: 12.5μH
+
+- C: C: 25μH
+
+- D: D: 100μH
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a solenoid wrapped with two coils of wire. The primary coil is shown in yellow and has \textbackslash{}(N\_1\textbackslash{}) turns, and a secondary coil in gray has \textbackslash{}(N\_2\textbackslash{}) turns. The length of the solenoid is labeled \textbackslash{}(l\textbackslash{}), and its cross-sectional area is labeled \textbackslash{}(A\textbackslash{}). Labels identify the various elements, indicating the cross-sectional area and the number of turns for each coil. The solenoid is shown as cylindrical, and lines extend from the solenoid to indicate measurements and quantities.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 25μH
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/921.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0921.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0921:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0921.problem_phyx_mini_0921}
+\uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-areareadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductanceinhenries, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-matcheswrittenteslacoilscenario, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-matchessuppliedteslacoilfigure, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-hasphysicalteslacoilparameters, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-usesvacuummagneticpermeability, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-satisfieslongsolenoidmutualinductancelaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.electricCurrentDimension}
+  Electric current has physical dimension charge per time, C T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[magnetic Permeability Dimension]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticpermeabilitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.magneticPermeabilityDimension}
+  Magnetic permeability has SI dimension M L C⁻² (henries per metre)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Permeability Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.magneticFluxDensityDimension}
+  Magnetic flux density has SI dimension M T⁻¹ C⁻¹ (teslas)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Dimension]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.magneticFluxDimension}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitydimension}
+  Magnetic flux has dimension flux density times area (webers)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.inductanceDimension}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentdimension, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdimension}
+  Inductance is magnetic flux divided by electric current (henries)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Permeability Quantity]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticpermeabilityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MagneticPermeabilityQuantity}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticpermeabilitydimension}
+  A nonnegative, unit-independent magnetic permeability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Permeability Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MagneticFluxDensityMagnitude}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitydimension}
+  A nonnegative, unit-independent axial magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Magnitude]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MagneticFluxMagnitude}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdimension}
+  A nonnegative, unit-independent magnetic flux through one turn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Magnitude.
+\end{proof}
+\begin{definition}[Mutual Inductance Quantity]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MutualInductanceQuantity}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-inductancedimension}
+  A nonnegative, unit-independent mutual inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mutual Inductance Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.nonnegativeReadout}
+  Read any nonnegative dimensionful quantity in the coherent units induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.lengthReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthquantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read a length in the coherent length unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.areaReadout}
+  Read an area in the coherent square-length unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[current Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-currentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.currentReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentmagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read an electric-current magnitude in the coherent current unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Readout.
+\end{proof}
+\begin{definition}[permeability Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-permeabilityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.permeabilityReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticpermeabilityquantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read magnetic permeability in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of permeability Readout.
+\end{proof}
+\begin{definition}[magnetic Flux Density Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.magneticFluxDensityReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitymagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read magnetic flux density in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Readout.
+\end{proof}
+\begin{definition}[magnetic Flux Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.magneticFluxReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxmagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read magnetic flux in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Readout.
+\end{proof}
+\begin{definition}[mutual Inductance Readout]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.mutualInductanceReadout}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancequantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-nonnegativereadout}
+  Read mutual inductance in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mutual Inductance Readout.
+\end{proof}
+\begin{definition}[mutual Inductance In Henries]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.mutualInductanceInHenries}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancequantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancereadout}
+  Read mutual inductance in coherent-SI henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mutual Inductance In Henries.
+\end{proof}
+\begin{definition}[mutual Inductance In Microhenries]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductanceinmicrohenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.mutualInductanceInMicrohenries}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancequantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductanceinhenries}
+  Read mutual inductance in microhenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mutual Inductance In Microhenries.
+\end{proof}
+\begin{definition}[Coil Role]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.CoilRole}
+  The inner primary winding and the outer secondary winding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Role.
+\end{proof}
+\begin{definition}[Coil Model]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.CoilModel}
+  Electromagnetic idealizations assigned to the two depicted windings
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Model.
+\end{proof}
+\begin{definition}[Secondary Placement]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-secondaryplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.SecondaryPlacement}
+  The secondary coil's placement relative to the long solenoid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Secondary Placement.
+\end{proof}
+\begin{definition}[Magnetic Medium Model]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticmediummodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MagneticMediumModel}
+  The magnetic medium used by the air-core/vacuum textbook model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Medium Model.
+\end{proof}
+\begin{definition}[Coil Color]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.CoilColor}
+  Colors visibly used to distinguish the two windings in image 921.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Color.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.FigureQuantityLabel}
+  The four physical-quantity labels printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[expected Printed Symbol]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-expectedprintedsymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.expectedPrintedSymbol}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-figurequantitylabel}
+  The symbol printed for each labelled quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Printed Symbol.
+\end{proof}
+\begin{definition}[Tesla Coil Figure]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.TeslaCoilFigure}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilrole, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilcolor, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-figurequantitylabel}
+  Literal presentation facts from the primary raster. It contains symbolic labels but no numerical values of l, A, N₁, or N₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tesla Coil Figure.
+\end{proof}
+\begin{definition}[Tesla Coil Setup]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.TeslaCoilSetup}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthquantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-electriccurrentmagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticpermeabilityquantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensitymagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxmagnitude, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancequantity, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilrole, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-coilmodel, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-secondaryplacement, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticmediummodel, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilfigure}
+  Independent physical data for the coupled coils. In particular, mutualInductance is not defined from the desired formula or from answer C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tesla Coil Setup.
+\end{proof}
+\begin{definition}[Matches Written Tesla Coil Scenario]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-matcheswrittenteslacoilscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MatchesWrittenTeslaCoilScenario}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  The qualitative long-solenoid and centered pickup-coil model stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Written Tesla Coil Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Tesla Coil Figure]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-matchessuppliedteslacoilfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.MatchesSuppliedTeslaCoilFigure}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-expectedprintedsymbol, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  The labels, colors, cylindrical geometry, and central placement directly read from 921.png. No inductance value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Tesla Coil Figure.
+\end{proof}
+\begin{definition}[Has Physical Tesla Coil Parameters]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-hasphysicalteslacoilparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.HasPhysicalTeslaCoilParameters}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-areareadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-currentreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-permeabilityreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  Positivity and nondegeneracy required for the coupled-coil derivation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tesla Coil Parameters.
+\end{proof}
+\begin{definition}[Uses Vacuum Magnetic Permeability]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-usesvacuummagneticpermeability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.UsesVacuumMagneticPermeability}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-permeabilityreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  The explicit textbook air-core idealization and its dimensionful permeability calibration, in coherent SI, to Physlib's electromagnetic-system parameter μ₀. The source does not state the magnetic medium, so this is kept separate from MatchesWrittenTeslaCoilScenario. Neither field contains a mutual inductance value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Vacuum Magnetic Permeability.
+\end{proof}
+\begin{definition}[Satisfies Long Solenoid Mutual Inductance Laws]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-satisfieslongsolenoidmutualinductancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.SatisfiesLongSolenoidMutualInductanceLaws}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-areareadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-currentreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-permeabilityreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxdensityreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-magneticfluxreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancereadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup}
+  The three governing electromagnetic relations used in the standard derivation, stated in every coherent unit system: B = μ (N₁/l) I₁ inside a long closely wound solenoid; Φ₂ = B A through one centered, fully linked secondary turn; M I₁ = N₂ Φ₂, the defining flux-linkage relation for mutual inductance. These laws do not state the requested closed form M = μ N₁ N₂ A/l
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Long Solenoid Mutual Inductance Laws.
+\end{proof}
+\begin{lemma}[mutual Inductance eq long Solenoid Formula]
+  \label{lem:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductance-eq-longsolenoidformula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.mutualInductance_eq_longSolenoidFormula}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-lengthreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-areareadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-permeabilityreadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-mutualinductancereadout, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-teslacoilsetup, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-hasphysicalteslacoilparameters, def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-satisfieslongsolenoidmutualinductancelaws}
+  The governing relations imply the unit-covariant symbolic result M = μ N₁ N₂ A/l. This lemma is kept separate from the vacuum calibration used by the
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mutual Inductance eq long Solenoid Formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.AnswerChoice}
+  Labels of the four answer choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Mutual Inductance In Microhenries]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-answerchoice-displayedmutualinductanceinmicrohenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.AnswerChoice.displayedMutualInductanceInMicrohenries}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-answerchoice}
+  The displayed mutual-inductance readout for each choice, in microhenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Mutual Inductance In Microhenries.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0921.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0921:phyxminiproblems-problemphyxmini0921-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

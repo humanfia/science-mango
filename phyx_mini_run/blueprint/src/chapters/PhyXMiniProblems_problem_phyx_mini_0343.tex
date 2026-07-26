@@ -1,0 +1,282 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0343.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0343.source.json
+
+\chapter{Physics problem phyx\_mini\_0343}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0343}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+\textbackslash{}textbf\{Figure\} shows a \$pV\$-diagram for \$0.0040\textasciitilde{}\textbackslash{}text\{mol\}\$ of \textbackslash{}textit\{ideal\} H\$\_2\$ gas. The temperature of the gas does not change during segment \$bc\$.
+
+\#\# Question
+
+What volume does this gas occupy at point \$c\$?
+
+\#\# Answer choices
+
+- A: A: 0.83L
+
+- B: B: 0.8L
+
+- C: C: 0.9L
+
+- D: D: 1.8L
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) graph with the following features:
+
+- Axes: The vertical axis is labeled "p (atm)" indicating pressure in atmospheres, and the horizontal axis is labeled "V (L)" indicating volume in liters.
+- Points: There are three points labeled \textbackslash{}(a\textbackslash{}), \textbackslash{}(b\textbackslash{}), and \textbackslash{}(c\textbackslash{}).
+  - Point \textbackslash{}(a\textbackslash{}) is located at (0.20 L, 0.50 atm).
+  - Point \textbackslash{}(b\textbackslash{}) is directly above point \textbackslash{}(a\textbackslash{}) at (0.20 L, 2.0 atm).
+  - Point \textbackslash{}(c\textbackslash{}) is to the right of point \textbackslash{}(a\textbackslash{}) at a lower pressure (0.50 atm) but higher volume.
+- Lines and Arrows: 
+  - A vertical line connects point \textbackslash{}(a\textbackslash{}) to point \textbackslash{}(b\textbackslash{}).
+  - A curved line connects point \textbackslash{}(b\textbackslash{}) to point \textbackslash{}(c\textbackslash{}).
+  - A horizontal line connects point \textbackslash{}(c\textbackslash{}) back to point \textbackslash{}(a\textbackslash{}).
+- Arrows indicate the direction of a cyclic process:
+  - From \textbackslash{}(a\textbackslash{}) to \textbackslash{}(b\textbackslash{}) is upward.
+  - From \textbackslash{}(b\textbackslash{}) to \textbackslash{}(c\textbackslash{}) is downward along the curve.
+  - From \textbackslash{}(c\textbackslash{}) to \textbackslash{}(a\textbackslash{}) is leftward along the horizontal line.
+
+The graph shows a closed cycle process in a thermodynamic system.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.8L
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/343.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0343.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0343:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0343.volumeAtPointC_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-matchesproblemandfigure, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-hasphysicalidealgasparameters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-satisfiesmolaridealgaslaw, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.PressureQuantity}
+  Physical pressure, represented by Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.VolumeQuantity}
+  A nonnegative physical volume with dimension length \textasciicircum{} 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.TemperatureQuantity}
+  Absolute thermodynamic temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.pressureInPascals}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressurequantity}
+  Coherent-SI pressure readout in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressurequantity, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinpascals}
+  Pressure readout in standard atmospheres. The denominator is Physlib's dimensionful standard-atmosphere constant, rather than an untyped conversion factor hidden in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.volumeInLiters}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumequantity}
+  Volume readout in litres; one cubic metre is one thousand litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[temperature Readout]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.temperatureReadout}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturequantity}
+  Numerical readout of absolute temperature in the common temperature unit used by the molar gas constant below. Only equality of the b and c readings is needed by this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Readout.
+\end{proof}
+\begin{definition}[Chemical Species]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-chemicalspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.ChemicalSpecies}
+  Chemical species named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chemical Species.
+\end{proof}
+\begin{definition}[Equation Of State Model]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-equationofstatemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.EquationOfStateModel}
+  Equation-of-state model specified by the word “ideal”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equation Of State Model.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.GasSample}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-chemicalspecies, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-equationofstatemodel}
+  The physical gas sample. amountInMoles is an explicitly unit-labelled scalar readout, not a replacement type for the sample itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[Diagram Point]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.DiagramPoint}
+  The three labelled thermodynamic states in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Point.
+\end{proof}
+\begin{definition}[Diagram Segment]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.DiagramSegment}
+  The three directed process segments in cycle order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Segment.
+\end{proof}
+\begin{definition}[start Point]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment-startpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.DiagramSegment.startPoint}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment}
+  Initial endpoint of each arrow in the depicted cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Point.
+\end{proof}
+\begin{definition}[end Point]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.DiagramSegment.endPoint}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment}
+  Final endpoint of each arrow in the depicted cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of end Point.
+\end{proof}
+\begin{definition}[Segment Shape]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-segmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.SegmentShape}
+  Qualitative shapes of process segments shown in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Shape.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressurequantity, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumequantity, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturequantity}
+  Pressure, volume, and temperature at one labelled state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Ideal Hydrogen PVCycle]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.IdealHydrogenPVCycle}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-gassample, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagramsegment, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-segmentshape, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-thermodynamicstate}
+  The gas, its three states, and the qualitative geometry of the displayed cycle. The gas constant is a readout in litre-atmospheres per mole per the temperature unit used by temperatureReadout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Hydrogen PVCycle.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinatmospheres, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle}
+  Data stated in the prose or read directly from the primary bitmap. Point c's pressure and its qualitative position are included, but its requested volume is deliberately not assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Ideal Gas Parameters]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-hasphysicalidealgasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.HasPhysicalIdealGasParameters}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinatmospheres, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturereadout, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ideal Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Molar Ideal Gas Law]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-satisfiesmolaridealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.SatisfiesMolarIdealGasLaw}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinatmospheres, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-temperaturereadout, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-diagrampoint, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle}
+  The molar ideal-gas equation p V = n R T, stated at every labelled state in the units used by the figure. This is a general governing law and contains no numerical value for the requested volume at c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Molar Ideal Gas Law.
+\end{proof}
+\begin{lemma}[pressure Volume Product eq along BC]
+  \label{lem:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressurevolumeproduct-eq-alongbc}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.pressureVolumeProduct_eq_alongBC}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-pressureinatmospheres, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-volumeinliters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-idealhydrogenpvcycle, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-matchesproblemandfigure, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-hasphysicalidealgasparameters, def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-satisfiesmolaridealgaslaw}
+  Along the isothermal segment b c, the common sample obeying the ideal-gas law has equal pressure--volume products at the endpoints
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pressure Volume Product eq along BC.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[liters]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-answerchoice-liters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.AnswerChoice.liters}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-answerchoice}
+  Volume in litres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of liters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0343.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0343:phyxminiproblems-problemphyxmini0343-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

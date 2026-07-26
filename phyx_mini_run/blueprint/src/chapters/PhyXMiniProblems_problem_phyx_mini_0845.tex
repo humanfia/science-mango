@@ -1,0 +1,299 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0845.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0845.source.json
+
+\chapter{Physics problem phyx\_mini\_0845}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0845}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The electric flux through the surface shown in figure is \textbackslash{}( 25\textbackslash{},\textbackslash{}mathrm\{N\textbackslash{},m\textasciicircum{}2/C\} \textbackslash{}).
+
+\#\# Question
+
+What is the electric field strength?
+
+\#\# Answer choices
+
+- A: A: 1.3 \textbackslash{}times 10\textasciicircum{}\{3\}N/C
+
+- B: B: 5.3 \textbackslash{}times 10\textasciicircum{}\{4\}N/C
+
+- C: C: 1.0 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+- D: D: 1.4 \textbackslash{}times 10\textasciicircum{}\{3\}N/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure illustrates a rectangular plane with dimensions \textbackslash{}(10 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}times 20 \textbackslash{}, \textbackslash{}text\{cm\}\textbackslash{}). Several pink arrows represent vectors labeled \textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{}), indicating an electric field, slanting upwards at a 60° angle from the surface. 
+
+A black arrow labeled \textbackslash{}( \textbackslash{}hat\{n\} \textbackslash{}) extends vertically from the center of the plane, representing the normal vector to the surface. The scene depicts spatial relationships between the electric field vectors and the surface, emphasizing the angle and orientation of the vectors relative to the plane and its normal.
+
+\#\# Dataset metadata
+
+Electrostatics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.4 \textbackslash{}times 10\textasciicircum{}\{3\}N/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/845.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0845.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0845:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFieldStrength_matches_choice_D}
+\uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-matchesproblemandfigurereadouts, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-hasphysicalparameters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesrectangularareageometry, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesfigureanglegeometry, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesuniformelectricfluxlaw, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answermatcheselectricfield}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFieldStrengthDimension}
+  Electric-field strength has the dimension of force divided by charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFluxDimension}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthdimension}
+  Electric flux has the dimension of electric-field strength times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.AreaQuantity}
+  A nonnegative, unit-independent physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.ElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxdimension}
+  Signed electric flux through an oriented surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.lengthReadout}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthquantity}
+  Read a physical length in a selected named length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.lengthInMeters}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthreadout}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthreadout}
+  Read a physical length in centimetres, as used on the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areaquantity}
+  Read a physical area in coherent-SI square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[electric Field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthquantity}
+  Read electric-field strength in coherent-SI newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxquantity}
+  Read electric flux in coherent-SI newton square metres per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[Spatial Vector]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-spatialvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.SpatialVector}
+  Dimensionless spatial vectors used for the field direction and normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Vector.
+\end{proof}
+\begin{definition}[Rectangular Plane Figure]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-rectangularplanefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.RectangularPlaneFigure}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-spatialvector}
+  The labelled rectangle and arrows in the primary figure. The angle is measured from the surface plane, rather than from its normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Plane Figure.
+\end{proof}
+\begin{definition}[Electric Flux Rectangle Setup]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.ElectricFluxRectangleSetup}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areaquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxquantity, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-rectangularplanefigure}
+  Physical quantities associated with the flux measurement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Rectangle Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthincentimeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  Problem-statement and primary-figure readouts: the two side labels, the marked 60° angle from the plane, the E⃗ and n̂ labels, and the measured flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthinmeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areainsquaremeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  Positivity and nondegeneracy conditions for the physical configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rectangular Area Geometry]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesrectangularareageometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.SatisfiesRectangularAreaGeometry}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-lengthinmeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areainsquaremeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  The physical area of a rectangle is the product of its side lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rectangular Area Geometry.
+\end{proof}
+\begin{definition}[Satisfies Figure Angle Geometry]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesfigureanglegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.SatisfiesFigureAngleGeometry}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  Both arrows represent unit directions. Because the labelled angle is from the plane, the component of the field direction along the oriented normal is the sine of that angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Figure Angle Geometry.
+\end{proof}
+\begin{definition}[Satisfies Uniform Electric Flux Law]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesuniformelectricfluxlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.SatisfiesUniformElectricFluxLaw}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areainsquaremeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup}
+  For a uniform electric field crossing a flat oriented surface, Φ = E A (ê · n̂). This is the governing flux law and contains no numerical answer for the requested field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Electric Flux Law.
+\end{proof}
+\begin{lemma}[electric Field Strength eq flux div projected area]
+  \label{lem:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrength-eq-flux-div-projected-area}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFieldStrength_eq_flux_div_projected_area}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-areainsquaremeters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-hasphysicalparameters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesfigureanglegeometry, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesuniformelectricfluxlaw}
+  The flux law and the figure's angle geometry give the usual projected-area formula. No numerical readout from this problem is used in this general relation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Field Strength eq flux div projected area.
+\end{proof}
+\begin{lemma}[electric Field Strength eq two Thousand Five Hundred div sqrt Three]
+  \label{lem:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrength-eq-twothousandfivehundred-div-sqrtthree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.electricFieldStrength_eq_twoThousandFiveHundred_div_sqrtThree}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-matchesproblemandfigurereadouts, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-hasphysicalparameters, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesrectangularareageometry, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesfigureanglegeometry, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-satisfiesuniformelectricfluxlaw}
+  Substituting Φ = 25 N m²/C, A = (0.10 m)(0.20 m), and the 60° surface angle yields the exact SI field-strength readout 2500 / √3
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Field Strength eq two Thousand Five Hundred div sqrt Three.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.AnswerChoice}
+  Labels of the four field-strength choices printed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.answerStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerchoice}
+  Electric-field strength in newtons per coulomb printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[answer Rounding Tolerance In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerroundingtoleranceinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.answerRoundingToleranceInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerchoice}
+  Half of one unit in the last displayed significant digit. This makes agreement with each rounded answer choice precise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Rounding Tolerance In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Electric Field]
+  \label{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answermatcheselectricfield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0845.AnswerMatchesElectricField}
+  \uses{def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-electricfluxrectanglesetup, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerchoice, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerstrengthinnewtonspercoulomb, def:physics:phyx-mini-0845:phyxminiproblems-problemphyxmini0845-answerroundingtoleranceinnewtonspercoulomb}
+  A displayed choice agrees with the independently modelled field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Electric Field.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

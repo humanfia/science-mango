@@ -1,0 +1,265 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0769.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0769.source.json
+
+\chapter{Physics problem phyx\_mini\_0769}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0769}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 45.0 kg woman stands up in a 60.0 kg canoe 5.00 m long. She walks from a point 1.00 m from one end to a point 1.00 m from the other end as shown in figure.
+
+\#\# Question
+
+If you ignore resistance to motion of the canoe in the water, how far does the canoe move during this process?
+
+\#\# Answer choices
+
+- A: A: 1.87m
+
+- B: B: 1.29m
+
+- C: C: 0.12m
+
+- D: D: 0.98m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a woman walking inside a canoe on water. The canoe is oriented horizontally, and the woman is moving from one end to the other. 
+
+Below the canoe, there is a horizontal arrow indicating movement from left to right. The labeled sections are:
+- "Start" to the left, marked with a distance of "1.00 m."
+- A central section of "3.00 m."
+- "Finish" to the right, also marked with a distance of "1.00 m."
+
+The background shows light ripples, suggesting the canoe is on water. There are no additional objects or text present.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 1.29m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/769.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0769.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0769:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0769.problem_phyx_mini_0769}
+\uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displacementinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchescanoewalkscenario, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchesproblemreadouts, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchesprimaryfigure, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-satisfiesrigidcanoekinematics, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-satisfiesisolatedhorizontalcenterofmasslaw, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displayeddistanceinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoetraveldistanceinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-agreeswithdisplayedhundredth, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-isuniqueclosestdistancechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.MassQuantity}
+  A unit-independent nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.LengthMagnitude}
+  A unit-independent nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Horizontal Displacement Quantity]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-horizontaldisplacementquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.HorizontalDisplacementQuantity}
+  A signed one-dimensional displacement along the canoe's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Displacement Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.massInKilograms}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massquantity}
+  Coherent-SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.lengthInMeters}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthmagnitude}
+  Coherent-SI metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[displacement In Meters]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displacementinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.displacementInMeters}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-horizontaldisplacementquantity}
+  Signed coherent-SI metre readout along the image's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement In Meters.
+\end{proof}
+\begin{definition}[Canoe Station]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoestation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.CanoeStation}
+  The four geometrically distinguished stations along the canoe
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Canoe Station.
+\end{proof}
+\begin{definition}[Figure Segment]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-figuresegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.FigureSegment}
+  The three successive length annotations under the canoe
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Segment.
+\end{proof}
+\begin{definition}[endpoints]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-figuresegment-endpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.FigureSegment.endpoints}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoestation, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-figuresegment}
+  Endpoints associated with each of the three displayed dimension segments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of endpoints.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.HorizontalDirection}
+  Qualitative horizontal directions in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[station Has Printed Text]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-stationhasprintedtext}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.stationHasPrintedText}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoestation}
+  Exactly the two interior stations have printed text labels in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of station Has Printed Text.
+\end{proof}
+\begin{definition}[Canoe Walk Figure]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalkfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.CanoeWalkFigure}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoestation, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-figuresegment}
+  Literal and qualitative content transcribed from image 769.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Canoe Walk Figure.
+\end{proof}
+\begin{definition}[Canoe Walk Setup]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.CanoeWalkSetup}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massquantity, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthmagnitude, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-horizontaldisplacementquantity, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoestation, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-figuresegment, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-horizontaldirection, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalkfigure}
+  Independent physical quantities and scenario roles. In particular, neither horizontal displacement is defined from the numerical answer; the governing relations below constrain both displacement fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Canoe Walk Setup.
+\end{proof}
+\begin{definition}[Matches Canoe Walk Scenario]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchescanoewalkscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.MatchesCanoeWalkScenario}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  Qualitative scenario conditions stated or physically implicit in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Canoe Walk Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massinkilograms, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  Numerical mass and total-length readouts from the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-stationhasprintedtext, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  Primary-image evidence. The dimension line is a measurement line, not a claim about the canoe's direction of motion. No canoe displacement or answer choice occurs in this record
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Rigid Canoe Kinematics]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-satisfiesrigidcanoekinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.SatisfiesRigidCanoeKinematics}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-lengthinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displacementinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  Rigid-body translation of the canoe makes the woman's ground displacement equal to the canoe displacement plus her displacement relative to the canoe. This is a kinematic law, not the requested canoe displacement formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Canoe Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Isolated Horizontal Center Of Mass Law]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-satisfiesisolatedhorizontalcenterofmasslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.SatisfiesIsolatedHorizontalCenterOfMassLaw}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-massinkilograms, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displacementinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  For the initially resting woman--canoe system with no external horizontal impulse, conservation of horizontal momentum leaves the center of mass fixed. The resulting first-moment balance is stated directly because the searched rigid-body APIs do not provide a two-body, finite-walk interface with these dimensionful observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isolated Horizontal Center Of Mass Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.AnswerChoice}
+  The four distance values printed in the multiple-choice list, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Distance In Meters]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displayeddistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.displayedDistanceInMeters}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-answerchoice}
+  Displayed distance in metres associated with each supplied answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Distance In Meters.
+\end{proof}
+\begin{definition}[canoe Travel Distance In Meters]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoetraveldistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.canoeTravelDistanceInMeters}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displacementinmeters, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-canoewalksetup}
+  Distance traveled by the canoe, obtained from its signed displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of canoe Travel Distance In Meters.
+\end{proof}
+\begin{definition}[Agrees With Displayed Hundredth]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-agreeswithdisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.AgreesWithDisplayedHundredth}
+  Agreement of an exact metre value with a value displayed to hundredths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Displayed Hundredth.
+\end{proof}
+\begin{definition}[Is Unique Closest Distance Choice]
+  \label{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-isuniqueclosestdistancechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0769.IsUniqueClosestDistanceChoice}
+  \uses{def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-answerchoice, def:physics:phyx-mini-0769:phyxminiproblems-problemphyxmini0769-displayeddistanceinmeters}
+  A choice is uniquely closest to the exact distance among the four options
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Distance Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

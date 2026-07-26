@@ -1,0 +1,145 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0791.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0791.source.json
+
+\chapter{Physics problem phyx\_mini\_0791}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0791}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The magnitudes of the vectors are \textbackslash{}( A = 4.00 \textbackslash{}) and \textbackslash{}( B = 5.00 \textbackslash{}).
+
+\#\# Question
+
+Find the scalar product \textbackslash{}( \textbackslash{}vec\{A\} \textbackslash{}cdot \textbackslash{}vec\{B\} \textbackslash{}) of the two vectors in figure.
+
+\#\# Answer choices
+
+- A: A: 2.40
+
+- B: B: 4.50
+
+- C: C: 8.30
+
+- D: D: 7.20
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a coordinate system with x and y axes. Two vectors, \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}), originate from the origin. 
+
+- **Vector \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}):** This vector is at an angle of 53.0° from the positive x-axis in the counterclockwise direction.
+- **Vector \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}):** This vector is oriented at an angle of 130.0° counterclockwise from the positive x-axis.
+  
+Two unit vectors, \textbackslash{}(\textbackslash{}hat\{i\}\textbackslash{}) and \textbackslash{}(\textbackslash{}hat\{j\}\textbackslash{}), indicate the x and y directions, respectively.
+
+The angle between \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}) is denoted by \textbackslash{}(\textbackslash{}phi\textbackslash{}).
+
+\#\# Dataset metadata
+
+Dynamics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 4.50
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/791.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0791.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0791:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0791.scalarProduct_roundsToFourPointFive}
+\uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-vectordiagram, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-matchesproblemandfigure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Plane]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-plane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.Plane}
+  Physlib's flat two-dimensional space, with the figure's origin and common unit chosen
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane.
+\end{proof}
+\begin{definition}[i Hat]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-ihat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.iHat}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-plane}
+  The figure's positive x-axis unit vector, labelled i-hat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of i Hat.
+\end{proof}
+\begin{definition}[j Hat]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-jhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.jHat}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-plane}
+  The figure's positive y-axis unit vector, labelled j-hat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of j Hat.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.degrees}
+  Convert the degree readouts printed in the figure to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[direction At]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-directionat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.directionAt}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-plane, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-ihat, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-jhat}
+  A unit-direction expression at a counterclockwise bearing from iHat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of direction At.
+\end{proof}
+\begin{definition}[Vector Diagram]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-vectordiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.VectorDiagram}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-plane}
+  The named vector and angle quantities occurring in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vector Diagram.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-ihat, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-degrees, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-directionat, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-vectordiagram}
+  The physical quantities and geometric readouts supplied by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{lemma}[included Angle is Seventy Seven Degrees]
+  \label{lem:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-includedangle-isseventysevendegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.includedAngle_isSeventySevenDegrees}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-degrees, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-vectordiagram, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-matchesproblemandfigure}
+  The included angle obtained from the two image bearings is 130° - 53°
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of included Angle is Seventy Seven Degrees.
+\end{proof}
+\begin{lemma}[scalar Product exact]
+  \label{lem:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-scalarproduct-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0791.scalarProduct_exact}
+  \uses{def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-degrees, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-vectordiagram, def:physics:phyx-mini-0791:phyxminiproblems-problemphyxmini0791-matchesproblemandfigure}
+  The exact idealized scalar product is |A| |B| cos(phi)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of scalar Product exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

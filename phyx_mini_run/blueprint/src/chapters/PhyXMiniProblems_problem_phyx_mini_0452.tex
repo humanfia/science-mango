@@ -1,0 +1,459 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0452.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0452.source.json
+
+\chapter{Physics problem phyx\_mini\_0452}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0452}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A cylinder having a piston restrained by a linear spring (of spring constant \$15 \textbackslash{}, \textbackslash{}text\{kN/m\}\$) contains \$0.5 \textbackslash{}, \textbackslash{}text\{kg\}\$ of saturated vapor water at \$120 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, as shown in figure. Heat is transferred to the water, causing the piston to rise. The piston's cross-sectional area is \$0.05 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}2\$ and the pressure varies linearly with volume until a final pressure of \$500 \textbackslash{}, \textbackslash{}text\{kPa\}\$ is reached.
+
+\#\# Question
+
+Find the heat transfer for the process.
+
+\#\# Answer choices
+
+- A: A: 578 kJ
+
+- B: B: 446 kJ
+
+- C: C: 491 kJ
+
+- D: D: 587 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic of a closed container. Inside the container, there is a vertical piston with a spring on top. The piston is positioned midway, dividing the container into two sections. 
+
+The lower section contains a blue liquid labeled "H₂O," indicating water. The upper section above the piston includes a black, coiled spring, which is pressing down on the piston.
+
+The container and piston are enclosed in a gray rectangular outline, suggesting the structure is rigid. Overall, the image represents a simple mechanical setup with a spring-loaded piston compressing water within a closed system.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 587 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/452.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0452.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0452:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0452.problem_phyx_mini_0452}
+\uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesclosedspringpistonwaterscenario, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesprimaryspringpistonfigure, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesproblemreadouts, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-hasphysicalspringpistonparameters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieswaterpropertymodel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesreferencesteamtabledata, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfiesmassspecificpropertylaws, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieslinearspringpistonandworklaws, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfiesclosedsystemfirstlaw, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-isuniqueclosestdisplayedheat}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.LengthQuantity}
+  A nonnegative vertical piston position or displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.VolumeQuantity}
+  A nonnegative physical volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpecificVolumeQuantity}
+  A nonnegative thermodynamic specific volume, carrying dimension L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Energy Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpecificEnergyQuantity}
+  A signed specific internal energy, carrying dimension L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Energy Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpringConstantQuantity}
+  A linear spring constant, with force-per-length dimension M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.massInKilograms}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.lengthInMeters}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.areaInSquareMeters}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Meters Per Kilogram]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumeincubicmetersperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.specificVolumeInCubicMetersPerKilogram}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumequantity}
+  Cubic-metre-per-kilogram readout of a physical specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Meters Per Kilogram.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.pressureInPascals}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinpascals}
+  Kilopascal readout used by the source problem and steam table
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[specific Energy In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.specificEnergyInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyquantity}
+  Joule-per-kilogram readout of a physical specific energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.specificEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyinjoulesperkilogram}
+  Kilojoule-per-kilogram readout used by the steam table
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.energyInJoules}
+  Joule readout of a signed physical energy, heat transfer, or work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinjoules}
+  Kilojoule readout used by the displayed heat choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantquantity}
+  Newton-per-metre readout of a physical linear spring constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.CelsiusTemperatureReading}
+  Physlib's Temperature is an absolute nonnegative temperature. The affine Celsius readout and its exact 273.15 K offset are recorded alongside that physical value rather than identifying temperature with a real scalar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.ProcessState}
+  The two equilibrium states named by the process description
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Working Substance]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-workingsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.WorkingSubstance}
+  Chemical substance occupying the closed cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Substance.
+\end{proof}
+\begin{definition}[Water Region]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-waterregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.WaterRegion}
+  Thermodynamic region of an equilibrium water state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Region.
+\end{proof}
+\begin{definition}[Spring Model]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpringModel}
+  Constitutive model assigned to the restraining spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Model.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.FigureObject}
+  Objects visible in the primary raster phyx\_data/test\_image/452.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.FigureTextLabel}
+  Text printed in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Spring Endpoint]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpringEndpoint}
+  Distinguished endpoints of the drawn vertical spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Endpoint.
+\end{proof}
+\begin{definition}[Spring Piston Figure]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpringPistonFigure}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-figureobject, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-figuretextlabel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springendpoint}
+  Qualitative geometry transcribed from the primary image. It contains no numeric heat, pressure, volume, displacement, or steam-table readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Piston Figure.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumequantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumequantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-celsiustemperaturereading, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-waterregion}
+  One equilibrium water state, with independent dimensionful observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Water Property Table]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-waterpropertytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.WaterPropertyTable}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumequantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-waterregion}
+  An external equilibrium-water property table. Its entries are physical quantities, and its arguments select a state independently of the requested process heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Property Table.
+\end{proof}
+\begin{definition}[Spring Piston Water Process]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SpringPistonWaterProcess}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantquantity, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-processstate, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-workingsubstance, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springmodel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonfigure, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-thermodynamicstate, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-waterpropertytable}
+  The closed spring-piston experiment. Heat into the water and boundary work done by the water are positive. Neither is defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Piston Water Process.
+\end{proof}
+\begin{definition}[Matches Closed Spring Piston Water Scenario]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesclosedspringpistonwaterscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.MatchesClosedSpringPistonWaterScenario}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthinmeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Qualitative physical facts stated or implied by the source scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Closed Spring Piston Water Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Spring Piston Figure]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesprimaryspringpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.MatchesPrimarySpringPistonFigure}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonfigure}
+  Evidence read from the primary raster: water lies below a horizontal movable piston, and a coiled spring joins the piston's upper face to the fixed top of the enclosing cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Spring Piston Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massinkilograms, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-areainsquaremeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinkilopascals, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantinnewtonspermeter, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  The five numerical values stated in the prose. In particular, no heat, boundary work, internal-energy change, or answer choice occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Spring Piston Parameters]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-hasphysicalspringpistonparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.HasPhysicalSpringPistonParameters}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massinkilograms, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-areainsquaremeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumeincubicmeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinpascals, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantinnewtonspermeter, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Spring Piston Parameters.
+\end{proof}
+\begin{definition}[Satisfies Water Property Model]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieswaterpropertymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SatisfiesWaterPropertyModel}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Constitutive water-property relations. The initial saturated-vapor entries are indexed by its absolute temperature. The final internal energy and phase are indexed by the independently determined final pressure and specific volume. No process heat appears in these relations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Property Model.
+\end{proof}
+\begin{definition}[Matches Reference Steam Table Data]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesreferencesteamtabledata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.MatchesReferenceSteamTableData}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinkilopascals, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Rounded reference steam-table entries used by the textbook calculation: saturated water vapor at 120 °C has p\_sat = 198.53 kPa, v\_g = 0.8919 m³/kg, and u\_g = 2529.1 kJ/kg; at the final pressure and the specific volume fixed by the spring-piston equations, interpolation in the superheated table gives approximately u₂ = 3668.1 kJ/kg. These are independent material-property calibrations, not a heat answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference Steam Table Data.
+\end{proof}
+\begin{definition}[Satisfies Mass Specific Property Laws]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfiesmassspecificpropertylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SatisfiesMassSpecificPropertyLaws}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-massinkilograms, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumeincubicmeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-processstate, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Definitions of total volume and total internal energy from mass and specific properties, expressed in coherent named readouts at each endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mass Specific Property Laws.
+\end{proof}
+\begin{definition}[Satisfies Linear Spring Piston And Work Laws]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieslinearspringpistonandworklaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SatisfiesLinearSpringPistonAndWorkLaws}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-lengthinmeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-areainsquaremeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-volumeincubicmeters, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinpascals, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinjoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springconstantinnewtonspermeter, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Mechanical and pressure--volume laws for the spring-loaded piston: piston sweep changes volume by area times vertical displacement; the increase in pressure force balances the increase in Hookean spring force, while constant atmospheric and piston-weight loads cancel; pressure and volume are affine along the quasistatic path; boundary work on that straight pV path is its trapezoid area. None of these laws assigns a numerical heat transfer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linear Spring Piston And Work Laws.
+\end{proof}
+\begin{definition}[Satisfies Closed System First Law]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfiesclosedsystemfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.SatisfiesClosedSystemFirstLaw}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess}
+  Closed-system first law with heat positive into the water and boundary work positive when done by the water: Q = U₂ - U₁ + W\_by
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed System First Law.
+\end{proof}
+\begin{lemma}[initial Pressure in kilopascals]
+  \label{lem:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-initialpressure-in-kilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.initialPressure_in_kilopascals}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-pressureinkilopascals, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieswaterpropertymodel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesreferencesteamtabledata}
+  The initial saturation pressure obtained from the water table
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Pressure in kilopascals.
+\end{proof}
+\begin{lemma}[boundary Work in kilojoules]
+  \label{lem:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-boundarywork-in-kilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.boundaryWork_in_kilojoules}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesproblemreadouts, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieswaterpropertymodel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesreferencesteamtabledata, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieslinearspringpistonandworklaws}
+  Spring kinematics and straight-path work give 17.548819925 kJ
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of boundary Work in kilojoules.
+\end{proof}
+\begin{lemma}[internal Energy Change in kilojoules]
+  \label{lem:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-internalenergychange-in-kilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.internalEnergyChange_in_kilojoules}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-energyinkilojoules, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-springpistonwaterprocess, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesproblemreadouts, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfieswaterpropertymodel, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-matchesreferencesteamtabledata, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-satisfiesmassspecificpropertylaws}
+  The calibrated endpoint properties give ΔU = 569.5 kJ
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of internal Energy Change in kilojoules.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.AnswerChoice}
+  Labels printed beside the four candidate heat transfers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Kilojoules]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-displayedheatinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.displayedHeatInKilojoules}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-answerchoice}
+  Heat transfer in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-answerchoice}
+  Dataset answer metadata, deliberately absent from every theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Heat]
+  \label{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-isuniqueclosestdisplayedheat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0452.IsUniqueClosestDisplayedHeat}
+  \uses{def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-answerchoice, def:physics:phyx-mini-0452:phyxminiproblems-problemphyxmini0452-displayedheatinkilojoules}
+  A displayed value is strictly closer to the calculated heat than all others
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Heat.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

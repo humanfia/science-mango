@@ -1,0 +1,287 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0525.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0525.source.json
+
+\chapter{Physics problem phyx\_mini\_0525}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0525}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Police radar detects the speed of a car as shown in figure. Microwaves of a precisely known frequency are broadcast toward the car. The moving car reflects the microwaves with a Doppler shift. The reflected waves are received and combined with an attenuated version of the transmitted wave. Beats occur between the two microwave signals. The beat frequency is measured.
+
+\#\# Question
+
+What beat frequency is measured for a car speed of \textbackslash{}( 30.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}) if the microwaves have frequency \textbackslash{}( 10.0 \textbackslash{}, \textbackslash{}text\{GHz\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(2.80 \textbackslash{}
+
+- B: B: \textbackslash{}(1.80 \textbackslash{}
+
+- C: C: \textbackslash{}(1.50 \textbackslash{}
+
+- D: D: \textbackslash{}(2.00 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a mobile speed monitoring device placed on the side of a road. It consists of a sign displaying "SPEED LIMIT 25" at the top, followed by the words "YOUR SPEED" below it. Beneath these words, there is an electronic display showing the number "22," indicating the speed of an approaching vehicle. The setup is mounted on a trailer with wheels, allowing it to be moved easily. The street scene in the background includes trees, a sidewalk, and a parked car on the road.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}(2.00 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/525.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0525.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0525:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0525.problem_phyx_mini_0525}
+\uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinkilohertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-hasradarsignalrouting, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesprimaryfigure, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesproblemreadouts, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-hasphysicalradarparameters, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesattenuatedreferencelaw, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesexactlongitudinalmovingreflectorlaw, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesbeatmixerlaw, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-roundstonearesthundredthkilohertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.FrequencyQuantity}
+  A nonnegative physical frequency carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.SpeedQuantity}
+  A nonnegative physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.frequencyReadout}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.speedReadout}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[frequency In Gigahertz]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyingigahertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.frequencyInGigahertz}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz}
+  Gigahertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Gigahertz.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz}
+  Kilohertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedreadout}
+  Meters-per-second readout of a physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Microwave Travel Direction]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-microwavetraveldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.MicrowaveTravelDirection}
+  Direction in which a microwave signal travels in the radar experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Microwave Travel Direction.
+\end{proof}
+\begin{definition}[Radial Motion]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-radialmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.RadialMotion}
+  Whether the car's radial motion is toward or away from the radar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radial Motion.
+\end{proof}
+\begin{definition}[radial Doppler Sign]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-radialdopplersign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.radialDopplerSign}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-radialmotion}
+  Sign of the reflected Doppler shift in the chosen radial convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radial Doppler Sign.
+\end{proof}
+\begin{definition}[Microwave Signal]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-microwavesignal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.MicrowaveSignal}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-microwavetraveldirection}
+  A microwave signal has a dimensionful frequency and a nonnegative relative amplitude. The latter is a dimensionless receiver-level readout, used only to express that the local reference has been attenuated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Microwave Signal.
+\end{proof}
+\begin{definition}[Roadside Radar Figure]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-roadsideradarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.RoadsideRadarFigure}
+  Qualitative information visible in the supplied primary image. The two numerals are display contents, not calibrated SI speed data. The bitmap does not show a microwave beam or a line-of-sight angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Roadside Radar Figure.
+\end{proof}
+\begin{definition}[Police Radar Beat Setup]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.PoliceRadarBeatSetup}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-radialmotion, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-microwavesignal, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-roadsideradarfigure}
+  The three signals, the car and propagation speeds, and the beat-frequency output of one police-radar measurement. None of these fields is defined in terms of the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Police Radar Beat Setup.
+\end{proof}
+\begin{definition}[Has Radar Signal Routing]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-hasradarsignalrouting}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.HasRadarSignalRouting}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  The signal paths have the physical roles described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Radar Signal Routing.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  Facts read directly from the supplied roadside-radar image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyingigahertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedinmeterspersecond, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  Numerical readouts and motion sense stated for the calculation. The carrier is 10.0 GHz, the car's radial speed magnitude is 30.0 m/s, and vacuum microwaves propagate at Physlib's exact SI speed of light. Its SI readout is 299792458 m/s by DimSpeed.speedOfLight\_in\_SI. These fields contain no beat-frequency value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Radar Parameters]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-hasphysicalradarparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.HasPhysicalRadarParameters}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedinmeterspersecond, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  Physical-domain conditions for the ideal longitudinal radar model. In particular, the car is slower than the microwave propagation speed, so the factor c - v in the approaching-reflector relation is positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Radar Parameters.
+\end{proof}
+\begin{definition}[Satisfies Attenuated Reference Law]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesattenuatedreferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.SatisfiesAttenuatedReferenceLaw}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  Attenuation changes the local reference amplitude but preserves its carrier frequency. This governing receiver relation does not determine the beat output by itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Attenuated Reference Law.
+\end{proof}
+\begin{definition}[Satisfies Exact Longitudinal Moving Reflector Law]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesexactlongitudinalmovingreflectorlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.SatisfiesExactLongitudinalMovingReflectorLaw}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-speedinmeterspersecond, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-radialdopplersign, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  The exact ideal longitudinal moving-reflector relation (c - s * v) * f\_reflected = (c + s * v) * f\_transmitted, where s is positive for an approaching car and negative for a receding car. For an approaching reflector this is (c-v) f\_reflected = (c+v) f\_transmitted. It incorporates the outgoing and return Doppler shifts without asserting the low-speed approximation Δf = 2 f v / c as a global equality. This governing law does not mention the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Longitudinal Moving Reflector Law.
+\end{proof}
+\begin{definition}[Satisfies Beat Mixer Law]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesbeatmixerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.SatisfiesBeatMixerLaw}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinhertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup}
+  Mixing the received reflection with the attenuated carrier copy produces a beat at the absolute difference of their frequencies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Beat Mixer Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.AnswerChoice}
+  Labels of the four answer choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Beat Frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-displayedanswerbeatfrequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.displayedAnswerBeatFrequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-answerchoice}
+  Numerical kilohertz value printed beside each answer label. The source's answer strings are truncated after the number; kilohertz is the dimensionally consistent scale for the listed values and the radar calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Beat Frequency In Kilohertz.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth Kilohertz]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-roundstonearesthundredthkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.RoundsToNearestHundredthKilohertz}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyquantity, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinkilohertz}
+  A frequency rounds to the displayed hundredth of a kilohertz when its readout is strictly within 0.005 kHz of the displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth Kilohertz.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-answerchoice, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-displayedanswerbeatfrequencyinkilohertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-roundstonearesthundredthkilohertz}
+  The measured beat frequency agrees with a displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[measured Beat Frequency exact readout]
+  \label{lem:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-measuredbeatfrequency-exact-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0525.measuredBeatFrequency_exact_readout}
+  \uses{def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-frequencyinkilohertz, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-policeradarbeatsetup, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-matchesproblemreadouts, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-hasphysicalradarparameters, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesattenuatedreferencelaw, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesexactlongitudinalmovingreflectorlaw, def:physics:phyx-mini-0525:phyxminiproblems-problemphyxmini0525-satisfiesbeatmixerlaw}
+  Substitution of the stated readouts into the exact moving-reflector, attenuation, and mixer laws bounds the ideal beat-frequency readout strictly between 2.000 kHz and 2.005 kHz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of measured Beat Frequency exact readout.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

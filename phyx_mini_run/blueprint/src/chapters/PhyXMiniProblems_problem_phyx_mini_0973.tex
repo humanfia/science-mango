@@ -1,0 +1,513 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0973.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0973.source.json
+
+\chapter{Physics problem phyx\_mini\_0973}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0973}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A rectangular circuit is moved at a constant velocity of 3.0\textbackslash{},\textbackslash{}text\{m/s\} into, through, and then out of a uniform 1.25\textbackslash{},\textbackslash{}text\{T\} magnetic field. The magnetic-field region is considerably wider than 50.0\textbackslash{},\textbackslash{}text\{cm\}.
+
+\#\# Question
+
+Find the magnitude of the current induced in the circuit as it is going into the magnetic field.
+
+\#\# Answer choices
+
+- A: A: 0.0225A
+
+- B: B: 0.225A
+
+- C: C: 0A
+
+- D: D: 0.094A
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram consisting of a rectangular loop and a magnetic field. Here's a detailed description:
+
+- **Rectangular Loop**: 
+  - It is shown as a black rectangle with dimensions labeled as 75.0 cm (vertical side) and 50.0 cm (horizontal side at the bottom).
+  - The left vertical side of the rectangle includes a resistor symbol (zig-zag line) with a label of 12.5 Ω.
+
+- **Motion**:
+  - An arrow labeled "3.0 m/s" is pointing to the right along the top horizontal side of the rectangle, indicating the direction of motion.
+
+- **Magnetic Field**:
+  - To the right of the loop, there is a dotted pattern representing a magnetic field. 
+  - The magnetic field is labeled as \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}) (1.25 T), indicating its strength is 1.25 Tesla. The field is directed into the page, which is suggested by the pattern of dots.
+
+The diagram visually represents a scenario in which a rectangular wire loop is moving through a magnetic field. The presence of the resistor and the dimensions of the loop are likely relevant for calculating induced current or emf.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.225A
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/973.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0973.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0973:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0973.problem_phyx_mini_0973}
+\uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-currentinamperes, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-matcheswrittenenteringscenario, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-matchessuppliedrectangularloopfigure, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-describesuniformmagneticfieldregion, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-hasphysicalenteringloopparameters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-satisfiesenteringfaradayandohmlaws, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-recordeddatasetanswer, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answermatchesinducedcurrent}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[area Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-areadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.areaDimension}
+  Area has dimension L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.magneticFluxDensityDimension}
+  Magnetic flux density, measured in teslas, has dimension M T⁻¹ C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[area Rate Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearatedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.areaRateDimension}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-areadimension}
+  The rate at which loop area enters the field has dimension L² T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Rate Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.magneticFluxDimension}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-areadimension, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitydimension}
+  Magnetic flux has dimension magnetic flux density times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Rate Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxratedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.magneticFluxRateDimension}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdimension}
+  A magnetic-flux rate has dimension magnetic flux per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Rate Dimension.
+\end{proof}
+\begin{definition}[electromotive Force Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electromotiveforcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.electromotiveForceDimension}
+  Electromotive force has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentdimension, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electromotiveforcedimension}
+  Electrical resistance has dimension emf divided by current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.SpeedQuantity}
+  A nonnegative, unit-independent physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitymagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MagneticFluxDensityMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitydimension}
+  A nonnegative magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude Quantity.
+\end{proof}
+\begin{definition}[Area Rate Magnitude Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearatemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.AreaRateMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearatedimension}
+  A nonnegative rate at which loop area overlaps the field region
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Rate Magnitude Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Rate Magnitude Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxratemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MagneticFluxRateMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxratedimension}
+  A nonnegative magnetic-flux-rate magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Rate Magnitude Quantity.
+\end{proof}
+\begin{definition}[Emf Magnitude Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-emfmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.EmfMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electromotiveforcedimension}
+  A nonnegative induced-emf magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emf Magnitude Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electricalresistancedimension}
+  A nonnegative electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Electric Current Magnitude Quantity]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.ElectricCurrentMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentdimension}
+  A nonnegative induced-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude Quantity.
+\end{proof}
+\begin{definition}[coherent SIReadout]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.coherentSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coherent SIReadout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.lengthReadout}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity}
+  Read a length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.lengthInMeters}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthreadout}
+  Read a length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read a speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitymagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read magnetic flux density in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[area Rate In Square Meters Per Second]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearateinsquaremeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.areaRateInSquareMetersPerSecond}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearatemagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read overlap-area rate in square metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Rate In Square Meters Per Second.
+\end{proof}
+\begin{definition}[magnetic Flux Rate In Webers Per Second]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxrateinweberspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.magneticFluxRateInWebersPerSecond}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxratemagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read magnetic-flux rate in webers per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Rate In Webers Per Second.
+\end{proof}
+\begin{definition}[emf In Volts]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-emfinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.emfInVolts}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-emfmagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read an emf magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of emf In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistancequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.currentInAmperes}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentmagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-coherentsireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[Loop Dimension]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-loopdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.LoopDimension}
+  The two geometrically distinct side lengths of the rectangular loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Loop Dimension.
+\end{proof}
+\begin{definition}[Vertical Edge]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-verticaledge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.VerticalEdge}
+  The left and right vertical edges in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Edge.
+\end{proof}
+\begin{definition}[Planar Direction]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-planardirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.PlanarDirection}
+  Directions distinguished in the plane of the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Direction.
+\end{proof}
+\begin{definition}[Page Normal Direction]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-pagenormaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.PageNormalDirection}
+  Direction normal to the page of the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Page Normal Direction.
+\end{proof}
+\begin{definition}[Magnetic Field Glyph]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfieldglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MagneticFieldGlyph}
+  Glyph used in a diagram for a field normal to the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Field Glyph.
+\end{proof}
+\begin{definition}[Traversal Phase]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-traversalphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.TraversalPhase}
+  Motion phase during the complete passage across the field region
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traversal Phase.
+\end{proof}
+\begin{definition}[Motion Regime]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-motionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MotionRegime}
+  Kinematic idealization for the translating loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Regime.
+\end{proof}
+\begin{definition}[Circuit Model]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-circuitmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.CircuitModel}
+  Lumped circuit model represented by the loop and resistor symbol
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Model.
+\end{proof}
+\begin{definition}[Field Loop Orientation]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-fieldlooporientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.FieldLoopOrientation}
+  Orientation of the field relative to the plane of the rectangular loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Loop Orientation.
+\end{proof}
+\begin{definition}[Region Width Relation]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-regionwidthrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.RegionWidthRelation}
+  Qualitative comparison stated for the field-region and loop widths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Region Width Relation.
+\end{proof}
+\begin{definition}[Rectangular Loop Figure]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-rectangularloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.RectangularLoopFigure}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-loopdimension, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-verticaledge, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-planardirection, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfieldglyph}
+  Literal presentation data transcribed from the primary raster. Dots are recorded as dots; their conventional physical interpretation is linked to the field direction only in MatchesSuppliedRectangularLoopFigure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Loop Figure.
+\end{proof}
+\begin{definition}[Rectangular Circuit]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-rectangularcircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.RectangularCircuit}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-emfmagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistancequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-electriccurrentmagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-circuitmodel}
+  The physical rectangular circuit. Its emf and current are independent model observables, not computed fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Circuit.
+\end{proof}
+\begin{definition}[Uniform Magnetic Field Region]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-uniformmagneticfieldregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.UniformMagneticFieldRegion}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensitymagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-pagenormaldirection}
+  A bounded magnetic-field region. Physlib's MagneticField supplies the spacetime-dependent vector field, while fluxDensityMagnitude carries its physical tesla dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Magnetic Field Region.
+\end{proof}
+\begin{definition}[Entering Rectangular Loop Setup]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.EnteringRectangularLoopSetup}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedquantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearatemagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxratemagnitudequantity, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-planardirection, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-traversalphase, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-motionregime, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-fieldlooporientation, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-regionwidthrelation, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-rectangularloopfigure, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-rectangularcircuit, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-uniformmagneticfieldregion}
+  Independent physical data at the instant when the loop is entering the field. The entire entering/inside/exiting traversal is retained as part of the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Entering Rectangular Loop Setup.
+\end{proof}
+\begin{definition}[Matches Written Entering Scenario]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-matcheswrittenenteringscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MatchesWrittenEnteringScenario}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthinmeters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  Written scenario assumptions. “Considerably wider” is preserved as a qualitative relation and entails the conservative quantitative fact that the field region is strictly wider than the loop's 50 cm horizontal extent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Written Entering Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Rectangular Loop Figure]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-matchessuppliedrectangularloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.MatchesSuppliedRectangularLoopFigure}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthincentimeters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedinmeterspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistanceinohms, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  Literal figure evidence and calibration of every printed number to the independent dimensionful setup. The dot glyph is interpreted by the standard diagram convention as a field directed out of the page. This follows the primary image even though its auxiliary generated caption says “into”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Rectangular Loop Figure.
+\end{proof}
+\begin{definition}[Describes Uniform Magnetic Field Region]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-describesuniformmagneticfieldregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.DescribesUniformMagneticFieldRegion}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  The Physlib vector field is uniform inside the represented field region at the observation time, vanishes in the idealized exterior, and has the calibrated dimensionful magnitude at an interior reference point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Describes Uniform Magnetic Field Region.
+\end{proof}
+\begin{definition}[Has Physical Entering Loop Parameters]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-hasphysicalenteringloopparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.HasPhysicalEnteringLoopParameters}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthinmeters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedinmeterspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistanceinohms, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  Positivity and nondegeneracy of the independent input parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Entering Loop Parameters.
+\end{proof}
+\begin{definition}[Satisfies Entering Faraday And Ohm Laws]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-satisfiesenteringfaradayandohmlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.SatisfiesEnteringFaradayAndOhmLaws}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthinmeters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedinmeterspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-arearateinsquaremeterspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxrateinweberspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-emfinvolts, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistanceinohms, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-currentinamperes, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup}
+  For perpendicular entry, the overlap area grows at height × speed. A uniform perpendicular field gives flux-rate magnitude B × area-rate; Faraday's law equates emf magnitude with the turn count times that rate; and Ohm's law relates emf to current and total resistance. None of these premise fields states the requested numerical current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Entering Faraday And Ohm Laws.
+\end{proof}
+\begin{lemma}[induced Current eq field mul height mul speed div resistance]
+  \label{lem:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-inducedcurrent-eq-field-mul-height-mul-speed-div-resistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.inducedCurrent_eq_field_mul_height_mul_speed_div_resistance}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-lengthinmeters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-speedinmeterspersecond, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-magneticfluxdensityinteslas, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-resistanceinohms, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-currentinamperes, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-matcheswrittenenteringscenario, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-hasphysicalenteringloopparameters, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-satisfiesenteringfaradayandohmlaws}
+  Combining rectangular swept area, uniform-field flux, Faraday's law, and Ohm's law gives the usual entering-loop current formula. This is a derived relation rather than a law field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of induced Current eq field mul height mul speed div resistance.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.AnswerChoice}
+  Labels of the four current magnitudes printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Current In Amperes]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answerchoice-displayedcurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.AnswerChoice.displayedCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answerchoice}
+  Current magnitude in amperes displayed beside an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Current In Amperes.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answerchoice}
+  The dataset records answer label B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Induced Current]
+  \label{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answermatchesinducedcurrent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0973.AnswerMatchesInducedCurrent}
+  \uses{def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-currentinamperes, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-enteringrectangularloopsetup, def:physics:phyx-mini-0973:phyxminiproblems-problemphyxmini0973-answerchoice}
+  A displayed answer agrees with the independent induced-current observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Induced Current.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

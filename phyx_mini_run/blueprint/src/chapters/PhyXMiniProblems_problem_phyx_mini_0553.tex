@@ -1,0 +1,258 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0553.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0553.source.json
+
+\chapter{Physics problem phyx\_mini\_0553}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0553}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A spaceship moving away from the Earth at a speed of \textbackslash{}( 0.80c \textbackslash{}) fires a missile parallel to its direction of motion as shown in figure. The missile moves at a speed of \textbackslash{}( 0.60c \textbackslash{}) relative to the ship.
+
+\#\# Question
+
+What is the speed of the missile as measured by an observer on the Earth?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.60c \textbackslash{})
+
+- B: B: \textbackslash{}( 0.80c \textbackslash{})
+
+- C: C: \textbackslash{}( 0.25c \textbackslash{})
+
+- D: D: \textbackslash{}( 0.95c \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a spaceship traveling away from Earth, representing a scene involving relative motion.
+
+- On the left side, there is an illustration of Earth marked with a reference point labeled "O".
+- To the right of Earth, there is a spaceship moving away from it. The spaceship has a reference point labeled "O'".
+- The spaceship is shown with a dark dot toward the front, near which arrows indicate velocity.
+- Two blue arrows extend to the right from the spaceship’s dark dot, representing different velocities.
+  - The top arrow is labeled "v' = 0.60c".
+  - The bottom arrow is labeled "u = 0.80c".
+  
+The symbols "c" likely refer to the speed of light, indicating that the velocities are relativistic. The scene illustrates a concept related to relative velocity in physics.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 0.95c \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/553.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0553.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0553:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0553.problem_phyx_mini_0553}
+\uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesproblemdata, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-hasphysicalspeedparameters, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-satisfiescollineareinsteinvelocityaddition, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-recordeddatasetanswer, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-isuniquematchinganswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.SpeedQuantity}
+  A nonnegative physical speed magnitude, independent of the unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.speedReadout}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedquantity}
+  Read a physical speed in selected units of length and time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.vacuumSpeedOfLightReadout}
+  Read Physlib's exact dimensionful vacuum speed of light in named units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[speed Fraction Of Vacuum Light]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.speedFractionOfVacuumLight}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedquantity, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedreadout, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-vacuumspeedoflightreadout}
+  A physical speed expressed as a dimensionless fraction of vacuum c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Fraction Of Vacuum Light.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.InertialFrameLabel}
+  The two inertial frames used for the three speed measurements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[Frame Origin Label]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-frameoriginlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.FrameOriginLabel}
+  The two reference origins printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frame Origin Label.
+\end{proof}
+\begin{definition}[origin Frame]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-originframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.originFrame}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-inertialframelabel, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-frameoriginlabel}
+  The frame represented by each labeled origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of origin Frame.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.HorizontalDirection}
+  Direction along the horizontal axis of the drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Velocity Arrow]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-figurevelocityarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.FigureVelocityArrow}
+  The two blue speed arrows printed at the front of the spaceship
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Velocity Arrow.
+\end{proof}
+\begin{definition}[Earth Spaceship Missile Figure]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.EarthSpaceshipMissileFigure}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-frameoriginlabel, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-horizontaldirection, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-figurevelocityarrow}
+  Typed evidence carried by the primary image. Origin coordinates express only left-to-right visual ordering and are not physical distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earth Spaceship Missile Figure.
+\end{proof}
+\begin{definition}[Earth Spaceship Missile Setup]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.EarthSpaceshipMissileSetup}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedquantity, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-inertialframelabel, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-horizontaldirection, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilefigure}
+  All frame assignments and physical speed magnitudes in the scenario. The requested missileSpeedMeasuredByEarth is an independent field: it is not defined using an answer choice or a solved numerical expression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earth Spaceship Missile Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup}
+  Facts read directly from the bitmap: O lies on Earth to the left of O' on the spaceship; both arrows point right; the upper arrow is labeled v' = 0.60c; and the lower arrow is labeled u = 0.80c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesprimaryfigure}
+  Frame assignments, same-direction motion, and the two numerical speed readouts supplied by the problem. No Earth-frame missile speed is supplied
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Speed Parameters]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-hasphysicalspeedparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.HasPhysicalSpeedParameters}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-vacuumspeedoflightreadout, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup}
+  Physical domain conditions for the three speed magnitudes. These state only positivity and subluminality; in particular, they do not determine the unknown Earth-frame missile speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Speed Parameters.
+\end{proof}
+\begin{definition}[Satisfies Collinear Einstein Velocity Addition]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-satisfiescollineareinsteinvelocityaddition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.SatisfiesCollinearEinsteinVelocityAddition}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup}
+  Collinear Einstein velocity addition for motion in the same direction, written in dimensionless fractions of c: w/c = ((u/c) + (v'/c)) / (1 + (u/c)(v'/c)). This governing relation contains neither an answer-choice label nor the solved fraction 35/37
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Collinear Einstein Velocity Addition.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed Fraction]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-displayedspeedfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.displayedSpeedFraction}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-answerchoice}
+  The speed coefficient multiplying c beside each displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed Fraction.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-answerchoice}
+  The answer label recorded by the source dataset; it is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.RoundsToNearestHundredth}
+  Agreement with a speed fraction displayed to the nearest hundredth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-answerchoice, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-displayedspeedfraction, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-roundstonearesthundredth}
+  A displayed choice agrees with the modeled Earth-frame missile speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer Choice]
+  \label{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-isuniquematchinganswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.IsUniqueMatchingAnswerChoice}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-answerchoice, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesanswerchoice}
+  The selected choice is the unique displayed rounded value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer Choice.
+\end{proof}
+\begin{lemma}[missile speed fraction measured by earth]
+  \label{lem:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-missile-speed-fraction-measured-by-earth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0553.missile_speed_fraction_measured_by_earth}
+  \uses{def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-speedfractionofvacuumlight, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-earthspaceshipmissilesetup, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-matchesproblemdata, def:physics:phyx-mini-0553:phyxminiproblems-problemphyxmini0553-satisfiescollineareinsteinvelocityaddition}
+  Substitution of u/c = 4/5 and v'/c = 3/5 into the governing law gives the exact Earth-frame missile speed fraction (4/5 + 3/5) / (1 + (4/5)(3/5)) = 35/37. This is a derived result and does not occur in a data or law premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of missile speed fraction measured by earth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

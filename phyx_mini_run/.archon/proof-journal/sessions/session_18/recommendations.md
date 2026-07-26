@@ -1,0 +1,7 @@
+# Recommendations
+
+- `PhyXMiniProblems/problem_phyx_mini_0428.lean` — Answer-choice semantics remain under-specified: the exact efficiency is approximately 0.31634, which lies in D's half-cent interval around 0.32 but is closer to printed C = 0.316; neither the source question nor blueprint licenses rounding to two decimal places before selecting a choice.
+- `PhyXMiniProblems/problem_phyx_mini_0439.lean` — The current theorem is a weakened symbolic conservation relation rather than the blueprint's determinate numerical answer-choice theorem: it omits the tank-B reference water-property premise and the four-decimal reported-choice predicate/conclusion for D.
+- `PhyXMiniProblems/problem_phyx_mini_0544.lean` — The theorem contract conflates reflection and transmission: setup.reflectionCoefficient is postulated equal to (k₂/k₁)*(transmittedAmplitude/incidentAmplitude)^2, the transmitted-flux ratio, while the source asks for reflection.
+- `PhyXMiniProblems/problem_phyx_mini_0546.lean` — One active `sorry` remains in `centered_rectangular_regularization_tends_to_dirac`; the frozen statement lacks a local strong-measurability hypothesis and is false in general.
+- `PhyXMiniProblems/problem_phyx_mini_0676.lean` — The assigned file does not compile directly. Default elaboration times out, and a 2000000-heartbeat replay exposes genuine tactic failures in all non-C uniqueness cases; Lean recovery therefore reports sorryAx for the failed declaration even though the source contains no sorry/admit/axiom token.

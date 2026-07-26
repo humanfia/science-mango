@@ -1,0 +1,214 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0061.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0061.source.json
+
+\chapter{Physics problem phyx\_mini\_0061}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0061}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A light ray leaves point A in Figure, reflects from the mirror, and reaches point B.
+
+\#\# Question
+
+How far below the top edge does the ray strike the mirror?
+
+\#\# Answer choices
+
+- A: A: 1.4cm
+
+- B: B: 5.6cm
+
+- C: C: 4.0cm
+
+- D: D: 2.4cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram showing certain distances in relation to a mirror. Here are the details:
+
+- There is a vertical mirror on the right side of the image.
+- Points A and B are marked as solid dots.
+- Point A is located 10 cm away from the mirror horizontally.
+- Point A is also positioned 5 cm vertically above B.
+- Point B is 15 cm away from the mirror horizontally.
+- There is a vertical distance of 15 cm indicated from point B upwards, encompassing the distance to A.
+- The text "Mirror" is located vertically alongside the mirror on the right. 
+
+The diagram uses arrows and double-headed arrows to represent the distances.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.0cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/61.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0061.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0061:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0061.problem_phyx_mini_0061}
+\uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-matchesmirrorrayfigure, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-followssinglereflectionbranch, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-satisfieslawofreflection, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-strikedepthbelowtopedgecentimeters}
+With coordinates measured rightward and downward from the top of the vertical
+mirror, let \(A=(-10,5)\) and \(B=(-15,15)\).  The physical single-reflection
+branch and equal-angle reflection law force the mirror strike to have depth
+\(9\,\mathrm{cm}\) below the top edge.
+\end{theorem}
+\begin{proof}
+Reflect \(B=(-15,15)\) across the vertical mirror to \(B'=(15,15)\).
+Specular reflection is equivalent to the incident segment from \(A\) and the
+continued segment to \(B'\) forming one straight line.  That line is
+\[
+ A+t(B'-A)=(-10,5)+t(25,10).
+\]
+Its intersection with the mirror \(x=0\) has \(t=2/5\), hence downward
+coordinate \(5+(2/5)10=9\).  The branch condition places the strike between
+the endpoint levels and rules out the supplementary undirected-angle branch.
+The top-edge coordinate is zero, so the declared depth difference is \(9\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.FigurePoint}
+  A two-dimensional point represented by scalar coordinate readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[point From Readouts]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-pointfromreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.pointFromReadouts}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  Construct a figure point from horizontal and downward coordinate readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of point From Readouts.
+\end{proof}
+\begin{definition}[horizontal Readout]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-horizontalreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.horizontalReadout}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  The horizontal scalar readout of a figure point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of horizontal Readout.
+\end{proof}
+\begin{definition}[downward Readout]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-downwardreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.downwardReadout}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  The downward scalar readout of a figure point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of downward Readout.
+\end{proof}
+\begin{definition}[Vertical Mirror]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-verticalmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.VerticalMirror}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  The vertical mirror, including its distinguished top edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Mirror.
+\end{proof}
+\begin{definition}[Reflected Light Ray]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-reflectedlightray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.ReflectedLightRay}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint}
+  The geometrical-optics ray path from the labelled source A, through its single point of reflection on the mirror, to the labelled receiver B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Light Ray.
+\end{proof}
+\begin{definition}[Mirror Ray Setup]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.MirrorRaySetup}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-verticalmirror, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-reflectedlightray}
+  The coordinate unit, mirror, and reflected light ray depicted in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Ray Setup.
+\end{proof}
+\begin{definition}[left Normal Reference Point]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-leftnormalreferencepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.leftNormalReferencePoint}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-figurepoint, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-pointfromreadouts, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-horizontalreadout, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-downwardreadout}
+  The point one centimeter to the left of the strike point on the horizontal normal to the vertical mirror. It is used only to specify the direction of the normal in Mathlib's angle API
+\end{definition}
+\begin{proof}
+  This is the declared model definition of left Normal Reference Point.
+\end{proof}
+\begin{definition}[Matches Mirror Ray Figure]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-matchesmirrorrayfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.MatchesMirrorRayFigure}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-pointfromreadouts, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-horizontalreadout, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-downwardreadout, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup}
+  Primary-image readouts, in a coordinate gauge whose origin is the mirror's top edge. The image places A 10 cm from the mirror and 5 cm below its top, and places B 15 cm from the mirror and 15 cm below its top. The strike point is required only to lie on the vertical mirror; its unknown depth is not assigned here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Mirror Ray Figure.
+\end{proof}
+\begin{definition}[Follows Single Reflection Branch]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-followssinglereflectionbranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.FollowsSingleReflectionBranch}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-downwardreadout, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup}
+  The physical single-bounce branch selected by a ray travelling from A to B: its mirror strike lies strictly between the two endpoint levels. This qualitative branch condition excludes the equal-angle continuation on the wrong side of both endpoints without assigning the requested depth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Follows Single Reflection Branch.
+\end{proof}
+\begin{definition}[Satisfies Law Of Reflection]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-satisfieslawofreflection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.SatisfiesLawOfReflection}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-leftnormalreferencepoint}
+  The law of specular reflection: the incident and reflected ray segments make equal undirected angles with the horizontal normal to the vertical mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Law Of Reflection.
+\end{proof}
+\begin{definition}[strike Depth Below Top Edge Centimeters]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-strikedepthbelowtopedgecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.strikeDepthBelowTopEdgeCentimeters}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-downwardreadout, def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-mirrorraysetup}
+  The strike point's depth below the mirror's actual top edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of strike Depth Below Top Edge Centimeters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.AnswerChoice}
+  The four printed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[distance Centimeters]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-answerchoice-distancecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.AnswerChoice.distanceCentimeters}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-answerchoice}
+  The centimeter readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Centimeters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0061.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0061:phyxminiproblems-problemphyxmini0061-answerchoice}
+  Dataset metadata: the recorded multiple-choice answer is choice C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

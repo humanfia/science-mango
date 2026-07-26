@@ -1,0 +1,426 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0563.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0563.source.json
+
+\chapter{Physics problem phyx\_mini\_0563}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0563}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+If a classical system does not have a constant charge-to-mass ratio throughout the system, the magnetic moment can be written
+\textbackslash{}[ \textbackslash{}mu = g \textbackslash{}frac\{Q\}\{2M\} L \textbackslash{}]
+where \textbackslash{}( Q \textbackslash{}) is the total charge, \textbackslash{}( M \textbackslash{}) is the total mass, and \textbackslash{}( g \textbackslash{}neq 1 \textbackslash{}).
+
+\#\# Question
+
+What is \textbackslash{}( g\textbackslash{}) for a solid sphere (\textbackslash{}( I = 2MR\textasciicircum{}2/5 \textbackslash{})) that has a ring of charge on the surface at the equator, as shown in figure.
+
+\#\# Answer choices
+
+- A: A: 1.2
+
+- B: B: 3.2
+
+- C: C: 1.8
+
+- D: D: 2.5
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a blue sphere with an axis running vertically through its center. A horizontal dashed line divides the sphere into two equal halves, suggesting an equatorial line. There is an arrow near the top of the sphere indicating a rotational motion around the vertical axis. The entire sphere is depicted with a gradient, giving it a slightly three-dimensional appearance.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 2.5
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/563.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0563.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0563:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0563.gyromagnetic_factor_of_solid_sphere_with_equatorial_charge_ring}
+\uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-matchessolidspherewithequatorialchargering, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-matchesprimaryfigure, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-hasphysicalnondegenerateparameters, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiessolidspheremomentofinertialaw, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrigidrotationangularmomentumlaw, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrotatingchargeringmagneticmomentlaw, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesclassicalgyromagneticrelation, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-answerchoice, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-displayedgyromagneticfactor}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[angular Speed Dimension]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularSpeedDimension}
+  Angular speed has inverse-time dimension; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.momentOfInertiaDimension}
+  Moment of inertia has dimension mass * length\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[angular Momentum Dimension]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularMomentumDimension}
+  Angular momentum has dimension mass * length\textasciicircum{}2 / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Dimension.
+\end{proof}
+\begin{definition}[magnetic Moment Dimension]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.magneticMomentDimension}
+  Magnetic dipole moment has dimension charge * length\textasciicircum{}2 / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Charge Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.ChargeQuantity}
+  A signed, unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.AngularSpeedMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeeddimension}
+  A nonnegative angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiadimension}
+  A nonnegative moment of inertia about the displayed axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Angular Momentum Magnitude Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentummagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.AngularMomentumMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumdimension}
+  A nonnegative angular-momentum magnitude along the displayed axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Momentum Magnitude Quantity.
+\end{proof}
+\begin{definition}[Magnetic Moment Axial Quantity]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentaxialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MagneticMomentAxialQuantity}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentdimension}
+  The signed component of magnetic moment along the displayed axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Moment Axial Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.massReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massquantity}
+  Read mass in the mass unit selected by a coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.lengthReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthquantity}
+  Read length in the length unit selected by a coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[charge Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.chargeReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargequantity}
+  Read signed charge in the charge unit selected by the unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedmagnitudequantity}
+  Read angular speed in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiaquantity}
+  Read moment of inertia in coherent selected mass and length units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[angular Momentum Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularMomentumReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentummagnitudequantity}
+  Read angular momentum in coherent selected mass, length, and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Readout.
+\end{proof}
+\begin{definition}[magnetic Moment Readout]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.magneticMomentReadout}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentaxialquantity}
+  Read the signed axial magnetic moment in coherent selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.massInKilograms}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massreadout}
+  SI kilogram readout of the sphere's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.lengthInMeters}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthreadout}
+  SI meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargereadout}
+  SI coulomb readout of the ring's total charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedmagnitudequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedreadout}
+  SI radians-per-second readout of the angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiaquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiareadout}
+  SI kilogram-meter-squared readout of the axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[angular Momentum In Kilogram Meters Squared Per Second]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentuminkilogrammeterssquaredpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.angularMomentumInKilogramMetersSquaredPerSecond}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentummagnitudequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumreadout}
+  SI kilogram-meter-squared-per-second angular-momentum readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum In Kilogram Meters Squared Per Second.
+\end{proof}
+\begin{definition}[magnetic Moment In Coulomb Meters Squared Per Second]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentincoulombmeterssquaredpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.magneticMomentInCoulombMetersSquaredPerSecond}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentaxialquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentreadout}
+  SI coulomb-meter-squared-per-second axial magnetic-moment readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment In Coulomb Meters Squared Per Second.
+\end{proof}
+\begin{definition}[Mass Distribution Model]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massdistributionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MassDistributionModel}
+  The idealized distribution of the sphere's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Distribution Model.
+\end{proof}
+\begin{definition}[Charge Distribution Model]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedistributionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.ChargeDistributionModel}
+  The idealized distribution of the sphere's total charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Distribution Model.
+\end{proof}
+\begin{definition}[Charge To Mass Ratio Profile]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargetomassratioprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.ChargeToMassRatioProfile}
+  Whether the local charge-to-mass ratio is uniform through the body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge To Mass Ratio Profile.
+\end{proof}
+\begin{definition}[Rotation Axis Geometry]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-rotationaxisgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.RotationAxisGeometry}
+  The geometry of the rotation axis relative to the charged ring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis Geometry.
+\end{proof}
+\begin{definition}[Charged Sphere Figure]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedspherefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.ChargedSphereFigure}
+  Qualitative data visible in the primary image. The solid front portion of the equatorial ring and the dashed hidden rear arc jointly identify a ring on the sphere's equatorial surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Sphere Figure.
+\end{proof}
+\begin{definition}[Charged Solid Sphere Setup]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.ChargedSolidSphereSetup}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedmagnitudequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiaquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentummagnitudequantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentaxialquantity, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massdistributionmodel, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedistributionmodel, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargetomassratioprofile, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-rotationaxisgeometry, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedspherefigure}
+  The physical system and its independent observables. The ring radius is kept separate from the sphere radius until the equatorial-surface geometry predicate relates them. Likewise, neither gyromagneticFactor nor any other observable is defined from a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Solid Sphere Setup.
+\end{proof}
+\begin{definition}[Matches Solid Sphere With Equatorial Charge Ring]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-matchessolidspherewithequatorialchargering}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MatchesSolidSphereWithEquatorialChargeRing}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  The mass, charge, and axis idealizations stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Solid Sphere With Equatorial Charge Ring.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  Exact qualitative information transcribed from the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Nondegenerate Parameters]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-hasphysicalnondegenerateparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.HasPhysicalNondegenerateParameters}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massinkilograms, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthinmeters, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargeincoulombs, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedinradianspersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentuminkilogrammeterssquaredpersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  Positivity and nondegeneracy assumptions needed to identify a unique dimensionless factor. In particular, both the charge and the rotation are nonzero, so the gyromagnetic relation cannot degenerate to 0 = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Nondegenerate Parameters.
+\end{proof}
+\begin{definition}[Satisfies Solid Sphere Moment Of Inertia Law]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiessolidspheremomentofinertialaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.SatisfiesSolidSphereMomentOfInertiaLaw}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiareadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  The supplied solid-sphere formula I = (2/5) M R\textasciicircum{}2, required in every coherent choice of units. It contains no gyromagnetic-factor value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Solid Sphere Moment Of Inertia Law.
+\end{proof}
+\begin{definition}[Satisfies Rigid Rotation Angular Momentum Law]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrigidrotationangularmomentumlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.SatisfiesRigidRotationAngularMomentumLaw}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-momentofinertiareadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  The axial rigid-rotation law L = I ω
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Rotation Angular Momentum Law.
+\end{proof}
+\begin{definition}[Satisfies Rotating Charge Ring Magnetic Moment Law]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrotatingchargeringmagneticmomentlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.SatisfiesRotatingChargeRingMagneticMomentLaw}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargereadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  The magnetic moment of a thin rotating charge ring, μ = current * area = Q ω r\textasciicircum{}2 / 2. The radius here is the independent ring radius; the scenario geometry, not this law, identifies it with R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rotating Charge Ring Magnetic Moment Law.
+\end{proof}
+\begin{definition}[Satisfies Classical Gyromagnetic Relation]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesclassicalgyromagneticrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.SatisfiesClassicalGyromagneticRelation}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargereadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentumreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentreadout, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup}
+  The classical relation supplied in the question, μ = g (Q/(2M)) L, imposed in every coherent unit system. It constrains the independent factor but does not state the requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Classical Gyromagnetic Relation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.AnswerChoice}
+  Labels of the four answer choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Gyromagnetic Factor]
+  \label{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-displayedgyromagneticfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.displayedGyromagneticFactor}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-answerchoice}
+  The dimensionless numerical value printed for each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Gyromagnetic Factor.
+\end{proof}
+\begin{lemma}[solid sphere angular momentum formula]
+  \label{lem:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-solid-sphere-angular-momentum-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.solid_sphere_angular_momentum_formula}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-massinkilograms, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthinmeters, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedinradianspersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularmomentuminkilogrammeterssquaredpersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiessolidspheremomentofinertialaw, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrigidrotationangularmomentumlaw}
+  Combining the given solid-sphere inertia with rigid rotation yields L = (2/5) M R\textasciicircum{}2 ω in SI readouts. This is an intermediate mechanical conclusion, not an assumption about g
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of solid sphere angular momentum formula.
+\end{proof}
+\begin{lemma}[equatorial ring magnetic moment formula]
+  \label{lem:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-equatorial-ring-magnetic-moment-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0563.equatorial_ring_magnetic_moment_formula}
+  \uses{def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-lengthinmeters, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargeincoulombs, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-angularspeedinradianspersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-magneticmomentincoulombmeterssquaredpersecond, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-chargedsolidspheresetup, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-matchessolidspherewithequatorialchargering, def:physics:phyx-mini-0563:phyxminiproblems-problemphyxmini0563-satisfiesrotatingchargeringmagneticmomentlaw}
+  The equatorial-surface geometry specializes the rotating-ring law to the sphere radius in SI readouts. This is the electromagnetic intermediate used when comparing magnetic moment with angular momentum
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equatorial ring magnetic moment formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

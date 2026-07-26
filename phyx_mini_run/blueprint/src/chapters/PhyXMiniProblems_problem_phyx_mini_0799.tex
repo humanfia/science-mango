@@ -1,0 +1,319 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0799.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0799.source.json
+
+\chapter{Physics problem phyx\_mini\_0799}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0799}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A car of weight \textbackslash{}( w \textbackslash{}) rests on a slanted ramp attached to a trailer as shown in figure. Only a cable running from the trailer to the car prevents the car from rolling off the ramp. (The car's brakes are off and its transmission is in neutral.)
+
+\#\# Question
+
+Find the force that the ramp exerts on the car's tires.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( w \textbackslash{}sin \textbackslash{}alpha \textbackslash{})
+
+- B: B: \textbackslash{}( w \textbackslash{}cos \textbackslash{}alpha \textbackslash{})
+
+- C: C: \textbackslash{}( 2w \textbackslash{}cos \textbackslash{}alpha \textbackslash{})
+
+- D: D: \textbackslash{}( 2w \textbackslash{}sin \textbackslash{}alpha \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a car being towed up a ramp on a trailer. Key elements of the diagram include:
+
+- **Car**: The blue car is positioned on an inclined ramp of the trailer.
+- **Ramp and Trailer**: The ramp is angled upwards, attached to the trailer, with the car on it.
+- **Chains**: A chain is securing the car to the trailer.
+- **Vectors**:
+  - **\textbackslash{}( n \textbackslash{})**: A red vector perpendicular to the surface of the ramp, representing the normal force.
+  - **\textbackslash{}( w \textbackslash{})**: A red vector pointing straight down, representing the weight of the car.
+  - **\textbackslash{}( T \textbackslash{})**: A red vector parallel to the ramp, representing tension.
+- **Angle \textbackslash{}( \textbackslash{}alpha \textbackslash{})**: Denotes the angle of inclination of the ramp relative to the horizontal plane.
+
+The image illustrates the forces acting on the car as it is being towed up the inclined surface.
+
+\#\# Dataset metadata
+
+Statics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( w \textbackslash{}cos \textbackslash{}alpha \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/799.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0799.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0799:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0799.problem_phyx_mini_0799}
+\uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudereadout, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-matchescarontrailerrampscenario, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-matchessuppliedcarrampfigure, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-hasphysicalcarrampparameters, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-obeyscarrampforcedirections, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-satisfiescarstaticequilibrium, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-displayedanswerforcereadout}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.forceDimension}
+  The physical dimension M L T\textasciicircum{}-2 of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Planar Vector]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.PlanarVector}
+  The oriented vertical cross-section: x points right and y points up
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Vector.
+\end{proof}
+\begin{definition}[Planar Force Quantity]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.PlanarForceQuantity}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcedimension, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector}
+  A unit-independent physical force vector in the ramp cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Force Quantity.
+\end{proof}
+\begin{definition}[force Vector Readout]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.forceVectorReadout}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity}
+  Read a planar force vector in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Vector Readout.
+\end{proof}
+\begin{definition}[force Magnitude Readout]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.forceMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorreadout}
+  Read the magnitude of a planar force in a chosen coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude Readout.
+\end{proof}
+\begin{definition}[force Vector In Newtons]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.forceVectorInNewtons}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorreadout}
+  SI force-vector readout, whose components are numerical newton values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Vector In Newtons.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudereadout}
+  SI magnitude readout of a physical force, numerically in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[vertical Down Unit Direction]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-verticaldownunitdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.verticalDownUnitDirection}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector}
+  Unit direction of vertical downward weight in the page coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Down Unit Direction.
+\end{proof}
+\begin{definition}[uphill Ramp Unit Direction]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-uphillrampunitdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.uphillRampUnitDirection}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector}
+  Uphill ramp-tangent unit direction for an angle measured from horizontal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of uphill Ramp Unit Direction.
+\end{proof}
+\begin{definition}[outward Ramp Normal Unit Direction]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-outwardrampnormalunitdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.outwardRampNormalUnitDirection}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarvector}
+  Outward ramp-normal unit direction for an angle measured from horizontal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of outward Ramp Normal Unit Direction.
+\end{proof}
+\begin{definition}[Force Label]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.ForceLabel}
+  The three force arrows named in the supplied free-body diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Label.
+\end{proof}
+\begin{definition}[Car Motion State]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carmotionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.CarMotionState}
+  Motion state of the car relative to the trailer ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Car Motion State.
+\end{proof}
+\begin{definition}[Brake State]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-brakestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.BrakeState}
+  State of the car's service and parking brakes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Brake State.
+\end{proof}
+\begin{definition}[Transmission State]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-transmissionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.TransmissionState}
+  Transmission state relevant to drivetrain restraint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transmission State.
+\end{proof}
+\begin{definition}[Tire Ramp Contact Model]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-tirerampcontactmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.TireRampContactModel}
+  Idealization of the resultant force at the tire--ramp contact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Ramp Contact Model.
+\end{proof}
+\begin{definition}[Tangential Restraint]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-tangentialrestraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.TangentialRestraint}
+  How the cable participates in preventing downhill rolling
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tangential Restraint.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.FigureObject}
+  Physical objects visibly distinguished in image 799.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.FigureLabel}
+  Literal symbolic labels visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Arrow Direction]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figurearrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.FigureArrowDirection}
+  Qualitative arrow directions shown in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow Direction.
+\end{proof}
+\begin{definition}[Supplied Car Ramp Figure]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-suppliedcarrampfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.SuppliedCarRampFigure}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcelabel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figureobject, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figurelabel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figurearrowdirection}
+  Typed evidence transcribed from the supplied raster. The picture displays all three symbolic force arrows and the angle alpha, but no numerical force magnitude and no solved expression for n
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Car Ramp Figure.
+\end{proof}
+\begin{definition}[Car On Trailer Ramp Setup]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.CarOnTrailerRampSetup}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-planarforcequantity, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcelabel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carmotionstate, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-brakestate, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-transmissionstate, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-tirerampcontactmodel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-tangentialrestraint, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-suppliedcarrampfigure}
+  Independent physical state and observables. In particular, force .rampNormalN is not defined from the weight, angle, or answer choice; its value is constrained only through force directions and static equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Car On Trailer Ramp Setup.
+\end{proof}
+\begin{definition}[Matches Car On Trailer Ramp Scenario]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-matchescarontrailerrampscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.MatchesCarOnTrailerRampScenario}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  Qualitative assignments stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Car On Trailer Ramp Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Car Ramp Figure]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-matchessuppliedcarrampfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.MatchesSuppliedCarRampFigure}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcelabel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figureobject, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-figurelabel, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  Objects, labels, incidences, and arrow directions read from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Car Ramp Figure.
+\end{proof}
+\begin{definition}[Has Physical Car Ramp Parameters]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-hasphysicalcarrampparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.HasPhysicalCarRampParameters}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudeinnewtons, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  Positivity and the acute branch depicted for the ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Car Ramp Parameters.
+\end{proof}
+\begin{definition}[Obeys Car Ramp Force Directions]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-obeyscarrampforcedirections}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.ObeysCarRampForceDirections}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorreadout, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudereadout, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-verticaldownunitdirection, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-uphillrampunitdirection, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-outwardrampnormalunitdirection, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  The three force vectors follow the orientations displayed in the figure. Each equality is required in every coherent unit system. These direction laws relate each vector only to its own magnitude; they do not relate n to w or contain the requested w * cos alpha formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Car Ramp Force Directions.
+\end{proof}
+\begin{definition}[Satisfies Car Static Equilibrium]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-satisfiescarstaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.SatisfiesCarStaticEquilibrium}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcevectorreadout, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup}
+  Static equilibrium for the car: the only three modeled external forces sum to zero. This is a vector governing law, not the requested resolved normal component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Car Static Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.AnswerChoice}
+  Labels of the four alternatives printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Force Readout]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-displayedanswerforcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.displayedAnswerForceReadout}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-forcemagnitudereadout, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-carontrailerrampsetup, def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-answerchoice}
+  The four displayed force expressions, read in any coherent force unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Force Readout.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0799.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0799:phyxminiproblems-problemphyxmini0799-answerchoice}
+  Dataset answer metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

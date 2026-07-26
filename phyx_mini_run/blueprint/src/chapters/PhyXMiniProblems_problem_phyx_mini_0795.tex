@@ -1,0 +1,342 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0795.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0795.source.json
+
+\chapter{Physics problem phyx\_mini\_0795}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0795}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A one-euro coin is dropped from the Leaning Tower of Pisa and falls freely from rest.
+
+\#\# Question
+
+What are its position after \textbackslash{}( 3.0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{})? Ignore air resistance.
+
+\#\# Answer choices
+
+- A: A: -35m
+
+- B: B: -44m
+
+- C: C: -65m
+
+- D: D: -51m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram related to a physics problem involving free fall, with the Leaning Tower of Pisa in the background. Here's a breakdown of the content:
+
+- **Leaning Tower of Pisa:** A grayscale image of the tower is on the left side.
+
+- **Vertical Axis (Y):** A vertical line labeled "Y" representing the path of a falling object is on the right.
+
+- **Points on the Axis:** There are markers along the Y-axis at different time intervals.
+  - **At \textbackslash{}( t\_0 = 0, y\_0 = 0 \textbackslash{}):** Initial position with \textbackslash{}( v\_0 = 0 \textbackslash{}).
+  - **At \textbackslash{}( t\_1 = 1.0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{}):** Inquiry about \textbackslash{}( v\_\{1y\} \textbackslash{}) and \textbackslash{}( y\_1 \textbackslash{}).
+  - **At \textbackslash{}( t\_2 = 2.0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{}):** Inquiry about \textbackslash{}( v\_\{2y\} \textbackslash{}) and \textbackslash{}( y\_2 \textbackslash{}).
+  - **At \textbackslash{}( t\_3 = 3.0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{}):** Inquiry about \textbackslash{}( v\_\{3y\} \textbackslash{}) and \textbackslash{}( y\_3 \textbackslash{}).
+
+- **Arrows and Symbols:**
+  - Downward arrows are shown at each point, indicating the direction of velocity.
+  - Dots represent objects at those points in time.
+
+- **Acceleration Information:**
+  - An arrow with \textbackslash{}( a\_y = -9 = -9.8 \textbackslash{}, \textbackslash{}text\{m/s\}\textasciicircum{}2 \textbackslash{}) shows the constant acceleration due to gravity.
+
+The diagram summarizes a scenario for a physics problem dealing with the motion of an object in free fall, indicating questions regarding velocity and position at various time points.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: -44m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/795.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0795.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0795:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0795.coinPositionAfterThreeSeconds_is_answerB}
+\uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplepositioninmeters, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-matchesproblemdescription, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-matchessuppliedfigure, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-satisfiesconstantaccelerationkinematics, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-isclosestanswerchoice}
+For the upward-positive axis and ideal free fall shown in the figure, the
+coin's position after three seconds is exactly
+$-44.1\,\mathrm{m}$.  Among the four displayed metre values, choice B,
+$-44\,\mathrm{m}$, is closest.
+\end{theorem}
+\begin{proof}
+Use the SI form of the constant-acceleration position law at the sample
+$t=3\,\mathrm{s}$.  The figure and problem data give
+$t_0=0\,\mathrm{s}$, $y_0=0\,\mathrm{m}$, $v_0=0$, and
+$a_y=-9.8\,\mathrm{m\,s^{-2}}$.  Thus
+\[
+ y(3)=0+0(3-0)+\frac12(-9.8)(3-0)^2=-44.1\,\mathrm{m}.
+\]
+Its absolute errors from choices A, B, C, and D are respectively
+$9.1$, $0.1$, $20.9$, and $6.9$ metres.  Consequently choice B has no
+greater error than any displayed alternative.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[vertical Velocity Dimension]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalvelocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.verticalVelocityDimension}
+  The physical dimension of signed vertical velocity, L T\textasciicircum{}-1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Velocity Dimension.
+\end{proof}
+\begin{definition}[vertical Acceleration Dimension]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.verticalAccelerationDimension}
+  The physical dimension of signed vertical acceleration, L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Acceleration Dimension.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.TimeQuantity}
+  A nonnegative physical time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Vertical Position Quantity]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.VerticalPositionQuantity}
+  A signed vertical position relative to the origin selected in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Position Quantity.
+\end{proof}
+\begin{definition}[Vertical Velocity Quantity]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.VerticalVelocityQuantity}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalvelocitydimension}
+  A signed component of vertical velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Velocity Quantity.
+\end{proof}
+\begin{definition}[Vertical Acceleration Quantity]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.VerticalAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationdimension}
+  A signed component of vertical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Acceleration Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationdimension}
+  A nonnegative magnitude of gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.timeReadout}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timequantity}
+  Read a physical time in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.positionReadout}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalpositionquantity}
+  Read a signed vertical position in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.velocityReadout}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalvelocityquantity}
+  Read a signed vertical velocity in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.accelerationReadout}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationquantity}
+  Read a signed vertical acceleration in an arbitrary coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[acceleration Magnitude Readout]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationmagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.accelerationMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationmagnitudequantity}
+  Read a nonnegative acceleration magnitude in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude Readout.
+\end{proof}
+\begin{definition}[Figure Sample]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.FigureSample}
+  The four time labels printed beside the vertical trajectory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Sample.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.VerticalDirection}
+  Qualitative vertical directions used by the axis and arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Falling Object Kind]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-fallingobjectkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.FallingObjectKind}
+  The physical object named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Falling Object Kind.
+\end{proof}
+\begin{definition}[Vertical Motion Model]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalmotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.VerticalMotionModel}
+  The idealized physical model requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Motion Model.
+\end{proof}
+\begin{definition}[Free Fall Figure]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-freefallfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.FreeFallFigure}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticaldirection}
+  Literal information retained from the primary raster. Its numerical fields are displayed SI readouts; they are not definitions of the trajectory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Free Fall Figure.
+\end{proof}
+\begin{definition}[Coin Free Fall Setup]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.CoinFreeFallSetup}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timequantity, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalpositionquantity, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalvelocityquantity, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationquantity, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationmagnitudequantity, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-fallingobjectkind, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalmotionmodel, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-freefallfigure}
+  Independent physical quantities of the fall. In particular, verticalPosition is an unconstrained trajectory field here: its value at three seconds is not defined from any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coin Free Fall Setup.
+\end{proof}
+\begin{definition}[sample Time In Seconds]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-sampletimeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.sampleTimeInSeconds}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timereadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  SI-second readout of one of the four labeled sampling times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sample Time In Seconds.
+\end{proof}
+\begin{definition}[sample Position In Meters]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplepositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.samplePositionInMeters}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-positionreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  SI-metre readout of position at one of the labeled sampling times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sample Position In Meters.
+\end{proof}
+\begin{definition}[sample Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplevelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.sampleVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-velocityreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-figuresample, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  SI-metres-per-second readout at one of the labeled sampling times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sample Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[vertical Acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.verticalAccelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  SI-metres-per-second-squared readout of the vertical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[gravity Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-gravitymagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.gravityMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationmagnitudereadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  SI-metres-per-second-squared readout of the magnitude g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gravity Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplevelocityinmeterspersecond}
+  The prose assumptions: a one-euro coin is released from rest in ideal free fall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-sampletimeinseconds, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplepositioninmeters, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-samplevelocityinmeterspersecond, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-verticalaccelerationinmeterspersecondsquared, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-gravitymagnitudeinmeterspersecondsquared}
+  Primary-image evidence. The question marks are recorded as graphical facts; they deliberately impose no numerical condition on the unknown later positions or velocities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Constant Acceleration Kinematics]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-satisfiesconstantaccelerationkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.SatisfiesConstantAccelerationKinematics}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-timereadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-positionreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-velocityreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-accelerationreadout, def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-coinfreefallsetup}
+  The standard constant-acceleration kinematics laws, stated in every coherent unit choice. They are general relations for arbitrary times and contain no three-second position or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Acceleration Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Position In Meters]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-answerchoice-displayedpositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.AnswerChoice.displayedPositionInMeters}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-answerchoice}
+  Position readout in metres printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Position In Meters.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0795.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0795:phyxminiproblems-problemphyxmini0795-answerchoice}
+  An answer is closest when its displayed metre value has no greater absolute error than any other displayed value. This distinguishes rounding from exact equality of physical positions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

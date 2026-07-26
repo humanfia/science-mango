@@ -1,0 +1,240 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0131.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0131.source.json
+
+\chapter{Physics problem phyx\_mini\_0131}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0131}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The Hubble Space Telescope (HST) is a reflecting telescope that was placed in orbit above the Earth's atmosphere, so its resolution would not be limited by turbulence in the atmosphere (figure). Its objective diameter is \textbackslash{}(2.4\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}). For visible light, say \textbackslash{}(\textbackslash{}lambda = 550\textbackslash{},\textbackslash{}mathrm\{nm\}\textbackslash{}).Earth-based telescopes, which are limited in resolution by atmospheric turbulence to about half an arc second, are outperformed by the Hubble.(Each degree is divided into 60 minutes each containing 60 seconds, so \textbackslash{}(1\textasciicircum{}\textbackslash{}circ = 3600\textbackslash{}) arc seconds.)
+
+\#\# Question
+
+Estimate the improvement in resolution the Hubble offers over Earth-bound telescopes.
+
+\#\# Answer choices
+
+- A: A: \$7 \textbackslash{}times x\$
+
+- B: B: \$12 \textbackslash{}times x\$
+
+- C: C: \$14 \textbackslash{}times x\$
+
+- D: D: \$9 \textbackslash{}times x\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a space telescope orbiting above Earth. The telescope is equipped with large, orange solar panels extending from its sides, reflecting light. The telescope's body is metallic and cylindrical, with intricate details. The Earth is visible in the background, showing a partial view with clouds and ocean. The scene is set in space, with a dark, starry backdrop. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$14 \textbackslash{}times x\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/131.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0131.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0131:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0131.problem_phyx_mini_0131}
+\uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-matchesscenarioandfigure, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-matchesproblemreadouts, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-hasphysicalresolutionparameters, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-satisfiesrayleighcriterion, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-satisfiesresolutionimprovementlaw, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-isnearestdisplayedimprovementchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.lengthReadout}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.lengthInMeters}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthquantity, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthreadout}
+  Meter readout used for the Hubble objective diameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthquantity, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthreadout}
+  Nanometer readout used for the visible wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[arcseconds Per Degree]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-arcsecondsperdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.arcsecondsPerDegree}
+  The stated number of arcseconds in one degree (60 * 60)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of arcseconds Per Degree.
+\end{proof}
+\begin{definition}[arcseconds To Radians]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-arcsecondstoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.arcsecondsToRadians}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-arcsecondsperdegree}
+  Convert a scalar angular readout in arcseconds to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of arcseconds To Radians.
+\end{proof}
+\begin{definition}[Telescope Optical Design]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescopeopticaldesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.TelescopeOpticalDesign}
+  Optical design explicitly assigned to Hubble in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Telescope Optical Design.
+\end{proof}
+\begin{definition}[Observatory Location]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-observatorylocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.ObservatoryLocation}
+  Locations distinguished by whether atmospheric turbulence affects viewing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observatory Location.
+\end{proof}
+\begin{definition}[Resolution Limitation]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-resolutionlimitation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.ResolutionLimitation}
+  Dominant angular-resolution mechanisms used by the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resolution Limitation.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.FigureFeature}
+  Distinct qualitative objects and details visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Figure Location]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-figurelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.FigureLocation}
+  Coarse locations of features in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Location.
+\end{proof}
+\begin{definition}[Telescope Resolution Setup]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.TelescopeResolutionSetup}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthquantity, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescopeopticaldesign, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-observatorylocation, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-resolutionlimitation, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-figurefeature, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-figurelocation}
+  All physical quantities and qualitative labels in the problem. resolutionImprovementFactor is an unknown dimensionless result. No field assigns it a displayed value or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Telescope Resolution Setup.
+\end{proof}
+\begin{definition}[Matches Scenario And Figure]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-matchesscenarioandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.MatchesScenarioAndFigure}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  Qualitative scenario and primary-image readouts. The image identifies the orbiting Hubble hardware and Earth but contains no numerical labels or text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthinmeters, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthinnanometers, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-arcsecondstoradians, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  Numerical data stated in the problem: a 2.4 m Hubble objective, visible light of wavelength 550 nm, and an atmospheric limit of one-half arcsecond for an Earth-bound telescope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Resolution Parameters]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-hasphysicalresolutionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.HasPhysicalResolutionParameters}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthinmeters, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  Positivity and small-angle conditions for the physical configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Resolution Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rayleigh Criterion]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-satisfiesrayleighcriterion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.SatisfiesRayleighCriterion}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-lengthreadout, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  Rayleigh's circular-aperture criterion θ = 1.22 λ / D, with the radian angle dimensionless. The factor 1.22 is represented exactly by 61 / 50. This governing law determines Hubble's angular resolution but does not assign the requested numerical improvement factor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rayleigh Criterion.
+\end{proof}
+\begin{definition}[Satisfies Resolution Improvement Law]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-satisfiesresolutionimprovementlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.SatisfiesResolutionImprovementLaw}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup}
+  The improvement factor compares the worse Earth-based angular limit with the smaller Hubble angular limit. This is the definition of the physical ratio, not a hypothesis that it equals any displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Resolution Improvement Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.AnswerChoice}
+  Labels of the four dimensionless improvement factors printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Improvement Factor]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-displayedimprovementfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.displayedImprovementFactor}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-answerchoice}
+  Improvement factor displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Improvement Factor.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Improvement Choice]
+  \label{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-isnearestdisplayedimprovementchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0131.IsNearestDisplayedImprovementChoice}
+  \uses{def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-telescoperesolutionsetup, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-answerchoice, def:physics:phyx-mini-0131:phyxminiproblems-problemphyxmini0131-displayedimprovementfactor}
+  A choice is the best estimate when its displayed factor is at least as close to the physically derived factor as every other displayed option
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Improvement Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

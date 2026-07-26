@@ -1,0 +1,320 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0876.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0876.source.json
+
+\chapter{Physics problem phyx\_mini\_0876}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0876}
+
+\paragraph{Problem source.}
+\#\# Question
+
+Determine the magnitude of the electric field at point 1.
+
+\#\# Answer choices
+
+- A: A: 1200V/m
+
+- B: B: -1004V/m
+
+- C: C: -2000V/m
+
+- D: D: 3750V/m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a grid with two black dots labeled "1" and "2." Surrounding these dots are concentric dashed green circles representing equipotential lines at different voltages. The voltages are labeled as 0 V, 25 V, 50 V, and 100 V. The circles are centered around the midpoint of the two dots, with larger circles indicating higher voltages. 
+
+Each grid square measures 1 cm by 1 cm, as indicated by the scale at the bottom right of the image.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 3750V/m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/876.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0876.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0876:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0876.problem_phyx_mini_0876}
+\uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudeinvoltspermeter, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-matchesprimaryequipotentialfigure, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfiesconcentriccontourgeometry, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-representsequipotentialcontours, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-hasphysicalequipotentialparameters, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfieselectrostaticpotentiallaw, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-calibratesmarkedpointfieldmagnitudes, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-usescenteredequipotentialestimate, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.electricPotentialDimension}
+  The physical dimension M L² T⁻² C⁻¹ of electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.electricFieldStrengthDimension}
+  The physical dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialdimension}
+  A signed, unit-independent electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electric Field Magnitude Quantity]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.ElectricFieldMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Magnitude Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.lengthInMeters}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthquantity}
+  Coherent-SI readout of a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthquantity, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthinmeters}
+  Centimetre readout used for the grid scale and contour radii
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialquantity}
+  Coherent-SI readout of an electric potential in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[electric Field Magnitude In Volts Per Meter]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudeinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.electricFieldMagnitudeInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudequantity}
+  Coherent-SI readout of a field magnitude in volts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Magnitude In Volts Per Meter.
+\end{proof}
+\begin{definition}[Equipotential Contour]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialcontour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.EquipotentialContour}
+  The four dashed equipotential contours visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Contour.
+\end{proof}
+\begin{definition}[Diagram Point]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-diagrampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.DiagramPoint}
+  The two black points labelled by numerals in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Point.
+\end{proof}
+\begin{definition}[Radial Side]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-radialside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.RadialSide}
+  Which intersection of a concentric contour with the vertical radial axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radial Side.
+\end{proof}
+\begin{definition}[expected Contour For Point]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedcontourforpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.expectedContourForPoint}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialcontour, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-diagrampoint}
+  Contour on which each marked point lies, as read from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Contour For Point.
+\end{proof}
+\begin{definition}[expected Side For Point]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedsideforpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.expectedSideForPoint}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-diagrampoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-radialside}
+  Side of the common center on which each marked point lies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Side For Point.
+\end{proof}
+\begin{definition}[Equipotential Map Figure]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialmapfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.EquipotentialMapFigure}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialcontour, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-diagrampoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-radialside}
+  Literal presentation data transcribed from image 876.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Map Figure.
+\end{proof}
+\begin{definition}[Equipotential Field Setup]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.EquipotentialFieldSetup}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthquantity, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialquantity, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudequantity, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialcontour, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-diagrampoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-radialside, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialmapfigure}
+  Independent geometric and physical data for the electrostatic map. The point-1 magnitude is an unconstrained physical observable. It is not defined from an answer choice or from the desired numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Field Setup.
+\end{proof}
+\begin{definition}[potential Voltage Field]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-potentialvoltagefield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.potentialVoltageField}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  Real-valued voltage field in coordinates whose spatial unit is the metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Voltage Field.
+\end{proof}
+\begin{definition}[Matches Primary Equipotential Figure]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-matchesprimaryequipotentialfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.MatchesPrimaryEquipotentialFigure}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthincentimeters, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedcontourforpoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedsideforpoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  All scalar labels and point associations read from the primary raster. The radii are inferred by counting the 1 cm grid squares from the common center. No electric-field magnitude occurs in this figure predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Equipotential Figure.
+\end{proof}
+\begin{definition}[Satisfies Concentric Contour Geometry]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfiesconcentriccontourgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.SatisfiesConcentricContourGeometry}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthinmeters, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedcontourforpoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedsideforpoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  The four dashed curves are concentric circles. Their upper and lower axial intersections are obtained by moving the stated radius from the common center. The two black-dot coordinates are then fixed by their image-read contour and side associations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Concentric Contour Geometry.
+\end{proof}
+\begin{definition}[Represents Equipotential Contours]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-representsequipotentialcontours}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.RepresentsEquipotentialContours}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-expectedcontourforpoint, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  The drawn dashed curves really are level sets of the physical potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Represents Equipotential Contours.
+\end{proof}
+\begin{definition}[Has Physical Equipotential Parameters]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-hasphysicalequipotentialparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.HasPhysicalEquipotentialParameters}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-lengthinmeters, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudeinvoltspermeter, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  Positivity and nondegeneracy conditions for the physical readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Equipotential Parameters.
+\end{proof}
+\begin{definition}[Satisfies Electrostatic Potential Law]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfieselectrostaticpotentiallaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.SatisfiesElectrostaticPotentialLaw}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-potentialvoltagefield}
+  Static electrostatics in metre coordinates: the electric field is the negative gradient of the scalar electric potential, E = -∇V
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electrostatic Potential Law.
+\end{proof}
+\begin{definition}[Calibrates Marked Point Field Magnitudes]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-calibratesmarkedpointfieldmagnitudes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.CalibratesMarkedPointFieldMagnitudes}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudeinvoltspermeter, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup}
+  The dimensionful scalar observable agrees with the norm of the Physlib vector field at each marked point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Calibrates Marked Point Field Magnitudes.
+\end{proof}
+\begin{definition}[Uses Centered Equipotential Estimate]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-usescenteredequipotentialestimate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.UsesCenteredEquipotentialEstimate}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-potentialvoltagefield}
+  Centered equipotential-map estimate at point 1. The upper intersections of the nearest displayed inner and outer contours, 25 V and 100 V, bracket point 1 by one grid square on each side. The relation is the general finite-difference estimate |E| = |ΔV| / Δs; it contains no answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Centered Equipotential Estimate.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.AnswerChoice}
+  Labels of the four answer choices in the source record
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[field Readout In Volts Per Meter]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-answerchoice-fieldreadoutinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.AnswerChoice.fieldReadoutInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-answerchoice}
+  Signed number in volts per metre printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Readout In Volts Per Meter.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[centered probe separation]
+  \label{lem:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-centered-probe-separation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.centered_probe_separation}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-matchesprimaryequipotentialfigure, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfiesconcentriccontourgeometry}
+  The two neighboring upper contour intersections are 2 cm apart
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of centered probe separation.
+\end{proof}
+\begin{lemma}[centered probe potential span]
+  \label{lem:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-centered-probe-potential-span}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.centered_probe_potential_span}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-matchesprimaryequipotentialfigure}
+  The neighboring contour values span 100 V - 25 V = 75 V
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of centered probe potential span.
+\end{proof}
+\begin{lemma}[point one field centered expression]
+  \label{lem:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-point-one-field-centered-expression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0876.point_one_field_centered_expression}
+  \uses{def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricpotentialinvolts, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-electricfieldmagnitudeinvoltspermeter, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-equipotentialfieldsetup, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-satisfieselectrostaticpotentiallaw, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-calibratesmarkedpointfieldmagnitudes, def:physics:phyx-mini-0876:phyxminiproblems-problemphyxmini0876-usescenteredequipotentialestimate}
+  Before evaluating the labels, the point-1 magnitude is the centered potential difference divided by the neighboring-contour separation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of point one field centered expression.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,366 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0187.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0187.source.json
+
+\chapter{Physics problem phyx\_mini\_0187}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0187}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The broadcast antenna of an AM radio station is located at the edge of town. The station owners would like to beam all of the energy into town and none into the countryside, but a single antenna radiates energy equally in all directions. Figure shows two parallel antennas separated by distance \$L\$. Both antennas broadcast a signal at wavelength \$\textbackslash{}lambda\$, but antenna 2 can delay its broadcast relative to antenna 1 by a time interval \$\textbackslash{}Delta t\$ in order to create a phase difference \$\textbackslash{}Delta \textbackslash{}phi\_0\$ between the sources. Your task is to find values of \$L\$ and \$\textbackslash{}Delta t\$ such that the waves interfere constructively on the town side and destructively on the country side. Let antenna 1 be at \$x = 0\$. The wave that travels to the right is \$a \textbackslash{}sin[2\textbackslash{}pi (x/\textbackslash{}lambda - t/T)]\$. The left wave is \$a \textbackslash{}sin[2\textbackslash{}pi (-x/\textbackslash{}lambda - t/T)]\$. (It must be this, rather than \$a \textbackslash{}sin[2\textbackslash{}pi (x/\textbackslash{}lambda + t/T)]\$, so that the two waves match at \$x = 0\$.) Antenna 2 is at \$x = L\$. It broadcasts wave \$a \textbackslash{}sin[2\textbackslash{}pi ((x - L)/\textbackslash{}lambda - t/T) + \textbackslash{}phi\_\{20\}]\$ to the right and wave \$a \textbackslash{}sin[2\textbackslash{}pi (-(x - L)/\textbackslash{}lambda - t/T) + \textbackslash{}phi\_\{20\}]\$ to the left.
+
+\#\# Question
+
+Evaluate  \$\textbackslash{}Delta t\$ for the realistic AM radio frequency of \$1000 \textbackslash{}, \textbackslash{}text\{kHz\}\$.
+
+\#\# Answer choices
+
+- A: A: 500 ns
+
+- B: B: 125 ns
+
+- C: C: 100 ns
+
+- D: D: 250 ns
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two tall antenna towers labeled "Antenna 1" and "Antenna 2." 
+
+To the left of the antennas, there are illustrated trees representing the "Country." On the right side, there are buildings, including a house and a high-rise, representing the "Town." 
+
+The antennas emit two sets of waves: 
+
+- The top waves are labeled "D₁ left" (going left) and "D₁ right" (going right).
+- The lower waves are labeled "D₂ left" (going left) and "D₂ right" (going right).
+
+There are numerical labels beneath the antennas indicating their positions: "x = 0" under Antenna 1 and "x = L" under Antenna 2, denoting the spatial positioning.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 250 ns
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/187.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0187.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0187:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0187.problem_phyx_mini_0187}
+\uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinnanoseconds, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-matchesscenarioandfigure, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasstatedcarrierfrequency, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasphysicalwaveparameters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdelayedtravelingwavelaws, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdirectionalinterferencedesign, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-usesprincipalshortestspacingbranch, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-recordeddatasetanswer, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.LengthQuantity}
+  A real-valued physical length, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.DurationQuantity}
+  A real-valued physical duration, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.FrequencyQuantity}
+  A real-valued physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.lengthReadout}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.durationReadout}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity}
+  Read a physical duration as a real number in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.frequencyReadout}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.lengthInMeters}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthreadout}
+  Meter readout used in the traveling-wave and phase-propagation formulas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.durationInSeconds}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationreadout}
+  Second readout used for the period and broadcast-delay laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Nanoseconds]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinnanoseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.durationInNanoseconds}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationreadout}
+  Nanosecond readout used by the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Nanoseconds.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyreadout}
+  Kilohertz readout: inverse milliseconds are kilohertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[Antenna Label]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-antennalabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.AntennaLabel}
+  The two labeled antennas in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Antenna Label.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.PropagationDirection}
+  The two axial propagation directions shown by the arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[Service Region]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-serviceregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.ServiceRegion}
+  The two service regions on opposite sides of the antenna pair
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Service Region.
+\end{proof}
+\begin{definition}[Radiated Wave Label]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.RadiatedWaveLabel}
+  The four wave labels printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radiated Wave Label.
+\end{proof}
+\begin{definition}[source]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel-source}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.RadiatedWaveLabel.source}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-antennalabel, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel}
+  The source antenna denoted by each printed wave label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source.
+\end{proof}
+\begin{definition}[direction]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel-direction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.RadiatedWaveLabel.direction}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-propagationdirection, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel}
+  The propagation direction denoted by each printed wave label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of direction.
+\end{proof}
+\begin{definition}[spatial Sign]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-propagationdirection-spatialsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.PropagationDirection.spatialSign}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-propagationdirection}
+  Sign of the spatial phase term for a right- or left-traveling wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spatial Sign.
+\end{proof}
+\begin{definition}[Directional Antenna Array Setup]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.DirectionalAntennaArraySetup}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-antennalabel, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-propagationdirection, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-serviceregion, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel}
+  The physical setup. The delay and phase offset are unknown fields: neither is assigned its requested numerical value. The displacement function records the four emitted waves as scalar amplitude readouts at physical positions and times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Directional Antenna Array Setup.
+\end{proof}
+\begin{definition}[source Phase Radians]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-sourcephaseradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.sourcePhaseRadians}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-antennalabel, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  Source phase at the reference time; antenna 1 fixes the zero of phase
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Phase Radians.
+\end{proof}
+\begin{definition}[Matches Scenario And Figure]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-matchesscenarioandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.MatchesScenarioAndFigure}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  The qualitative and coordinate information in the problem and primary image: antenna 1 is at the origin, antenna 2 is at x = L, country is left, and town is right. No delay or phase value appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Figure.
+\end{proof}
+\begin{definition}[Has Stated Carrier Frequency]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasstatedcarrierfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.HasStatedCarrierFrequency}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyinkilohertz, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  The numerical carrier-frequency datum stated in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Carrier Frequency.
+\end{proof}
+\begin{definition}[Has Physical Wave Parameters]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasphysicalwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.HasPhysicalWaveParameters}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinseconds, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyinkilohertz, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  Positivity and nondegeneracy conditions for the physical wave system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wave Parameters.
+\end{proof}
+\begin{definition}[ideal Traveling Wave Readout]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-idealtravelingwavereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.idealTravelingWaveReadout}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationquantity, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinseconds, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-radiatedwavelabel, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-sourcephaseradians}
+  The traveling-wave value predicted from the source, direction, common wavelength lambda, and common period T. For antenna 1 at zero this expands to the two formulas a sin(2 pi (x/lambda - t/T)) and a sin(2 pi (-x/lambda - t/T)). For antenna 2 at L, it expands to the two corresponding formulas in x - L with the added phase phi\_20
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ideal Traveling Wave Readout.
+\end{proof}
+\begin{definition}[Satisfies Delayed Traveling Wave Laws]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdelayedtravelingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.SatisfiesDelayedTravelingWaveLaws}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationreadout, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-frequencyreadout, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-idealtravelingwavereadout}
+  Governing laws for the monochromatic sources. The first field asserts all four given sine-wave equations. The second is f T = 1 in any time unit. Because the displayed wave phase contains -t/T, delaying antenna 2 by Delta t adds the phase 2 pi Delta t/T, as recorded by the third field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Delayed Traveling Wave Laws.
+\end{proof}
+\begin{definition}[town Relative Phase Radians]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-townrelativephaseradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.townRelativePhaseRadians}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  Relative phase of antenna 2 versus antenna 1 on the town (right) side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of town Relative Phase Radians.
+\end{proof}
+\begin{definition}[country Relative Phase Radians]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-countryrelativephaseradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.countryRelativePhaseRadians}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  Relative phase of antenna 2 versus antenna 1 on the country (left) side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of country Relative Phase Radians.
+\end{proof}
+\begin{definition}[Satisfies Directional Interference Design]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdirectionalinterferencedesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.SatisfiesDirectionalInterferenceDesign}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-townrelativephaseradians, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-countryrelativephaseradians}
+  The directional-interference design requirement. Equal-phase waves on the town side differ by an integer number of full turns; opposite-phase waves on the country side differ by an odd number of half turns. The orders are not fixed to values that encode the requested delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Directional Interference Design.
+\end{proof}
+\begin{definition}[Uses Principal Shortest Spacing Branch]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-usesprincipalshortestspacingbranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.UsesPrincipalShortestSpacingBranch}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup}
+  Selection of the shortest positive antenna spacing and the principal positive phase setting. These range conditions select the standard design branch without assuming either a quarter wavelength or a quarter period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Principal Shortest Spacing Branch.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.AnswerChoice}
+  The four delay choices displayed in the question, in nanoseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Delay Nanoseconds]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-displayeddelaynanoseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.displayedDelayNanoseconds}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-answerchoice}
+  Nanosecond delay printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Delay Nanoseconds.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationinnanoseconds, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-answerchoice, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-displayeddelaynanoseconds}
+  A physical antenna delay agrees with the value displayed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[principal design is quarter wavelength and phase]
+  \label{lem:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-principal-design-is-quarter-wavelength-and-phase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.principal_design_is_quarter_wavelength_and_phase}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-lengthinmeters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasphysicalwaveparameters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdirectionalinterferencedesign, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-usesprincipalshortestspacingbranch}
+  The principal constructive/destructive branch has quarter-wavelength spacing and a quarter-turn initial phase. This is an intermediate consequence of the two interference conditions and range restrictions, not an input premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of principal design is quarter wavelength and phase.
+\end{proof}
+\begin{lemma}[broadcast delay is quarter period]
+  \label{lem:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-broadcast-delay-is-quarter-period}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0187.broadcast_delay_is_quarter_period}
+  \uses{def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-durationreadout, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-directionalantennaarraysetup, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-hasphysicalwaveparameters, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdelayedtravelingwavelaws, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-satisfiesdirectionalinterferencedesign, def:physics:phyx-mini-0187:phyxminiproblems-problemphyxmini0187-usesprincipalshortestspacingbranch}
+  Combining the quarter-turn phase with the delay-to-phase law gives a delay of one quarter of the carrier period. The conclusion remains unit-independent
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of broadcast delay is quarter period.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

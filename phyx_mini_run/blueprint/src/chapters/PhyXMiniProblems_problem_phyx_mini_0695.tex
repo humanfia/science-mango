@@ -1,0 +1,410 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0695.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0695.source.json
+
+\chapter{Physics problem phyx\_mini\_0695}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0695}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(5.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) box is attached to one end of a spring with spring constant \textbackslash{}(80\textbackslash{},\textbackslash{}mathrm\{N/m\}\textbackslash{}). The other end of the spring is anchored to a wall. Initially the box is at rest at the spring's equilibrium position. A rope with a constant tension of \textbackslash{}(100\textbackslash{},\textbackslash{}mathrm\{N\}\textbackslash{}) then pulls the box away from the wall. The coefficient of friction between the box and the floor is \textbackslash{}(0.30\textbackslash{}).The box has moved \textbackslash{}(50\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}).
+
+\#\# Question
+
+How much power is being supplied by the hand or motor pulling the rope?
+
+\#\# Answer choices
+
+- A: A: 340W
+
+- B: B: 380W
+
+- C: C: 360W
+
+- D: D: 400W
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics scenario involving two blocks, a spring, and various forces:
+
+1. **Spring**:
+   - Positioned on the left with a spring constant \textbackslash{}( k = 80 \textbackslash{}, \textbackslash{}text\{N/m\} \textbackslash{}).
+
+2. **Blocks**:
+   - Two blocks are present on a horizontal surface.
+   - The block on the left has a mass labeled as \textbackslash{}( m = 5.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}).
+
+3. **Forces**:
+   - An arrow labeled \textbackslash{}( \textbackslash{}vec\{T\} \textbackslash{}) is shown pointing to the right, indicating tension or an applied force on the blocks.
+   - An arrow labeled \textbackslash{}( \textbackslash{}vec\{f\_k\} \textbackslash{}) is pointing to the left, indicating the kinetic friction acting against the direction of motion.
+
+4. **Axis and Measurements**:
+   - The horizontal axis is labeled with \textbackslash{}( x \textbackslash{}).
+   - The initial position is marked as \textbackslash{}( 0 \textbackslash{}).
+   - A displacement \textbackslash{}( \textbackslash{}Delta r = 0.50 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}) is specified between the two blocks.
+
+The scene illustrates a dynamic system with an applied force acting against friction, influenced by the spring's constant.
+
+\#\# Dataset metadata
+
+Work and Energy; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 360W
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/695.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0695.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0695:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0695.suppliedPower_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerinwatts, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesproblemdata, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-usesstandardterrestrialgravity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesprimaryfigure, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-hasphysicalparameters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-satisfiespulledspringboxlaws, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-recordeddatasetanswer, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-roundstodisplayedpower}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.MassQuantity}
+  A nonnegative physical mass, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PositionQuantity}
+  A signed coordinate on the horizontal x axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.LengthQuantity}
+  A nonnegative physical length, used for spring extension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.AccelerationQuantity}
+  A nonnegative acceleration magnitude of dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.ForceQuantity}
+  A nonnegative force magnitude of dimension M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.SpringStiffnessQuantity}
+  A nonnegative linear spring stiffness, with dimension M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.powerDimension}
+  The physical dimension M L² T⁻³ of power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PowerQuantity}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerdimension}
+  A nonnegative physical power whose coherent-SI unit is the watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.massInKilograms}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.positionInMeters}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positionquantity}
+  Read a signed horizontal coordinate in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.lengthInMeters}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationquantity}
+  Read an acceleration magnitude in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.forceInNewtons}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forcequantity}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[spring Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.springStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessquantity}
+  Read a spring stiffness in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.speedInMetersPerSecond}
+  Read a Physlib speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.energyInJoules}
+  Read a Physlib energy in joules using its calibrated joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.powerInWatts}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerquantity}
+  Read a physical power in watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[Motion State]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-motionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.MotionState}
+  The two configurations of the box shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion State.
+\end{proof}
+\begin{definition}[Spring Model]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.SpringModel}
+  The stated constitutive model of the wall-mounted spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Model.
+\end{proof}
+\begin{definition}[Pulling Protocol]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pullingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PullingProtocol}
+  The pulling protocol used after release from rest
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulling Protocol.
+\end{proof}
+\begin{definition}[Surface Model]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-surfacemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.SurfaceModel}
+  The supporting surface and its role in the motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Model.
+\end{proof}
+\begin{definition}[Power Supplier]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powersupplier}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PowerSupplier}
+  The source of the power requested by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Supplier.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.HorizontalDirection}
+  Horizontal directions distinguished by the force arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Force Arrow]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-figureforcearrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.FigureForceArrow}
+  The two force arrows explicitly drawn in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Force Arrow.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.FigureTextLabel}
+  Literal symbolic labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Pulled Spring Box Figure]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PulledSpringBoxFigure}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-motionstate, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-horizontaldirection, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-figureforcearrow, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-figuretextlabel}
+  Presentation data extracted from image 695.png. The two box drawings are two states of one physical box, not two interacting blocks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulled Spring Box Figure.
+\end{proof}
+\begin{definition}[Pulled Spring Box Setup]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.PulledSpringBoxSetup}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positionquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forcequantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-motionstate, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springmodel, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pullingprotocol, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-surfacemodel, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powersupplier, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxfigure}
+  Independent physical quantities for the apparatus and the two motion states. The supplied power is an observable field and is not defined from an answer choice or from the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulled Spring Box Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massinkilograms, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positioninmeters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthinmeters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forceinnewtons, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-speedinmeterspersecond, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  The numerical data and initial/final conditions stated in the prose. This predicate contains no power value and no answer-choice assertion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  Standard near-Earth gravitational calibration used by the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massinkilograms, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  Literal labels, numerical inscriptions, geometry, and arrow directions visible in the supplied primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massinkilograms, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positioninmeters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forceinnewtons, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-speedinmeterspersecond, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-energyinjoules, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  Positivity and nondegeneracy conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Pulled Spring Box Laws]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-satisfiespulledspringboxlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.SatisfiesPulledSpringBoxLaws}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-massinkilograms, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-positioninmeters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-lengthinmeters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-forceinnewtons, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-speedinmeterspersecond, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-energyinjoules, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerinwatts, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup}
+  The one-dimensional idealizations used in the work--energy calculation. extension equals rightward travel from the equilibrium position; vertical force balance gives N = m g; kinetic friction has magnitude μ\_k N and does negative work; the spring obeys Hooke's law and stores k x² / 2; translational kinetic energy is m v² / 2; the change in kinetic energy is rope work plus friction work minus the increase in spring potential energy; the puller's instantaneous power is the collinear product T v.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pulled Spring Box Laws.
+\end{proof}
+\begin{lemma}[final Kinetic Energy In Joules eq 653 div 20]
+  \label{lem:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-finalkineticenergyinjoules-eq-653-div-20}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.finalKineticEnergyInJoules_eq_653_div_20}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-energyinjoules, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesproblemdata, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-usesstandardterrestrialgravity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-hasphysicalparameters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-satisfiespulledspringboxlaws}
+  After 0.50 m, the rope has done 50 J, friction has removed 7.35 J, and the spring stores 10 J, leaving 32.65 J of kinetic energy
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Kinetic Energy In Joules eq 653 div 20.
+\end{proof}
+\begin{lemma}[final Speed In Meters Per Second eq sqrt 653 div 50]
+  \label{lem:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-finalspeedinmeterspersecond-eq-sqrt-653-div-50}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.finalSpeedInMetersPerSecond_eq_sqrt_653_div_50}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-speedinmeterspersecond, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesproblemdata, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-usesstandardterrestrialgravity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-hasphysicalparameters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-satisfiespulledspringboxlaws}
+  The corresponding nonnegative final speed is sqrt (653 / 50) m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Speed In Meters Per Second eq sqrt 653 div 50.
+\end{proof}
+\begin{lemma}[final Supplied Power In Watts eq]
+  \label{lem:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-finalsuppliedpowerinwatts-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.finalSuppliedPowerInWatts_eq}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerinwatts, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-pulledspringboxsetup, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-matchesproblemdata, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-usesstandardterrestrialgravity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-hasphysicalparameters, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-satisfiespulledspringboxlaws}
+  The exact instantaneous puller power before numerical rounding
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Supplied Power In Watts eq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power Watts]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-answerchoice-displayedpowerwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.AnswerChoice.displayedPowerWatts}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-answerchoice}
+  Power in watts printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power Watts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Power]
+  \label{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-roundstodisplayedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0695.RoundsToDisplayedPower}
+  \uses{def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerquantity, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-powerinwatts, def:physics:phyx-mini-0695:phyxminiproblems-problemphyxmini0695-answerchoice}
+  A physical power rounds to a displayed multiple of 20 W. The strict half-step tolerance avoids identifying either neighboring multiple at a tie
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Power.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

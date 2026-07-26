@@ -1,0 +1,365 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0288.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0288.source.json
+
+\chapter{Physics problem phyx\_mini\_0288}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0288}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the transverse velocity \$u\$ versus time \$t\$ of the point on a string at \$x = 0\$, as a wave passes through it. The scale on the vertical axis is set by \$u\_s = 4.0\$ m/s. The wave has the generic form \$y(x, t) = y\_m \textbackslash{}sin(kx - \textbackslash{}omega t + \textbackslash{}phi)\$.
+
+\#\# Question
+
+What then is \$\textbackslash{}phi\$?
+
+\#\# Answer choices
+
+- A: A: -0.78 rad
+
+- B: B: -0.36 rad
+
+- C: C: 0.64 rad
+
+- D: D: -0.64 rad
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a sine wave-like curve. The x-axis is labeled as "t", and the y-axis is labeled as "u (m/s)". The wave starts below the x-axis, rises through it, reaches a peak, and then descends back through the axis. The y-axis has markings at two points: "us" and "-us", indicating the peak positive and negative values of the curve. Grid lines are present to aid in reading the graph. The curve likely represents a periodic function of speed over time.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -0.64 rad
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/288.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0288.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0288:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0288.problem_phyx_mini_0288}
+\uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-matchestransversevelocitygraph, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-satisfiessinusoidaltravelingwave, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-recordeddatasetanswer, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-isnearestdisplayedphase}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.velocityDimension}
+  Velocity has physical dimension length divided by time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.accelerationDimension}
+  Acceleration has physical dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.LengthMagnitude}
+  A nonnegative displacement amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SignedLengthQuantity}
+  A signed coordinate or transverse displacement on the one-dimensional string
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Wave Number Magnitude]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumbermagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.WaveNumberMagnitude}
+  A nonnegative wave-number magnitude, carrying inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Magnitude.
+\end{proof}
+\begin{definition}[Angular Frequency Magnitude]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.AngularFrequencyMagnitude}
+  A nonnegative angular-frequency magnitude, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Magnitude.
+\end{proof}
+\begin{definition}[Speed Magnitude]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SpeedMagnitude}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocitydimension}
+  A nonnegative transverse-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Magnitude.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SignedVelocityQuantity}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocitydimension}
+  A signed transverse-velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Signed Acceleration Quantity]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SignedAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-accelerationdimension}
+  A signed transverse-acceleration component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Acceleration Quantity.
+\end{proof}
+\begin{definition}[length Magnitude Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.lengthMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitude}
+  Read a nonnegative length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Magnitude Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity}
+  Read a signed length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[wave Number Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumberreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.waveNumberReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumbermagnitude}
+  Read wave number in inverse units of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number Readout.
+\end{proof}
+\begin{definition}[angular Frequency Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.angularFrequencyReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencymagnitude}
+  Read angular frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.speedReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedmagnitude}
+  Read a nonnegative speed in coherent selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityquantity}
+  Read a signed velocity in coherent selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[signed Acceleration Readout]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.signedAccelerationReadout}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationquantity}
+  Read a signed acceleration in coherent selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Acceleration Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.lengthInMeters}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthreadout}
+  Read a signed position or displacement in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[wave Number In Radians Per Meter]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumberinradianspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.waveNumberInRadiansPerMeter}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumbermagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumberreadout}
+  Read wave number in radians per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number In Radians Per Meter.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencymagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyreadout}
+  Read angular frequency in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedmagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedreadout}
+  Read a nonnegative speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityreadout}
+  Read a signed transverse velocity in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationreadout}
+  Read a signed transverse acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Graph Axis Symbol]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-graphaxissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.GraphAxisSymbol}
+  The literal symbols printed beside the graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis Symbol.
+\end{proof}
+\begin{definition}[Velocity Graph Label]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocitygraphlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.VelocityGraphLabel}
+  Named velocity levels and the time origin visible in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Graph Label.
+\end{proof}
+\begin{definition}[Transverse Velocity Time Figure]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-transversevelocitytimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.TransverseVelocityTimeFigure}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedmagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-graphaxissymbol, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocitygraphlabel}
+  The transverse-velocity-versus-time figure and its dimensionful labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transverse Velocity Time Figure.
+\end{proof}
+\begin{definition}[Sinusoidal String Wave Setup]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SinusoidalStringWaveSetup}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumbermagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencymagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedmagnitude, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-transversevelocitytimefigure}
+  The physical wave setup. Time arguments are real coordinates measured in seconds. The position argument and all response values remain dimensionful. The phase is an angle modulo 2*pi; Real.Angle.toReal supplies its canonical representative in (-pi, pi]
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sinusoidal String Wave Setup.
+\end{proof}
+\begin{definition}[Matches Transverse Velocity Graph]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-matchestransversevelocitygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.MatchesTransverseVelocityGraph}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthinmeters, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedinmeterspersecond, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-velocityinmeterspersecond, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup}
+  Data read directly from the problem statement and primary image. The evenly spaced horizontal grid makes the unlabeled extrema +5 m/s and -5 m/s: the u\_s = 4 m/s line is one grid interval below the positive peak. At the vertical time axis the curve is at -u\_s and has positive slope. No field specifies the phase or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Transverse Velocity Graph.
+\end{proof}
+\begin{definition}[Satisfies Sinusoidal Traveling Wave]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-satisfiessinusoidaltravelingwave}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.SatisfiesSinusoidalTravelingWave}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitudereadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedaccelerationreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthinmeters, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumberinradianspermeter, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyinradianspersecond, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup}
+  The governing laws for the stated traveling-wave convention y(x,t) = y\_m sin (k*x - omega*t + phi). The derivative fields express transverse velocity as dy/dt and transverse acceleration as du/dt. The last two fields give the physical meaning of the maximum transverse speed. None of these laws states the requested numerical phase
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sinusoidal Traveling Wave.
+\end{proof}
+\begin{lemma}[transverse velocity normal form]
+  \label{lem:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-transverse-velocity-normal-form}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.transverse_velocity_normal_form}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedlengthquantity, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitudereadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-signedvelocityreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthinmeters, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-wavenumberinradianspermeter, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyinradianspersecond, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-satisfiessinusoidaltravelingwave}
+  Differentiating the source's displacement normal form gives u(x,t) = -omega*y\_m*cos(k*x - omega*t + phi) in coherent units. This is a derived law, not a premise field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of transverse velocity normal form.
+\end{proof}
+\begin{lemma}[maximum transverse speed eq angular Frequency mul amplitude]
+  \label{lem:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-maximum-transverse-speed-eq-angularfrequency-mul-amplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.maximum_transverse_speed_eq_angularFrequency_mul_amplitude}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-lengthmagnitudereadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-speedreadout, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-angularfrequencyinradianspersecond, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-satisfiessinusoidaltravelingwave}
+  The velocity amplitude of the sinusoidal wave is omega*y\_m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum transverse speed eq angular Frequency mul amplitude.
+\end{proof}
+\begin{lemma}[phase from transverse velocity graph]
+  \label{lem:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-phase-from-transverse-velocity-graph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.phase_from_transverse_velocity_graph}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-sinusoidalstringwavesetup, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-matchestransversevelocitygraph, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-satisfiessinusoidaltravelingwave}
+  At x = 0, t = 0, the graph gives u/u\_max = -4/5. The derived velocity law therefore gives cos(phi) = 4/5. The graph is rising there, so its acceleration is positive; differentiating once more puts the canonical phase in quadrant IV. Thus its exact principal representative is -arccos (4/5)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of phase from transverse velocity graph.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.AnswerChoice}
+  The four phase readouts printed as answer choices, in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Phase Radians]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-displayedphaseradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.displayedPhaseRadians}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-answerchoice}
+  Numerical radian readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Phase Radians.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Phase]
+  \label{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-isnearestdisplayedphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0288.IsNearestDisplayedPhase}
+  \uses{def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-answerchoice, def:physics:phyx-mini-0288:phyxminiproblems-problemphyxmini0288-displayedphaseradians}
+  A choice is at least as close as every displayed phase readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Phase.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

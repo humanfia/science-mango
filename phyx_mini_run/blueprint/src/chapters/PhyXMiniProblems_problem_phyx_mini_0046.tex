@@ -1,0 +1,187 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0046.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0046.source.json
+
+\chapter{Physics problem phyx\_mini\_0046}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0046}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows a two-slit interference experiment in which the slits are 0.200\textbackslash{} \textbackslash{}mathrm\{mm\} apart and the screen is 1.00\textbackslash{} \textbackslash{}mathrm\{m\} from the slits. The \textbackslash{}( m = 3 \textbackslash{}) bright fringe in the figure is 9.49\textbackslash{} \textbackslash{}mathrm\{mm\} from the central bright fringe.
+
+\#\# Question
+
+Find the wavelength of the light.
+
+\#\# Answer choices
+
+- A: A: 643nm
+
+- B: B: 633nm
+
+- C: C: 639nm
+
+- D: D: 533nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a double-slit interference setup.
+
+1. **Components and Arrangement**:
+   - A light source on the left emits a beam toward a barrier with a single slit.
+   - The light then hits a second barrier containing two slits, labeled as "Slits."
+   - The distance between the slits, \textbackslash{}( d \textbackslash{}), is denoted as 0.200 mm.
+   - A screen is positioned on the right to capture the interference pattern, with the distance from the slits to the screen \textbackslash{}( R \textbackslash{}) being 1.00 m.
+
+2. **Interference Pattern**:
+   - The light passes through the slits, creating a pattern on the screen.
+   - The pattern is shown as a series of bright and dark fringes.
+   - The spacing between adjacent fringes on the screen is labeled as 9.49 mm.
+
+3. **Coordinates and Labels**:
+   - The x-axis runs horizontally, while the y-axis is vertical through the screen.
+   - Fringe orders are labeled on the screen, with \textbackslash{}( m \textbackslash{}) values from -3 to +3, indicating the order of the bright fringes.
+
+This setup demonstrates the classic double-slit experiment, showing how light exhibits wave-like interference.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 633nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/46.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0046.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0046:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0046.wavelength_rounds_to_recordedAnswerB}
+\uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-nanometersvalue, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-doubleslitapparatus, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-brightfringeobservation, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-hasstatedfigurereadouts, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-satisfiesdoubleslitbrightfringelaws, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-answerwavelengthnanometers}
+For slit separation \(0.200\,\mathrm{mm}\), screen distance
+\(1.00\,\mathrm m\), and the third bright fringe at \(9.49\,\mathrm{mm}\),
+the exact screen geometry and double-slit maximum law give a wavelength whose
+nanometre readout rounds to \(633\), answer B.
+\end{theorem}
+\begin{proof}
+Let \(\theta\) be the acute fringe angle.  The screen relation gives
+\(\tan\theta=0.00949\), hence
+\(\sin\theta=0.00949/\sqrt{1+0.00949^2}\).  The \(m=3\) bright-fringe law
+then gives
+\[
+ \lambda=\frac{0.0002}{3}\,
+   \frac{0.00949}{\sqrt{1+0.00949^2}}\ {\rm m}.
+\]
+All quantities are positive.  Square the equivalent nonnegative inequalities
+and normalize the rational expressions to show that the nanometre readout
+lies in the rounding interval \([632.5,633.5)\).  Thus its nearest integer is
+the value printed for B.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.DimLength}
+  A signed physical length, represented independently of a chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.lengthValueIn}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength}
+  Read a physical length as a real scalar in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.metersValue}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-lengthvaluein}
+  The metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[millimeters Value]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-millimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.millimetersValue}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-lengthvaluein}
+  The millimetre readout used for the slit separation and fringe displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of millimeters Value.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.nanometersValue}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-lengthvaluein}
+  The nanometre readout used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[Double Slit Apparatus]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-doubleslitapparatus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.DoubleSlitApparatus}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength}
+  The monochromatic light, the pair of slits, and the screen in the depicted apparatus. screenDistanceAlongX is the figure's horizontal distance R, while slitSeparation is its label d
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Double Slit Apparatus.
+\end{proof}
+\begin{definition}[Bright Fringe Observation]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-brightfringeobservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.BrightFringeObservation}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-dimlength}
+  The signed order, vertical screen coordinate, and ray angle of one bright fringe. The central bright fringe is at vertical coordinate zero and order zero; the observed fringe in the figure lies above it at order +3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bright Fringe Observation.
+\end{proof}
+\begin{definition}[Has Stated Figure Readouts]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-hasstatedfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.HasStatedFigureReadouts}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-metersvalue, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-millimetersvalue, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-doubleslitapparatus, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-brightfringeobservation}
+  The four numerical labels read from the problem text and primary figure. This predicate deliberately contains no readout of the unknown wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Figure Readouts.
+\end{proof}
+\begin{definition}[Satisfies Double Slit Bright Fringe Laws]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-satisfiesdoubleslitbrightfringelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.SatisfiesDoubleSlitBrightFringeLaws}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-metersvalue, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-doubleslitapparatus, def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-brightfringeobservation}
+  The exact straight-line screen geometry and constructive double-slit interference law for the observed bright fringe: y = R tan θ, and d sin θ = m λ. The equations use metre readouts so every term in each dimensional equation has the same scalar unit. They contain no numerical value for the requested wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Double Slit Bright Fringe Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Wavelength Nanometers]
+  \label{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-answerwavelengthnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0046.answerWavelengthNanometers}
+  \uses{def:physics:phyx-mini-0046:phyxminiproblems-problemphyxmini0046-answerchoice}
+  Each displayed answer choice, expressed as a whole number of nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Wavelength Nanometers.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

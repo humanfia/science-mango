@@ -1,0 +1,206 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0001.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0001.source.json
+
+\chapter{Physics problem phyx\_mini\_0001}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0001}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A ray of light travels from air into another medium, making an angle of \textbackslash{}( \textbackslash{}theta\_1 = 45.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{}) with the normal as in figure.
+
+\#\# Question
+
+Find the angle of refraction \textbackslash{}( \textbackslash{}theta\_2 \textbackslash{}) if the second medium is water.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 22.7\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- B: B: \textbackslash{}( 31.4\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- C: C: \textbackslash{}( 32.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- D: D: \textbackslash{}( 33.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram illustrating the refraction of light as it passes from one medium to another. 
+
+- There are two regions: "Air" at the top and "Second medium" below.
+- A solid blue line represents the light ray traveling from the top left through the boundary between the two media.
+- The light ray is bent at the interface between the two media.
+- An imaginary vertical dashed line represents the normal to the boundary.
+- Two angles are labeled: \textbackslash{}(θ\_1\textbackslash{}) in the "Air" (angle of incidence) and \textbackslash{}(θ\_2\textbackslash{}) in the "Second medium" (angle of refraction).
+- The angles \textbackslash{}(θ\_1\textbackslash{}) and \textbackslash{}(θ\_2\textbackslash{}) are measured between the normal line and the light ray in their respective media.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 32.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/1.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0001.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0001:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0001.thetaTwo_matches_choice_C}
+\uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-degrees, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetaone, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetatwo, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-haspositiverefractiveindices, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-satisfiessnellslaw, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-isphysicalrefractionangle, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-matchesanswertonearesttenth}
+For incidence from air into water with indices \(1\) and \(1.333\), incidence
+angle \(45^\circ\), and the refracted angle on the physical acute branch,
+Snell's law makes the refracted angle agree to the nearest tenth of a degree
+with \(32.0^\circ\), answer C.
+\end{theorem}
+\begin{proof}
+After inserting the two indices and the incident angle, Snell's law gives
+\[
+ \sin\theta_2=\frac{\sin45^\circ}{1.333}.
+\]
+The branch condition \(0\leq\theta_2\leq\pi/2\) makes sine injective and
+identifies \(\theta_2\) with the corresponding inverse sine.  To prove the
+display claim, compare this sine with the sines of \(31.95^\circ\) and
+\(32.05^\circ\).  Monotonicity on the acute interval and certified bounds for
+these fixed trigonometric values place \(\theta_2\) in that interval.  Scaling
+by \(180/\pi>0\) yields the required \(0.05^\circ\) error bound.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.OpticalMedium}
+  The optical media on the two sides of the depicted interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.RaySegment}
+  The two directed portions of the single light ray shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[medium]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-raysegment-medium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.RaySegment.medium}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-opticalmedium, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-raysegment}
+  The medium occupied by each portion of the ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of medium.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.DiagramPlane}
+  The Euclidean plane containing the refraction diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Air Water Refraction Setup]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.AirWaterRefractionSetup}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-opticalmedium, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-raysegment, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-diagramplane}
+  Physical data read from the air--water refraction diagram. The interface and its normal are represented by nonzero perpendicular directions. Each ray segment has a nonzero direction, and its physical angle to the normal is tied to Mathlib's undirected Euclidean vector angle. Refractive indices are dimensionless scalar readouts attached to typed media
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Water Refraction Setup.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.degrees}
+  Convert a numerical degree readout into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.degreeReadout}
+  Express the acute representative of a physical angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[theta One]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetaone}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.thetaOne}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup}
+  The angle labelled θ₁ between the incident ray and the normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta One.
+\end{proof}
+\begin{definition}[theta Two]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetatwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.thetaTwo}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup}
+  The requested angle θ₂ between the refracted ray and the normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta Two.
+\end{proof}
+\begin{definition}[Has Positive Refractive Indices]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-haspositiverefractiveindices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.HasPositiveRefractiveIndices}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup}
+  All dimensionless refractive-index readouts in the setup are positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Refractive Indices.
+\end{proof}
+\begin{definition}[Satisfies Snells Law]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-satisfiessnellslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.SatisfiesSnellsLaw}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-airwaterrefractionsetup, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetaone, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-thetatwo}
+  Snell's law at the depicted air--water interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snells Law.
+\end{proof}
+\begin{definition}[Is Physical Refraction Angle]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-isphysicalrefractionangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.IsPhysicalRefractionAngle}
+  Select the acute physical branch for an angle measured from the normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Refraction Angle.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.AnswerChoice}
+  The four numerical answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer In Degrees]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-answerindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.answerInDegrees}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-answerchoice}
+  Answer-choice degree readouts, in their printed order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer In Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0001.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-degreereadout, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-answerchoice, def:physics:phyx-mini-0001:phyxminiproblems-problemphyxmini0001-answerindegrees}
+  A one-decimal-place answer choice matches an angle when the degree readout is within half of one tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

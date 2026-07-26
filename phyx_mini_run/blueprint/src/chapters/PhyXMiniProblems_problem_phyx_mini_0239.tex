@@ -1,0 +1,331 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0239.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0239.source.json
+
+\chapter{Physics problem phyx\_mini\_0239}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0239}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In an earthquake, both S (transverse) and P (longitudinal) waves propagate from the focus of the earthquake. The focus is in the ground radially below the epicenter on the surface (figure). Assume the waves move in straight lines through uniform material. The S waves travel through the Earth more slowly than the P waves (at about \textbackslash{}( 5\textbackslash{},\textbackslash{}mathrm\{km/s\} \textbackslash{}) versus \textbackslash{}( 8\textbackslash{},\textbackslash{}mathrm\{km/s\} \textbackslash{})).
+
+\#\# Question
+
+How many detection stations are necessary to locate the focus unambiguously?
+
+\#\# Answer choices
+
+- A: A: 5
+
+- B: B: 4
+
+- C: C: 2
+
+- D: D: 3
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating the relationship between three key points involved in an earthquake event: the focus, epicenter, and seismograph. Here's a breakdown of the content:
+
+1. **Background**: The diagram has a quarter-circle shape representing a section of the Earth's layers.
+   
+2. **Focus**: This point is labeled at the bottom right within the Earth's interior. It is where the seismic waves originate.
+
+3. **Path of Seismic Waves**: A dashed line extends from the focus upward toward the Earth's surface, indicating the path of seismic waves. This line passes through the epicenter and continues to the seismograph.
+
+4. **Epicenter**: This point is directly above the focus on the Earth's surface and is marked on the dashed line.
+
+5. **Seismograph**: This point is situated further along the dashed line above the epicenter, outside the quarter-circle, indicating the location where seismic waves are measured.
+
+6. **Labels**: Each point (Focus, Epicenter, Seismograph) and the path of seismic waves are clearly labeled. The labels are written in black text.
+
+Overall, the diagram effectively illustrates how seismic waves travel from the focus beneath the Earth's surface to the epicenter and are ultimately detected by a seismograph.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 3
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/239.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0239.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0239:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0239.problem_phyx_mini_0239}
+\uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesproblemwavedata, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchessuppliedearthquakefigure, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-hasnondegeneratestationgeometry, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-satisfiesstraightuniformseismicpropagation, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isminimumdetectionstationcount, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-recordeddatasetanswer, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesstationcountchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[speed In Kilometers Per Second]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-speedinkilometerspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.speedInKilometersPerSecond}
+  Read a unit-independent speed in kilometres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Kilometers Per Second.
+\end{proof}
+\begin{definition}[distance In Kilometers]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-distanceinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.distanceInKilometers}
+  Distance in the local three-dimensional frame, read in kilometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Kilometers.
+\end{proof}
+\begin{definition}[vertical Coordinate In Kilometers]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-verticalcoordinateinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.verticalCoordinateInKilometers}
+  The vertical coordinate in the local frame, read in kilometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Coordinate In Kilometers.
+\end{proof}
+\begin{definition}[Is On Local Earth Surface]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isonlocalearthsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.IsOnLocalEarthSurface}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-verticalcoordinateinkilometers}
+  A point on the locally planar surface of the Earth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is On Local Earth Surface.
+\end{proof}
+\begin{definition}[Is Underground]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isunderground}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.IsUnderground}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-verticalcoordinateinkilometers}
+  A possible focus lies strictly below the local surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Underground.
+\end{proof}
+\begin{definition}[Seismic Wave Kind]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-seismicwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.SeismicWaveKind}
+  The two seismic-wave species detected at each station
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Seismic Wave Kind.
+\end{proof}
+\begin{definition}[Wave Polarization]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-wavepolarization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.WavePolarization}
+  The displacement type associated with a seismic wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Polarization.
+\end{proof}
+\begin{definition}[Earth Material Model]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthmaterialmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.EarthMaterialModel}
+  The idealization of the material traversed by the waves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earth Material Model.
+\end{proof}
+\begin{definition}[Propagation Path Model]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-propagationpathmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.PropagationPathModel}
+  The idealization of a seismic ray between the focus and a station
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Path Model.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.FigurePoint}
+  The three locations explicitly labeled in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Detection Station]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-detectionstation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.DetectionStation}
+  A surface detector together with its P- and S-wave arrival timestamps
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detection Station.
+\end{proof}
+\begin{definition}[arrival Time Seconds]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-detectionstation-arrivaltimeseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.DetectionStation.arrivalTimeSeconds}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-seismicwavekind, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-detectionstation}
+  Select the measured arrival timestamp belonging to a wave species
+\end{definition}
+\begin{proof}
+  This is the declared model definition of arrival Time Seconds.
+\end{proof}
+\begin{definition}[Earthquake Localization Setup]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.EarthquakeLocalizationSetup}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-seismicwavekind, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-wavepolarization, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthmaterialmodel, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-propagationpathmodel, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-figurepoint, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-detectionstation}
+  The complete earthquake-localization setup. Stations are indexed by natural numbers so that no answer count is built into their ambient type. A designated noncollinear triple will be selected separately by the placement assumptions; that placement data does not say that the triple locates the focus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earthquake Localization Setup.
+\end{proof}
+\begin{definition}[Matches Problem Wave Data]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesproblemwavedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.MatchesProblemWaveData}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-speedinkilometerspersecond, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup}
+  The qualitative and numerical wave data stated in the prose. The two real equalities are calibrated readouts of physical DimSpeed values, in km/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Wave Data.
+\end{proof}
+\begin{definition}[Matches Supplied Earthquake Figure]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchessuppliedearthquakefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.MatchesSuppliedEarthquakeFigure}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isonlocalearthsurface, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isunderground, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup}
+  Primary-image readouts. The focus and epicenter have the same horizontal coordinates, with the focus below the surface; the illustrated seismograph is the first of the three candidate stations. The dashed path joins the labeled focus and seismograph, as in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Earthquake Figure.
+\end{proof}
+\begin{definition}[station Planar Orientation]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationplanarorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.stationPlanarOrientation}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-detectionstation}
+  Signed planar orientation of three surface stations. Nonzero orientation is the usual noncollinearity condition needed for three-dimensional trilateration from a planar station array
+\end{definition}
+\begin{proof}
+  This is the declared model definition of station Planar Orientation.
+\end{proof}
+\begin{definition}[Has Nondegenerate Station Geometry]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-hasnondegeneratestationgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.HasNondegenerateStationGeometry}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isonlocalearthsurface, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationplanarorientation}
+  Nondegenerate placement data for the three available surface stations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Nondegenerate Station Geometry.
+\end{proof}
+\begin{definition}[reference Station Set]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-referencestationset}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.referenceStationSet}
+  The designated noncollinear triple of reference stations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reference Station Set.
+\end{proof}
+\begin{definition}[Satisfies Straight Uniform Seismic Propagation]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-satisfiesstraightuniformseismicpropagation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.SatisfiesStraightUniformSeismicPropagation}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-speedinkilometerspersecond, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-distanceinkilometers, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-seismicwavekind, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup}
+  Constant-speed travel time along a straight ray: distance equals speed times elapsed time. This is the governing physical law for both wave species and does not assert any localization or station-count conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Straight Uniform Seismic Propagation.
+\end{proof}
+\begin{definition}[Candidate Focus]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-candidatefocus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.CandidateFocus}
+  A hypothetical underground source with an unknown origin timestamp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Candidate Focus.
+\end{proof}
+\begin{definition}[Candidate Fits Station Readings]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-candidatefitsstationreadings}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.CandidateFitsStationReadings}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-speedinkilometerspersecond, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-distanceinkilometers, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isunderground, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-seismicwavekind, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-candidatefocus}
+  A candidate reproduces both P and S timestamps at every selected station under the same straight, uniform, constant-speed propagation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Candidate Fits Station Readings.
+\end{proof}
+\begin{definition}[Station Set Locates Focus Unambiguously]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationsetlocatesfocusunambiguously}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.StationSetLocatesFocusUnambiguously}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-candidatefocus, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-candidatefitsstationreadings}
+  Every physically admissible source matching the selected readings is the actual focus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Station Set Locates Focus Unambiguously.
+\end{proof}
+\begin{definition}[Is Minimum Detection Station Count]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-isminimumdetectionstationcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.IsMinimumDetectionStationCount}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationsetlocatesfocusunambiguously}
+  n is the minimum sufficient number of stations: some set of that size locates the focus, and every locating set has at least that size
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Minimum Detection Station Count.
+\end{proof}
+\begin{lemma}[p s delay determines focus distance]
+  \label{lem:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-p-s-delay-determines-focus-distance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.p_s_delay_determines_focus_distance}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-distanceinkilometers, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesproblemwavedata, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-satisfiesstraightuniformseismicpropagation}
+  At one station, the P--S arrival delay determines the focus distance because the two speeds differ. With the stated 8 km/s and 5 km/s speeds, the conversion factor is 40/3 km per second of delay
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of p s delay determines focus distance.
+\end{proof}
+\begin{lemma}[three noncollinear stations locate focus]
+  \label{lem:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-three-noncollinear-stations-locate-focus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.three_noncollinear_stations_locate_focus}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesproblemwavedata, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchessuppliedearthquakefigure, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-hasnondegeneratestationgeometry, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-referencestationset, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-satisfiesstraightuniformseismicpropagation, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationsetlocatesfocusunambiguously}
+  Three noncollinear surface stations determine the underground focus uniquely
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of three noncollinear stations locate focus.
+\end{proof}
+\begin{lemma}[fewer than three stations do not locate focus]
+  \label{lem:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-fewer-than-three-stations-do-not-locate-focus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.fewer_than_three_stations_do_not_locate_focus}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-earthquakelocalizationsetup, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesproblemwavedata, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchessuppliedearthquakefigure, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-hasnondegeneratestationgeometry, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-satisfiesstraightuniformseismicpropagation, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-stationsetlocatesfocusunambiguously}
+  Any selection of fewer than three of the available stations leaves an ambiguity
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fewer than three stations do not locate focus.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.AnswerChoice}
+  Labels printed beside the four candidate station counts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Station Count]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-displayedstationcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.displayedStationCount}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-answerchoice}
+  Number of detection stations printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Station Count.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Station Count Choice]
+  \label{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-matchesstationcountchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0239.MatchesStationCountChoice}
+  \uses{def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-answerchoice, def:physics:phyx-mini-0239:phyxminiproblems-problemphyxmini0239-displayedstationcount}
+  A displayed choice agrees with a proposed minimum station count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Station Count Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

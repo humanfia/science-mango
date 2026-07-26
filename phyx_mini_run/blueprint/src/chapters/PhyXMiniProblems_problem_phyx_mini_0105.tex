@@ -1,0 +1,197 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0105.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0105.source.json
+
+\chapter{Physics problem phyx\_mini\_0105}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0105}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A beam of light traveling horizontally is made of an unpolarized component with intensity \$I\_0\$ and a polarized component with intensity \$I\_p\$. The plane of polarization of the polarized component is oriented at an angle \$\textbackslash{}theta\$ with respect to the vertical. Figure is a graph of the total intensity \$I\_\{\textbackslash{}text\{total\}\}\$ after the light passes through a polarizer versus the angle \$\textbackslash{}alpha\$ that the polarizer's axis makes with respect to the vertical.
+
+\#\# Question
+
+What are the values of \$I\_p\$?
+
+\#\# Answer choices
+
+- A: A: 20W/m\textasciicircum{}2
+
+- B: B: 15W/m\textasciicircum{}2
+
+- C: C: 25W/m\textasciicircum{}2
+
+- D: D: 30W/m\textasciicircum{}2
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a scatter plot graph.
+
+- The x-axis is labeled as "α (°)" and ranges from 0 to 200.
+- The y-axis is labeled as "Iₜₒₜₐₗ (W/m²)" and ranges from 0 to 30.
+- The data points form a sinusoidal pattern, with peaks around 25 W/m² and troughs around 10 W/m².
+- The oscillation appears approximately periodic with peaks and troughs at around 50° and 150°, respectively.
+- There are grid lines for better visibility of data points.
+
+The graph likely illustrates a relationship between angle (α) and intensity (Iₜₒₜₐₗ).
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 20W/m\textasciicircum{}2
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/105.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0105.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0105:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0105.problem_phyx_mini_0105}
+\uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-wattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchesproblemdescription, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-satisfiesidealpolarizerlaws, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchesintensitygraph, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchespolarizedintensityanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Irradiance Quantity]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradiancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.IrradianceQuantity}
+  A nonnegative physical optical irradiance (power per area)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Irradiance Quantity.
+\end{proof}
+\begin{definition}[irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.irradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradiancequantity}
+  The scalar SI readout of an irradiance, in watts per square meter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[watts Per Square Meter]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-wattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.wattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradiancequantity}
+  The dimensionful irradiance whose SI readout is the supplied number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of watts Per Square Meter.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.degrees}
+  Convert a numerical degree coordinate from the graph into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.PropagationDirection}
+  Propagation direction stated in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.FigureAxis}
+  The two labeled axes in the supplied scatter plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Axis Unit]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-figureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.FigureAxisUnit}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-wattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-degrees}
+  The units printed beside the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Unit.
+\end{proof}
+\begin{definition}[Polarizer Intensity Graph]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-polarizerintensitygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.PolarizerIntensityGraph}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-figureaxis, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-figureaxisunit}
+  Metadata and plotted ranges visible in the source graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Polarizer Intensity Graph.
+\end{proof}
+\begin{definition}[Mixed Beam Polarizer Setup]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.MixedBeamPolarizerSetup}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradiancequantity, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-propagationdirection, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-polarizerintensitygraph}
+  The physical components and figure-labeled quantities. The arguments of the three transmitted-irradiance functions are the plotted α coordinates in degrees. The polarized and unpolarized transmitted components are retained separately so that the two governing transmission laws are explicit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mixed Beam Polarizer Setup.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup}
+  The textual setup fact that the incident beam travels horizontally
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Satisfies Ideal Polarizer Laws]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-satisfiesidealpolarizerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.SatisfiesIdealPolarizerLaws}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradianceinwattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-degrees, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup}
+  The ideal-polarizer laws used by the problem. An ideal polarizer transmits half of an unpolarized component, a linearly polarized component obeys Malus's law, and the two mutually incoherent transmitted irradiances add. These laws are stated for every polarizer angle and contain no numerical value for Iₚ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Polarizer Laws.
+\end{proof}
+\begin{definition}[Matches Intensity Graph]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchesintensitygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.MatchesIntensityGraph}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradianceinwattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-wattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-degrees, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup}
+  Calibrated readouts from the primary figure. Its horizontal axis is α in degrees from 0 to 200; its vertical axis is total irradiance in W/m² from 0 to 30. On that plotted interval the trace attains a maximum of 25 W/m² and a minimum of 5 W/m². The auxiliary generated caption's claim that the trough is near 10 W/m² conflicts with the plotted points; the primary image is used as required. Neither extremum assumption states the requested polarized-component irradiance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Intensity Graph.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-answerirradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.answerIrradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-answerchoice}
+  The irradiance readout in W/m² printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Irradiance In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Matches Polarized Intensity Answer]
+  \label{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-matchespolarizedintensityanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0105.MatchesPolarizedIntensityAnswer}
+  \uses{def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-irradianceinwattspersquaremeter, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-mixedbeampolarizersetup, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-answerchoice, def:physics:phyx-mini-0105:phyxminiproblems-problemphyxmini0105-answerirradianceinwattspersquaremeter}
+  A choice matches the SI readout of the incident polarized component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Polarized Intensity Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

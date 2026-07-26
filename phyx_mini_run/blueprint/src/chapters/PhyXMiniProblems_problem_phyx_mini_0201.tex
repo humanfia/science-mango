@@ -1,0 +1,248 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0201.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0201.source.json
+
+\chapter{Physics problem phyx\_mini\_0201}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0201}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Echolocation is a form of sensory perception used by animals such as bats, dolphins, and toothed whales. The animal emits a pulse of sound (a longitudinal wave) which, after reflection from objects, returns and is detected by the animal. Echolocation waves can have frequencies of about 100\{,\}000\textbackslash{},\textbackslash{}mathrm\{Hz\}.An obstacle is 100\textbackslash{},\textbackslash{}mathrm\{m\} from the animal.
+
+\#\# Question
+
+How long after the animal emits a wave is its reflection detected?
+
+\#\# Answer choices
+
+- A: A: 0.20s
+
+- B: B: 0.18s
+
+- C: C: 0.16s
+
+- D: D: 0.14s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a beluga whale underwater, swimming towards the camera. It is centered in the frame, and its mouth is slightly open. Above the whale, there is a large air bubble or a splash effect, creating a ring on the water surface. The background is a deep blue, typical of underwater scenes, with light reflecting from the surface. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.14s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/201.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0201.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0201:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0201.reflectionDetectionDelay_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-matchesproblemandfigure, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-usestextbookwatersoundspeed, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-hasphysicalecholocationparameters, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-satisfiesroundtripsoundpropagation, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-matchesanswerchoice, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-isclosestanswerchoice, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AcousticLength}
+  A nonnegative physical acoustic-path length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Duration]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AcousticDuration}
+  A nonnegative physical propagation duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Duration.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AcousticFrequency}
+  A nonnegative physical acoustic frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.lengthInMeters}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticlength}
+  Read a physical acoustic-path length as a real number of metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.durationInSeconds}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticduration}
+  Read a physical propagation duration as a real number of seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticfrequency}
+  Read a physical acoustic frequency as a real number of hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.speedInMetersPerSecond}
+  Read Physlib's nonnegative dimensionful speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Echolocating Animal]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocatinganimal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.EcholocatingAnimal}
+  The animal species identified by the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echolocating Animal.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AcousticMedium}
+  The propagation medium visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Acoustic Wave Mode]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticwavemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AcousticWaveMode}
+  Sound is modeled as the longitudinal wave stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Wave Mode.
+\end{proof}
+\begin{definition}[Echo Path Leg]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echopathleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.EchoPathLeg}
+  The two legs of the pulse path before detection of the echo
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echo Path Leg.
+\end{proof}
+\begin{definition}[Echolocation Setup]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.EcholocationSetup}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticlength, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticduration, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticfrequency, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocatinganimal, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticmedium, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticwavemode, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echopathleg}
+  The physical quantities and labels of the echolocation experiment. reflectionDetectionDelay is an unknown physical duration. In particular, this structure does not assign it any displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echolocation Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-lengthinmeters, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-frequencyinhertz, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup}
+  Problem-text and primary-image data: a beluga in water emits a longitudinal 100000 Hz pulse toward an obstacle 100 m away. Reflection makes both path legs have the stated one-way length. No detection-time answer occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Water Sound Speed]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-usestextbookwatersoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.UsesTextbookWaterSoundSpeed}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-speedinmeterspersecond, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup}
+  The textbook water-sound-speed calibration implicit in the supplied answer table. This is auxiliary physical data, not the requested detection delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Water Sound Speed.
+\end{proof}
+\begin{definition}[Has Physical Echolocation Parameters]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-hasphysicalecholocationparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.HasPhysicalEcholocationParameters}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-lengthinmeters, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-frequencyinhertz, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-speedinmeterspersecond, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup}
+  Strict positivity conditions for the emitted wave and propagation data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Echolocation Parameters.
+\end{proof}
+\begin{definition}[Satisfies Round Trip Sound Propagation]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-satisfiesroundtripsoundpropagation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.SatisfiesRoundTripSoundPropagation}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-lengthinmeters, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-durationinseconds, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-speedinmeterspersecond, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup}
+  Governing laws for the echo. Constant-speed travel holds on the outbound and reflected-return legs, and the detection delay is the sum of their travel times. These laws contain no numerical value for the requested delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Round Trip Sound Propagation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AnswerChoice}
+  Labels of the four answers displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice}
+  Seconds printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticduration, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-durationinseconds, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice}
+  A physical duration agrees with a displayed hundredth-second answer. The half-centisecond tolerance models rounding to the printed precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-acousticduration, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-durationinseconds, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice}
+  A displayed choice is uniquely closest to the physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[reflection Detection Delay exact]
+  \label{lem:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-reflectiondetectiondelay-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0201.reflectionDetectionDelay_exact}
+  \uses{def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-durationinseconds, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-echolocationsetup, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-matchesproblemandfigure, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-usestextbookwatersoundspeed, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-hasphysicalecholocationparameters, def:physics:phyx-mini-0201:phyxminiproblems-problemphyxmini0201-satisfiesroundtripsoundpropagation}
+  Before rounding to the precision of the choices, the ideal round-trip model gives an exact detection delay of 1/7 s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflection Detection Delay exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

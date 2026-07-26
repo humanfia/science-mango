@@ -1,0 +1,304 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0327.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0327.source.json
+
+\chapter{Physics problem phyx\_mini\_0327}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0327}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a transmitter and receiver of waves contained in a single instrument. It is used to measure the speed \$u\$ of a target object (idealized as a flat plate) that is moving directly toward the unit, by analyzing the waves reflected from the target.
+
+\#\# Question
+
+What is \$u\$ if the emitted frequency is \$18.0\$ kHz and the detected frequency (of the returning waves) is \$22.2\$ kHz?
+
+\#\# Answer choices
+
+- A: A: 32.46 m/s
+
+- B: B: 33.58 m/s
+
+- C: C: 34.76 m/s
+
+- D: D: 35.84 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic diagram illustrating a system involving the transmission and reception of signals. 
+
+- On the left, there is a device that resembles a radar system with a large round dish labeled \textbackslash{}( f\_r \textbackslash{}), likely indicating a frequency for receiving signals, and a smaller horn antenna labeled \textbackslash{}( f\_s \textbackslash{}), indicating a frequency for sending signals.
+  
+- Two arrows point from these components towards the right, converging on a surface labeled "Target." This suggests that the system transmits a signal to the target and receives a reflected signal back.
+
+- An arrow labeled \textbackslash{}( \textbackslash{}vec\{u\} \textbackslash{}) is directed upward and to the right from the "Target," which may represent a vector quantity such as velocity or direction.
+
+- The overall arrangement implies the operation of a radar or similar sensing device that involves signal transmission, reflection, and analysis.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 35.84 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/327.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0327.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0327:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0327.problem_phyx_mini_0327}
+\uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesprimaryfigure, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesproblemreadouts, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasstandardstillaircalibration, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasphysicalacousticparameters, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiestwolegacousticdopplerlaw, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiesidealreflectionintargetframe, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-roundstonearesthundredthmeterpersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.FrequencyQuantity}
+  A nonnegative physical frequency carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.SpeedQuantity}
+  A nonnegative physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.frequencyReadout}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.speedReadout}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinhertz}
+  Kilohertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedreadout}
+  Meters-per-second readout of a physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Physical Object]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-physicalobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.PhysicalObject}
+  Physical bodies in the one-dimensional echo experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Physical Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.FigureLabel}
+  Labels visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.HorizontalDirection}
+  Horizontal directions in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Horizontal Motion]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontalmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.HorizontalMotion}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontaldirection}
+  One-dimensional motion with physical speed magnitude and direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Motion.
+\end{proof}
+\begin{definition}[signed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-signedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.signedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontalmotion}
+  Signed SI velocity component, positive toward the right of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[propagation Sign]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-propagationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.propagationSign}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontaldirection}
+  Propagation sign along the same right-positive horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of propagation Sign.
+\end{proof}
+\begin{definition}[Echo Speed Figure]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-echospeedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.EchoSpeedFigure}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-figurelabel, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontaldirection}
+  Qualitative information read directly from the primary bitmap. Pixel coordinates record only left-to-right ordering, not physical distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echo Speed Figure.
+\end{proof}
+\begin{definition}[Moving Target Echo Setup]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.MovingTargetEchoSetup}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-physicalobject, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontaldirection, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-horizontalmotion, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-echospeedfigure}
+  Independent physical quantities for the emitted, incident, reflected, and detected waves. In particular, the unknown target speed is not defined by an answer choice, and the intermediate frequencies are related only by the governing-law premises below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Target Echo Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  Primary-image evidence: f\_s and f\_r are at the left of the target, the outbound arrow points right, the return arrow points left, and the target's u arrow points left. The bitmap also depicts a shared instrument and a flat target plate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinkilohertz, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  Problem-statement readouts and geometry. The source emits at 18.0 kHz, the receiver detects the returning wave at 22.2 kHz, the combined instrument is stationary, and the target approaches it head-on. This predicate contains no value for the requested target speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Standard Still Air Calibration]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasstandardstillaircalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.HasStandardStillAirCalibration}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  The stem does not print the acoustic propagation speed or mention wind. The recorded answer uses the conventional room-temperature still-air calibration 343 m/s; it is exposed as a separate model input rather than attributed to the figure or hidden in a definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Still Air Calibration.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinhertz, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-signedvelocityinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  Positivity and subsonic conditions under which the classical acoustic Doppler relations are physically meaningful
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Two Leg Acoustic Doppler Law]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiestwolegacousticdopplerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.SatisfiesTwoLegAcousticDopplerLaw}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinhertz, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-signedvelocityinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-propagationsign, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  The classical one-dimensional acoustic Doppler law on the two path legs. For propagation sign q, source velocity v\_s, observer velocity v\_o, air velocity v\_a, and sound speed c, the multiplicative factor is (c - q * (v\_o - v\_a)) / (c - q * (v\_s - v\_a)). On the outbound leg the stationary instrument emits and the moving target observes. On the return leg the moving target emits in its rest frame and the stationary instrument observes. These are governing relations and contain no requested answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Leg Acoustic Doppler Law.
+\end{proof}
+\begin{definition}[Satisfies Ideal Reflection In Target Frame]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiesidealreflectionintargetframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.SatisfiesIdealReflectionInTargetFrame}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-frequencyinhertz, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup}
+  Ideal reflection from the flat plate preserves the incident frequency in the target's rest frame. It relates two independent frequency quantities and does not state the target speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Reflection In Target Frame.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-displayedanswerspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.displayedAnswerSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-answerchoice}
+  Speed in meters per second printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-answerchoice}
+  The answer label recorded in the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth Meter Per Second]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-roundstonearesthundredthmeterpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.RoundsToNearestHundredthMeterPerSecond}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedquantity, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond}
+  A physical speed readout rounds to the displayed hundredth of a meter per second when it lies strictly within 0.005 m/s of that value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth Meter Per Second.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-answerchoice, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-displayedanswerspeedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-roundstonearesthundredthmeterpersecond}
+  The modeled target speed agrees, after rounding, with an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[target Speed doppler readout]
+  \label{lem:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-targetspeed-doppler-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0327.targetSpeed_doppler_readout}
+  \uses{def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-speedinmeterspersecond, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-movingtargetechosetup, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesprimaryfigure, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-matchesproblemreadouts, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasstandardstillaircalibration, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-hasphysicalacousticparameters, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiestwolegacousticdopplerlaw, def:physics:phyx-mini-0327:phyxminiproblems-problemphyxmini0327-satisfiesidealreflectionintargetframe}
+  Solving the two-leg Doppler relation for the approaching target speed gives 343 * (22.2 - 18.0) / (22.2 + 18.0) meters per second. This is the unrounded physical-model result
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of target Speed doppler readout.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

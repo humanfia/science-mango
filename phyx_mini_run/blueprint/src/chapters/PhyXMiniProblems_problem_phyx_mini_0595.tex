@@ -1,0 +1,218 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0595.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0595.source.json
+
+\chapter{Physics problem phyx\_mini\_0595}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0595}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure gives the velocity \$u'\$ of a particle relative to frame \$S'\$ for a range of values of \$v\$, where \$v\$ is the velocity of frame \$S'\$ relative to a reference frame \$S\$. The vertical axis scale is set by \$u'\_a = -0.800c\$.
+
+\#\# Question
+
+What value will \textbackslash{}( u' \textbackslash{}) have if \textbackslash{}( v \textbackslash{}rightarrow c \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: -0.80c
+
+- B: B: 0
+
+- C: C: -c
+
+- D: D: -1.20c
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a plotted line. Here is a detailed description:
+
+- **Axes**: 
+  - The horizontal axis is labeled with the variable \textbackslash{}( v \textbackslash{}) and has ticks labeled as \textbackslash{}( 0 \textbackslash{}), \textbackslash{}( 0.2c \textbackslash{}), and \textbackslash{}( 0.4c \textbackslash{}).
+  - The vertical axis is labeled with \textbackslash{}( u' \textbackslash{}) and has ticks labeled \textbackslash{}( 0 \textbackslash{}) and \textbackslash{}( u'\_a \textbackslash{}).
+
+- **Grid**: The graph has a grid with horizontal and vertical lines aiding in reading values.
+
+- **Line**: A straight, thick line is drawn from the top left to the bottom right, indicating a linear relationship with a negative slope.
+
+- **Labels**: 
+  - The x-axis label \textbackslash{}( v \textbackslash{}) suggests a velocity component, with units in terms of the speed of light \textbackslash{}( c \textbackslash{}).
+  - The y-axis deals with another variable \textbackslash{}( u' \textbackslash{}), with an arbitrary or specific unit indicated as \textbackslash{}( u'\_a \textbackslash{}).
+
+The graph appears to depict how one variable changes as a function of another, often used in contexts involving relativity or velocity analysis.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -c
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/595.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0595.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0595:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0595.transformedVelocity_tendsto_negativeSpeedOfLight_choiceC}
+\uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-relativisticvelocitygraphsetup, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-matchessuppliedvelocitygraph, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-hasphysicalrelativisticparameters, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-obeyscollineareinsteinvelocitytransformation, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-answerchoiceinlightspeedunits}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.SignedVelocityQuantity}
+  A signed one-dimensional physical velocity with dimension length/time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityquantity}
+  Read a signed velocity in the selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light In Meters Per Second]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-vacuumspeedoflightinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.vacuumSpeedOfLightInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityreadout}
+  The real SI readout of Physlib's dimensionful vacuum speed of light
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity In Light Speed Units]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocityinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.velocityInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityquantity, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityreadout, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-vacuumspeedoflightinmeterspersecond}
+  A signed physical velocity component as the dimensionless ratio velocity / c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Light Speed Units.
+\end{proof}
+\begin{definition}[Reference Frame Label]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-referenceframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.ReferenceFrameLabel}
+  The two inertial frames named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reference Frame Label.
+\end{proof}
+\begin{definition}[Velocity Axis Symbol]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocityaxissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.VelocityAxisSymbol}
+  The velocity symbols printed on the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Axis Symbol.
+\end{proof}
+\begin{definition}[Horizontal Tick Label]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-horizontalticklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.HorizontalTickLabel}
+  Labeled ticks on the horizontal v axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Tick Label.
+\end{proof}
+\begin{definition}[Vertical Tick Label]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-verticalticklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.VerticalTickLabel}
+  Labeled ticks on the vertical u' axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Tick Label.
+\end{proof}
+\begin{definition}[Trace Style]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-tracestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.TraceStyle}
+  The qualitative rendering of the thick plotted trace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Style.
+\end{proof}
+\begin{definition}[Trace Trend]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-tracetrend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.TraceTrend}
+  The qualitative direction in which the plotted trace changes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Trend.
+\end{proof}
+\begin{definition}[Velocity Transformation Figure]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocitytransformationfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.VelocityTransformationFigure}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocityaxissymbol, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-horizontalticklabel, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-verticalticklabel, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-tracestyle, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-tracetrend}
+  The labels, calibrated ticks, and qualitative trace appearance visible in the supplied graph. Tick values are dimensionless multiples of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Transformation Figure.
+\end{proof}
+\begin{definition}[Relativistic Velocity Graph Setup]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-relativisticvelocitygraphsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.RelativisticVelocityGraphSetup}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-signedvelocityquantity, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-referenceframelabel, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocitytransformationfigure}
+  The experiment consists of a fixed particle velocity in S and a scalar graph readout u'/c for each scalar frame-velocity ratio beta = v/c. The function field is an observable, not a definition of the requested limit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relativistic Velocity Graph Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Velocity Graph]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-matchessuppliedvelocitygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.MatchesSuppliedVelocityGraph}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-relativisticvelocitygraphsetup}
+  Primary-image evidence and stated calibration. The bottom vertical label is u'\_a = -0.800 c. Four equal vertical grid intervals run from 0 at the top to u'\_a at the bottom, and the plotted trace begins on the first interval at v = 0, giving the readout u'(0) = -0.200 c. The last conjunct records only the decreasing behavior on the displayed interval from 0 through 0.4 c; it does not constrain the requested limit at c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Velocity Graph.
+\end{proof}
+\begin{definition}[Has Physical Relativistic Parameters]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-hasphysicalrelativisticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.HasPhysicalRelativisticParameters}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-vacuumspeedoflightinmeterspersecond, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocityinlightspeedunits, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-relativisticvelocitygraphsetup}
+  Positivity of c and subluminality of the particle velocity in S
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Relativistic Parameters.
+\end{proof}
+\begin{definition}[Obeys Collinear Einstein Velocity Transformation]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-obeyscollineareinsteinvelocitytransformation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.ObeysCollinearEinsteinVelocityTransformation}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-velocityinlightspeedunits, def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-relativisticvelocitygraphsetup}
+  The governing collinear Einstein velocity transformation, written using dimensionless signed components: u'/c = ((u/c) - (v/c)) / (1 - (u/c) * (v/c)). It applies at every subluminal frame velocity. In particular, it is not an assumption about the value or limit of u' at v = c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Collinear Einstein Velocity Transformation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.AnswerChoice}
+  The four answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Light Speed Units]
+  \label{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-answerchoiceinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0595.answerChoiceInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0595:phyxminiproblems-problemphyxmini0595-answerchoice}
+  Candidate values of u'/c, including values outside the subluminal range
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Light Speed Units.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,400 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0860.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0860.source.json
+
+\chapter{Physics problem phyx\_mini\_0860}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0860}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The electric potential at the dot in figure is 3140 V.
+
+\#\# Question
+
+What is charge q?
+
+\#\# Answer choices
+
+- A: A: 12nC
+
+- B: B: 14nC
+
+- C: C: 20nC
+
+- D: D: 10nC
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram involving point charges and distances:
+
+1. **Objects/Charges:**
+   - There are three charged points, represented as circles with plus or minus signs inside.
+   - The circle at the top left is labeled "q" and has a positive charge.
+   - Below it, along the vertical dashed line, there is another circle labeled "5.0 nC" with a positive charge.
+   - To the right of the top circle, there is a circle labeled "-5.0 nC" with a negative charge.
+
+2. **Distances:**
+   - The vertical distance between the two positive charges is labeled "4.0 cm."
+   - The horizontal distance between the top positive charge and the negative charge is labeled "2.0 cm."
+
+3. **Additional Elements:**
+   - There is a small black dot located to the right of the vertical line near the bottom-right side of the diagram.
+
+4. **Lines and Orientation:**
+   - Dashed lines are used to represent the distances between the charges.
+
+This diagram is likely used to illustrate electric forces or field calculations involving these point charges.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 10nC
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/860.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0860.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0860:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0860.problem_phyx_mini_0860}
+\uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeinnanocoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-recordeddatasetanswer, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-matchessuppliedpotentialfigure, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-unknownchargeisoneofdisplayedchoices, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-usesintroductorycoulombconstant, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-hasphysicalpointchargeparameters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfiespointchargepotentiallaw, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfieselectricpotentialsuperposition}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.SignedChargeQuantity}
+  A signed, unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.electricPotentialDimension}
+  The dimension M L² T⁻² C⁻¹ of electrostatic potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-electricpotentialdimension}
+  A signed, unit-independent electrostatic potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.lengthReadout}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthquantity}
+  Read a physical length in a selected Physlib length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.lengthInMeters}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthquantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthreadout}
+  Coherent-SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthquantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthreadout}
+  Centimetre readout used by the two dimension labels in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[charge Readout]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.chargeReadout}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-signedchargequantity}
+  Read a signed physical charge in a selected Physlib charge unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Readout.
+\end{proof}
+\begin{definition}[nanocoulomb Unit]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-nanocoulombunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.nanocoulombUnit}
+  The charge unit 10⁻⁹ C used by the three charge labels and choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanocoulomb Unit.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-signedchargequantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargereadout}
+  Coherent-SI coulomb readout of a signed physical charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-signedchargequantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargereadout, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-nanocoulombunit}
+  Nanocoulomb readout used by the printed source labels and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.potentialInVolts}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-electricpotentialquantity}
+  Coherent-SI readout of an electrostatic potential in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.FigurePoint}
+  The four geometrical roles visible in the supplied rectangular diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Source Charge]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.SourceCharge}
+  The three point charges, named by their role in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Charge.
+\end{proof}
+\begin{definition}[expected Source Point]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedsourcepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.expectedSourcePoint}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurepoint, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge}
+  The corner occupied by each of the three source charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Source Point.
+\end{proof}
+\begin{definition}[Figure Charge Sign]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurechargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.FigureChargeSign}
+  The plus or minus glyph drawn inside a source circle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Sign.
+\end{proof}
+\begin{definition}[expected Source Sign]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedsourcesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.expectedSourceSign}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurechargesign}
+  The sign glyph associated with each source in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Source Sign.
+\end{proof}
+\begin{definition}[expected Printed Charge Text]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedprintedchargetext}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.expectedPrintedChargeText}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge}
+  Literal text printed next to each source circle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Printed Charge Text.
+\end{proof}
+\begin{definition}[Rectangular Potential Figure]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpotentialfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.RectangularPotentialFigure}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurepoint, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurechargesign}
+  Literal presentation data transcribed from image 860.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Potential Figure.
+\end{proof}
+\begin{definition}[Rectangular Point Charge Potential Setup]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.RectangularPointChargePotentialSetup}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthquantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-signedchargequantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-electricpotentialquantity, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-figurepoint, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpotentialfigure}
+  The independent physical quantities and potential fields in the problem. charge .unknownQ is an unknown dimensionful charge, and is not defined from the recorded answer or from a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Point Charge Potential Setup.
+\end{proof}
+\begin{definition}[source Position]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourceposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.sourcePosition}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup}
+  Position in the charge plane of a named source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Position.
+\end{proof}
+\begin{definition}[observation Position]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-observationposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.observationPosition}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup}
+  Position marked by the black observation dot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of observation Position.
+\end{proof}
+\begin{definition}[position Vector In Meters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-positionvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.positionVectorInMeters}
+  Explicitly metre-valued coordinate vector associated with a planar point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector In Meters.
+\end{proof}
+\begin{definition}[displacement From Source In Meters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-displacementfromsourceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.displacementFromSourceInMeters}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourceposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-positionvectorinmeters}
+  Displacement from a named source to an arbitrary planar point, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From Source In Meters.
+\end{proof}
+\begin{definition}[source Distance In Meters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.sourceDistanceInMeters}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-displacementfromsourceinmeters}
+  Euclidean source-to-point separation in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Distance In Meters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.AnswerChoice}
+  Labels attached to the four displayed charge choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.AnswerChoice.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeinnanocoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice}
+  Nanocoulomb value printed by each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Ten Volts]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-roundstonearesttenvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.RoundsToNearestTenVolts}
+  Agreement with a voltage printed to the nearest ten volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Ten Volts.
+\end{proof}
+\begin{definition}[Matches Supplied Potential Figure]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-matchessuppliedpotentialfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.MatchesSuppliedPotentialFigure}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthinmeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthincentimeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeincoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeinnanocoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-potentialinvolts, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedsourcepoint, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedsourcesign, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-expectedprintedchargetext, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-observationposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-positionvectorinmeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-roundstonearesttenvolts}
+  The literal figure features, their dimensional readouts, the reported potential, and their association with the physical sources. This contains no numerical value for the unknown charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Potential Figure.
+\end{proof}
+\begin{definition}[Unknown Charge Is One Of Displayed Choices]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-unknownchargeisoneofdisplayedchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.UnknownChargeIsOneOfDisplayedChoices}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeinnanocoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-answerchoice}
+  The multiple-choice convention restricts the unknown to one of all four displayed values. It does not select D or assert the requested 10 nC conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Unknown Charge Is One Of Displayed Choices.
+\end{proof}
+\begin{definition}[Uses Introductory Coulomb Constant]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-usesintroductorycoulombconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.UsesIntroductoryCoulombConstant}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup}
+  The school-physics approximation to Coulomb's constant used with the displayed three-significant-figure potential. The scalar is the coherent-SI readout in N m²/C²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Introductory Coulomb Constant.
+\end{proof}
+\begin{definition}[Has Physical Point Charge Parameters]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-hasphysicalpointchargeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.HasPhysicalPointChargeParameters}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-lengthinmeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-observationposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistanceinmeters}
+  Positivity and separation conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Point Charge Parameters.
+\end{proof}
+\begin{definition}[Satisfies Point Charge Potential Law]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfiespointchargepotentiallaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.SatisfiesPointChargePotentialLaw}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeincoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-potentialinvolts, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourceposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistanceinmeters}
+  With electric potential zero at infinity, a point charge Q at distance r contributes k Q / r. This all-points law is stated away from each source and contains no requested value of q
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Point Charge Potential Law.
+\end{proof}
+\begin{definition}[Satisfies Electric Potential Superposition]
+  \label{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfieselectricpotentialsuperposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.SatisfiesElectricPotentialSuperposition}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-potentialinvolts, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup}
+  The total scalar potential is the sum of all three source potentials
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electric Potential Superposition.
+\end{proof}
+\begin{lemma}[source Distances At Observation]
+  \label{lem:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistancesatobservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.sourceDistancesAtObservation}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-observationposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistanceinmeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-matchessuppliedpotentialfigure}
+  The rectangle coordinates imply source-to-dot distances 2√5 cm, 4 cm, and 2 cm for the unknown, negative, and positive sources respectively
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of source Distances At Observation.
+\end{proof}
+\begin{lemma}[total Potential At Observation eq coulomb Sum]
+  \label{lem:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-totalpotentialatobservation-eq-coulombsum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0860.totalPotentialAtObservation_eq_coulombSum}
+  \uses{def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-chargeincoulombs, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-potentialinvolts, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcecharge, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-rectangularpointchargepotentialsetup, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-observationposition, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-sourcedistanceinmeters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-hasphysicalpointchargeparameters, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfiespointchargepotentiallaw, def:physics:phyx-mini-0860:phyxminiproblems-problemphyxmini0860-satisfieselectricpotentialsuperposition}
+  Point-charge potential and superposition give the source-by-source expression for the potential at the observation dot. Its right-hand side contains only independent source data, geometry, and the governing Coulomb constant
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Potential At Observation eq coulomb Sum.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

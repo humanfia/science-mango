@@ -1,0 +1,359 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0232.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0232.source.json
+
+\chapter{Physics problem phyx\_mini\_0232}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0232}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A horizontal plank of mass \textbackslash{}( 5.00\textbackslash{},\textbackslash{}mathrm\{kg\} \textbackslash{}) and length \textbackslash{}( 2.00\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) is pivoted at one end. The plank's other end is supported by a spring of force constant \textbackslash{}( 100\textbackslash{},\textbackslash{}mathrm\{N/m\} \textbackslash{}) (figure).The plank is displaced by a small angle \textbackslash{}( \textbackslash{}theta \textbackslash{}) from its horizontal equilibrium position and released.The plank moves with simple harmonic motion.
+
+\#\# Question
+
+Find the angular frequency.
+
+\#\# Answer choices
+
+- A: A: \$7.25\textbackslash{}
+
+- B: B: \$8.75\textbackslash{}
+
+- C: C: \$6.75\textbackslash{}
+
+- D: D: \$7.75\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a mechanical system involving a lever, a pivot, and a spring. 
+
+- A vertical structure supports a horizontal lever via a pivot point. 
+- The lever is labeled with length \textbackslash{}( L \textbackslash{}).
+- The angle between the lever and a dashed horizontal line is labeled \textbackslash{}( \textbackslash{}theta \textbackslash{}).
+- At the end of the lever, a vertical spring is attached, labeled with the spring constant \textbackslash{}( k \textbackslash{}).
+- The spring is oriented vertically and anchored to a surface below.
+- An arrow on the right side of the image indicates rotational motion in a clockwise direction. 
+
+The setup suggests a system where the lever can swing around the pivot point, compressing or stretching the spring.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$7.75\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/232.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0232.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0232:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0232.angularFrequency_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyinradianspersecond, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-matchesproblemandfigure, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-hasphysicalplankspringparameters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieshorizontalstaticequilibrium, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieslocalplankspringmechanics, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieslinearizedrotationaldynamics, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-recordedanswerchoice, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.SpringStiffnessQuantity}
+  A spring force constant, with coherent SI unit newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.MomentOfInertiaQuantity}
+  A moment of inertia, with coherent SI unit kilogram metre squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Torsional Stiffness Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.TorsionalStiffnessQuantity}
+  The positive coefficient in the local law tau(theta) = -kappa theta + o(theta). Radians are dimensionless, so its dimension is that of torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torsional Stiffness Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.AngularFrequencyQuantity}
+  A nonnegative angular frequency; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Velocity Quantity]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.AngularVelocityQuantity}
+  A signed angular velocity; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Velocity Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.massInKilograms}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.lengthInMeters}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationquantity}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[spring Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.springStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessquantity}
+  Newton-per-metre readout of a spring force constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiaquantity}
+  Kilogram-metre-squared readout of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[torsional Stiffness In Newton Meters Per Radian]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessinnewtonmetersperradian}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.torsionalStiffnessInNewtonMetersPerRadian}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessquantity}
+  Newton-metre-per-radian readout of a local torsional stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torsional Stiffness In Newton Meters Per Radian.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyquantity}
+  Radians-per-second readout of a nonnegative angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Velocity In Radians Per Second]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularvelocityinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.angularVelocityInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularvelocityquantity}
+  Radians-per-second readout of a signed angular velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity In Radians Per Second.
+\end{proof}
+\begin{definition}[Plank End]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-plankend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.PlankEnd}
+  The two distinguished ends of the plank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plank End.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.Orientation}
+  Orientations used by the problem statement and primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.RotationSense}
+  The direction of rotation displayed by the curved arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Plank Mass Distribution]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-plankmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.PlankMassDistribution}
+  Whether the plank is modeled as having a uniform linear mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plank Mass Distribution.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.OscillationRegime}
+  The approximation regime named in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.FigureLabel}
+  Mathematical labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Pivoted Plank Spring Figure]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.PivotedPlankSpringFigure}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-plankend, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-orientation, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-rotationsense, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-figurelabel}
+  Qualitative geometry read directly from the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pivoted Plank Spring Figure.
+\end{proof}
+\begin{definition}[Pivoted Plank Spring Setup]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.PivotedPlankSpringSetup}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiaquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularvelocityquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-plankmassdistribution, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-oscillationregime, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringfigure}
+  The apparatus and the scalar response functions used to describe its local rotational behavior. Angles are in radians and are positive clockwise. Thus springEndDownwardDisplacementMetersAtAngle theta is a signed SI component, and netClockwiseTorqueNewtonMetersAtAngle theta is a signed torque component. linearizedAngularFrequency is an unconstrained physical output at this level. The governing laws below connect it to the local derivative of the actual torque response;
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pivoted Plank Spring Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massinkilograms, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthinmeters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularvelocityinradianspersecond, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup}
+  The numerical givens, release condition, and image readouts. The uniform-plank premise is made explicit because it is the mass model needed for the recorded answer. No field constrains the requested frequency or chooses an answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Plank Spring Parameters]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-hasphysicalplankspringparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.HasPhysicalPlankSpringParameters}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massinkilograms, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthinmeters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessinnewtonmetersperradian, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup}
+  Positivity and nondegeneracy conditions for the apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Plank Spring Parameters.
+\end{proof}
+\begin{definition}[Satisfies Horizontal Static Equilibrium]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieshorizontalstaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.SatisfiesHorizontalStaticEquilibrium}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massinkilograms, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthinmeters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup}
+  Static torque balance about the pivot. The compressed spring supplies an upward force at the free end, while the weight of the uniform plank acts at its midpoint. This calibrates the preload but says nothing about the requested angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Horizontal Static Equilibrium.
+\end{proof}
+\begin{definition}[rotational Oscillator SI]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-rotationaloscillatorsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.rotationalOscillatorSI}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessinnewtonmetersperradian, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-hasphysicalplankspringparameters}
+  The generalized scalar harmonic oscillator in coherent SI readouts. Its generalized mass is the moment of inertia and its generalized spring constant is the local torsional stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotational Oscillator SI.
+\end{proof}
+\begin{definition}[Satisfies Local Plank Spring Mechanics]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieslocalplankspringmechanics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.SatisfiesLocalPlankSpringMechanics}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-massinkilograms, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-lengthinmeters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup}
+  Local mechanics at the horizontal equilibrium theta = 0. Rigid-plank geometry gives the exact signed endpoint displacement L sin(theta). The two HasDerivAt fields state the corresponding first-order displacement and compression responses at the equilibrium. Static preload cancels gravity at zero angle. Gravity and the preloaded support torque have zero first derivative there, while Hooke's law and the free-end lever arm give torque derivative -k L\textasciicircum{}2.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Local Plank Spring Mechanics.
+\end{proof}
+\begin{definition}[Satisfies Linearized Rotational Dynamics]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-satisfieslinearizedrotationaldynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.SatisfiesLinearizedRotationalDynamics}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-torsionalstiffnessinnewtonmetersperradian, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyinradianspersecond, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-pivotedplankspringsetup, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-hasphysicalplankspringparameters, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-rotationaloscillatorsi}
+  Definition of the linearized rotational model. The first field defines the effective torsional stiffness as the negative derivative of the actual torque response at equilibrium. The second applies Physlib's general harmonic- oscillator frequency sqrt (kappa / I). Neither field contains the numerical data 5, 2, 100, sqrt 60, 7.75, or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linearized Rotational Dynamics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.AnswerChoice}
+  Labels of the four angular-frequency answers printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians Per Second]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-answerchoice-radianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.AnswerChoice.radiansPerSecond}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-answerchoice}
+  Radians-per-second value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0232.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyquantity, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-angularfrequencyinradianspersecond, def:physics:phyx-mini-0232:phyxminiproblems-problemphyxmini0232-answerchoice}
+  Agreement with a two-decimal-place displayed answer. The half-unit in the last decimal place makes this a rounding statement rather than the false exact equality sqrt 60 = 7.75
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

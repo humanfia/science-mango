@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0206.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0206.source.json
+
+\chapter{Physics problem phyx\_mini\_0206}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0206}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+When you walk with a cup of coffee (diameter \textbackslash{}( 8\textbackslash{},\textbackslash{}mathrm\{cm\} \textbackslash{})) at just the right pace of about one step per second, the coffee sloshes higher and higher in your cup until eventually it starts to spill over the top, figure.
+
+\#\# Question
+
+Estimate the speed of the waves in the coffee.
+
+\#\# Answer choices
+
+- A: A: 8cm/s
+
+- B: B: 12cm/s
+
+- C: C: 16cm/s
+
+- D: D: 20cm/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a close-up of a hand holding a white ceramic cup filled with dark liquid, presumably coffee. The cup is tipped to the side, causing the coffee to spill over the rim and flow down the side in a continuous stream. Several droplets are visible falling from the bottom of the cup. The background is a gradient of blue, which contrasts with the warm tones of the coffee and the neutral color of the cup. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 20cm/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/206.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0206.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0206:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0206.problem_phyx_mini_0206}
+\uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedincentimeterspersecond, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthincentimeters, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-matchescoffeesloshingproblemandfigure, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-satisfiesresonantwavekinematics}
+At the nominal one-hertz walking cadence, resonance and $v=f\lambda$ imply that the numerical wave-speed readout in centimetres per second equals the wavelength readout in centimetres.  Because the wavelength is not supplied, this symbolic equality selects no numerical answer.
+\end{theorem}
+\begin{proof}
+Use the resonance field to replace the sloshing frequency by the walking frequency.  The figure readout makes that frequency $1$ hertz.  Specialize the wave-kinematics field to centimetres and seconds; its right-hand side is then $1$ times the wavelength readout, giving the stated equality.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.FrequencyQuantity}
+  A nonnegative physical frequency with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.SpeedQuantity}
+  A nonnegative physical propagation speed with length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.lengthReadout}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.frequencyReadout}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.speedReadout}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedquantity}
+  Read a physical speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthreadout}
+  Centimetre readout used for the cup diameter and surface wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyreadout}
+  Hertz readout used for walking cadence and the resonant sloshing mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Centimeters Per Second]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedincentimeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.speedInCentimetersPerSecond}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedreadout}
+  Centimetres-per-second readout used for the requested wave-speed estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Centimeters Per Second.
+\end{proof}
+\begin{definition}[Liquid Medium]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-liquidmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.LiquidMedium}
+  The liquid whose free-surface wave is being estimated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Liquid Medium.
+\end{proof}
+\begin{definition}[Cup Rim Geometry]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-cuprimgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.CupRimGeometry}
+  Rim geometry relevant to the wavelength estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cup Rim Geometry.
+\end{proof}
+\begin{definition}[Surface Wave Mode]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-surfacewavemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.SurfaceWaveMode}
+  Surface-wave mode used in the resonant sloshing estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Wave Mode.
+\end{proof}
+\begin{definition}[Sloshing Response]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-sloshingresponse}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.SloshingResponse}
+  Qualitative response of the coffee to periodic walking
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sloshing Response.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.FigureFeature}
+  Features visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Coffee Sloshing Setup]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.CoffeeSloshingSetup}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedquantity, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-liquidmedium, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-cuprimgeometry, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-surfacewavemode, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-sloshingresponse, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-figurefeature}
+  The physical quantities are independent fields. In particular, neither the wavelength nor the requested wave speed is defined from the diameter, cadence, or a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coffee Sloshing Setup.
+\end{proof}
+\begin{definition}[Matches Coffee Sloshing Problem And Figure]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-matchescoffeesloshingproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.MatchesCoffeeSloshingProblemAndFigure}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthincentimeters, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyinhertz, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup}
+  Problem-statement and figure readouts. The phrase “about one step per second” is idealized by its nominal 1 Hz value for this order-of-magnitude estimate. No wavelength or wave-speed value occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Coffee Sloshing Problem And Figure.
+\end{proof}
+\begin{definition}[Satisfies Fundamental Resonant Sloshing Laws]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-satisfiesfundamentalresonantsloshinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.SatisfiesFundamentalResonantSloshingLaws}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthreadout, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyreadout, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedreadout, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup}
+  Governing model for the estimate: the circumference of a circular rim is pi times its diameter; the fundamental azimuthal sloshing pattern has one spatial period around that rim; resonant growth locks the natural sloshing frequency to the walking drive; the surface wave obeys v = f * lambda in compatible units. These laws relate independent physical quantities and contain neither the numerical speed estimate nor a preferred displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fundamental Resonant Sloshing Laws.
+\end{proof}
+\begin{lemma}[estimated Wavelength In Centimeters eq eight pi]
+  \label{lem:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-estimatedwavelengthincentimeters-eq-eight-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.estimatedWavelengthInCentimeters_eq_eight_pi}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthincentimeters, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-matchescoffeesloshingproblemandfigure, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-satisfiesfundamentalresonantsloshinglaws}
+  The 8 cm circular rim and the one-period azimuthal mode give the estimated wavelength 8 * pi cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of estimated Wavelength In Centimeters eq eight pi.
+\end{proof}
+\begin{lemma}[estimated Wave Speed In Centimeters Per Second eq eight pi]
+  \label{lem:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-estimatedwavespeedincentimeterspersecond-eq-eight-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.estimatedWaveSpeedInCentimetersPerSecond_eq_eight_pi}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedincentimeterspersecond, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-matchescoffeesloshingproblemandfigure, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-satisfiesfundamentalresonantsloshinglaws}
+  At the nominal 1 Hz resonant cadence, v = f * lambda gives the model estimate 8 * pi cm/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of estimated Wave Speed In Centimeters Per Second eq eight pi.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.AnswerChoice}
+  Labels of the four wave-speed choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed Centimeters Per Second]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-displayedspeedcentimeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.displayedSpeedCentimetersPerSecond}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-answerchoice}
+  Displayed wave speed beside each answer label, in centimetres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed Centimeters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Speed Estimate]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-isclosestdisplayedspeedestimate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.IsClosestDisplayedSpeedEstimate}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedincentimeterspersecond, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-answerchoice, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-displayedspeedcentimeterspersecond}
+  A displayed choice is a closest available estimate to the modeled physical wave speed. This definition does not privilege any particular label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Speed Estimate.
+\end{proof}
+\begin{definition}[Resonant wave kinematics]
+  \label{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-satisfiesresonantwavekinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0206.SatisfiesResonantWaveKinematics}
+  \uses{def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-coffeesloshingsetup, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-frequencyreadout, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-speedreadout, def:physics:phyx-mini-0206:phyxminiproblems-problemphyxmini0206-lengthreadout}
+  In every coherent unit system, the sloshing-wave speed equals frequency times wavelength; no unsupported circumference or mode-number equation is imposed.
+\end{definition}
+\begin{proof}
+  This is the dimensionally typed wave-kinematics law retained by the redraft.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

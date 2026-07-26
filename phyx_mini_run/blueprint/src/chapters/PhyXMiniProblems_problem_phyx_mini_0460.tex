@@ -1,0 +1,354 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0460.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0460.source.json
+
+\chapter{Physics problem phyx\_mini\_0460}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0460}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A piston/cylinder assembly in a car contains \$0.2 \textbackslash{}, \textbackslash{}text\{L\}\$ of air at \$90 \textbackslash{}, \textbackslash{}text\{kPa\}\$ and \$20 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, as shown in figure. The air is compressed in a quasi-equilibrium polytropic process with polytropic exponent \$n = 1.25\$ to a final volume six times smaller.
+
+\#\# Question
+
+Determine the heat transfer for the process
+
+\#\# Answer choices
+
+- A: A: -0.190 kJ
+
+- B: B: 0.0147 kJ
+
+- C: C: 0.190 kJ
+
+- D: D: -0.0147 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic representation that appears to show a cross-sectional view of a closed system or apparatus with two main sections. On the left side, there is a light blue area labeled "Air," indicating it is filled with air. A solid vertical line separates this region from the right section.
+
+In the right section, there are two large, looped shapes situated one above the other. The left loop is drawn with dashed lines, suggesting a boundary or a possible area of interest which may change or interact with the air. The right loop is a solid, continuous line and is positioned within a rectangular boundary that is connected to the rest of the structure.
+
+The entire figure is enclosed within a larger rectangle which seems to represent the external structure or casing. The arrangement implies some kind of process or interaction between the outlined components, possibly involving airflow or ventilation.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -0.0147 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/460.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0460.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0460:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0460.problem_phyx_mini_0460}
+\uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinjoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinkilojoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesstatedscenario, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesproblemreadouts, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-usescoldairstandardcaloricmodel, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchessuppliedpistoncylinderfigure, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-hasphysicalpolytropicparameters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-satisfiespolytropicidealairlaws, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-exactmodeledheattransferinjoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-isuniqueclosestdisplayedheat}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.GasVolume}
+  A nonnegative physical gas volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasvolume}
+  Read a physical gas volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.volumeInLiters}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasvolume, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeincubicmeters}
+  Read a physical gas volume in litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinpascals}
+  Read a physical pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.temperatureInKelvins}
+  Read a Physlib absolute temperature in kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureinkelvins}
+  Read the same temperature on the degrees-Celsius scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.energyInJoules}
+  Read signed heat, work, or internal energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinjoules}
+  Read signed heat, work, or internal energy in kilojoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[Endpoint]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.Endpoint}
+  The initial and final equilibrium states of the air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Endpoint.
+\end{proof}
+\begin{definition}[Air State]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.AirState}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasvolume}
+  A macroscopic equilibrium state of the fixed air sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air State.
+\end{proof}
+\begin{definition}[Working Fluid]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-workingfluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.WorkingFluid}
+  Working-fluid identity named by the problem statement and figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Fluid.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.GasModel}
+  Equation-of-state model used for the air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Inventory Regime]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-inventoryregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.InventoryRegime}
+  Whether mass crosses the piston--cylinder boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inventory Regime.
+\end{proof}
+\begin{definition}[Mechanical Regime]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-mechanicalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.MechanicalRegime}
+  Mechanical regime of the moving piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mechanical Regime.
+\end{proof}
+\begin{definition}[Process Direction]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-processdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.ProcessDirection}
+  Direction of the volume change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Direction.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.FigureRegion}
+  Regions visually distinguished in the supplied piston--cylinder image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Piston Outline]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pistonoutline}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.PistonOutline}
+  Line style used to distinguish the two piston positions in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Outline.
+\end{proof}
+\begin{definition}[Horizontal Placement]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-horizontalplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.HorizontalPlacement}
+  Horizontal ordering of the two depicted piston positions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Placement.
+\end{proof}
+\begin{definition}[Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.PistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-endpoint, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-figureregion, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pistonoutline, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-horizontalplacement}
+  Qualitative data carried by the supplied piston--cylinder schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Air Polytropic Compression]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.AirPolytropicCompression}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-endpoint, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airstate, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-workingfluid, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-gasmodel, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-inventoryregime, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-mechanicalregime, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-processdirection, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pistoncylinderfigure}
+  The complete physical process, including unknown heat and work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Polytropic Compression.
+\end{proof}
+\begin{definition}[Matches Stated Scenario]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesstatedscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.MatchesStatedScenario}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  Qualitative physical information stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeincubicmeters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeinliters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinkilopascals, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureindegreescelsius, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  Exact transcription of the scalar data printed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Cold Air Standard Caloric Model]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-usescoldairstandardcaloricmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.UsesColdAirStandardCaloricModel}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  The cold-air-standard caloric index is model input, separated from the values explicitly printed in the question. It is not a heat-transfer conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Cold Air Standard Caloric Model.
+\end{proof}
+\begin{definition}[Matches Supplied Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchessuppliedpistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.MatchesSuppliedPistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  Figure-derived label, casing, and relative piston-position information
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Has Physical Polytropic Parameters]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-hasphysicalpolytropicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.HasPhysicalPolytropicParameters}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeincubicmeters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinpascals, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureinkelvins, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  Positivity and nondegeneracy conditions for the physical process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Polytropic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Polytropic Ideal Air Laws]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-satisfiespolytropicidealairlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.SatisfiesPolytropicIdealAirLaws}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-volumeincubicmeters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-pressureinpascals, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-temperatureinkelvins, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinjoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression}
+  These are general endpoint laws for a calorically perfect ideal gas on a quasi-equilibrium polytropic path. None contains the requested heat value or an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Polytropic Ideal Air Laws.
+\end{proof}
+\begin{definition}[exact Modeled Heat Transfer In Joules]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-exactmodeledheattransferinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.exactModeledHeatTransferInJoules}
+  The unrounded cold-air-standard result in joules. It is obtained by adding ΔU = Δ(PV)/(γ - 1) and W = Δ(PV)/(1 - n), with Δ(PV) = P₁ V₁ (6\textasciicircum{}(n-1) - 1)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of exact Modeled Heat Transfer In Joules.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.AnswerChoice}
+  Labels printed beside the four candidate heat-transfer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Transfer In Kilojoules]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-displayedheattransferinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.displayedHeatTransferInKilojoules}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-answerchoice}
+  Displayed candidate values, interpreted in kilojoules with heat into air positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Transfer In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-answerchoice}
+  The answer label recorded by the source dataset, retained as metadata only
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Heat]
+  \label{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-isuniqueclosestdisplayedheat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.IsUniqueClosestDisplayedHeat}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-answerchoice, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-displayedheattransferinkilojoules}
+  A displayed option is strictly closer to a modeled heat than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Heat.
+\end{proof}
+\begin{lemma}[heat Transfer eq exact Modeled Value]
+  \label{lem:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-heattransfer-eq-exactmodeledvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.heatTransfer_eq_exactModeledValue}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-energyinjoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-airpolytropiccompression, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesstatedscenario, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-matchesproblemreadouts, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-usescoldairstandardcaloricmodel, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-hasphysicalpolytropicparameters, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-satisfiespolytropicidealairlaws, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-exactmodeledheattransferinjoules}
+  The physical laws determine the unrounded heat-transfer value. This is a derived conclusion, not a premise of the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of heat Transfer eq exact Modeled Value.
+\end{proof}
+\begin{lemma}[exact Modeled Heat Transfer selects choice D]
+  \label{lem:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-exactmodeledheattransfer-selects-choice-d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0460.exactModeledHeatTransfer_selects_choice_D}
+  \uses{def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-exactmodeledheattransferinjoules, def:physics:phyx-mini-0460:phyxminiproblems-problemphyxmini0460-isuniqueclosestdisplayedheat}
+  The unrounded cold-air model selects the printed value -0.0147 kJ
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exact Modeled Heat Transfer selects choice D.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

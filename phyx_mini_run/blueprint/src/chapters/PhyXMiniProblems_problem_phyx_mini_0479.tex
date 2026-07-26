@@ -1,0 +1,414 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0479.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0479.source.json
+
+\chapter{Physics problem phyx\_mini\_0479}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0479}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Analyze the heat engine of figure.It runs at \textbackslash{}(600\textbackslash{},\textbackslash{}mathrm\{rpm\}\textbackslash{}). Assume the gas is monatomic.
+
+\#\# Question
+
+Determine the engine's power output
+
+\#\# Answer choices
+
+- A: A: 320W
+
+- B: B: 340W
+
+- C: C: 360W
+
+- D: D: 380W
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram showing a thermodynamic cycle. Here's a detailed description:
+
+1. **Axes:**
+   - The y-axis represents pressure (p) measured in kilopascals (kPa), ranging from 0 to over 200 kPa.
+   - The x-axis represents volume (V) measured in cubic centimeters (cm³), ranging from 0 to 600 cm³.
+
+2. **Diagram Elements:**
+   - There are three key points labeled 1, 2, and 3.
+   - The cycle is depicted with arrows indicating direction: from point 1 to 2, from 2 to 3, and from 3 back to 1.
+
+3. **Processes:**
+   - **1 to 2:** A horizontal line indicating a constant pressure process at around 200 kPa.
+   - **2 to 3:** A vertical line indicating a constant volume process at about 600 cm³.
+   - **3 to 1:** A curved line reflecting an isothermal process indicated as a 300 K isotherm, leading back to point 1.
+
+4. **Isotherm:**
+   - A dashed red line labeled "300 K isotherm" runs roughly parallel to the curve from point 3 to 1, showing a process at constant temperature. 
+
+5. **Text:**
+   - The text "300 K isotherm" is positioned near the dashed curve.
+
+This diagram is typical for representing processes in an idealized thermodynamic cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 360W
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/479.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0479.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0479:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0479.problem_phyx_mini_0479}
+\uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesproblemstatement, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-satisfiesmonatomicidealgasenginelaws, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-recordedanswerchoice, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-roundstodisplayedpower, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-isuniqueclosestdisplayedpower}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.VolumeQuantity}
+  A nonnegative physical volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Rotation Rate Quantity]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.RotationRateQuantity}
+  Shaft rotation rate, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Rate Quantity.
+\end{proof}
+\begin{definition}[Cycle Rate Quantity]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.CycleRateQuantity}
+  Thermodynamic cycle rate, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Rate Quantity.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.PowerQuantity}
+  Mechanical power carrying dimension M L² T⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinpascals}
+  Read a physical pressure in the kilopascals printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumequantity}
+  Read a physical volume in coherent-SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[volume In Cubic Centimetres]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubiccentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.volumeInCubicCentimetres}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumequantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubicmetres}
+  Read a physical volume in the cubic centimetres printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimetres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.energyInJoules}
+  Read signed heat, work, or internal-energy change in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.temperatureInKelvins}
+  Read an absolute temperature in kelvins from its stated storage unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[rotation Rate In Revolutions Per Second]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.rotationRateInRevolutionsPerSecond}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationratequantity}
+  Read shaft speed in revolutions per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Rate In Revolutions Per Second.
+\end{proof}
+\begin{definition}[rotation Rate In Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.rotationRateInRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationratequantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionspersecond}
+  Read shaft speed in revolutions per minute
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Rate In Revolutions Per Minute.
+\end{proof}
+\begin{definition}[cycle Rate In Hertz]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cyclerateinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.cycleRateInHertz}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleratequantity}
+  Read thermodynamic cycle rate in cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cycle Rate In Hertz.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.powerInWatts}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerquantity}
+  Read mechanical power in coherent-SI watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.GasModel}
+  The working-substance model stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Thermodynamic Device Role]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-thermodynamicdevicerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.ThermodynamicDeviceRole}
+  The thermodynamic role played by the cyclic device
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Device Role.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.StateLabel}
+  The three numbered equilibrium states printed in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.CycleLeg}
+  The three directed arrows comprising one traversal of the cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.CycleLeg.initialState}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg}
+  Initial state of a directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.CycleLeg.finalState}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg}
+  Final state of a directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.ProcessKind}
+  Thermodynamic constraint holding along a process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.PathGeometry}
+  Geometric appearance of a process leg in the pressure--volume plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.AxisQuantity}
+  Physical quantity assigned to a plot axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.AxisUnit}
+  Unit explicitly printed beside a plot axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.FigureLabel}
+  Text and tick labels visible in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumequantity}
+  A physical equilibrium state of the working gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pathgeometry, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-axisquantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-axisunit, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-figurelabel}
+  Qualitative and labelled information transcribed from image 479.png. This structure records no work, power, or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Ideal Gas Heat Engine Cycle]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.IdealGasHeatEngineCycle}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationratequantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleratequantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerquantity, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-gasmodel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-thermodynamicdevicerole, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-processkind, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-thermodynamicstate, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressurevolumefigure}
+  Independent physical observables for one closed engine cycle. The requested power is an independent dimensionful field; its relation to work and cycle rate is imposed only by the general governing law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Heat Engine Cycle.
+\end{proof}
+\begin{definition}[net Work Done By Gas In Joules]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-networkdonebygasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.netWorkDoneByGasInJoules}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-energyinjoules, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle}
+  Net work done by the gas in one traversal of 1 → 2 → 3 → 1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of net Work Done By Gas In Joules.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionsperminute, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle}
+  Data and idealized operating assumptions from the prose. The shaft makes one traversal of the displayed thermodynamic cycle per revolution; this explicit coupling is what permits the stated rpm to determine a cycle frequency. No numerical work or power occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinkilopascals, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubiccentimetres, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-temperatureinkelvins, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-figurelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle}
+  Exact transcription of the pressure--volume bitmap. The image gives the three directed legs, the process geometries, the state-1 and state-2 pressure and volume coordinates, the state-3 volume coordinate, and the 300 K isotherm through states 3 and 1. It does not give state 3 a numerical pressure and says nothing about net work or power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinpascals, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubicmetres, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-temperatureinkelvins, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionspersecond, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cyclerateinhertz, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Monatomic Ideal Gas Engine Laws]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-satisfiesmonatomicidealgasenginelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.SatisfiesMonatomicIdealGasEngineLaws}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinpascals, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-volumeincubicmetres, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-energyinjoules, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-temperatureinkelvins, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-rotationrateinrevolutionspersecond, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cyclerateinhertz, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-statelabel, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cycleleg, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-networkdonebygasinjoules}
+  Macroscopic governing laws for a fixed sample of monatomic ideal gas: the cross-multiplied ideal-gas law expresses pV/T = constant; monatomic internal energy is (3/2) pV, up to a state-independent datum; the first law is Q\_into = ΔU + W\_by; isobaric, isochoric, and reversible-isothermal boundary-work formulas hold; cycle rate is shaft rate times cycles per revolution; average output power is net work per cycle times cycles per second. These are general laws.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Monatomic Ideal Gas Engine Laws.
+\end{proof}
+\begin{lemma}[derived Cycle Readouts]
+  \label{lem:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-derivedcyclereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.derivedCycleReadouts}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-pressureinkilopascals, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-energyinjoules, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-cyclerateinhertz, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-networkdonebygasinjoules, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesproblemstatement, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-satisfiesmonatomicidealgasenginelaws}
+  The ideal-gas and process laws determine the previously unread pressure and the cycle's work and frequency. In particular, the three leg works are 80 J, 0 J, and -40 log 3 J, giving 40 (2 - log 3) J per cycle at 10 cycles/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of derived Cycle Readouts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power In Watts]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-displayedpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.displayedPowerInWatts}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-answerchoice}
+  Power in watts printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power In Watts.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-answerchoice}
+  Answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Power]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-roundstodisplayedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.RoundsToDisplayedPower}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-answerchoice, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-displayedpowerinwatts}
+  The physical output lies in the nearest-20-watt bin of a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Power.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Power]
+  \label{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-isuniqueclosestdisplayedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0479.IsUniqueClosestDisplayedPower}
+  \uses{def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-powerinwatts, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-idealgasheatenginecycle, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-answerchoice, def:physics:phyx-mini-0479:phyxminiproblems-problemphyxmini0479-displayedpowerinwatts}
+  One displayed power is strictly closer than every competing choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Power.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

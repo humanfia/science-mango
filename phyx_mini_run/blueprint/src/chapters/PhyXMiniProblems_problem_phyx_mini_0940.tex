@@ -1,0 +1,418 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0940.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0940.source.json
+
+\chapter{Physics problem phyx\_mini\_0940}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0940}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Determine the self-inductance of a toroidal solenoid with cross-sectional area \textbackslash{}( A \textbackslash{}) and mean radius \textbackslash{}( r \textbackslash{}), closely wound with \textbackslash{}( N \textbackslash{}) turns of wire on a nonmagnetic core. Assume that \textbackslash{}( B \textbackslash{}) is uniform across a cross section (that is, neglect the variation of \textbackslash{}( B \textbackslash{}) with distance from the toroid axis).
+
+\#\# Question
+
+Determine the self-inductance of a toroidal solenoid.
+
+\#\# Answer choices
+
+- A: A: 22\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{H\}
+
+- B: B: 40\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{H\}
+
+- C: C: 75\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{H\}
+
+- D: D: 28\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{H\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a toroidal solenoid. It depicts a toroidal coil with multiple turns of wire, represented by purple loops wrapping around a beige torus. The direction of current, \textbackslash{}(i\textbackslash{}), is indicated by purple arrows along the wire.
+
+Key elements include:
+
+- A large arrow labeled \textbackslash{}(r\textbackslash{}) points radially outward from the center to the outer edge, indicating the radius.
+- The top of the torus is labeled \textbackslash{}(A\textbackslash{}).
+- Dashed lines with arrows show the direction of the magnetic field inside the toroid.
+
+Text on the image reads:
+
+"Number of turns = \textbackslash{}(N\textbackslash{}) (only a few are shown)"
+
+The diagram conveys the basic structure and function of the toroidal solenoid, focusing on the current flow and magnetic field.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 40\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{H\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/940.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0940.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0940:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0940.problem_phyx_mini_0940}
+\uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-areareadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductanceinhenries, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-matcheswrittentoroidalsolenoidscenario, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-matchessuppliedtoroidalsolenoidfigure, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-hasphysicaltoroidalsolenoidparameters, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-usesvacuummagneticpermeability, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-satisfiesidealtoroidalsolenoidlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.electricCurrentDimension}
+  Electric current has physical dimension charge per time, C T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[magnetic Permeability Dimension]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticpermeabilitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.magneticPermeabilityDimension}
+  Magnetic permeability has SI dimension M L C⁻² (henries per metre)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Permeability Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.magneticFluxDensityDimension}
+  Magnetic flux density has SI dimension M T⁻¹ C⁻¹ (teslas)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Dimension]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.magneticFluxDimension}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitydimension}
+  Magnetic flux has dimension flux density times area (webers)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.inductanceDimension}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentdimension, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdimension}
+  Self-inductance is magnetic flux divided by electric current (henries)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Permeability Quantity]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticpermeabilityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MagneticPermeabilityQuantity}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticpermeabilitydimension}
+  A nonnegative, unit-independent magnetic permeability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Permeability Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MagneticFluxDensityMagnitude}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitydimension}
+  A nonnegative, unit-independent magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Magnitude]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MagneticFluxMagnitude}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdimension}
+  A nonnegative, unit-independent magnetic flux through one turn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Magnitude.
+\end{proof}
+\begin{definition}[Self Inductance Quantity]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.SelfInductanceQuantity}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-inductancedimension}
+  A nonnegative, unit-independent self-inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Self Inductance Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.nonnegativeReadout}
+  Read any nonnegative dimensionful quantity in the coherent units induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.lengthReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthquantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read a length in the coherent length unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.areaReadout}
+  Read an area in the coherent square-length unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[current Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-currentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.currentReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentmagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read an electric-current magnitude in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Readout.
+\end{proof}
+\begin{definition}[permeability Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-permeabilityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.permeabilityReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticpermeabilityquantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read magnetic permeability in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of permeability Readout.
+\end{proof}
+\begin{definition}[magnetic Flux Density Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.magneticFluxDensityReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitymagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read magnetic flux density in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Readout.
+\end{proof}
+\begin{definition}[magnetic Flux Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.magneticFluxReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxmagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read magnetic flux in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Readout.
+\end{proof}
+\begin{definition}[self Inductance Readout]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.selfInductanceReadout}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancequantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-nonnegativereadout}
+  Read self-inductance in the coherent unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of self Inductance Readout.
+\end{proof}
+\begin{definition}[self Inductance In Henries]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.selfInductanceInHenries}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancequantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancereadout}
+  Read self-inductance in coherent-SI henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of self Inductance In Henries.
+\end{proof}
+\begin{definition}[self Inductance In Microhenries]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductanceinmicrohenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.selfInductanceInMicrohenries}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancequantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductanceinhenries}
+  Read self-inductance in microhenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of self Inductance In Microhenries.
+\end{proof}
+\begin{definition}[Solenoid Geometry]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-solenoidgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.SolenoidGeometry}
+  Geometries distinguished by the solenoid model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solenoid Geometry.
+\end{proof}
+\begin{definition}[Winding Model]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-windingmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.WindingModel}
+  Winding idealizations used for the depicted wire
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Winding Model.
+\end{proof}
+\begin{definition}[Magnetic Core Model]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticcoremodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MagneticCoreModel}
+  Magnetic behavior of the toroidal core
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Core Model.
+\end{proof}
+\begin{definition}[Cross Section Field Model]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-crosssectionfieldmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.CrossSectionFieldModel}
+  Cross-sectional approximations for the interior magnetic field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cross Section Field Model.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.FigureColor}
+  Colors directly visible in image 940.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.FigureQuantityLabel}
+  Physical-quantity labels printed in the supplied toroidal-solenoid figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[expected Printed Symbol]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-expectedprintedsymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.expectedPrintedSymbol}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-figurequantitylabel}
+  The symbol printed for each labelled physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Printed Symbol.
+\end{proof}
+\begin{definition}[Toroidal Solenoid Figure]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.ToroidalSolenoidFigure}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-figurecolor, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-figurequantitylabel}
+  Literal presentation facts from the primary raster. The image contains only symbolic parameter labels; it prints no numerical value for N, A, or r
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Toroidal Solenoid Figure.
+\end{proof}
+\begin{definition}[Toroidal Solenoid Setup]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.ToroidalSolenoidSetup}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthquantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-electriccurrentmagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticpermeabilityquantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensitymagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxmagnitude, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancequantity, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-solenoidgeometry, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-windingmodel, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticcoremodel, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-crosssectionfieldmodel, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidfigure}
+  Independent physical data for the solenoid. In particular, selfInductance is not defined from the desired closed form or from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Toroidal Solenoid Setup.
+\end{proof}
+\begin{definition}[Matches Written Toroidal Solenoid Scenario]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-matcheswrittentoroidalsolenoidscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MatchesWrittenToroidalSolenoidScenario}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  The qualitative toroidal-solenoid model stated in the written problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Written Toroidal Solenoid Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Toroidal Solenoid Figure]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-matchessuppliedtoroidalsolenoidfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.MatchesSuppliedToroidalSolenoidFigure}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-expectedprintedsymbol, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  Labels, colors, arrows, and geometry directly read from 940.png. This predicate contains no self-inductance value and no numerical parameter value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Toroidal Solenoid Figure.
+\end{proof}
+\begin{definition}[Has Physical Toroidal Solenoid Parameters]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-hasphysicaltoroidalsolenoidparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.HasPhysicalToroidalSolenoidParameters}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-areareadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-currentreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-permeabilityreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  Positivity and nondegeneracy required for the toroidal-solenoid derivation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Toroidal Solenoid Parameters.
+\end{proof}
+\begin{definition}[Uses Vacuum Magnetic Permeability]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-usesvacuummagneticpermeability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.UsesVacuumMagneticPermeability}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-permeabilityreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  The nonmagnetic core is calibrated, in coherent SI, to Physlib's electromagnetic-system permeability parameter μ₀. This premise contains no self-inductance value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Vacuum Magnetic Permeability.
+\end{proof}
+\begin{definition}[Satisfies Ideal Toroidal Solenoid Laws]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-satisfiesidealtoroidalsolenoidlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.SatisfiesIdealToroidalSolenoidLaws}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-areareadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-currentreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-permeabilityreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxdensityreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-magneticfluxreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancereadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup}
+  The three governing relations used in the standard ideal-toroid derivation, stated in every coherent unit system: B (2 π r) = μ N I, Ampere's circuital law on the mean circular path; Φ = B A, because the model treats B as uniform over the cross section; L I = N Φ, the defining self-inductance flux-linkage relation. None of these fields states the requested closed form for L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Toroidal Solenoid Laws.
+\end{proof}
+\begin{lemma}[self Inductance eq ideal Toroid Formula]
+  \label{lem:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductance-eq-idealtoroidformula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.selfInductance_eq_idealToroidFormula}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-lengthreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-areareadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-permeabilityreadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductancereadout, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-hasphysicaltoroidalsolenoidparameters, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-satisfiesidealtoroidalsolenoidlaws}
+  The governing relations imply the unit-covariant ideal-toroid result L = μ N² A / (2 π r). This lemma is separate from the SI calibration of a nonmagnetic core to μ₀
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of self Inductance eq ideal Toroid Formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.AnswerChoice}
+  Labels of the four answer choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Self Inductance In Microhenries]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answerchoice-displayedselfinductanceinmicrohenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.AnswerChoice.displayedSelfInductanceInMicrohenries}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answerchoice}
+  The displayed self-inductance readout for each choice, in microhenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Self Inductance In Microhenries.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Self Inductance]
+  \label{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answermatchesselfinductance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0940.AnswerMatchesSelfInductance}
+  \uses{def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-selfinductanceinmicrohenries, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-toroidalsolenoidsetup, def:physics:phyx-mini-0940:phyxminiproblems-problemphyxmini0940-answerchoice}
+  A displayed choice agrees with the setup's physical self-inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Self Inductance.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

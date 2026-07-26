@@ -1,0 +1,257 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0116.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0116.source.json
+
+\chapter{Physics problem phyx\_mini\_0116}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0116}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A compact disc (CD) is read from the bottom by a semiconductor laser with wavelength 790 nm passing through a plastic substrate of refractive index 1.8. When the beam encounters a pit, part of the beam is reflected from the pit and part from the flat region between the pits, so these two beams interfere with each other (figure). The part of the beam reflected from a pit cancels the part of the beam reflected from the flat region.
+
+\#\# Question
+
+What must the minimum pit depth be?
+
+\#\# Answer choices
+
+- A: A: 0.11µm
+
+- B: B: 0.21µm
+
+- C: C: 0.09µm
+
+- D: D: 0.32µm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-section of an optical disk, illustrating its structure and the interaction with a laser beam. 
+
+- **Plastic Substrate**: This is the base layer shown in beige, forming the foundation of the disk.
+- **Pits**: Indentations or depressions shown on the surface, indicating data storage.
+- **Reflective Coating**: A layer on top of the pits, depicted in light blue, which reflects the laser beam for reading data.
+- **Laser Beam**: A red vertical line directed at the pits, representing the method of reading data from the disk.
+
+The text labels various components for clarity. The structure shows how data is read using the laser reflecting off the disk's surface.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 0.11µm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/116.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0116.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0116:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0116.minimumPitDepth_is_recordedAnswerA}
+\uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-micrometersvalue, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthinmicrometers, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-matchesproblemandfigure, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-hasphysicalparameters, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-satisfiesnormalincidenceinterferencelaws, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-isleastdestructivepitdepth, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-isuniquelyclosestanswer, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.LengthQuantity}
+  A signed physical length represented coherently in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.lengthValueIn}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity}
+  Read a physical length as a scalar in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.nanometersValue}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthvaluein}
+  The nanometre readout used for the laser wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[micrometers Value]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-micrometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.micrometersValue}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthvaluein}
+  The micrometre readout used for the pit depth and displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of micrometers Value.
+\end{proof}
+\begin{definition}[length From Readout]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthfromreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.lengthFromReadout}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity}
+  Construct a physical length from a scalar readout in a chosen length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length From Readout.
+\end{proof}
+\begin{definition}[length In Micrometers]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthinmicrometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.lengthInMicrometers}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthfromreadout}
+  Construct a physical length from its micrometre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Micrometers.
+\end{proof}
+\begin{definition}[Reflected Branch]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-reflectedbranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.ReflectedBranch}
+  The two portions of the reflected laser beam that interfere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Branch.
+\end{proof}
+\begin{definition}[Surface Feature]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-surfacefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.SurfaceFeature}
+  Surface features distinguished in the compact-disc cross section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Feature.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.OpticalMedium}
+  Optical media through which a branch might propagate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Reflecting Layer]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-reflectinglayer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.ReflectingLayer}
+  Layers at which a branch might be reflected
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflecting Layer.
+\end{proof}
+\begin{definition}[Beam Direction]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-beamdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.BeamDirection}
+  Directions singled out by the bottom-reading geometry in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Direction.
+\end{proof}
+\begin{definition}[Compact Disc Interference Setup]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.CompactDiscInterferenceSetup}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-reflectedbranch, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-surfacefeature, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-opticalmedium, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-reflectinglayer, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-beamdirection}
+  This structure records the Compact Disc Interference Setup component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compact Disc Interference Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-nanometersvalue, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup}
+  This structure records the Matches Problem And Figure component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-opticalmedium, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup}
+  Positivity conditions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Normal Incidence Interference Laws]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-satisfiesnormalincidenceinterferencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.SatisfiesNormalIncidenceInterferenceLaws}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-micrometersvalue, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-reflectedbranch, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup}
+  This structure records the Satisfies Normal Incidence Interference Laws component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Normal Incidence Interference Laws.
+\end{proof}
+\begin{definition}[Destructive Pit Depths]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-destructivepitdepths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.DestructivePitDepths}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-micrometersvalue, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup}
+  The set of nonnegative physical pit depths that produce cancellation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Destructive Pit Depths.
+\end{proof}
+\begin{definition}[Is Least Destructive Pit Depth]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-isleastdestructivepitdepth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.IsLeastDestructivePitDepth}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthquantity, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-micrometersvalue, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-destructivepitdepths}
+  depth is a least destructive pit depth when it cancels and its micrometre readout is no larger than that of any other nonnegative cancelling depth. PhysLean dimensionful quantities deliberately have no unit-independent global order, so the comparison is made through one explicitly named length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Least Destructive Pit Depth.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[depth Micrometers]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-answerchoice-depthmicrometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.AnswerChoice.depthMicrometers}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-answerchoice}
+  The pit-depth readout, in micrometres, printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of depth Micrometers.
+\end{proof}
+\begin{definition}[Is Uniquely Closest Answer]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-isuniquelyclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.IsUniquelyClosestAnswer}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-answerchoice}
+  A displayed answer is selected when it is uniquely closest to a readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Uniquely Closest Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[first Destructive Pit Depth exact]
+  \label{lem:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-firstdestructivepitdepth-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0116.firstDestructivePitDepth_exact}
+  \uses{def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-lengthinmicrometers, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-compactdiscinterferencesetup, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-matchesproblemandfigure, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-hasphysicalparameters, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-satisfiesnormalincidenceinterferencelaws, def:physics:phyx-mini-0116:phyxminiproblems-problemphyxmini0116-isleastdestructivepitdepth}
+  This lemma records the first Destructive Pit Depth exact component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first Destructive Pit Depth exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

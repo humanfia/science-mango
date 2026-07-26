@@ -1,0 +1,242 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0669.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0669.source.json
+
+\chapter{Physics problem phyx\_mini\_0669}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0669}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The position versus time for a certain particle moving along the \textbackslash{}( x \textbackslash{}) axis is shown in figure.
+
+\#\# Question
+
+Find the average velocity in the time intervals 0 to \textbackslash{}( 8 \textbackslash{}text\{ s\} \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}[ 6 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- B: B: \textbackslash{}[ 10 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- C: C: \textbackslash{}[ 0 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- D: D: \textbackslash{}[ 2 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a line graph illustrating a relation between position \textbackslash{}( x \textbackslash{}) in meters (m) and time \textbackslash{}( t \textbackslash{}) in seconds (s). Here's a detailed description:
+
+- **Axes**:
+  - The horizontal axis represents time \textbackslash{}( t \textbackslash{}) in seconds, labeled from 0 to 8.
+  - The vertical axis represents position \textbackslash{}( x \textbackslash{}) in meters, labeled from -6 to 10.
+
+- **Data Points and Line**:
+  - The graph begins at the origin (0,0).
+  - From \textbackslash{}( t = 0 \textbackslash{}) to \textbackslash{}( t = 2 \textbackslash{}), \textbackslash{}( x \textbackslash{}) rises to 10.
+  - Between \textbackslash{}( t = 2 \textbackslash{}) and \textbackslash{}( t = 4 \textbackslash{}), \textbackslash{}( x \textbackslash{}) decreases to 5.
+  - At \textbackslash{}( t = 5 \textbackslash{}), \textbackslash{}( x \textbackslash{}) remains at 5 until \textbackslash{}( t = 6 \textbackslash{}).
+  - From \textbackslash{}( t = 6 \textbackslash{}) to \textbackslash{}( t = 7 \textbackslash{}), \textbackslash{}( x \textbackslash{}) decreases sharply to -5.
+  - Between \textbackslash{}( t = 7 \textbackslash{}) and \textbackslash{}( t = 8 \textbackslash{}), \textbackslash{}( x \textbackslash{}) increases back to 0.
+
+- **Grid**:
+  - The graph has a grid with horizontal and vertical lines that aid in reading the values.
+
+- **Line Style**:
+  - The line is thick and continuous with sharp angles at each data point transition.
+
+The graph displays a fluctuating motion over time, with steady increases, decreases, and periods of constant position.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}[ 0 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/669.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0669.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0669:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0669.averageVelocityOverDisplayedInterval_is_zero}
+\uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-velocityinmeterspersecond, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesprimaryfigure, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-particlemotionsetup, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesproblemstatement, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-satisfiesaveragevelocitylaw, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesanswerchoice, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-recordedanswerchoice}
+The average velocity on the displayed interval is zero metres per second and hence agrees with recorded choice C.
+\end{theorem}
+\begin{proof}
+The horizontal-axis endpoints are $0$ and $8$ seconds, and the graph gives position zero at both endpoints.  Substitute these four readouts into average velocity $[x(8)-x(0)]/(8-0)$ to get zero.  The answer table assigns zero to choice C, and the recorded choice is C, yielding the second conjunct.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AxialPosition}
+  A signed position coordinate along the particle's one-dimensional axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Axial Velocity]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AxialVelocity}
+  A signed one-dimensional velocity, with physical dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Velocity.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.positionInMeters}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialposition}
+  Metre readout of a signed axial position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialvelocity}
+  Metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AxisQuantity}
+  Physical quantity assigned to one of the plot axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AxisUnit}
+  Unit printed beside a plot axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Spatial Axis]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-spatialaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.SpatialAxis}
+  The spatial axis named in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Axis.
+\end{proof}
+\begin{definition}[Trace Geometry]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-tracegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.TraceGeometry}
+  The geometry of the thick trace drawn in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Geometry.
+\end{proof}
+\begin{definition}[Figure Vertex]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-figurevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.FigureVertex}
+  Names for the six visible vertices of the plotted motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Vertex.
+\end{proof}
+\begin{definition}[Position Time Figure]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positiontimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.PositionTimeFigure}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialposition, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axisquantity, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axisunit, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-tracegeometry, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-figurevertex}
+  The calibrated position--time figure. The trace argument is a real scalar because it is the numerical coordinate read from the horizontal axis in seconds; its value is still a dimensionful physical position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Time Figure.
+\end{proof}
+\begin{definition}[Is Straight Trace Segment]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-isstraighttracesegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.IsStraightTraceSegment}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positioninmeters, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-figurevertex, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positiontimefigure}
+  The trace is the straight line segment joining two named consecutive vertices. This is figure evidence, not a dynamical law and not an answer assumption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Straight Trace Segment.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positioninmeters, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positiontimefigure, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-isstraighttracesegment}
+  Exact transcription of image 669. The endpoint positions are calibrated measurements from the graph. They do not state the requested average velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Particle Motion Setup]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-particlemotionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.ParticleMotionSetup}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialvelocity, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-spatialaxis, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positiontimefigure}
+  The average velocity is an independent physical observable. No numerical value for it is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Motion Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-particlemotionsetup}
+  The scenario specifies one-dimensional motion along the x axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Satisfies Average Velocity Law]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-satisfiesaveragevelocitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.SatisfiesAverageVelocityLaw}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-positioninmeters, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-velocityinmeterspersecond, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-particlemotionsetup}
+  Average velocity over the displayed interval is displacement divided by its elapsed time. This is the governing kinematic law; it contains no displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Average Velocity Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-answerchoice}
+  Metres-per-second scalar displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-axialvelocity, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-velocityinmeterspersecond, def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-answerchoice}
+  A physical axial velocity agrees with the scalar printed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0669.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0669:phyxminiproblems-problemphyxmini0669-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

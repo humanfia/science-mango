@@ -1,0 +1,384 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0408.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0408.source.json
+
+\chapter{Physics problem phyx\_mini\_0408}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0408}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows two processes that take a gas from state i to state f.
+
+\#\# Question
+
+Show that \$Q\_A - Q\_B = p\_i V\_i\$.
+
+\#\# Answer choices
+
+- A: A: 0
+
+- B: B: \$2p\_i V\_i\$
+
+- C: C: \$p\_i V\_i\$
+
+- D: D: \$-p\_i V\_i\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram featuring a closed cycle composed of four segments, forming a rectangle. Here are the details:
+
+- **Axes**: 
+  - The vertical axis is labeled as \textbackslash{}( p \textbackslash{}) (pressure).
+  - The horizontal axis is labeled as \textbackslash{}( V \textbackslash{}) (volume).
+  
+- **Points**:
+  - Point \textbackslash{}( i \textbackslash{}) is at the initial position on the lower left.
+  - Point \textbackslash{}( f \textbackslash{}) is at the upper right corner.
+  
+- **Lines**:
+  - The cycle starts at point \textbackslash{}( i \textbackslash{}) (initial) and moves horizontally to the right at constant pressure \textbackslash{}( p\_i \textbackslash{}), reaching a point labeled as \textbackslash{}( B \textbackslash{}) at \textbackslash{}( 2V\_i \textbackslash{}).
+  - It then moves vertically upwards to \textbackslash{}( f \textbackslash{}) at constant volume, reaching a pressure of \textbackslash{}( 2p\_i \textbackslash{}).
+  - The next segment moves horizontally to the left from \textbackslash{}( f \textbackslash{}) at constant pressure, reaching another point labeled as \textbackslash{}( A \textbackslash{}) at \textbackslash{}( V\_i \textbackslash{}).
+  - Finally, it returns vertically downwards to \textbackslash{}( i \textbackslash{}) at constant volume, completing the cycle.
+
+- **Arrows**: 
+  - Arrows on each segment indicate the direction of the cycle: right, up, left, and down, respectively.
+
+- **Labels**:
+  - \textbackslash{}( p\_i \textbackslash{}) and \textbackslash{}( 2p\_i \textbackslash{}) are marked on the pressure axis.
+  - \textbackslash{}( V\_i \textbackslash{}) and \textbackslash{}( 2V\_i \textbackslash{}) are marked on the volume axis.
+  - Points \textbackslash{}( i \textbackslash{}), \textbackslash{}( f \textbackslash{}), \textbackslash{}( A \textbackslash{}), and \textbackslash{}( B \textbackslash{}) are labeled along the cycle path.
+
+This diagram represents a thermodynamic cycle, possibly illustrating a process like the Carnot cycle or another idealized mechanical process.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$p\_i V\_i\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/408.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0408.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0408:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0408.heatDifferenceBetweenPaths_eq_initialPressure_mul_initialVolume}
+\uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeincubicmetres, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureinpascals, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyinjoules, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialpressure, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialvolume, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-matchesproblemstatement, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-hasphysicalpressurevolumecoordinates, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiesquasistaticboundaryworklaw, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiespathworkadditivity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiesclosedsystemfirstlaw}
+For the two rectangular routes from \(i\) to \(f\), the heat difference is
+\(Q_A-Q_B=p_iV_i\), answer C.
+\end{theorem}
+\begin{proof}
+The vertical legs are isochoric and do no work.  Route A expands from \(V_i\)
+to \(2V_i\) at pressure \(2p_i\), so \(W_A=2p_iV_i\).  Route B makes the same
+expansion at \(p_i\), so \(W_B=p_iV_i\).  Both routes have identical endpoint
+states; subtracting their two first-law equations cancels the common internal
+energy change and gives
+\[
+ Q_A-Q_B=W_A-W_B=p_iV_i.
+\]
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.VolumeQuantity}
+  A signed physical volume, with dimension L\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.PressureQuantity}
+  A physical pressure, with dimension M L⁻¹ T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.EnergyQuantity}
+  A signed physical energy, used for heat, work, and internal energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.pressureInPascals}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurequantity}
+  Read a physical pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.energyInJoules}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyquantity}
+  Read heat, work, or internal energy in SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.StateLabel}
+  The two endpoint states and two unlabeled corners of the rectangle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Process Path]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessPath}
+  The two routes labelled A and B in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Path.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessLeg}
+  The four directed straight segments displayed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessLeg.initialState}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg}
+  Initial state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessLeg.finalState}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg}
+  Final state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[first Leg]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath-firstleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessPath.firstLeg}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg}
+  First leg of either displayed route from i to f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of first Leg.
+\end{proof}
+\begin{definition}[second Leg]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath-secondleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessPath.secondLeg}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg}
+  Second leg of either displayed route from i to f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of second Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessPath.initialState}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath}
+  Initial state of either complete displayed route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessPath.finalState}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath}
+  Final state of either complete displayed route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ProcessKind}
+  Thermodynamic constraint represented by a straight segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Segment Orientation]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-segmentorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.SegmentOrientation}
+  Orientation of a segment in the pressure--volume plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Orientation.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.AxisQuantity}
+  Which physical quantity is assigned to an axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Pressure Axis Label]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.PressureAxisLabel}
+  The two relative pressure labels printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Axis Label.
+\end{proof}
+\begin{definition}[Volume Axis Label]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.VolumeAxisLabel}
+  The two relative volume labels printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Axis Label.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-segmentorientation, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-axisquantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureaxislabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeaxislabel}
+  Qualitative evidence retained from the primary bitmap. The physical coordinates live in GasProcessSetup; this structure stores visible axes, endpoint dots and labels, route labels, segments, and directed arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Thermodynamic System Boundary]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-thermodynamicsystemboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.ThermodynamicSystemBoundary}
+  Closed-system interpretation used for the fixed sample of gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic System Boundary.
+\end{proof}
+\begin{definition}[Gas Process Setup]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.GasProcessSetup}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumequantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurequantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyquantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processkind, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurevolumefigure, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-thermodynamicsystemboundary}
+  Independent thermodynamic quantities for the displayed process. Internal energy is state-dependent, whereas heat and work along a complete process are path-dependent. No field fixes the requested heat difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Process Setup.
+\end{proof}
+\begin{definition}[initial Pressure]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.initialPressure}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressurequantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  The physical pressure denoted by p\_i in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Pressure.
+\end{proof}
+\begin{definition}[initial Volume]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.initialVolume}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumequantity, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  The physical volume denoted by V\_i in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Volume.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  The scenario concerns a fixed sample of gas in a closed system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeincubicmetres, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureinpascals, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureaxislabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeaxislabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialpressure, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-initialvolume}
+  Exact transcription of the primary image. Besides axes, labels, segment orientations, and arrows, it records the four relative coordinates i = (V\_i,p\_i), upperLeft = (V\_i,2p\_i), lowerRight = (2V\_i,p\_i), and f = (2V\_i,2p\_i). No heat, work, or internal-energy value occurs in this figure-data structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Has Physical Pressure Volume Coordinates]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-hasphysicalpressurevolumecoordinates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.HasPhysicalPressureVolumeCoordinates}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeincubicmetres, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureinpascals, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-statelabel, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  Positivity conditions selecting physical pressure and volume coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pressure Volume Coordinates.
+\end{proof}
+\begin{definition}[Satisfies Quasistatic Boundary Work Law]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiesquasistaticboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.SatisfiesQuasistaticBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-volumeincubicmetres, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-pressureinpascals, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyinjoules, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processleg, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  Quasistatic pressure--volume boundary work. Constant-volume legs do no work; on a constant-pressure leg, work by the gas is p (V\_finish - V\_start). This law is stated uniformly for every leg and contains no heat difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasistatic Boundary Work Law.
+\end{proof}
+\begin{definition}[Satisfies Path Work Additivity]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiespathworkadditivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.SatisfiesPathWorkAdditivity}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyinjoules, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  Work on either complete route is the sum of its two leg works
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Path Work Additivity.
+\end{proof}
+\begin{definition}[Satisfies Closed System First Law]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-satisfiesclosedsystemfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.SatisfiesClosedSystemFirstLaw}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-energyinjoules, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-processpath, def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-gasprocesssetup}
+  The closed-system first law on either complete path. Heat is positive into the gas and boundary work is positive when done by the gas. Both paths have the same endpoint states, but no heat value or heat difference is prescribed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed System First Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.AnswerChoice}
+  The four answer labels printed with the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Coefficient]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-answerchoice-displayedcoefficient}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.AnswerChoice.displayedCoefficient}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-answerchoice}
+  Dimensionless coefficient of p\_i V\_i displayed by each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Coefficient.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0408.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0408:phyxminiproblems-problemphyxmini0408-answerchoice}
+  The dataset records choice C; this is metadata and is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

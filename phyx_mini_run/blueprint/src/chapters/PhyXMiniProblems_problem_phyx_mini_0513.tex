@@ -1,0 +1,260 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0513.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0513.source.json
+
+\chapter{Physics problem phyx\_mini\_0513}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0513}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The starships of the Solar Federation are marked with the symbol of the federation, a circle, while starships of the Denebian Empire are marked with the empire's symbol, an ellipse whose major axis is 1.40 times longer than its minor axis as shown in figure.
+
+\#\# Question
+
+How fast, relative to an observer, does an empire ship have to travel for its mark- ing to be confused with the marking of a federation ship?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.820c \textbackslash{})
+
+- B: B: \textbackslash{}( 0.660c \textbackslash{})
+
+- C: C: \textbackslash{}( 0.950c \textbackslash{})
+
+- D: D: \textbackslash{}( 0.700c \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two stylized spaceship shapes, each representing a different entity.
+
+- **Left Side (Federation)**
+  - Shape: Gray silhouette resembling a spaceship or aircraft.
+  - Details: Includes a central purple circle.
+  - Label: "Federation" is written below it.
+
+- **Right Side (Empire)**
+  - Shape: Beige silhouette of a spaceship or aircraft with jagged features at the top.
+  - Details: Includes a central purple ellipse.
+  - Dimensions: Labeled with arrows indicating height "a" and width "b."
+  - Label: "Empire" is written below it. 
+
+The overall scene contrasts the shapes and features of the two designs.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 0.700c \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/513.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0513.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0513:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0513.empireShipSpeedForCircularMarking}
+\uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedfractionoflight, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-matchesscenarioandprimaryfigure, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-haslongitudinalmajoraxismotion, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-hasphysicalmarkingparameters, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-obeysspecialrelativisticlengthcontraction, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-appearscirculartoobserver, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-isnearestanswerchoice, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-agreeswhenroundedtothreedecimals}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.lengthReadout}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.speedReadout}
+  Scalar readout of a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.vacuumSpeedOfLightReadout}
+  Physlib's exact vacuum speed of light in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[Starship Faction]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipfaction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.StarshipFaction}
+  The two fleets distinguished in the problem and its primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Starship Faction.
+\end{proof}
+\begin{definition}[Marking Shape]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-markingshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.MarkingShape}
+  Rest-frame marking shapes displayed on the two ships
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Marking Shape.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.FigureAxis}
+  Axis labels printed next to the Empire ellipse in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Direction]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-figuredirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.FigureDirection}
+  Directions in the plane of the marking as drawn in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Direction.
+\end{proof}
+\begin{definition}[Principal Axis Role]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-principalaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.PrincipalAxisRole}
+  Geometric roles played by the two principal axes of an ellipse
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Principal Axis Role.
+\end{proof}
+\begin{definition}[Observer Frame Kind]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-observerframekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.ObserverFrameKind}
+  The observer is modeled in the inertial frame relative to which speed is measured
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observer Frame Kind.
+\end{proof}
+\begin{definition}[Starship Marking Setup]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.StarshipMarkingSetup}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthquantity, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipfaction, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-markingshape, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-figureaxis, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-figuredirection, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-principalaxisrole, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-observerframekind}
+  Physical quantities and figure labels for the marking experiment. The observed diameters and relative speed are unknowns. In particular, this structure does not assign the requested speed or identify an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Starship Marking Setup.
+\end{proof}
+\begin{definition}[speed Fraction Of Light]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedfractionoflight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.speedFractionOfLight}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-vacuumspeedoflightreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup}
+  Dimensionless speed β = v/c, read in common SI length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Fraction Of Light.
+\end{proof}
+\begin{definition}[Matches Scenario And Primary Figure]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-matchesscenarioandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.MatchesScenarioAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup}
+  Scenario and primary-figure readouts. The figure identifies the Federation marking as a circle and the Empire marking as an ellipse; its a arrow is vertical and major, while b is horizontal and minor. The stated factor 1.40 is represented exactly as 7 / 5 in every length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Primary Figure.
+\end{proof}
+\begin{definition}[Has Longitudinal Major Axis Motion]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-haslongitudinalmajoraxismotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.HasLongitudinalMajorAxisMotion}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup}
+  The intended motion geometry: the ship's velocity is parallel to the figure's major axis a. This specifies which diameter is longitudinal; it does not assign a speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Longitudinal Major Axis Motion.
+\end{proof}
+\begin{definition}[Has Physical Marking Parameters]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-hasphysicalmarkingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.HasPhysicalMarkingParameters}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedfractionoflight}
+  Positivity and subluminal conditions for the physical configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Marking Parameters.
+\end{proof}
+\begin{definition}[Obeys Special Relativistic Length Contraction]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-obeysspecialrelativisticlengthcontraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.ObeysSpecialRelativisticLengthContraction}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-speedfractionoflight}
+  The governing special-relativistic length-contraction law. The longitudinal diameter is divided by Physlib's Lorentz factor γ(β), while the transverse diameter is invariant. These are general laws involving the unknown β, not the numerical answer requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Special Relativistic Length Contraction.
+\end{proof}
+\begin{definition}[Appears Circular To Observer]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-appearscirculartoobserver}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.AppearsCircularToObserver}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-lengthreadout, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-starshipmarkingsetup}
+  The condition posed in the question: an observer can confuse the Empire ellipse with the Federation circle when its two observed principal diameters are equal. This is an observational condition, not a speed assignment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Appears Circular To Observer.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.AnswerChoice}
+  Labels of the four speed choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed Fraction]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-displayedspeedfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.displayedSpeedFraction}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-answerchoice}
+  Dimensionless coefficient of c displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed Fraction.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-answerchoice, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-displayedspeedfraction}
+  A choice is at least as close to the exact speed fraction as every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+\begin{definition}[Agrees When Rounded To Three Decimals]
+  \label{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-agreeswhenroundedtothreedecimals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0513.AgreesWhenRoundedToThreeDecimals}
+  \uses{def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-answerchoice, def:physics:phyx-mini-0513:phyxminiproblems-problemphyxmini0513-displayedspeedfraction}
+  Agreement with a coefficient printed to three decimal places. Half of one unit in the final decimal place is 1 / 2000
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees When Rounded To Three Decimals.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

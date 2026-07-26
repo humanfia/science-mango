@@ -1,0 +1,253 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0311.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0311.source.json
+
+\chapter{Physics problem phyx\_mini\_0311}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0311}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, sound waves \$A\$ and \$B\$, both of wavelength \$\textbackslash{}lambda\$, are initially in phase and traveling rightward, as indicated by the two rays. Wave \$A\$ is reflected from four surfaces but ends up traveling in its original direction. Wave \$B\$ ends in that direction after reflecting from two surfaces. Let distance \$L\$ in the figure be expressed as a multiple \$q\$ of \$\textbackslash{}lambda\$: \$L = q\textbackslash{}lambda\$.
+
+\#\# Question
+
+What is the second smallest values of \$q\$ that put \$A\$ and \$B\$ exactly out of phase with each other after the reflections?
+
+\#\# Answer choices
+
+- A: A: 0.75
+
+- B: B: 1.0
+
+- C: C: 1.25
+
+- D: D: 1.5
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a beam splitter setup. It includes the following elements:
+
+1. **Objects:**
+   - Four mirrors depicted as rectangles, positioned at 45-degree angles.
+   - Two light paths (red lines with arrows) that split and rejoin, with directions indicated by arrows.
+
+2. **Labels:**
+   - Points labeled "A" and "B" indicate locations on the light paths.
+   - Text "L" is used to denote the length of the paths between mirrors.
+   
+3. **Relationships:**
+   - The paths start together, split at the first mirror, travel perpendicularly, reflect off three other mirrors, and converge again.
+   - Vertical and horizontal distances between mirrors are marked as "L."
+
+The diagram is likely demonstrating an arrangement similar to a Michelson interferometer.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.5
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/311.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0311.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0311:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0311.secondSmallestOutOfPhaseSeparationRatio}
+\uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-matchesproblemandfigure, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-hasphysicalacousticparameters, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-satisfiesreflectedsoundphaselaw, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-outofphaseatratio, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-issecondsmallest, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-displayedratio, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.LengthQuantity}
+  A nonnegative physical length carrying Physlib's length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.lengthInMeters}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity}
+  Read a physical length in the SI length unit (metres)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[Wave Label]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-wavelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.WaveLabel}
+  The two sound-wave rays labeled in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Label.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.PropagationDirection}
+  The propagation directions used by the red ray segments in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[Acoustic Wave Kind]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-acousticwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.AcousticWaveKind}
+  The physical type of both waves in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Wave Kind.
+\end{proof}
+\begin{definition}[Mirror Label]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-mirrorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.MirrorLabel}
+  The five reflecting surfaces visible in the primary image. The central-left surface is encountered by both rays, from different incident directions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Label.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.FigureLengthLabel}
+  The three arrows in the primary image that each carry the label L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[Sound Wave]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundwave}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.SoundWave}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-propagationdirection, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-acousticwavekind}
+  A sound wave before it enters the reflected-ray apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Wave.
+\end{proof}
+\begin{definition}[Reflection Figure]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-reflectionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.ReflectionFigure}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-wavelabel, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-propagationdirection, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-mirrorlabel, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-figurelengthlabel}
+  Discrete routes, output directions, and scalable metric data supplied by the figure. The real argument to the length fields is a proposed ratio q; only nonnegative ratios are assigned physical meaning by the premises below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflection Figure.
+\end{proof}
+\begin{definition}[Sound Reflection Setup]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.SoundReflectionSetup}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-wavelabel, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundwave, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-reflectionfigure}
+  The physical experiment, including the unknown output phases. The output phase field is constrained by the propagation law below and is not defined to make an answer choice true
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Reflection Setup.
+\end{proof}
+\begin{definition}[separation At Ratio]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-separationatratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.separationAtRatio}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthquantity, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup}
+  Use the upper horizontal L arrow as the canonical separation length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of separation At Ratio.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthinmeters, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-separationatratio}
+  The prose data and quantitative relations read from the primary figure. The last two fields express, for every nonnegative proposed ratio, the stated relation L = q * lambda and the geometric path excess d\_A = d\_B + L. They do not assert that any particular ratio produces opposite phase
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthinmeters, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup}
+  Positivity of the common wavelength, excluding a degenerate wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Reflected Sound Phase Law]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-satisfiesreflectedsoundphaselaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.SatisfiesReflectedSoundPhaseLaw}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-lengthinmeters, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-wavelabel, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup}
+  The standard path-accumulation law for phase. Traveling distance d at wavelength lambda contributes 2*pi*d/lambda; every encounter with one of the identical reflecting surfaces contributes the same angle. The final field says that the two additional reflections on route A have a net phase equivalent to a full turn (or no turn). It is a boundary/reflection law, not a statement about the requested separation ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Reflected Sound Phase Law.
+\end{proof}
+\begin{definition}[Exactly Out Of Phase]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-exactlyoutofphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.ExactlyOutOfPhase}
+  Two phases differ by exactly half a turn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exactly Out Of Phase.
+\end{proof}
+\begin{definition}[Out Of Phase At Ratio]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-outofphaseatratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.OutOfPhaseAtRatio}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-exactlyoutofphase}
+  A positive ratio q makes the two emerging waves exactly out of phase
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Out Of Phase At Ratio.
+\end{proof}
+\begin{definition}[Is Second Smallest]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-issecondsmallest}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.IsSecondSmallest}
+  candidate is the second-smallest number satisfying property: there is a least satisfying number strictly below it, and every satisfying number below candidate is that least number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Second Smallest.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.AnswerChoice}
+  Labels of the four dimensionless ratios displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Ratio]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-displayedratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.displayedRatio}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-answerchoice}
+  The value of q printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Ratio.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[out Of Phase iff positive odd half integer]
+  \label{lem:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-outofphase-iff-positive-odd-half-integer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0311.outOfPhase_iff_positive_odd_half_integer}
+  \uses{def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-soundreflectionsetup, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-matchesproblemandfigure, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-hasphysicalacousticparameters, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-satisfiesreflectedsoundphaselaw, def:physics:phyx-mini-0311:phyxminiproblems-problemphyxmini0311-outofphaseatratio}
+  The general propagation and reflection laws reduce exact opposition to a positive odd half-integer wavelength ratio. This is a derived intermediate result, not a premise of the main theorem
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of out Of Phase iff positive odd half integer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

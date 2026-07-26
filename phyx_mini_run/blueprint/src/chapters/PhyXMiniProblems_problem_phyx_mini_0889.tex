@@ -1,0 +1,396 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0889.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0889.source.json
+
+\chapter{Physics problem phyx\_mini\_0889}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0889}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+For the circuit of figure.
+
+\#\# Question
+
+What is the resonance frequency, in \textbackslash{}( \textbackslash{}text\{Hz\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 5.0 \textbackslash{}times 10\textasciicircum{}4 \textbackslash{}text\{ Hz\} \textbackslash{})
+
+- B: B: \textbackslash{}( 7.0 \textbackslash{}times 10\textasciicircum{}3 \textbackslash{}text\{ Hz\} \textbackslash{})
+
+- C: C: \textbackslash{}( 5.0 \textbackslash{}times 10\textasciicircum{}3 \textbackslash{}text\{ Hz\} \textbackslash{})
+
+- D: D: \textbackslash{}( 7.0 \textbackslash{}times 10\textasciicircum{}4 \textbackslash{}text\{ Hz\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit with the following elements:
+
+1. **Voltage Source:** 
+   - Labeled as \textbackslash{}((10 \textbackslash{}, V) \textbackslash{}cos \textbackslash{}omega t\textbackslash{}), representing an AC voltage source with an amplitude of 10 volts.
+
+2. **Resistor:**
+   - Labeled as \textbackslash{}(10 \textbackslash{}, \textbackslash{}Omega\textbackslash{}), indicating a resistance of 10 ohms.
+
+3. **Inductor:**
+   - Labeled as \textbackslash{}(1.0 \textbackslash{}, \textbackslash{}text\{mH\}\textbackslash{}), signifying an inductance of 1.0 millihenries.
+
+4. **Capacitor:**
+   - Labeled as \textbackslash{}(1.0 \textbackslash{}, \textbackslash{}mu \textbackslash{}text\{F\}\textbackslash{}), indicating a capacitance of 1.0 microfarads.
+
+The components are arranged in series, forming a closed loop circuit. The voltage source is connected to the resistor, followed by the inductor, and then the capacitor. The symbols for each component are standard: a sinusoidal source for AC voltage, a zigzag line for the resistor, a coiled line for the inductor, and parallel lines with a gap for the capacitor.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 5.0 \textbackslash{}times 10\textasciicircum{}3 \textbackslash{}text\{ Hz\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/889.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0889.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0889:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0889.problem_phyx_mini_0889}
+\uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchesidealseriesrlcscenario, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchesseriesclosedlooptopology, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchessuppliedseriesrlcfigure, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-hasphysicalseriesrlcparameters, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-obeysidealsinusoidalvoltagelaw, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-satisfiesidealseriesrlcresonancelaws, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-recordeddatasetanswer, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-isuniqueclosestresonancefrequencychoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.electricPotentialDimension}
+  The dimension M L² T⁻² C⁻¹ of electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  The dimension V T C⁻¹ of electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[electrical Inductance Dimension]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalinductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.electricalInductanceDimension}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  The dimension V T² C⁻¹ of electrical inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Inductance Dimension.
+\end{proof}
+\begin{definition}[electrical Capacitance Dimension]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalcapacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.electricalCapacitanceDimension}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  The dimension C V⁻¹ of electrical capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Capacitance Dimension.
+\end{proof}
+\begin{definition}[Voltage Amplitude Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.VoltageAmplitudeQuantity}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  A nonnegative physical voltage amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Amplitude Quantity.
+\end{proof}
+\begin{definition}[Signed Voltage Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-signedvoltagequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.SignedVoltageQuantity}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricpotentialdimension}
+  A signed instantaneous voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Voltage Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalresistancedimension}
+  A nonnegative physical electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalinductancedimension}
+  A nonnegative physical electrical inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-electricalcapacitancedimension}
+  A nonnegative physical electrical capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.FrequencyQuantity}
+  A nonnegative ordinary frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.AngularFrequencyQuantity}
+  A nonnegative angular frequency; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.TimeQuantity}
+  A signed physical time coordinate used in the source waveform
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.nonnegativeReadout}
+  Read a nonnegative dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[signed Readout]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-signedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.signedReadout}
+  Read a signed dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Readout.
+\end{proof}
+\begin{definition}[voltage Amplitude In Volts]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudeinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.voltageAmplitudeInVolts}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  Read a voltage amplitude in coherent SI volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage Amplitude In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  Read a resistance in coherent SI ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  Read an inductance in coherent SI henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductanceinhenries}
+  Read an inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  Read a capacitance in coherent SI farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitanceinfarads}
+  Read a capacitance in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyquantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout}
+  Read an ordinary frequency in coherent SI hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[Sinusoidal Voltage Source]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-sinusoidalvoltagesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.SinusoidalVoltageSource}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-signedvoltagequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-angularfrequencyquantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-timequantity}
+  The physical sinusoidal source, including its symbolic drive frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sinusoidal Voltage Source.
+\end{proof}
+\begin{definition}[Circuit Element]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-circuitelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.CircuitElement}
+  The four component roles shown in the single loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Element.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.CircuitNode}
+  Junctions between consecutive components in the pictured loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.ComponentModel}
+  Idealizations assigned to the four standard component symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Series RLCCircuit Figure]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.SeriesRLCCircuitFigure}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-circuitelement}
+  Literal presentation data read from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCCircuit Figure.
+\end{proof}
+\begin{definition}[Series RLCCircuit Setup]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.SeriesRLCCircuitSetup}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitancequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyquantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-angularfrequencyquantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-sinusoidalvoltagesource, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-circuitelement, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-circuitnode, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-componentmodel, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitfigure}
+  Independent physical data for the pictured circuit. The resonant ordinary and angular frequencies are fields rather than definitions from the component values, so neither the requested numerical value nor an answer choice is built into the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCCircuit Setup.
+\end{proof}
+\begin{definition}[Matches Ideal Series RLCScenario]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchesidealseriesrlcscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.MatchesIdealSeriesRLCScenario}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  The standard ideal lumped-component interpretation of the symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Series RLCScenario.
+\end{proof}
+\begin{definition}[Matches Series Closed Loop Topology]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchesseriesclosedlooptopology}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.MatchesSeriesClosedLoopTopology}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  The terminal identifications making the four components one series loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Series Closed Loop Topology.
+\end{proof}
+\begin{definition}[Matches Supplied Series RLCFigure]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-matchessuppliedseriesrlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.MatchesSuppliedSeriesRLCFigure}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudeinvolts, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistanceinohms, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductanceinmillihenries, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitanceinmicrofarads, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  Primary-raster evidence and calibration of every printed component value to the corresponding physical quantity. This contains no resonance-frequency readout and no answer-choice information
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Series RLCFigure.
+\end{proof}
+\begin{definition}[Has Physical Series RLCParameters]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-hasphysicalseriesrlcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.HasPhysicalSeriesRLCParameters}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-voltageamplitudeinvolts, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-resistanceinohms, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-inductanceinhenries, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-capacitanceinfarads, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyinhertz, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  Positivity and nondegeneracy of the physical parameters used below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Series RLCParameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Sinusoidal Voltage Law]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-obeysidealsinusoidalvoltagelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.ObeysIdealSinusoidalVoltageLaw}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-timequantity, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-signedreadout, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-sinusoidalvoltagesource}
+  The cosine law expressed by the label (10 V) cos (ω t). The amplitude and angular frequency remain physical dimensionful quantities, while the product ω t is dimensionless in every coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Sinusoidal Voltage Law.
+\end{proof}
+\begin{definition}[Satisfies Ideal Series RLCResonance Laws]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-satisfiesidealseriesrlcresonancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.SatisfiesIdealSeriesRLCResonanceLaws}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-nonnegativereadout, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup}
+  Governing laws for ideal series-RLC resonance. Ordinary and angular frequencies satisfy ω₀ = 2π f₀, and at resonance the inductive and capacitive reactance magnitudes cancel: ω₀ L = 1 / (ω₀ C). These relations are stated for every coherent unit system and contain neither a requested hertz value nor an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Series RLCResonance Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Frequency Hertz]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-answerchoice-displayedfrequencyhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.AnswerChoice.displayedFrequencyHertz}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-answerchoice}
+  The frequency in hertz printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Frequency Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Resonance Frequency Choice]
+  \label{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-isuniqueclosestresonancefrequencychoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0889.IsUniqueClosestResonanceFrequencyChoice}
+  \uses{def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-frequencyinhertz, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-seriesrlccircuitsetup, def:physics:phyx-mini-0889:phyxminiproblems-problemphyxmini0889-answerchoice}
+  A displayed multiple-choice value is correct when it is strictly closer to the exact physical resonance frequency than every other displayed value. A nearest-choice predicate is needed because the exact ideal value is about 5033 Hz, whereas the problem displays two-significant-figure choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Resonance Frequency Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,300 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0143.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0143.source.json
+
+\chapter{Physics problem phyx\_mini\_0143}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0143}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An aquarium filled with water has flat glass sides whose index of refraction is \textbackslash{}(1.54\textbackslash{}). A beam of light from outside the aquarium strikes the glass at a \textbackslash{}(43.5\textasciicircum{}\textbackslash{}circ\textbackslash{}) angle to the perpendicular (figure). The ray entered the water directly.
+
+\#\# Question
+
+What would be the refracted angle?
+
+\#\# Answer choices
+
+- A: A: \$41.2\textasciicircum{}\{\textbackslash{}circ\}\$
+
+- B: B: \$21.2\textasciicircum{}\{\textbackslash{}circ\}\$
+
+- C: C: \$31.2\textasciicircum{}\{\textbackslash{}circ\}\$
+
+- D: D: \$36.2\textasciicircum{}\{\textbackslash{}circ\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating the refraction of light. It shows three materials: Air, Glass, and Water arranged side by side. 
+
+- The arrow represents a ray of light traveling from the Air to the Glass and then into the Water.
+- The ray in the Air is hitting the Glass at an angle of 43.5 degrees from the normal (a dotted line perpendicular to the surface of the Glass).
+- The angle is indicated with annotations.
+- The colors used are light pink for the ray, light green for the Glass, and light blue for the Water.
+- The text labels the sections as "Air," "Glass," and "Water."
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$31.2\textasciicircum{}\{\textbackslash{}circ\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/143.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0143.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0143:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0143.water_refraction_angle_is_choice_C}
+\uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-waterrefractionangle, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-hasphysicalrefractionconfiguration, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-matchesproblemdata, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-hasparallelglassfacegeometry, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-satisfiessnelllawat, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-matchesanswertonearesttenth, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.OpticalMedium}
+  The three homogeneous optical media traversed by the ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Refraction Interface]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface}
+  The two planar faces of the aquarium's glass wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refraction Interface.
+\end{proof}
+\begin{definition}[Normal Label]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-normallabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.NormalLabel}
+  Labels for the perpendiculars at the two refraction points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Normal Label.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RaySegment}
+  The three successive segments of the single ray shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface.incidentMedium}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-opticalmedium, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface}
+  This def records the incident Medium component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface.transmittedMedium}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-opticalmedium, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface}
+  This def records the transmitted Medium component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[incident Ray]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface-incidentray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface.incidentRay}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-raysegment}
+  This def records the incident Ray component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Ray.
+\end{proof}
+\begin{definition}[transmitted Ray]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface-transmittedray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface.transmittedRay}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-raysegment}
+  This def records the transmitted Ray component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Ray.
+\end{proof}
+\begin{definition}[normal]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface-normal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.RefractionInterface.normal}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-normallabel}
+  This def records the normal component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of normal.
+\end{proof}
+\begin{definition}[Aquarium Refraction Setup]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.AquariumRefractionSetup}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-opticalmedium, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-normallabel, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-raysegment}
+  Physical quantities attached to the three-layer ray diagram. The function angleToNormal retains both the ray-segment label and the normal label so that parallel-face geometry can explicitly relate the two angles of the glass segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aquarium Refraction Setup.
+\end{proof}
+\begin{definition}[refractive Index Readout]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractiveindexreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.refractiveIndexReadout}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-opticalmedium, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  The unit-independent scalar readout of a dimensionless refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of refractive Index Readout.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.degrees}
+  Convert a scalar degree readout to a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.degreeReadout}
+  Read the principal representative of a physical angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[air Incidence Angle]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-airincidenceangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.airIncidenceAngle}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  The incident angle in air, shown as 43.5° from the entry normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of air Incidence Angle.
+\end{proof}
+\begin{definition}[glass Refraction Angle At Entry]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassrefractionangleatentry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.glassRefractionAngleAtEntry}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  The refracted glass angle at the air--glass face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of glass Refraction Angle At Entry.
+\end{proof}
+\begin{definition}[glass Incidence Angle At Exit]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassincidenceangleatexit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.glassIncidenceAngleAtExit}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  The incidence angle of the same glass segment at the glass--water face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of glass Incidence Angle At Exit.
+\end{proof}
+\begin{definition}[water Refraction Angle]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-waterrefractionangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.waterRefractionAngle}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup}
+  The requested refracted angle in water, measured from the exit normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of water Refraction Angle.
+\end{proof}
+\begin{definition}[Is Physical Refraction Angle]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-isphysicalrefractionangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.IsPhysicalRefractionAngle}
+  A normal angle is on the physical acute branch used by this diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Refraction Angle.
+\end{proof}
+\begin{definition}[Has Physical Refraction Configuration]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-hasphysicalrefractionconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.HasPhysicalRefractionConfiguration}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractiveindexreadout, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-airincidenceangle, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassrefractionangleatentry, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassincidenceangleatexit, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-waterrefractionangle, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-isphysicalrefractionangle}
+  Positivity and acute-angle conditions for the depicted ray path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Refraction Configuration.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractiveindexreadout, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-degrees, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-airincidenceangle}
+  Numerical readouts stated in the problem or supplied by the standard material model. The glass index is the stated 1.54; 1 and 1.33 are respectively the ambient-air and water index readouts used at the displayed precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Parallel Glass Face Geometry]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-hasparallelglassfacegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.HasParallelGlassFaceGeometry}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassrefractionangleatentry, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-glassincidenceangleatexit}
+  The two flat faces of the glass wall are parallel, so their normals are parallel and the straight glass segment makes the same angle with each
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Parallel Glass Face Geometry.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-satisfiessnelllawat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.SatisfiesSnellLawAt}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractioninterface, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractiveindexreadout}
+  Snell's law at one of the two material interfaces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At.
+\end{proof}
+\begin{lemma}[net snell law across parallel glass]
+  \label{lem:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-net-snell-law-across-parallel-glass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.net_snell_law_across_parallel_glass}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-aquariumrefractionsetup, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-refractiveindexreadout, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-airincidenceangle, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-waterrefractionangle, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-hasparallelglassfacegeometry, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-satisfiessnelllawat}
+  For parallel faces, applying Snell's law twice cancels the intermediate glass index and relates the air and water angles directly
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net snell law across parallel glass.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.AnswerChoice}
+  The four answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer In Degrees]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.answerInDegrees}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerchoice}
+  The degree readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer In Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-degreereadout, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerchoice, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerindegrees}
+  Agreement with a choice displayed to the nearest tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0143.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-degreereadout, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerchoice, def:physics:phyx-mini-0143:phyxminiproblems-problemphyxmini0143-answerindegrees}
+  A choice is the unique closest displayed angle to a degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

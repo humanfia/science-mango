@@ -1,0 +1,455 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0450.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0450.source.json
+
+\chapter{Physics problem phyx\_mini\_0450}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0450}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A piston/cylinder assembly contains \$2 \textbackslash{}, \textbackslash{}text\{kg\}\$ of liquid water at \$20 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ and \$300 \textbackslash{}, \textbackslash{}text\{kPa\}\$, as shown in figure. There is a linear spring mounted on the piston such that when the water is heated, the pressure reaches \$3 \textbackslash{}, \textbackslash{}text\{MPa\}\$ with a volume of \$0.1 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3\$.
+
+\#\# Question
+
+Find the work in the process.
+
+\#\# Answer choices
+
+- A: A: 75.2 kJ
+
+- B: B: 600.0 kJ
+
+- C: C: 5.4 kJ
+
+- D: D: 161.7 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional view of a cylindrical container. The top of the container is labeled \textbackslash{}( P\_0 \textbackslash{}), indicating a reference pressure. Inside the container, there is a large, black spring situated above a piston. The spring is compressed between the top of the container and the piston.
+
+Below the piston, there is a blue liquid labeled as \textbackslash{}(\textbackslash{}text\{H\}\_2\textbackslash{}text\{O\}\textbackslash{}), which represents water. The piston is shown with vertical lines, likely indicating it is a movable barrier between the spring and the water, allowing for changes in volume corresponding to pressure changes applied by the spring.
+
+The setup illustrates a system where the pressure exerted by the spring affects the water beneath the piston. This configuration might be used to study pressure-volume relationships or mechanical work on the contained liquid.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 161.7 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/450.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0450.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0450:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0450.problem_phyx_mini_0450}
+\uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinkilojoules, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesspringpistonwaterscenario, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesproblemreadouts, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchessuppliedspringpistonfigure, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesinitialliquidwaterstaterelation, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesreferenceliquidwaterdata, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-hasphysicalspringpistonparameters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesclosedwatermassvolumelaw, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfieslinearspringpressurepath, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesquasistaticboundaryworklaw, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-isuniquereportedworkchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[specific Volume Dimension]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.specificVolumeDimension}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumedimension}
+  The physical dimension of specific volume, L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumedimension}
+  A nonnegative, unit-independent physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SpecificVolumeQuantity}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumedimension}
+  A nonnegative, unit-independent thermodynamic specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.massReadout}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[volume Readout]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.volumeReadout}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumequantity}
+  Read a physical volume in the cube of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Readout.
+\end{proof}
+\begin{definition}[specific Volume Readout]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.specificVolumeReadout}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumequantity}
+  Read specific volume in cubic selected-length-units per selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.massInKilograms}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massquantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massreadout}
+  Kilogram readout used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumequantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumereadout}
+  Cubic-metre readout used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Meters Per Kilogram]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumeincubicmetersperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.specificVolumeInCubicMetersPerKilogram}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumequantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumereadout}
+  Cubic metres per kilogram, used for the liquid-water table datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Meters Per Kilogram.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.pressureInPascals}
+  Read dimensionful pressure in coherent SI units (pascals)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals}
+  Kilopascal pressure readout used for the initial state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[pressure In Megapascals]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinmegapascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.pressureInMegapascals}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals}
+  Megapascal pressure readout used for the final state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Megapascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.energyInJoules}
+  Read dimensionful work/energy in coherent SI units (joules)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinjoules}
+  Kilojoule work readout used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.CelsiusTemperatureReading}
+  Physlib represents absolute temperature, whereas degrees Celsius form an affine scale. This interface couples a Celsius observation to the same absolute physical temperature through T\_K = T\_°C + 273.15
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Process Endpoint]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-processendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.ProcessEndpoint}
+  The two endpoints of the heating process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Endpoint.
+\end{proof}
+\begin{definition}[Fluid Substance]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-fluidsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.FluidSubstance}
+  Substance contained below the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fluid Substance.
+\end{proof}
+\begin{definition}[Water Region]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-waterregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.WaterRegion}
+  Thermodynamic region of a water state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Region.
+\end{proof}
+\begin{definition}[Process Regime]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-processregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.ProcessRegime}
+  Idealized process regime needed for equilibrium boundary work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Regime.
+\end{proof}
+\begin{definition}[Work Sign Convention]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-worksignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.WorkSignConvention}
+  Sign convention selected by the positive recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Sign Convention.
+\end{proof}
+\begin{definition}[Water State]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-waterstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.WaterState}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumequantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumequantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-celsiustemperaturereading, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-waterregion}
+  One equilibrium state of the water
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water State.
+\end{proof}
+\begin{definition}[Liquid Water Property Table]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-liquidwaterpropertytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.LiquidWaterPropertyTable}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumequantity}
+  External compressed-liquid water data. Its lookup returns a physical specific volume from physical pressure and absolute temperature inputs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Liquid Water Property Table.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.FigureObject}
+  Objects plainly visible in the supplied piston/cylinder raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.FigureLabel}
+  Literal symbolic labels shown in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Spring Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SpringPistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-figureobject, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-figurelabel}
+  Qualitative and symbolic evidence carried by the primary figure. The reference-pressure symbol P₀ denotes a physical pressure but supplies no numerical pressure, volume, temperature, or work readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Spring Piston Water Setup]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SpringPistonWaterSetup}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massquantity, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-processendpoint, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-fluidsubstance, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-processregime, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-worksignconvention, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-waterstate, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-liquidwaterpropertytable, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistoncylinderfigure}
+  The complete physical setup. The process pressure function is an SI scalar readout of physical pressure as a function of an SI cubic-metre readout; it is not itself used as a replacement for either physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Piston Water Setup.
+\end{proof}
+\begin{definition}[Matches Spring Piston Water Scenario]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesspringpistonwaterscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.MatchesSpringPistonWaterScenario}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  Qualitative facts stated or conventionally idealized in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Spring Piston Water Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massinkilograms, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinkilopascals, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinmegapascals, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  The five numerical readouts explicitly supplied by the prose. In particular, neither the initial volume nor the requested work is included here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Spring Piston Figure]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchessuppliedspringpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.MatchesSuppliedSpringPistonFigure}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  Exact qualitative geometry and labels visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Spring Piston Figure.
+\end{proof}
+\begin{definition}[Satisfies Initial Liquid Water State Relation]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesinitialliquidwaterstaterelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SatisfiesInitialLiquidWaterStateRelation}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  The initial specific volume is supplied by a constitutive compressed-liquid water table, rather than being defined from the requested work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Initial Liquid Water State Relation.
+\end{proof}
+\begin{definition}[Matches Reference Liquid Water Data]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesreferenceliquidwaterdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.MatchesReferenceLiquidWaterData}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  Reference property data needed to make the numerical exercise determinate: liquid water at 20 °C has specific volume approximately 0.001002 m³/kg; pressure dependence over this compressed-liquid range is neglected at the precision of the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference Liquid Water Data.
+\end{proof}
+\begin{definition}[Has Physical Spring Piston Parameters]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-hasphysicalspringpistonparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.HasPhysicalSpringPistonParameters}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massinkilograms, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  Positivity and endpoint ordering for the physical expansion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Spring Piston Parameters.
+\end{proof}
+\begin{definition}[Satisfies Closed Water Mass Volume Law]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesclosedwatermassvolumelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SatisfiesClosedWaterMassVolumeLaw}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-massreadout, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumereadout, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-specificvolumereadout, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-processendpoint, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  Conservation of water mass and V = m v for each equilibrium endpoint, stated in arbitrary coherent mass/length units. It does not assign the requested work a value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Water Mass Volume Law.
+\end{proof}
+\begin{definition}[Satisfies Linear Spring Pressure Path]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfieslinearspringpressurepath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SatisfiesLinearSpringPressurePath}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  A linear spring makes equilibrium pressure affine in piston displacement and hence affine in cylinder volume. This specifies the whole path from the independently supplied endpoint states, without mentioning work or an answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linear Spring Pressure Path.
+\end{proof}
+\begin{definition}[Satisfies Quasistatic Boundary Work Law]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesquasistaticboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.SatisfiesQuasistaticBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinjoules, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup}
+  For a closed, quasistatic piston/cylinder process, boundary work done by the water is the signed path integral ∫ p dV in coherent SI readouts. This is a general governing law and contains no numerical work conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasistatic Boundary Work Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.AnswerChoice}
+  Labels printed beside the four candidate work values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Work In Kilojoules]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-displayedworkinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.displayedWorkInKilojoules}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-answerchoice}
+  Work in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Work In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-answerchoice}
+  Dataset answer metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Reported Work Choice]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-isreportedworkchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.IsReportedWorkChoice}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinkilojoules, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-answerchoice, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-displayedworkinkilojoules}
+  Agreement after reporting work to the one decimal place used in the list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Reported Work Choice.
+\end{proof}
+\begin{definition}[Is Unique Reported Work Choice]
+  \label{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-isuniquereportedworkchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.IsUniqueReportedWorkChoice}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-answerchoice, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-isreportedworkchoice}
+  A choice is the only displayed value agreeing with the reported work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Reported Work Choice.
+\end{proof}
+\begin{lemma}[initial Volume In Cubic Meters]
+  \label{lem:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-initialvolumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.initialVolumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesproblemreadouts, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesinitialliquidwaterstaterelation, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesreferenceliquidwaterdata, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesclosedwatermassvolumelaw}
+  The water table and V = m v give the independently derived initial volume V₁ = 2(0.001002) = 0.002004 m³
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Volume In Cubic Meters.
+\end{proof}
+\begin{lemma}[linear Spring Boundary Work endpoint Average]
+  \label{lem:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-linearspringboundarywork-endpointaverage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.linearSpringBoundaryWork_endpointAverage}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-volumeincubicmeters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-pressureinpascals, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinjoules, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-hasphysicalspringpistonparameters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfieslinearspringpressurepath, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesquasistaticboundaryworklaw}
+  Integrating the affine pressure path yields the trapezoid area under the pressure--volume curve. This remains a symbolic consequence of the two governing laws and contains no answer-choice value
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of linear Spring Boundary Work endpoint Average.
+\end{proof}
+\begin{lemma}[work Done By Water In Kilojoules exact]
+  \label{lem:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-workdonebywaterinkilojoules-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0450.workDoneByWaterInKilojoules_exact}
+  \uses{def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-energyinkilojoules, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-springpistonwatersetup, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesproblemreadouts, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesinitialliquidwaterstaterelation, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-matchesreferenceliquidwaterdata, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-hasphysicalspringpistonparameters, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesclosedwatermassvolumelaw, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfieslinearspringpressurepath, def:physics:phyx-mini-0450:phyxminiproblems-problemphyxmini0450-satisfiesquasistaticboundaryworklaw}
+  Using the endpoint readouts and the liquid-water initial volume, the exact model value is 161.6934 kJ before answer-list rounding
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of work Done By Water In Kilojoules exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

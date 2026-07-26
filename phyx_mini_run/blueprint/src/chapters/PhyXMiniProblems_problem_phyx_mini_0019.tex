@@ -1,0 +1,193 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0019.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0019.source.json
+
+\chapter{Physics problem phyx\_mini\_0019}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0019}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+As shown in figure, a light ray is incident normal to one face of a \textbackslash{}( 30\textasciicircum{}\textbackslash{}circ-60\textasciicircum{}\textbackslash{}circ-90\textasciicircum{}\textbackslash{}circ \textbackslash{}) block of flint glass (a prism) that is immersed in water.
+
+\#\# Question
+
+A substance is dissolved in the water to increase the index of refraction \textbackslash{}( n\_2 \textbackslash{}). At what value of \textbackslash{}( n\_2 \textbackslash{}) does total internal reflection cease at point \textbackslash{}( P \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 2.01
+
+- B: B: 1.82
+
+- C: C: 1.44
+
+- D: D: 1.50
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram illustrating the concept of light refraction through a prism submerged in a medium. Here's a breakdown of the elements:
+
+1. **Prism**: A triangular prism with a 60.0° angle on the left side, placed in a container.
+
+2. **Media**: 
+   - The prism is labeled with a refractive index \textbackslash{}( n\_1 \textbackslash{}).
+   - The surrounding medium, presumably a liquid, is labeled with a refractive index \textbackslash{}( n\_2 \textbackslash{}).
+
+3. **Incident Ray**: A horizontal arrow entering the prism from the left, striking the surface at point \textbackslash{}( P \textbackslash{}).
+
+4. **Refraction at Point \textbackslash{}( P \textbackslash{})**:
+   - The ray enters the prism at an angle labeled \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) with respect to the normal (dashed line).
+   
+5. **Emerging Ray**: The refracted ray exits the prism on the other side at an angle \textbackslash{}( \textbackslash{}theta\_2 \textbackslash{}) with the normal. The angle between the emerging ray and inner surface normal is \textbackslash{}( 30.0° \textbackslash{}).
+
+6. **Continuation of Ray**: The ray continues outside the prism at an angle labeled \textbackslash{}( \textbackslash{}theta\_3 \textbackslash{}). 
+
+7. **Angles**:
+   - The top vertex angle of the prism is \textbackslash{}( 60.0° \textbackslash{}).
+   - Angles \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}), \textbackslash{}( \textbackslash{}theta\_2 \textbackslash{}), and  \textbackslash{}( \textbackslash{}theta\_3 \textbackslash{}) represent the angle of incidence, refraction, and exit respectively.
+
+This setup is likely used to demonstrate Snell's Law and the behavior of light as it passes through different media.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.44
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/19.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0019.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0019:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0019.dissolvedSubstanceThreshold_isChoiceC}
+\uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-radiansofdegrees, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-prismraydiagram, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-snelllawatinterface, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-totalinternalreflectionat, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-totalinternalreflectionceasesat, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-answerchoicevalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-roundstohundredth}
+For normal entry into the pictured $30^\circ$--$60^\circ$--$90^\circ$ flint
+glass prism, total internal reflection at $P$ ceases when the surrounding
+solution index satisfies $n_2=n_1\sin60^\circ$. Conditionally on the named
+material-table calibration $n_1=1.66$, this threshold is approximately
+$1.4376$ and rounds to $1.44$, answer C. The calibration is not a figure
+readout and must be represented as an explicit sourced-or-assumed scalar
+projection; the symbolic threshold theorem must remain valid independently.
+\end{theorem}
+\begin{proof}
+Normal entry leaves the ray horizontal. The sloping-face geometry makes its
+incidence angle at $P$ equal to $60^\circ$. At the cessation threshold the
+transmitted ray is grazing, so Snell's law reads
+$n_1\sin60^\circ=n_2\sin90^\circ=n_2$. Substituting the separately named
+flint-glass calibration gives about $1.4376$, which rounds to $1.44$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Refractive Index Quantity]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.RefractiveIndexQuantity}
+  A unit-independent dimensionless refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refractive Index Quantity.
+\end{proof}
+\begin{definition}[refractive Index Value]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.refractiveIndexValue}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexquantity}
+  The scalar readout of a dimensionless refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of refractive Index Value.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.OpticalMedium}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexquantity, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue}
+  An optical medium together with its positive, dimensionless refractive index. This keeps the physical role of n₁ and n₂ explicit while exposing the scalar readout used by Snell's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[radians Of Degrees]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-radiansofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.radiansOfDegrees}
+  Convert an angle readout in degrees to its value in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Of Degrees.
+\end{proof}
+\begin{definition}[Prism Ray Diagram]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-prismraydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.PrismRayDiagram}
+  The angle labels read from the prism diagram. Every angle is measured in radians. Incidence and refraction angles are measured from the local surface normal, while the two vertex angles are interior prism angles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Diagram.
+\end{proof}
+\begin{definition}[Snell Law At Interface]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-snelllawatinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.SnellLawAtInterface}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium}
+  Snell's law at an interface. Refractive indices are dimensionless, and the two real angles are radian readouts measured from the interface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Interface.
+\end{proof}
+\begin{definition}[Total Internal Reflection At]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-totalinternalreflectionat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.TotalInternalReflectionAt}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium}
+  The total-internal-reflection regime for a ray going from incident to transmitted: the incident medium has the larger refractive index and the Snell-law sine demand exceeds the largest value available in the transmitted medium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Total Internal Reflection At.
+\end{proof}
+\begin{definition}[Total Internal Reflection Ceases At]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-totalinternalreflectionceasesat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.TotalInternalReflectionCeasesAt}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-snelllawatinterface}
+  The threshold at which total internal reflection ceases. At the critical configuration the transmitted ray is tangent to the interface, so its angle from the normal is π / 2 and Snell's law holds at that angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Total Internal Reflection Ceases At.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.AnswerChoice}
+  The four numerical choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Value]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-answerchoicevalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.answerChoiceValue}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-answerchoice}
+  Dimensionless refractive-index readout associated with an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Value.
+\end{proof}
+\begin{definition}[Rounds To Hundredth]
+  \label{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-roundstohundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.RoundsToHundredth}
+  value rounds to displayed to the hundredth place. The strict half-unit interval avoids assigning a midpoint to both neighboring displayed values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Hundredth.
+\end{proof}
+\begin{lemma}[critical Refraction threshold Relation]
+  \label{lem:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-criticalrefraction-thresholdrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0019.criticalRefraction_thresholdRelation}
+  \uses{def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-refractiveindexvalue, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-opticalmedium, def:physics:phyx-mini-0019:phyxminiproblems-problemphyxmini0019-totalinternalreflectionceasesat}
+  At the critical configuration, Snell's law gives the symbolic value of the surrounding medium's threshold refractive index. This is the governing relation behind the numerical answer and does not assume that answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of critical Refraction threshold Relation.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,421 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0335.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0335.source.json
+
+\chapter{Physics problem phyx\_mini\_0335}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0335}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+We can crudely model a nitrogen molecule as a pair of small balls, each with the mass of a nitrogen atom, \$2.3 \textbackslash{}times 10\textasciicircum{}\{-26\}\textbackslash{},\textbackslash{}text\{kg\}\$, attached by a rigid massless rod with length \$d = 2r = 188\textbackslash{},\textbackslash{}text\{pm\}\$.
+
+\#\# Question
+
+What is the moment of inertia of this molecule with respect to an axis passing through the midpoint and perpendicular to the molecular axis?
+
+\#\# Answer choices
+
+- A: A: 4.1 \textbackslash{}times 10\textasciicircum{}\{-46\}\textbackslash{}
+
+- B: B: 5.1 \textbackslash{}times 10\textasciicircum{}\{-46\}\textbackslash{}
+
+- C: C: 4.7 \textbackslash{}times 10\textasciicircum{}\{-46\}\textbackslash{}
+
+- D: D: 6.1 \textbackslash{}times 10\textasciicircum{}\{-46\}\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two diagrams labeled "BEFORE" and "AFTER," illustrating a physical concept involving motion.
+
+**Before:**
+- Two vertically aligned pairs of orange spheres are connected by gray rods.
+- Green arrows labeled "v\_i" point horizontally to the right on the top pair and to the left on the bottom pair, indicating initial velocity.
+
+**After:**
+- Both pairs of orange spheres are shown at an angle, no longer vertical.
+- Curved arrows indicate rotational motion around the center of the rods, labeled with the Greek letter "ω" (omega) to signify angular velocity.
+
+Dashed lines separate each pair of spheres horizontally, suggesting a partition or axis of symmetry. The illustration likely represents a change from linear to rotational motion.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 4.1 \textbackslash{}times 10\textasciicircum{}\{-46\}\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/335.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0335.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0335:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0335.nitrogen_molecule_moment_of_inertia}
+\uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesnitrogenmoleculescenario, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesproblemreadouts, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesmidpointaxisgeometry, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchessuppliedbeforeafterfigure, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-hasphysicalnitrogenmoleculeparameters, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-satisfiestwopointmassinertialaw, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-answerchoice, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-displayedmomentofinertia, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[speed Dimension]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.speedDimension}
+  The physical dimension of translational speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Dimension.
+\end{proof}
+\begin{definition}[angular Speed Dimension]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.angularSpeedDimension}
+  The physical dimension of angular speed; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.momentOfInertiaDimension}
+  The physical dimension of moment of inertia, mass times length squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MassQuantity}
+  A nonnegative physical mass, independent of its readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.LengthQuantity}
+  A nonnegative physical length, independent of its readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.SpeedMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speeddimension}
+  A nonnegative translational speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.AngularSpeedMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeeddimension}
+  A nonnegative angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiadimension}
+  A nonnegative physical moment of inertia about a specified axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.massReadout}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.lengthReadout}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.speedReadout}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speedmagnitudequantity}
+  Read speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeedmagnitudequantity}
+  Read angular speed in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiaquantity}
+  Read moment of inertia in coherent selected mass and length units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.massInKilograms}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massreadout}
+  Kilogram readout of an atom's physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.lengthInMeters}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthreadout}
+  Meter readout used in the coherent SI inertia law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Picometers]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinpicometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.lengthInPicometers}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthreadout}
+  Picometer readout used for the stated molecular separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Picometers.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiaquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiareadout}
+  SI readout of a moment of inertia, in kilogram-meter squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[Atom Site]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.AtomSite}
+  The two nitrogen-atom sites at the ends of the molecular bond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atom Site.
+\end{proof}
+\begin{definition}[Molecular Species]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-molecularspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MolecularSpecies}
+  The molecular species stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Species.
+\end{proof}
+\begin{definition}[Atom Body Model]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atombodymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.AtomBodyModel}
+  The idealization of each orange ball as a small point mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atom Body Model.
+\end{proof}
+\begin{definition}[Bond Rod Model]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-bondrodmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.BondRodModel}
+  The idealization of the connector between the two atom sites
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bond Rod Model.
+\end{proof}
+\begin{definition}[Rotation Axis Geometry]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rotationaxisgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.RotationAxisGeometry}
+  Geometry of the axis about which the moment of inertia is requested
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis Geometry.
+\end{proof}
+\begin{definition}[Figure Panel]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figurepanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.FigurePanel}
+  The two panels explicitly captioned in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Panel.
+\end{proof}
+\begin{definition}[Figure Molecule]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figuremolecule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.FigureMolecule}
+  The upper and lower dumbbells separated by the dashed horizontal line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Molecule.
+\end{proof}
+\begin{definition}[Rod Orientation]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rodorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.RodOrientation}
+  Orientations of a dumbbell rod appearing in the raster image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Orientation.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.HorizontalDirection}
+  Horizontal senses of the green arrows labelled v\_i
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.RotationSense}
+  Rotation senses of the curved arrows labelled omega
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Supplied Before After Figure]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-suppliedbeforeafterfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.SuppliedBeforeAfterFigure}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speedmagnitudequantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeedmagnitudequantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figurepanel, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figuremolecule, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rodorientation, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-horizontaldirection, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rotationsense}
+  Data represented in the supplied raster image. The image depicts two dumbbells before and after an interaction. The common v\_i and omega labels are retained as dimensionful speed magnitudes, even though neither is needed to calculate the molecule's static moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Before After Figure.
+\end{proof}
+\begin{definition}[Nitrogen Molecule Setup]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.NitrogenMoleculeSetup}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiaquantity, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-molecularspecies, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atombodymodel, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-bondrodmodel, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-rotationaxisgeometry, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-suppliedbeforeafterfigure}
+  Independent physical quantities in the molecular model. In particular, the moment of inertia is an observable constrained only by the governing law below; it is not defined to equal a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nitrogen Molecule Setup.
+\end{proof}
+\begin{definition}[Matches Nitrogen Molecule Scenario]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesnitrogenmoleculescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MatchesNitrogenMoleculeScenario}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  The qualitative molecular and rotation-axis model stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Nitrogen Molecule Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massinkilograms, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinpicometers, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  The numerical data printed in the question: each atom has mass 2.3 * 10\textasciicircum{}-26 kg, and the atom-to-atom separation is 188 pm. The requested moment of inertia does not occur in these readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Midpoint Axis Geometry]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesmidpointaxisgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MatchesMidpointAxisGeometry}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthreadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  The stated relation d = 2 r and the midpoint-axis geometry. Both atom sites are one half-separation from the perpendicular axis. These are geometric inputs, not the requested inertia value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Midpoint Axis Geometry.
+\end{proof}
+\begin{definition}[Matches Supplied Before After Figure]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchessuppliedbeforeafterfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MatchesSuppliedBeforeAfterFigure}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figurepanel, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-figuremolecule, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  Literal panel captions, arrow labels, orientations, and motion senses read from the primary image. The upper initial arrow points right, the lower one points left, and the two after-panel angular arrows have opposite senses. The dashed divider is recorded without interpreting it as the rotation axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Before After Figure.
+\end{proof}
+\begin{definition}[Has Physical Nitrogen Molecule Parameters]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-hasphysicalnitrogenmoleculeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.HasPhysicalNitrogenMoleculeParameters}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-speedreadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-angularspeedreadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massinkilograms, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinmeters, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  Positivity and nondegeneracy conditions for the modeled quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Nitrogen Molecule Parameters.
+\end{proof}
+\begin{definition}[Satisfies Two Point Mass Inertia Law]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-satisfiestwopointmassinertialaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.SatisfiesTwoPointMassInertiaLaw}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massreadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthreadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiareadout, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-atomsite, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup}
+  The general point-mass law I = sum m\_i rho\_i\textasciicircum{}2, stated in every coherent mass and length unit. Its radii are independent setup observables related to d / 2 only by the separate geometry hypotheses. Thus this law contains neither the simplified molecular formula nor the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Point Mass Inertia Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.AnswerChoice}
+  The four answer labels printed beside the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Moment Of Inertia]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-displayedmomentofinertia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.displayedMomentOfInertia}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-answerchoice}
+  Displayed moments of inertia, read in kilogram-meter squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Moment Of Inertia.
+\end{proof}
+\begin{definition}[displayed Resolution]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-displayedresolution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.displayedResolution}
+  One unit in the final displayed digit of every answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Resolution.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-answerchoice, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-displayedmomentofinertia, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-displayedresolution}
+  Rounding agreement with a displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[midpoint radius in meters]
+  \label{lem:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-midpoint-radius-in-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.midpoint_radius_in_meters}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinmeters, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesmidpointaxisgeometry}
+  The midpoint relation gives r = d / 2 in meter readouts
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of midpoint radius in meters.
+\end{proof}
+\begin{lemma}[diatomic point mass inertia formula]
+  \label{lem:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-diatomic-point-mass-inertia-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0335.diatomic_point_mass_inertia_formula}
+  \uses{def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-massinkilograms, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-lengthinmeters, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-nitrogenmoleculesetup, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesproblemreadouts, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-matchesmidpointaxisgeometry, def:physics:phyx-mini-0335:phyxminiproblems-problemphyxmini0335-satisfiestwopointmassinertialaw}
+  The two equal point masses and the midpoint geometry give the familiar diatomic formula I = m d\textasciicircum{}2 / 2 in SI readouts. This is derived rather than assumed by the governing-law interface
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of diatomic point mass inertia formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

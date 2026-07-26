@@ -1,0 +1,338 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0317.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0317.source.json
+
+\chapter{Physics problem phyx\_mini\_0317}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0317}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two atmospheric sound sources \$A\$ and \$B\$ emit isotropically at constant power. The sound levels \$\textbackslash{}beta\$ of their emissions are plotted in figure versus the radial distance \$r\$ from the sources. The vertical axis scale is set by \$\textbackslash{}beta\_1 = 85.0\$ dB and \$\textbackslash{}beta\_2 = 65.0\$ dB.
+
+\#\# Question
+
+What is the sound level difference at \$r = 10\$ m?
+
+\#\# Answer choices
+
+- A: A: 3.5 dB
+
+- B: B: 4.0 dB
+
+- C: C: 4.5 dB
+
+- D: D: 5.0 dB
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting two curves labeled 'A' and 'B'. The x-axis represents distance \textbackslash{}( r \textbackslash{}) in meters, ranging from 100 to 1000. The y-axis represents \textbackslash{}( \textbackslash{}beta \textbackslash{}) in decibels (dB), ranging from \textbackslash{}( \textbackslash{}beta\_2 \textbackslash{}) to \textbackslash{}( \textbackslash{}beta\_1 \textbackslash{}), with \textbackslash{}( \textbackslash{}beta\_1 \textbackslash{}) being the higher value. Both curves show a decreasing trend from left to right, indicating a reduction in \textbackslash{}( \textbackslash{}beta \textbackslash{}) as \textbackslash{}( r \textbackslash{}) increases. Curve 'A' starts at \textbackslash{}( \textbackslash{}beta\_1 \textbackslash{}) and decreases more steeply compared to curve 'B', which starts slightly lower than curve 'A'. The graph is on a grid background, providing a clear visual of the trend and relationship between the variables.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 5.0 dB
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/317.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0317.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0317:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0317.problem_phyx_mini_0317}
+\uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundleveldifferenceindecibels, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchesatmosphericsourcescenario, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchesproblemdistancedata, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchessuppliedsoundlevelgraph, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-usesstandardsoundintensityreference, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-hasphysicalacousticparameters, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-satisfiesisotropicinversesquarelaw, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-recordedanswerchoice, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-isclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.LengthMagnitude}
+  A nonnegative physical radial distance from a sound source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Acoustic Power Quantity]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AcousticPowerQuantity}
+  Acoustic power has SI unit watt and dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Power Quantity.
+\end{proof}
+\begin{definition}[Acoustic Intensity Quantity]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AcousticIntensityQuantity}
+  Acoustic intensity is power per area, with SI unit watt per square metre and dimension mass / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Intensity Quantity.
+\end{proof}
+\begin{definition}[distance Readout]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.distanceReadout}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-lengthmagnitude}
+  Read a physical distance in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Readout.
+\end{proof}
+\begin{definition}[acoustic Power Readout]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.acousticPowerReadout}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerquantity}
+  Read an acoustic power in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power Readout.
+\end{proof}
+\begin{definition}[acoustic Intensity Readout]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.acousticIntensityReadout}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityquantity}
+  Read an acoustic intensity in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity Readout.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.distanceInMeters}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-lengthmagnitude, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distancereadout}
+  SI metre readout of a radial distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[acoustic Power In Watts]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.acousticPowerInWatts}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerquantity, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerreadout}
+  SI watt readout of an emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power In Watts.
+\end{proof}
+\begin{definition}[acoustic Intensity In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.acousticIntensityInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityquantity, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityreadout}
+  SI watt-per-square-metre readout of an acoustic intensity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Source Label]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.SourceLabel}
+  The two curves and atmospheric sound sources labeled in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Label.
+\end{proof}
+\begin{definition}[Radial Position]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.RadialPosition}
+  Named radial positions. The requested10m point comes from the question; the remaining positions are the labeled marks on the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radial Position.
+\end{proof}
+\begin{definition}[Acoustic Source Kind]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AcousticSourceKind}
+  Physical type of an idealized atmospheric acoustic source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Source Kind.
+\end{proof}
+\begin{definition}[Emission Regime]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-emissionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.EmissionRegime}
+  Time dependence of a source's emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emission Regime.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AcousticMedium}
+  Propagation medium named in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Graph Axis Quantity]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-graphaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.GraphAxisQuantity}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelindecibels}
+  Physical quantity represented by a graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis Quantity.
+\end{proof}
+\begin{definition}[Sound Level Graph]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelgraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.SoundLevelGraph}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-graphaxisquantity}
+  Metadata and scalar readouts attached to the supplied graph. The two β fields are sound-level readouts in decibels, not physical intensities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Level Graph.
+\end{proof}
+\begin{definition}[vertical Grid Step In Decibels]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-verticalgridstepindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.verticalGridStepInDecibels}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelgraph}
+  The size of one vertical grid step. In the image, β₁ and β₂ are separated by four equal grid intervals. This is a generic graph-scale conversion and does not mention the requested 10 m sound-level difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Grid Step In Decibels.
+\end{proof}
+\begin{definition}[Atmospheric Two Source Setup]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AtmosphericTwoSourceSetup}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-lengthmagnitude, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerquantity, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityquantity, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticsourcekind, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-emissionregime, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticmedium, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelgraph}
+  Physical setup for the two-source comparison. Intensities at all named radii remain independent fields until related by the governing inverse-square law. In particular, no intensity ratio or requested level difference is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atmospheric Two Source Setup.
+\end{proof}
+\begin{definition}[sound Level In Decibels]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.soundLevelInDecibels}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  Sound intensity level in decibels, using the standard general relation β = 10 log10 (I / I\_ref) and same-unit SI intensity readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Level In Decibels.
+\end{proof}
+\begin{definition}[sound Level Difference In Decibels]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundleveldifferenceindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.soundLevelDifferenceInDecibels}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelindecibels}
+  The positive magnitude of the level difference between curves A and B at a common radius. This definition contains no expected numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Level Difference In Decibels.
+\end{proof}
+\begin{definition}[Matches Atmospheric Source Scenario]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchesatmosphericsourcescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.MatchesAtmosphericSourceScenario}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  Both labeled atmospheric sources are isotropic point sources emitting at constant (not necessarily equal) power through the atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Atmospheric Source Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Distance Data]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchesproblemdistancedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.MatchesProblemDistanceData}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distanceinmeters, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  The numerical distance readouts in the question and on the horizontal graph axis. Recording 10 m identifies the requested position but says nothing about either source's level there
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Distance Data.
+\end{proof}
+\begin{definition}[Matches Supplied Sound Level Graph]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchessuppliedsoundlevelgraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.MatchesSuppliedSoundLevelGraph}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-verticalgridstepindecibels, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundlevelindecibels}
+  Primary-image evidence from the plotted graph: the horizontal axis is radial distance in metres and the vertical axis is sound level in decibels; curves A and B are both visible; β₁ = 85 dB and β₂ = 65 dB; at 100 m, curve B meets β₁, while curve A is one of the four equal vertical grid steps higher; and both plotted curves decrease across the labeled graph range. These are graph readouts at 100 m, 500 m, and 1000 m; no level or level difference at the requested 10 m position occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Sound Level Graph.
+\end{proof}
+\begin{definition}[Uses Standard Sound Intensity Reference]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-usesstandardsoundintensityreference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.UsesStandardSoundIntensityReference}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  The conventional common reference intensity for sound intensity level is 10⁻¹² W/m². This calibration is independent of the source and radius and does not determine the requested difference, which cancels the common reference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Sound Intensity Reference.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distanceinmeters, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerinwatts, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  Strict positivity and nondegeneracy of all physical acoustic quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Isotropic Inverse Square Law]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-satisfiesisotropicinversesquarelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.SatisfiesIsotropicInverseSquareLaw}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-distancereadout, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticpowerreadout, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-acousticintensityreadout, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-sourcelabel, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup}
+  The spherical inverse-square intensity law for each isotropic source. For every named radius and coherent unit system, the emitted power equals 4 * π * r\textasciicircum{}2 * I. This generic law contains neither a particular power ratio nor the requested 5 dB conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isotropic Inverse Square Law.
+\end{proof}
+\begin{lemma}[sound Level Difference independent Of Radius]
+  \label{lem:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundleveldifference-independentofradius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.soundLevelDifference_independentOfRadius}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-radialposition, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundleveldifferenceindecibels, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-hasphysicalacousticparameters, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-satisfiesisotropicinversesquarelaw}
+  Because both sources obey the inverse-square law, their intensity ratio and therefore their decibel-level difference are independent of the common radial position. This is derived from the governing law, not assumed in the setup
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sound Level Difference independent Of Radius.
+\end{proof}
+\begin{lemma}[graph Sound Level Difference At100m]
+  \label{lem:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-graphsoundleveldifferenceat100m}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.graphSoundLevelDifferenceAt100m}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-atmospherictwosourcesetup, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-soundleveldifferenceindecibels, def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-matchessuppliedsoundlevelgraph}
+  The graph scale and the two curve readings at 100 m give a one-grid-step separation of (85 - 65) / 4 = 5 dB. This remains a derived statement
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of graph Sound Level Difference At100m.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[decibels]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-answerchoice-decibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.AnswerChoice.decibels}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-answerchoice}
+  Sound-level difference in decibels printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of decibels.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0317.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0317:phyxminiproblems-problemphyxmini0317-answerchoice}
+  A displayed answer is uniquely closest to the physically derived sound-level difference. This generic comparison does not privilege choice D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

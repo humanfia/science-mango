@@ -1,0 +1,335 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0107.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0107.source.json
+
+\chapter{Physics problem phyx\_mini\_0107}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0107}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A fiber-optic cable consists of a thin cylindrical core with thickness \$d\$ made of a material with index of refraction \$n\_1\$, surrounded by cladding made of a material with index of refraction \$n\_2 < n\_1\$. Light rays traveling within the core remain trapped in the core provided they do not strike the core-cladding interface at an angle larger than the critical angle for total internal reflection.
+
+\#\# Question
+
+How much longer would it take light to travel 1.00 km through the cable than 1.00 km in air?
+
+\#\# Answer choices
+
+- A: A: 2.07cm
+
+- B: B: 2.12cm
+
+- C: C: 2.34cm
+
+- D: D: 2.00cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an illustration involving concentric semicircles and angles, likely related to optics or geometry.
+
+\#\#\# Elements in the Image:
+
+1. **Semicircles:**
+   - There are two semicircular annuli (rings), one orange and one blue.
+   - The orange semicircle is outside, and the blue semicircle inside.
+
+2. **Arrows and Lines:**
+   - A purple arrowed line travels from point **a** to point **b** and then straight downwards.
+   - Dashed lines are drawn from **a** to **c** and from **b** to **c**.
+
+3. **Points:**
+   - Points labeled as **a**, **b**, and **c**.
+   - **a** and **b** lie on the semicircular path, and **c** is at the center of the circles.
+
+4. **Angles and Measurements:**
+   - The angle **θ** is shown at point **b** between the dashed line and the radial line.
+   - **R** is labeled as the radius from point **c** to the semicircular path.
+   - A distance **d** is marked on the leftmost part of the image within the orange ring.
+
+5. **Text and Labels:**
+   - The refractive indices are labeled as **n₁** outside the orange semicircle and **n₂** inside the blue semicircle.
+
+This illustration likely represents a scenario such as the refraction of light through a lens or a similar optical component.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 2.07cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/107.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0107.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0107:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0107.problem_phyx_mini_0107}
+\uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-speedinmeterspersecond, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-cabledelayseconds, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-matchestravelquestion, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfieshomogeneouspropagationlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.DimLength}
+  A physical length, represented independently of a unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[Dim Time]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.DimTime}
+  A physical time interval, represented independently of a unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Time.
+\end{proof}
+\begin{definition}[Dim Speed Real]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimspeedreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.DimSpeedReal}
+  A real-valued physical speed, represented independently of a unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Speed Real.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.centimeterUnitChoices}
+  SI units with centimeters selected as the length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.lengthInMeters}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength}
+  The meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-centimeterunitchoices}
+  The centimeter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.timeInSeconds}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimtime}
+  The second readout of a physical time interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimspeedreal}
+  The meters-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.OpticalMedium}
+  The three optical media relevant to the written question and the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Travel Route]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-travelroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.TravelRoute}
+  The two equal physical distances whose light-travel times are compared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Travel Route.
+\end{proof}
+\begin{definition}[medium]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-travelroute-medium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.TravelRoute.medium}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalmedium, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-travelroute}
+  The homogeneous medium traversed by each route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of medium.
+\end{proof}
+\begin{definition}[Fiber Figure Point]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfigurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.FiberFigurePoint}
+  The point labels explicitly printed in the bent-fiber figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fiber Figure Point.
+\end{proof}
+\begin{definition}[Fiber Figure Segment]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfiguresegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.FiberFigureSegment}
+  The three line segments used in reading the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fiber Figure Segment.
+\end{proof}
+\begin{definition}[endpoints]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfiguresegment-endpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.FiberFigureSegment.endpoints}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfigurepoint, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfiguresegment}
+  Endpoints of each labeled segment in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of endpoints.
+\end{proof}
+\begin{definition}[Optical Fiber Setup]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.OpticalFiberSetup}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimtime, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimspeedreal, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalmedium, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-travelroute, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfigurepoint}
+  Physical quantities belonging to the cable, the two travel routes, and the bent-fiber diagram. Refractive indices and angle readouts are dimensionless; lengths, times, and speeds retain their physical dimensions. No requested delay, critical-radius formula, or answer choice is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Fiber Setup.
+\end{proof}
+\begin{definition}[inner Bend Radius]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-innerbendradius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.innerBendRadius}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  Figure label R = |cb|, the inner bend radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner Bend Radius.
+\end{proof}
+\begin{definition}[outer Core Radius]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-outercoreradius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.outerCoreRadius}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  The distance |ca| = R + d to the outer core--cladding interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of outer Core Radius.
+\end{proof}
+\begin{definition}[figure Segment Length]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-figuresegmentlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.figureSegmentLength}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfiguresegment, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-innerbendradius, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-outercoreradius}
+  Length of any of the three segments identified in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Segment Length.
+\end{proof}
+\begin{definition}[cable Delay Seconds]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-cabledelayseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.cableDelaySeconds}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-timeinseconds, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  The excess core-route travel time over the equal-distance air route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cable Delay Seconds.
+\end{proof}
+\begin{definition}[Matches Travel Question]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-matchestravelquestion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.MatchesTravelQuestion}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthinmeters, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  Written numerical data and the standard air approximation used by the timing question: both routes have length 1.00 km, and air has refractive index one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Travel Question.
+\end{proof}
+\begin{definition}[Matches Bent Fiber Figure]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-matchesbentfiberfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.MatchesBentFiberFigure}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-innerbendradius, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-outercoreradius}
+  Direct readout of the concentric bent-core figure. Radially, point a is one core thickness beyond point b; hence |ca| = |cb| + d in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Bent Fiber Figure.
+\end{proof}
+\begin{definition}[Satisfies Bent Fiber Geometry]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfiesbentfibergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.SatisfiesBentFiberGeometry}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthincentimeters, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-fiberfigurepoint, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-innerbendradius, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-outercoreradius, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-figuresegmentlength}
+  Euclidean geometry of the limiting ray in the primary figure. Segment ab is tangent to the inner core circle at b, so triangle cba is right at b. The displayed angle θ is at a, which gives sin θ = |cb| / |ca|
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bent Fiber Geometry.
+\end{proof}
+\begin{definition}[Satisfies Homogeneous Propagation Laws]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfieshomogeneouspropagationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.SatisfiesHomogeneousPropagationLaws}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-timeinseconds, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-speedinmeterspersecond, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalmedium, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-travelroute, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  Governing propagation laws for the written equal-distance timing comparison. In every unit choice, propagation obeys v n = c and constant-speed travel obeys t v = L. These premises do not state the requested delay formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Homogeneous Propagation Laws.
+\end{proof}
+\begin{definition}[Satisfies Critical Bend Optics]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfiescriticalbendoptics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.SatisfiesCriticalBendOptics}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup}
+  Governing optics for the limiting ray in the bent-fiber figure. The pictured ray meets the outer core--cladding interface at the critical angle, where Snell's law gives a tangential transmitted ray. This interface contains no formula for the requested bend radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Critical Bend Optics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.AnswerChoice}
+  The four labels attached to the source's centimeter-valued choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Centimeters]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoicecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.answerChoiceCentimeters}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoice}
+  The length value, in centimeters, printed beside each source choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Centimeters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoice}
+  The answer label recorded by the dataset, retained as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Centimeter Choice]
+  \label{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-matchescentimeterchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.MatchesCentimeterChoice}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-dimlength, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthincentimeters, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoice, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-answerchoicecentimeters}
+  Agreement of a physical length with a choice printed to 0.01 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Centimeter Choice.
+\end{proof}
+\begin{lemma}[critical bend radius formula]
+  \label{lem:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-critical-bend-radius-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0107.critical_bend_radius_formula}
+  \uses{def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-lengthincentimeters, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-opticalfibersetup, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-innerbendradius, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-matchesbentfiberfigure, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfiesbentfibergeometry, def:physics:phyx-mini-0107:phyxminiproblems-problemphyxmini0107-satisfiescriticalbendoptics}
+  The critical Snell relation and tangent-ray geometry determine the limiting inner bend radius without assuming its value: R = d n₂ / (n₁ - n₂)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of critical bend radius formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

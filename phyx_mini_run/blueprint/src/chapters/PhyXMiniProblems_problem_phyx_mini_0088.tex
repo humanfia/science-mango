@@ -1,0 +1,204 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0088.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0088.source.json
+
+\chapter{Physics problem phyx\_mini\_0088}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0088}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, the waves along rays 1 and 2 are initially in phase, with the same wavelength \textbackslash{}( \textbackslash{}lambda \textbackslash{}) in air. Ray 2 goes through a material with length \textbackslash{}( L \textbackslash{}) and index of refraction \textbackslash{}( n \textbackslash{}). The rays are then reflected by mirrors to a common point \textbackslash{}( P \textbackslash{}) on a screen. Suppose that we can vary \textbackslash{}( L \textbackslash{}) from 0 to 2400\textbackslash{},\textbackslash{}text\{nm\}. Suppose also that, from \textbackslash{}( L = 0 \textbackslash{}) to \textbackslash{}( L\_s = 900\textbackslash{},\textbackslash{}text\{nm\} \textbackslash{}), the intensity \textbackslash{}( I \textbackslash{}) of the light at point \textbackslash{}( P \textbackslash{}) varies with \textbackslash{}( L \textbackslash{}) as given in figure.
+
+\#\# Question
+
+What multiple of \textbackslash{}( \textbackslash{}lambda \textbackslash{}) gives the phase difference between ray 1 and ray 2 at common point \textbackslash{}( P \textbackslash{}) when \textbackslash{}( L = 1200\textbackslash{},\textbackslash{}text\{nm\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 0.40λ
+
+- B: B: 1.20λ
+
+- C: C: 0.80λ
+
+- D: D: 1.60λ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a curve on a coordinate plane. The horizontal axis is labeled "L (nm)" with values ranging from 0 to \textbackslash{}(L\_s\textbackslash{}). The vertical axis is labeled "I". The curve starts high on the vertical axis at \textbackslash{}(L = 0\textbackslash{}) and decreases smoothly to a minimum before slightly rising again as it approaches \textbackslash{}(L\_s\textbackslash{}). The curve is thick and smooth, and grid lines are present to aid in reading the graph. No specific numerical values are indicated.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.80λ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/88.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0088.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0088:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0088.phaseDifferenceAtTwelveHundredNm_isChoiceC}
+\uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesproblemsetup, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesintensityfigure, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-obeystworayinterferencelaws, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-answerwavelengthmultiple}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.DimLength}
+  A physical length with a real scalar carrier
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[nanometer Unit Choices]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometerunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.nanometerUnitChoices}
+  Unit choices used by the figure's horizontal axis, which is labelled in nanometers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometer Unit Choices.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-dimlength, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometerunitchoices}
+  Construct a physical length from its nanometer readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.nanometersValue}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-dimlength, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometerunitchoices}
+  The scalar nanometer readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.DiagramPlane}
+  The Euclidean plane containing the two reflected ray routes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Ray Label]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-raylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.RayLabel}
+  Labels 1 and 2 for the two rays in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Label.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.OpticalMedium}
+  The two optical media relevant to the variable path segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Reflected Ray Route]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-reflectedrayroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.ReflectedRayRoute}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-diagramplane}
+  A ray route with the source, the mirror at which it is reflected, and its destination on the screen
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Ray Route.
+\end{proof}
+\begin{definition}[Two Ray Interference Experiment]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.TwoRayInterferenceExperiment}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-dimlength, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-diagramplane, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-raylabel, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-opticalmedium, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-reflectedrayroute}
+  The physical quantities and labelled readouts of the variable-length two-ray interference experiment. The arguments to materialLengthTraversed, opticalPathDifference, phaseDifferenceRadiansAtP, and intensityAtP are the nanometer readout of the controlled material length L. Their names make this scalar projection explicit; the corresponding physical lengths remain values of DimLength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Ray Interference Experiment.
+\end{proof}
+\begin{definition}[Is Maximum On]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-ismaximumon}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.IsMaximumOn}
+  A function has a maximum at x on the specified scalar domain
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Maximum On.
+\end{proof}
+\begin{definition}[Is First Strict Minimum After Zero]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-isfirststrictminimumafterzero}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.IsFirstStrictMinimumAfterZero}
+  x is the first strict minimum of f after zero on [0, stop]: it is a global minimum there, and all earlier positive coordinates have larger value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is First Strict Minimum After Zero.
+\end{proof}
+\begin{definition}[Matches Problem Setup]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesproblemsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.MatchesProblemSetup}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-lengthinnanometers, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment}
+  Textual setup data: both rays reach P, begin in phase with the same positive air wavelength, ray 1 avoids the material, ray 2 traverses its controlled length, and the available range is 0 through 2400 nm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Setup.
+\end{proof}
+\begin{definition}[Matches Intensity Figure]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesintensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.MatchesIntensityFigure}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-lengthinnanometers, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-ismaximumon, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-isfirststrictminimumafterzero}
+  Data read from the supplied graph. The interval from 0 to L\_s is divided into six equal horizontal cells; the unique first minimum is at the fifth gridline, so its coordinate is (5/6) L\_s. The curve starts at a maximum and has risen again by L\_s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Intensity Figure.
+\end{proof}
+\begin{definition}[Obeys Two Ray Interference Laws]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-obeystworayinterferencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.ObeysTwoRayInterferenceLaws}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment}
+  The governing optical laws for the experiment. Replacing an air segment of length L by material adds optical path (n\_material - n\_air) L. The unwrapped phase is 2π times optical path difference divided by wavelength. Equal coherent beams then obey the standard cosine interference-intensity law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Two Ray Interference Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.AnswerChoice}
+  The four multiples of the air wavelength printed as answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Wavelength Multiple]
+  \label{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-answerwavelengthmultiple}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.answerWavelengthMultiple}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-answerchoice}
+  The dimensionless wavelength multiple displayed by each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Wavelength Multiple.
+\end{proof}
+\begin{lemma}[first Minimum has Half Wavelength Optical Path]
+  \label{lem:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-firstminimum-hashalfwavelengthopticalpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0088.firstMinimum_hasHalfWavelengthOpticalPath}
+  \uses{def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-nanometersvalue, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-tworayinterferenceexperiment, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesproblemsetup, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-matchesintensityfigure, def:physics:phyx-mini-0088:phyxminiproblems-problemphyxmini0088-obeystworayinterferencelaws}
+  The first destructive-interference minimum in the graph calibrates the added optical path to one half of the common air wavelength. This is an intermediate consequence of the figure and governing laws, not input data
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first Minimum has Half Wavelength Optical Path.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

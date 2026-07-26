@@ -1,0 +1,349 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0387.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0387.source.json
+
+\chapter{Physics problem phyx\_mini\_0387}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0387}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A U-tube manometer filled with water (density = 1000 kg/m\$\textasciicircum{}3\$) shows a height difference of 25 cm. What is the gauge pressure?
+
+\#\# Question
+
+If the right branch is tilted to make an angle of \$30\textasciicircum{}\{\textbackslash{}circ\}\$ with the horizontal, as shown in figure, what should the length of the column in the tilted tube be relative to the U-tube?
+
+\#\# Answer choices
+
+- A: A: 490cm
+
+- B: B: 50cm
+
+- C: C: 154cm
+
+- D: D: 10.2cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows two diagrams with a U-shaped tube filled with liquid:
+
+1. **Left Diagram:**
+   - A vertical U-shaped tube is partly filled with a blue liquid.
+   - The level of the liquid in the left arm is higher than in the right arm.
+   - An arrow labeled "h" indicates the difference in liquid height between the two arms, with a dashed horizontal line showing the reference level.
+
+2. **Right Diagram:**
+   - A similar U-shaped tube is tilted at a 30-degree angle to the horizontal.
+   - The same blue liquid is present, forming a line along the slanted tube.
+   - An arrow labeled "L" points along the liquid's surface in the tilted tube.
+   - The dashed lines indicate the liquid levels relative to the horizontal, matching the height difference from the left diagram.
+
+Both diagrams illustrate concepts of liquid equilibrium in connected tubes.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 50cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/387.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0387.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0387:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0387.problem_phyx_mini_0387}
+\uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchessuppliedmanometerfigure, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchesproblemreadouts, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-hasphysicalmanometerparameters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-satisfieswatermanometerandtiltlaws, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answersinclinedcolumnquestion}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.LengthQuantity}
+  A nonnegative physical length, independent of the selected readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-massdensitydimension}
+  A nonnegative physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.PressureQuantity}
+  Gauge or absolute pressure, using Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.lengthReadout}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.lengthInMeters}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthreadout}
+  Centimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-massdensityquantity}
+  Kilogram-per-cubic-metre readout of a physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationquantity}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.pressureInPascals}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressurequantity}
+  Pascal readout of a pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.degrees}
+  Convert a numerical degree readout to Mathlib's physical angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Manometer Liquid]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-manometerliquid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.ManometerLiquid}
+  The liquid filling the connected lower part of the manometer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Manometer Liquid.
+\end{proof}
+\begin{definition}[Manometer Arm]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-manometerarm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.ManometerArm}
+  The two arms, with the right arm being the one tilted in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Manometer Arm.
+\end{proof}
+\begin{definition}[Figure Panel]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-figurepanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.FigurePanel}
+  The two side-by-side configurations drawn in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Panel.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.FigureLengthLabel}
+  The two physical length labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[Angle Reference]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-anglereference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.AngleReference}
+  The baseline from which the displayed 30° inclination is measured
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angle Reference.
+\end{proof}
+\begin{definition}[Supplied Manometer Figure]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-suppliedmanometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.SuppliedManometerFigure}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-manometerliquid, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-manometerarm, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-figurepanel, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-figurelengthlabel, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-anglereference}
+  A structured transcription of image 387.png. The labelled lengths are independent physical quantities. In particular, L is not defined to be 50 cm; its relation to h is supplied only by the geometric governing law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Manometer Figure.
+\end{proof}
+\begin{definition}[Water UTube Manometer Setup]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.WaterUTubeManometerSetup}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-massdensityquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressurequantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-manometerarm, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-suppliedmanometerfigure}
+  The physical manometer, its boundary pressures, and the quantities in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water UTube Manometer Setup.
+\end{proof}
+\begin{definition}[height Difference H]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.heightDifferenceH}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup}
+  The physical height difference denoted by h in the upright panel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height Difference H.
+\end{proof}
+\begin{definition}[tilted Column Length L]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.tiltedColumnLengthL}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthquantity, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup}
+  The physical inclined liquid-column length denoted by L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tilted Column Length L.
+\end{proof}
+\begin{definition}[Matches Supplied Manometer Figure]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchessuppliedmanometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.MatchesSuppliedManometerFigure}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup}
+  Qualitative information read directly from the supplied bitmap. The lower left surface and higher right surface fix the pressure-sign convention, but no numerical value for L occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Manometer Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-densityinkilogramspercubicmeter, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-degrees, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh}
+  Numerical data stated in the problem and printed in the figure: water has the given density, the upright head is 25 cm, and the right branch is inclined at 30°. The requested length L is deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Manometer Parameters]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-hasphysicalmanometerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.HasPhysicalManometerParameters}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthinmeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-densityinkilogramspercubicmeter, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressureinpascals, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl}
+  Positivity and nondegeneracy conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Manometer Parameters.
+\end{proof}
+\begin{definition}[Satisfies Water Manometer And Tilt Laws]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-satisfieswatermanometerandtiltlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.SatisfiesWaterManometerAndTiltLaws}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthinmeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-densityinkilogramspercubicmeter, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressureinpascals, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl}
+  Governing pressure and geometry relations. The right opening is the atmospheric reference. Gauge pressure is applied pressure minus atmospheric pressure. Hydrostatic balance gives Δp = ρ g h in coherent SI readouts. The vertical projection of the tilted length is L sin θ = h. These are physical laws, not solved numerical values for L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Manometer And Tilt Laws.
+\end{proof}
+\begin{theorem}[gauge pressure eq density times gravity times height]
+  \label{thm:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-gauge-pressure-eq-density-times-gravity-times-height}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.gauge_pressure_eq_density_times_gravity_times_height}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthinmeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-densityinkilogramspercubicmeter, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-pressureinpascals, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-satisfieswatermanometerandtiltlaws}
+  The hydrostatic gauge-pressure relation for the stated water head
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of gauge pressure eq density times gravity times height.
+\end{proof}
+\begin{theorem}[tilted column length is twice height]
+  \label{thm:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tilted-column-length-is-twice-height}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.tilted_column_length_is_twice_height}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-heightdifferenceh, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchessuppliedmanometerfigure, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchesproblemreadouts, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-hasphysicalmanometerparameters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-satisfieswatermanometerandtiltlaws}
+  At 30°, the inclined column is twice the original vertical head
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tilted column length is twice height.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.AnswerChoice}
+  The four length choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answerchoice-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.AnswerChoice.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answerchoice}
+  Centimetre value displayed beside an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Answers Inclined Column Question]
+  \label{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answersinclinedcolumnquestion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.AnswersInclinedColumnQuestion}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-answerchoice}
+  A choice matches the independently modeled inclined physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answers Inclined Column Question.
+\end{proof}
+\begin{theorem}[tilted column length is fifty centimeters]
+  \label{thm:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tilted-column-length-is-fifty-centimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0387.tilted_column_length_is_fifty_centimeters}
+  \uses{def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-lengthincentimeters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-waterutubemanometersetup, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-tiltedcolumnlengthl, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchessuppliedmanometerfigure, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-matchesproblemreadouts, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-hasphysicalmanometerparameters, def:physics:phyx-mini-0387:phyxminiproblems-problemphyxmini0387-satisfieswatermanometerandtiltlaws}
+  The requested relation in the column marked L is 50 cm
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tilted column length is fifty centimeters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

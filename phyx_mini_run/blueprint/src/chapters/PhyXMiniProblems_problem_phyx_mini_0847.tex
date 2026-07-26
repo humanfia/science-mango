@@ -1,0 +1,297 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0847.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0847.source.json
+
+\chapter{Physics problem phyx\_mini\_0847}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0847}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the net electric flux through the torus?
+
+\#\# Answer choices
+
+- A: A: 120N m\textasciicircum{}2/C
+
+- B: B: -100N m\textasciicircum{}2/C
+
+- C: C: 200N m\textasciicircum{}2/C
+
+- D: D: -110N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram of a torus, which appears as a doughnut-shaped object. Inside the torus, there is a red circle with a plus sign, indicating a positive charge labeled "+100 nC." Outside the torus, a blue circle with a minus sign represents a negative charge labeled "−1 nC (inside)." The illustration uses arrows to connect the charges to their respective labels, indicating their locations relative to the torus.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -110N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/847.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0847.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0847:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0847.problem_phyx_mini_0847}
+\uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-hasphysicaltorusparameters, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-matchessuppliedtorusfigure, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-usestextbookvacuumpermittivity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-satisfiestorusgausslaw, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-displayedfluxvalue, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-isuniqueclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Charge Quantity]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.ChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[vacuum Permittivity Dimension]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.vacuumPermittivityDimension}
+  Vacuum permittivity has SI dimension charge\textasciicircum{}2 * time\textasciicircum{}2 / (mass * length\textasciicircum{}3)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Permittivity Dimension.
+\end{proof}
+\begin{definition}[Vacuum Permittivity Quantity]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.VacuumPermittivityQuantity}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivitydimension}
+  A nonnegative, unit-independent vacuum permittivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vacuum Permittivity Quantity.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.electricFluxDimension}
+  Electric flux has SI dimension force * length\textasciicircum{}2 / charge = mass * length\textasciicircum{}3 / (time\textasciicircum{}2 * charge)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.ElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxdimension}
+  A signed, unit-independent electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Quantity.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.signedSIReadout}
+  Read a signed dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargequantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-signedsireadout}
+  Coulomb readout of a signed electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargequantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeincoulombs}
+  Nanocoulomb readout used by both charge labels in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.lengthInMeters}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-lengthquantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[vacuum Permittivity In SI]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.vacuumPermittivityInSI}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityquantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-nonnegativesireadout}
+  SI readout of vacuum permittivity in C\textasciicircum{}2 / (N m\textasciicircum{}2)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Permittivity In SI.
+\end{proof}
+\begin{definition}[electric Flux In Newton Meters Squared Per Coulomb]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxinnewtonmeterssquaredpercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.electricFluxInNewtonMetersSquaredPerCoulomb}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxquantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-signedsireadout}
+  Read electric flux in N m\textasciicircum{}2 / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Meters Squared Per Coulomb.
+\end{proof}
+\begin{definition}[Figure Charge]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-figurecharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.FigureCharge}
+  The two point charges distinguished by the labels in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge.
+\end{proof}
+\begin{definition}[Charge Sign Mark]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargesignmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.ChargeSignMark}
+  The sign symbol drawn inside a charge marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Sign Mark.
+\end{proof}
+\begin{definition}[Torus Relative Region]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusrelativeregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.TorusRelativeRegion}
+  Regions relative to a toroidal Gaussian surface. Only solidInterior is inside the volume bounded by the surface. The central hole belongs to the complement of that volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torus Relative Region.
+\end{proof}
+\begin{definition}[torus Enclosure Weight]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusenclosureweight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.torusEnclosureWeight}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusrelativeregion}
+  The indicator used when summing charge enclosed by a toroidal surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torus Enclosure Weight.
+\end{proof}
+\begin{definition}[Torus Gaussian Surface]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusgaussiansurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.TorusGaussianSurface}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-lengthquantity}
+  The major and tube radii preserve the toroidal geometric role even though the source supplies no calibrated length scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torus Gaussian Surface.
+\end{proof}
+\begin{definition}[Torus Charge Figure]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruschargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.TorusChargeFigure}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-figurecharge, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargesignmark, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusrelativeregion}
+  Qualitative and numerical data read from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torus Charge Figure.
+\end{proof}
+\begin{definition}[Torus Electrostatics Setup]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.TorusElectrostaticsSetup}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargequantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityquantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxquantity, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-figurecharge, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusgaussiansurface, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruschargefigure}
+  The independent physical quantities in the electrostatic setup. In particular, netEnclosedCharge and netElectricFlux remain independent until the governing laws below relate them to the individual charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torus Electrostatics Setup.
+\end{proof}
+\begin{definition}[Has Physical Torus Parameters]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-hasphysicaltorusparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.HasPhysicalTorusParameters}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-lengthinmeters, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityinsi, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup}
+  Positivity and non-self-intersection conditions for the toroidal model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Torus Parameters.
+\end{proof}
+\begin{definition}[Matches Supplied Torus Figure]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-matchessuppliedtorusfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.MatchesSuppliedTorusFigure}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeinnanocoulombs, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup}
+  Facts read from the supplied bitmap. The +100 nC charge is in the central hole, not in the solid-torus interior; this topological distinction is the essential figure-derived datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Torus Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Vacuum Permittivity]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-usestextbookvacuumpermittivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.UsesTextbookVacuumPermittivity}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityinsi, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup}
+  The textbook vacuum-permittivity calibration ε₀ = 8.85 × 10⁻¹² C²/(N m²) used for the numerical estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Vacuum Permittivity.
+\end{proof}
+\begin{definition}[Satisfies Torus Gauss Law]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-satisfiestorusgausslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.SatisfiesTorusGaussLaw}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeincoulombs, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-vacuumpermittivityinsi, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-figurecharge, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-torusenclosureweight, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup}
+  The governing laws are charge accounting over the bounded solid-torus region and integral Gauss's law Φ\_E = Q\_enclosed / ε₀. They are stated for the general setup and contain neither the requested numerical flux nor an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Torus Gauss Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.AnswerChoice}
+  Labels attached to the four displayed flux values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Flux Value]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-displayedfluxvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.displayedFluxValue}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-answerchoice}
+  Numerical value printed for an answer choice, in N m\textasciicircum{}2 / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Flux Value.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer Choice]
+  \label{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-isuniqueclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.IsUniqueClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-electricfluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-answerchoice, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-displayedfluxvalue}
+  A choice is uniquely closest to the physical flux when its absolute error is strictly smaller than that of every other displayed value. This definition does not privilege any particular label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer Choice.
+\end{proof}
+\begin{theorem}[enclosed charge of supplied torus figure]
+  \label{thm:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-enclosed-charge-of-supplied-torus-figure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0847.enclosed_charge_of_supplied_torus_figure}
+  \uses{def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-chargeinnanocoulombs, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-toruselectrostaticssetup, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-matchessuppliedtorusfigure, def:physics:phyx-mini-0847:phyxminiproblems-problemphyxmini0847-satisfiestorusgausslaw}
+  The supplied figure and charge-accounting law give Q\_enclosed = -1 nC
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of enclosed charge of supplied torus figure.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

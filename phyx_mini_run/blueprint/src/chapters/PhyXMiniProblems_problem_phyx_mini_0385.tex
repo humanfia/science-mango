@@ -1,0 +1,434 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0385.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0385.source.json
+
+\chapter{Physics problem phyx\_mini\_0385}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0385}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 2.5-m-tall steel cylinder has a cross-sectional area of 1.5 \textbackslash{}m\textasciicircum{}2\textbackslash{}. At the bottom, with a height of 0.5 m, is liquid water, on top of which is a 1-m-high layer of gasoline. This is shown in the figure. The gasoline surface is exposed to atmospheric air at 101 kPa.
+
+\#\# Question
+
+What is the highest pressure in the water?
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 113.2kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional view of a vertical container. It contains three distinct layers:
+
+1. **Bottom Layer**: 
+   - Labeled "H2O" (water).
+   - Occupies a height of 0.5 meters from the bottom.
+
+2. **Middle Layer**: 
+   - Labeled "Gasoline".
+   - Sits above the water layer.
+   - Has a height of 1 meter.
+
+3. **Top Layer**: 
+   - Labeled "Air".
+   - Fills the remaining space above the gasoline.
+   - The entire height from the bottom of the container to the top is 2.5 meters, indicating the air layer occupies the remaining space.
+
+The pressure at the top is indicated as \textbackslash{}( P\_0 \textbackslash{}).
+
+The container's sides are straight and vertical, and each layer is clearly separated and labeled in the image.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 113.2kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/385.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0385.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0385:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0385.highestPressureInWater_fromSource}
+\uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinkilopascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityinkilogramspercubicmeter, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matcheslayeredcylinderscenario, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchesproblemreadouts, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchessuppliedfigure, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-usesstandarddensityandgravitycalibration, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-hasphysicallayerparameters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-ishighestpressureinwater, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-isuniqueclosestdisplayedpressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.LengthQuantity}
+  A nonnegative physical length independent of the readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.AreaQuantity}
+  A nonnegative physical cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensitydimension}
+  A nonnegative physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.lengthReadout}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.areaReadout}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areaquantity}
+  Read a physical area in the square of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[pressure Readout]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.pressureReadout}
+  Read pressure in the coherent unit induced by selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.densityReadout}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensityquantity}
+  Read density in a selected mass unit per selected length unit cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.accelerationReadout}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationquantity}
+  Read acceleration in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.lengthInMeters}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areaquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areareadout}
+  Square-meter readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.pressureInPascals}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressurereadout}
+  Pascal readout of an absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals}
+  Kilopascal readout used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensityquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityreadout}
+  Kilogram-per-cubic-meter readout of a mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationreadout}
+  Meter-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Cylinder Layer]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderlayer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.CylinderLayer}
+  The three material layers in physical bottom-to-top order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Layer.
+\end{proof}
+\begin{definition}[Vertical Location]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-verticallocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.VerticalLocation}
+  Distinguished vertical locations needed by the pressure model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Location.
+\end{proof}
+\begin{definition}[Container Material]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-containermaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.ContainerMaterial}
+  Material named for the container wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Material.
+\end{proof}
+\begin{definition}[Cylinder Orientation]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.CylinderOrientation}
+  Orientation of the cylinder axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Orientation.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.FigureLabel}
+  Literal material and pressure labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Height Mark]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-figureheightmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.FigureHeightMark}
+  The height annotations represented by the prose and figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Height Mark.
+\end{proof}
+\begin{definition}[Layered Cylinder Figure]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.LayeredCylinderFigure}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderlayer, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-verticallocation, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-figurelabel, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-figureheightmark}
+  Independent evidence read from the primary figure. Indices 0, 1, and 2 mean bottom, middle, and top. No pressure answer is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Layered Cylinder Figure.
+\end{proof}
+\begin{definition}[Layered Cylinder Setup]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.LayeredCylinderSetup}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areaquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-massdensityquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderlayer, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-verticallocation, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-containermaterial, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderorientation, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylinderfigure}
+  The physical observables and model parameters. Pressures at distinguished points and throughout the water are stored independently; neither is defined from an answer choice or desired numerical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Layered Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Layered Cylinder Scenario]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matcheslayeredcylinderscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.MatchesLayeredCylinderScenario}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  Qualitative facts stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Layered Cylinder Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areainsquaremeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  Numerical values stated in the prose, excluding the requested pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-figurelabel, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  Primary-raster evidence: water, gasoline, and air appear bottom to top; the height annotations denote the setup quantities; and P₀ is at the open top. The fill equation also records the unmarked air layer inside the 2.5 m cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Uses Standard Density And Gravity Calibration]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-usesstandarddensityandgravitycalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.UsesStandardDensityAndGravityCalibration}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityinkilogramspercubicmeter, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  A separately exposed textbook calibration: water has density 1000 kg/m³, gasoline 750 kg/m³, and gravity is 9.8 m/s². The problem source does not state these three values, so the source-level target below does not take this structure as a premise. It is used only by the calibrated multiple-choice corollary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Density And Gravity Calibration.
+\end{proof}
+\begin{definition}[Has Physical Layer Parameters]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-hasphysicallayerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.HasPhysicalLayerParameters}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-areainsquaremeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityinkilogramspercubicmeter, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-cylinderlayer, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  Positivity needed for the hydrostatic maximum argument
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Layer Parameters.
+\end{proof}
+\begin{definition}[Satisfies Layered Hydrostatic Laws]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.SatisfiesLayeredHydrostaticLaws}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthreadout, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressurereadout, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityreadout, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationreadout, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  The layered hydrostatic model in arbitrary coherent base units: the open top is at atmospheric pressure; air-weight variation is neglected between the top and gasoline surface; pressure rises by ρ g h through the gasoline; pressure at water depth d rises by ρ\_water g d from the interface; full water depth is the cylinder bottom. No numeric bottom pressure or selected answer occurs in these laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Layered Hydrostatic Laws.
+\end{proof}
+\begin{definition}[Is Highest Pressure In Water]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-ishighestpressureinwater}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.IsHighestPressureInWater}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthquantity, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup}
+  A candidate is a highest absolute water pressure if it occurs at a physical depth between interface and bottom and dominates every other such depth. The predicate does not select a depth or assign a numerical value by definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Highest Pressure In Water.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-displayedpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.displayedPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-answerchoice}
+  Absolute pressure in kilopascals printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-answerchoice}
+  Dataset answer metadata, deliberately not used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[displayed Pressure Error]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-displayedpressureerror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.displayedPressureError}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinkilopascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-answerchoice, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-displayedpressureinkilopascals}
+  Absolute discrepancy between a physical pressure and a displayed choice, measured in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure Error.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Pressure]
+  \label{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-isuniqueclosestdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.IsUniqueClosestDisplayedPressure}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-answerchoice, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-displayedpressureerror}
+  A choice is uniquely closest to a physical pressure among the four displayed values. This does not impose a decimal tie-breaking convention: under the chosen calibration the exact 113.25 kPa lies 0.05 kPa from the printed 113.2 kPa, and choice B is nevertheless strictly closer than A, C, or D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Pressure.
+\end{proof}
+\begin{lemma}[bottom Pressure Is Highest In Water]
+  \label{lem:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-bottompressureishighestinwater}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.bottomPressureIsHighestInWater}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-hasphysicallayerparameters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-ishighestpressureinwater}
+  The hydrostatic laws make the bottom pressure maximal throughout water
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bottom Pressure Is Highest In Water.
+\end{proof}
+\begin{lemma}[bottom Pressure In Pascals source Formula]
+  \label{lem:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-bottompressureinpascals-sourceformula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.bottomPressureInPascals_sourceFormula}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-lengthinmeters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinpascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-densityinkilogramspercubicmeter, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws}
+  The strongest numerical relation supported by the source without supplying unstated material data: the bottom pressure is atmospheric pressure plus the gasoline and water hydrostatic heads. Every scalar is a readout of a typed physical quantity in the named coherent SI unit
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bottom Pressure In Pascals source Formula.
+\end{proof}
+\begin{lemma}[bottom Pressure In Kilopascals eq]
+  \label{lem:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-bottompressureinkilopascals-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.bottomPressureInKilopascals_eq}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinkilopascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchesproblemreadouts, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-usesstandarddensityandgravitycalibration, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws}
+  With the source readouts and the separately stated textbook calibration, the unrounded bottom pressure is 113.25 kPa
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bottom Pressure In Kilopascals eq.
+\end{proof}
+\begin{theorem}[highest Pressure In Water matches choice B under Calibration]
+  \label{thm:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-highestpressureinwater-matches-choiceb-undercalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0385.highestPressureInWater_matches_choiceB_underCalibration}
+  \uses{def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-pressureinkilopascals, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-layeredcylindersetup, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-matchesproblemreadouts, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-usesstandarddensityandgravitycalibration, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-hasphysicallayerparameters, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-satisfieslayeredhydrostaticlaws, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-ishighestpressureinwater, def:physics:phyx-mini-0385:phyxminiproblems-problemphyxmini0385-isuniqueclosestdisplayedpressure}
+  Under the separately stated textbook calibration, the bottom is the highest-pressure point in the water, its unrounded absolute pressure is 113.25 kPa, and B (113.2 kPa) is the unique closest displayed choice
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of highest Pressure In Water matches choice B under Calibration.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

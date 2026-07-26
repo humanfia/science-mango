@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0128.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0128.source.json
+
+\chapter{Physics problem phyx\_mini\_0128}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0128}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An optical coating of MgF\_2, with an index of refraction of \textbackslash{}( n=1.38 \textbackslash{}), is designed to eliminate reflected light at wavelengths around \textbackslash{}( 550\textbackslash{},\textbackslash{}mathrm\{nm\} \textbackslash{}) (in air) when incident normally on glass with an index of refraction of \textbackslash{}( n=1.50 \textbackslash{}).
+
+\#\# Question
+
+What is the thickness of an optical coating of \textbackslash{}(\textbackslash{}mathrm\{MgF\_2\}\textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 77.8nm
+
+- B: B: 88.9nm
+
+- C: C: 99.6nm
+
+- D: D: 66.7nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts the interaction of light rays with a surface. Here's a detailed description:
+
+- **Mediums:** The diagram shows three mediums: "Air," "Coating," and "Glass."
+- **Rays:** 
+  - An "Incident ray" is shown approaching from the left side and hits the "Coating."
+  - Two rays, labeled "1" and "2," reflect off the surface of the coating.
+  - A "Transmitted ray" is shown passing through the "Coating" into the "Glass."
+- **Text Labels:** 
+  - "Coating" is labeled at the top of the coating layer.
+  - "Air" is labeled on the left side where the incident ray starts.
+  - "Glass" is labeled within the glass medium.
+  - "Incident ray" is labeled along the incoming ray.
+  - "Transmitted ray" is labeled along the ray passing through the glass.
+
+The relationships show the interaction between light rays and different mediums, illustrating reflection and transmission.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 99.6nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/128.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0128.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0128:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0128.problem_phyx_mini_0128}
+\uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-nanometersvalue, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasproblemreadouts, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-matchescoatingfigure, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasphysicalopticalparameters, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-usesthinnestantireflectionorder, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-satisfiesantireflectionthinfilmlaws, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-matchesanswertonearesttenthnanometer, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.LengthQuantity}
+  A physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.lengthValueIn}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthquantity}
+  Read a physical length as a scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.nanometersValue}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthquantity, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthvaluein}
+  The nanometre readout used for the design wavelength and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.OpticalMedium}
+  Optical media in their top-to-bottom order in the coating stack
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Film Interface]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.FilmInterface}
+  The two boundaries at which the displayed reflected rays originate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Film Interface.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.FilmInterface.incidentMedium}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-opticalmedium, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface}
+  The medium from which light reaches each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.FilmInterface.transmittedMedium}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-opticalmedium, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface}
+  The medium on the transmitted side of each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[Reflected Ray]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-reflectedray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.ReflectedRay}
+  Labels 1 and 2 printed beside the two reflected rays in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Ray.
+\end{proof}
+\begin{definition}[Figure Ray]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-figureray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.FigureRay}
+  All ray labels visible in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Ray.
+\end{proof}
+\begin{definition}[Antireflection Coating Setup]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.AntireflectionCoatingSetup}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthquantity, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-opticalmedium, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-reflectedray, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-figureray}
+  The dimensionful quantities, material data, and labeled ray geometry of the coating design. reflectionPhaseHalfTurns measures an interface reflection phase in integral multiples of π. roundTripOpticalPath is the optical path accumulated by ray 2 in traversing the coating inward and outward. coatingThickness is an unknown physical length: no field fixes its requested numerical value or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Antireflection Coating Setup.
+\end{proof}
+\begin{definition}[Has Problem Readouts]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.HasProblemReadouts}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-nanometersvalue, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  Numerical data stated in the problem. Refractive indices and the incidence angle are dimensionless; 550 is explicitly a nanometre readout. The ideal air index is the standard approximation implicit in the scenario. No coating-thickness value occurs in these readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Coating Figure]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-matchescoatingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.MatchesCoatingFigure}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  Ray and medium labels read from the supplied air--coating--glass diagram. Ray 1 is the surface-reflected ray and ray 2 is the ray reflected from the coating--glass boundary; both emerge into air. The transmitted ray continues into glass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Coating Figure.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  Positivity conditions for the physical branch of the coating model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Uses Thinnest Antireflection Order]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-usesthinnestantireflectionorder}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.UsesThinnestAntireflectionOrder}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  The conventional thinnest antireflection design uses the first destructive order. This fixes an interference-order label, not the requested thickness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Thinnest Antireflection Order.
+\end{proof}
+\begin{definition}[Satisfies Antireflection Thin Film Laws]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-satisfiesantireflectionthinfilmlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.SatisfiesAntireflectionThinFilmLaws}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-filminterface, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup}
+  Governing laws for normal-incidence reflected thin-film interference. Reflection from a lower-index to a higher-index medium contributes one half-turn (π). Ray 2 accumulates round-trip optical path 2 n t in the film. In half-turn units, destructive interference of order m is 2 * opticalPath + (lowerPhase - upperPhase) * wavelength = (2 * m + 1) * wavelength. The final field records the equal normalized reflected-amplitude condition needed for complete cancellation.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Antireflection Thin Film Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.AnswerChoice}
+  Labels of the four thickness choices printed in the dataset item
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Thickness Nanometers]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-displayedthicknessnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.displayedThicknessNanometers}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-answerchoice}
+  Thickness in nanometres displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Thickness Nanometers.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth Nanometer]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-matchesanswertonearesttenthnanometer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.MatchesAnswerToNearestTenthNanometer}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-lengthquantity, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-nanometersvalue, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-answerchoice, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-displayedthicknessnanometers}
+  Agreement with a displayed answer after rounding to 0.1 nm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth Nanometer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[reflected Interface Phase Difference eq zero]
+  \label{lem:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-reflectedinterfacephasedifference-eq-zero}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.reflectedInterfacePhaseDifference_eq_zero}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasproblemreadouts, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-satisfiesantireflectionthinfilmlaws}
+  Both reflected rays undergo a half-turn phase reversal because each reflection is from a lower-index medium toward a higher-index medium. Their interface phase contributions therefore have zero relative difference
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflected Interface Phase Difference eq zero.
+\end{proof}
+\begin{lemma}[coating Thickness exact]
+  \label{lem:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-coatingthickness-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0128.coatingThickness_exact}
+  \uses{def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-nanometersvalue, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-antireflectioncoatingsetup, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasproblemreadouts, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-hasphysicalopticalparameters, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-usesthinnestantireflectionorder, def:physics:phyx-mini-0128:phyxminiproblems-problemphyxmini0128-satisfiesantireflectionthinfilmlaws}
+  For the first destructive order, the phase and optical-path laws give the quarter-wave condition 4 n t = λ. With λ = 550 nm and n = 1.38, the exact coating thickness is 6875 / 69 nm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of coating Thickness exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

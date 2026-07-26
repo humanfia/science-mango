@@ -1,0 +1,191 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0095.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0095.source.json
+
+\chapter{Physics problem phyx\_mini\_0095}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0095}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Draw a straight line on a piece of paper. Fill a transparent drinking glass with water and place it on top of the line you have drawn, making sure the line extends outward from both sides of the glass. Position your head above the glass, but not directly above, such that you look downward at an angle to see the image of the line through the water, as shown in figure. The image of the line beneath the glass will appear shifted away from the line you have drawn.
+
+\#\# Question
+
+Use your values of \$s\$ and \$d\$ to estimate the index of refraction of the water.
+
+\#\# Answer choices
+
+- A: A: 1.3
+
+- B: B: 2.1
+
+- C: C: 1.6
+
+- D: D: 1.9
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a glass of water illustrating the refraction of light. Here are the elements in the image:
+
+- **Glass and Water**: The glass is partially filled with water, represented by a blue line indicating the water level.
+
+- **Light Path**: A purple arrow represents the path of light as it travels from a line drawn at the bottom to the observer's eye above the glass.
+
+- **Angles of Refraction**: The angles of incidence and refraction are marked as \textbackslash{}(\textbackslash{}theta\_a\textbackslash{}) and \textbackslash{}(\textbackslash{}theta\_b\textbackslash{}), with \textbackslash{}(\textbackslash{}theta\_a\textbackslash{}) inside the water and \textbackslash{}(\textbackslash{}theta\_b\textbackslash{}) outside the water.
+
+- **Indices and Heights**: The refractive index of the water is labeled as \textbackslash{}(n\textbackslash{}), and the height from the water surface to the line of sight is marked as \textbackslash{}(H\textbackslash{}).
+
+- **Lines and Distances**: 
+  - A solid line represents the "Drawn line" at the bottom of the glass.
+  - The "Image of line" is offset horizontally from the drawn line, indicated by a double arrow marked \textbackslash{}(s\textbackslash{}).
+  - The distance between where the light enters and leaves the water is labeled \textbackslash{}(d\textbackslash{}).
+
+- **Eye**: An eye is drawn above the water, observing the apparent position of the line due to refraction.
+
+- **Dashed Lines**: Dashed lines extend vertically and along the light path to help indicate the incident and refracted angles.
+
+Overall, the diagram visualizes refraction and the apparent shift of an object's position when viewed through water.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1.3
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/95.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0095.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0095:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0095.waterRefractiveIndex_estimate_is_answer_A}
+\uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-matcheswaterglassfigure, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-hasphysicalrefractionconfiguration, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-satisfieslineshiftgeometry, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-satisfieswatertoairsnelllaw, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-matchesprimaryfigurescalereadouts, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerrefractiveindex, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.LengthQuantity}
+  A signed physical length with a real-valued carrier
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.lengthInMeters}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthquantity}
+  The scalar SI readout of a physical length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.OpticalMedium}
+  The two homogeneous optical media on the depicted light path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Interface Model]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-interfacemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.InterfaceModel}
+  The local shape used for the water--air interface in the ray model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Interface Model.
+\end{proof}
+\begin{definition}[Line Shift Refraction Setup]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.LineShiftRefractionSetup}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthquantity, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-opticalmedium, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-interfacemodel}
+  The physical quantities and categorical labels in the primary ray diagram. apparentShift is the labeled distance s from the image of the line to the drawn line. waterHorizontalRun is the labeled distance d from the drawn line to the foot of the surface-crossing normal. waterDepth is H. waterAngleRadians and airAngleRadians are respectively the figure labels θ\_a and θ\_b, both measured from a vertical normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Line Shift Refraction Setup.
+\end{proof}
+\begin{definition}[Matches Water Glass Figure]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-matcheswaterglassfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.MatchesWaterGlassFigure}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  The categorical labels and calibrated ambient-air value shown or implied by the primary figure. This contains no numerical value for the water index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Water Glass Figure.
+\end{proof}
+\begin{definition}[Has Physical Refraction Configuration]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-hasphysicalrefractionconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.HasPhysicalRefractionConfiguration}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthinmeters, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  Positive length and refractive-index readouts and the acute physical branches of the two normal angles. The inequality between the angles records the bending away from the normal on emergence from water into air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Refraction Configuration.
+\end{proof}
+\begin{definition}[Satisfies Line Shift Geometry]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-satisfieslineshiftgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.SatisfiesLineShiftGeometry}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthinmeters, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  The two right-triangle relations read from the dashed normals in the figure. The actual in-water ray has horizontal run d; extending the air ray backward to the apparent line gives horizontal run d + s over the same height H
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Line Shift Geometry.
+\end{proof}
+\begin{definition}[Satisfies Water To Air Snell Law]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-satisfieswatertoairsnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.SatisfiesWaterToAirSnellLaw}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  Snell's law at the water--air surface, n\_w sin θ\_a = n\_a sin θ\_b
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water To Air Snell Law.
+\end{proof}
+\begin{definition}[Matches Primary Figure Scale Readouts]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-matchesprimaryfigurescalereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.MatchesPrimaryFigureScaleReadouts}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lengthinmeters, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-lineshiftrefractionsetup}
+  Conservative scale readouts from the supplied raster diagram. They express only ratios of the three labeled physical lengths, so the statement is independent of the common length unit. The visible endpoints give roughly s / d = 0.47 and H / d = 2.15; the intervals allow drawing and pixel uncertainty. No refractive-index value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure Scale Readouts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.AnswerChoice}
+  Labels of the four multiple-choice answers in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Refractive Index]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerrefractiveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.answerRefractiveIndex}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerchoice}
+  The dimensionless refractive-index estimate printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Refractive Index.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0095.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerchoice, def:physics:phyx-mini-0095:phyxminiproblems-problemphyxmini0095-answerrefractiveindex}
+  A choice is the unique closest displayed value to a dimensionless estimate. This generic comparison does not designate any problem-specific answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

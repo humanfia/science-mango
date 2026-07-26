@@ -1,0 +1,332 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0292.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0292.source.json
+
+\chapter{Physics problem phyx\_mini\_0292}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0292}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, string 1 has a linear density of \textbackslash{}(3.00\textbackslash{},\textbackslash{}mathrm\{g/m\}\textbackslash{}), and string 2 has a linear density of \textbackslash{}(5.00\textbackslash{},\textbackslash{}mathrm\{g/m\}\textbackslash{}). They are under tension due to the hanging block of mass \textbackslash{}(M = 500\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}).
+
+\#\# Question
+
+Calculate the wave speed on string 2.
+
+\#\# Answer choices
+
+- A: A: 19.8 m/s
+
+- B: B: 20.3 m/s
+
+- C: C: 21.4 m/s
+
+- D: D: 22.1 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a pulley system involving two strings labeled as "String 1" and "String 2." The strings pass over two pulleys anchored to a fixed structure. There is a knot joining String 1 and String 2. Hanging from the knot is a single string supporting a mass labeled as "M." The setup shows how the strings and pulleys are arranged to handle the mass, with the pulleys facilitating movement.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 22.1 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/292.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0292.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0292:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0292.problem_phyx_mini_0292}
+\uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesproblemandprimaryfigure, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-usesstandardearthgravity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-haspositivephysicalparameters, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-satisfiesidealpulleyknotandwavelaws, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-recordedanswerchoice, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.AccelerationQuantity}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Tension Quantity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.TensionQuantity}
+  A nonnegative force magnitude, used here for a string-segment tension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tension Quantity.
+\end{proof}
+\begin{definition}[Linear Mass Density Quantity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.LinearMassDensityQuantity}
+  A nonnegative mass per unit length of string
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Mass Density Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.SpeedQuantity}
+  A nonnegative propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[quantity Readout]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.quantityReadout}
+  Read a nonnegative dimensionful quantity in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of quantity Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.massInKilograms}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  Kilogram readout of a mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  Meter-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[tension In Newtons]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensioninnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.tensionInNewtons}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensionquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  Newton readout of a tension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tension In Newtons.
+\end{proof}
+\begin{definition}[linear Mass Density In Kilograms Per Meter]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityinkilogramspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.linearMassDensityInKilogramsPerMeter}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  Kilogram-per-meter readout of a linear mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Mass Density In Kilograms Per Meter.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-quantityreadout}
+  Meter-per-second readout of a wave speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[String Label]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.StringLabel}
+  The two strings explicitly labelled in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Label.
+\end{proof}
+\begin{definition}[Pulley Label]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.PulleyLabel}
+  The three separately drawn pulleys
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulley Label.
+\end{proof}
+\begin{definition}[Pulley Mounting]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleymounting}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.PulleyMounting}
+  Whether a pulley is anchored to the support or moves with the load
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulley Mounting.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.FigureComponent}
+  Individually identifiable objects shown in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Endpoint Attachment]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-endpointattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.EndpointAttachment}
+  Objects to which the support-side and knot-side string ends attach
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Endpoint Attachment.
+\end{proof}
+\begin{definition}[String Endpoint]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.StringEndpoint}
+  The two distinguished ends of either pictured string
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Endpoint.
+\end{proof}
+\begin{definition}[String Route]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.StringRoute}
+  The full route of each string through the pictured pulley system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Route.
+\end{proof}
+\begin{definition}[String Segment]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.StringSegment}
+  The five straight string portions separated by pulleys and by the knot. The two String-1 portions adjacent to the movable pulley supply its two upward supporting tensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Segment.
+\end{proof}
+\begin{definition}[string Label]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringsegment-stringlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.StringSegment.stringLabel}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringlabel, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringsegment}
+  The string to which a named straight segment belongs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of string Label.
+\end{proof}
+\begin{definition}[Pulley String Setup]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.PulleyStringSetup}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensionquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedquantity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringlabel, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleylabel, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleymounting, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-figurecomponent, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-endpointattachment, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringendpoint, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringroute, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringsegment}
+  Independent physical quantities and qualitative figure data. In particular, neither the tension on String 2 nor its requested wave speed is assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulley String Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massinkilograms, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup}
+  Figure topology and numerical readouts supplied by the problem. The image, taken as primary evidence, places M below the lower movable pulley rather than directly below the knot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup}
+  The conventional near-Earth gravitational readout used by the choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Positive Physical Parameters]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-haspositivephysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.HasPositivePhysicalParameters}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massinkilograms, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensioninnewtons, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup}
+  Positivity and nondegeneracy conditions for the taut-string model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Pulley Knot And Wave Laws]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-satisfiesidealpulleyknotandwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.SatisfiesIdealPulleyKnotAndWaveLaws}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-massinkilograms, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensioninnewtons, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup}
+  The textbook idealizations needed for the calculation: negligible string weight in the static balance and frictionless ideal pulleys transmit one tension along every segment of a given string; the two upward String-1 segments balance the lower pulley and mass; the massless static knot balances the adjacent String-1 and String-2 pulls; every taut string obeys v = sqrt (T / mu). These laws are stated generically in terms of independent setup quantities. They contain neither sqrt 490 nor the displayed answer 22.1 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Pulley Knot And Wave Laws.
+\end{proof}
+\begin{lemma}[string One Supporting Tensions are 49 over 20 newtons]
+  \label{lem:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringonesupportingtensions-are-49-over-20-newtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.stringOneSupportingTensions_are_49_over_20_newtons}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensioninnewtons, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesproblemandprimaryfigure, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-usesstandardearthgravity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-satisfiesidealpulleyknotandwavelaws}
+  Each String-1 segment supporting the movable pulley has tension 2.45 N
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of string One Supporting Tensions are 49 over 20 newtons.
+\end{proof}
+\begin{lemma}[string Two Tension is 49 over 20 newtons]
+  \label{lem:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringtwotension-is-49-over-20-newtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.stringTwoTension_is_49_over_20_newtons}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-tensioninnewtons, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesproblemandprimaryfigure, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-usesstandardearthgravity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-satisfiesidealpulleyknotandwavelaws}
+  Static balance at the massless knot gives String 2 the same 2.45 N tension
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of string Two Tension is 49 over 20 newtons.
+\end{proof}
+\begin{lemma}[string Two Wave Speed exact]
+  \label{lem:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-stringtwowavespeed-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.stringTwoWaveSpeed_exact}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesproblemandprimaryfigure, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-usesstandardearthgravity, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-haspositivephysicalparameters, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-satisfiesidealpulleyknotandwavelaws}
+  With mu\_2 = 0.005 kg/m, the unrounded requested speed is sqrt ((2.45 N) / (0.005 kg/m)) = sqrt 490 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of string Two Wave Speed exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.AnswerChoice}
+  Labels printed beside the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-answerchoice-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.AnswerChoice.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-answerchoice}
+  Displayed wave-speed readout for each choice, in meters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0292.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-speedinmeterspersecond, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-pulleystringsetup, def:physics:phyx-mini-0292:phyxminiproblems-problemphyxmini0292-answerchoice}
+  Agreement with a speed displayed to one decimal place. The tolerance is 0.05 m/s, half a unit in the last displayed digit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

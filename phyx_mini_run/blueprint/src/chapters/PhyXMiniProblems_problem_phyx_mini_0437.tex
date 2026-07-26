@@ -1,0 +1,336 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0437.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0437.source.json
+
+\chapter{Physics problem phyx\_mini\_0437}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0437}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The gasoline engine in your car can be modeled as the Otto cycle shown in figure. A fuel-air mixture is sprayed into the cylinder at point 1, where the piston is at its farthest distance from the spark plug. This mixture is compressed as the piston moves toward the spark plug during the adiabatic compression stroke. The spark plug fires at point 2, releasing heat energy that had been stored in the gasoline. The fuel burns so quickly that the piston doesn't have time to move, so the heating is an isochoric process. The hot, high-pressure gas then pushes the piston outward during the power stroke. Finally, an exhaust valve opens to allow the gas temperature and pressure to drop back to their initial values before starting the cycle over again.
+
+\#\# Question
+
+Use the adiabatic connection between \$T\_1\$ and \$T\_2\$ and also between \$T\_3\$ and \$T\_4\$ to show that the thermal efficiency of the Otto cycle is \$\textbackslash{}eta = 1 - \textbackslash{}frac\{1\}\{r\textasciicircum{}\{(\textbackslash{}gamma - 1)\}\}\$ where \$r = V\_\{	ext\{max\}\} / V\_\{	ext\{min\}\}\$ is the engine's compression ratio.
+
+\#\# Answer choices
+
+- A: A: \$\textbackslash{}frac\{T\_3 - T\_2\}\{T\_3\}\$
+
+- B: B: \$1 - \textbackslash{}frac\{T\_4\}\{T\_1\}\$
+
+- C: C: \$1 - \textbackslash{}frac\{1\}\{r\textasciicircum{}\textbackslash{}gamma\}\$
+
+- D: D: \$1 - \textbackslash{}frac\{1\}\{r\textasciicircum{}\{\textbackslash{}gamma - 1\}\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (\textbackslash{}(p\textbackslash{})-\textbackslash{}(V\textbackslash{})) graph depicting the Otto cycle, which is used to model the thermodynamic processes in an internal combustion engine. Here’s a detailed description of the content:
+
+- **Axes:**
+  - The vertical axis represents pressure \textbackslash{}(p\textbackslash{}) in atmospheres (atm).
+  - The horizontal axis represents volume \textbackslash{}(V\textbackslash{}).
+  - \textbackslash{}(p\_\{max\}\textbackslash{}) denotes the maximum pressure. 
+  - \textbackslash{}(V\_\{min\}\textbackslash{}) and \textbackslash{}(V\_\{max\}\textbackslash{}) denote the minimum and maximum volumes, respectively.
+
+- **Processes:**
+  1. **1 to 2**: Compression stroke, where the volume decreases and pressure increases.
+  2. **2 to 3**: Ignition phase, where heat energy \textbackslash{}(Q\_H\textbackslash{}) is added at constant volume.
+  3. **3 to 4**: Power stroke, where the volume increases and pressure decreases.
+  4. **4 to 1**: Exhaust phase, where heat energy \textbackslash{}(Q\_C\textbackslash{}) is released at constant volume.
+
+- **Arrows and Labels:**
+  - A purple arrow labeled \textbackslash{}(Q\_H\textbackslash{}) points toward the line from point 2 to 3, indicating heat addition.
+  - A purple arrow labeled \textbackslash{}(Q\_C\textbackslash{}) points away from the line from point 4 to 1, indicating heat release.
+  - Along each part of the cycle, processes are labeled: Ignition, Power stroke, Compression stroke, and Exhaust.
+
+- **Points:**
+  - Points 1, 2, 3, and 4 are marked to represent the stages in the cycle.
+
+Each segment of the path is in the form of a curve or line segment that illustrates the changes in pressure and volume characterizing a specific stroke in the engine cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$1 - \textbackslash{}frac\{1\}\{r\textasciicircum{}\{\textbackslash{}gamma - 1\}\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/437.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0437.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0437:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0437.problem_phyx_mini_0437}
+\uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-matchesottocycledescription, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-matchesprimaryottofigure, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-hasphysicalottoparameters, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-satisfiesidealottocyclelaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.VolumeQuantity}
+  A nonnegative physical cylinder volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.HeatCapacityQuantity}
+  A physical heat capacity, carrying the dimension energy per temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumequantity}
+  Read a physical cylinder volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.energyInJoules}
+  Read heat energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[heat Capacity In Joules Per Kelvin]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityinjoulesperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.heatCapacityInJoulesPerKelvin}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityquantity}
+  Read a physical heat capacity in joules per kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Capacity In Joules Per Kelvin.
+\end{proof}
+\begin{definition}[temperature Readout]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-temperaturereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.temperatureReadout}
+  Kelvin-proportional scalar readout of an absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Readout.
+\end{proof}
+\begin{definition}[Cycle State]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.CycleState}
+  The four numbered equilibrium states shown in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle State.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.CycleLeg}
+  The four directed process legs shown by the cycle arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.CycleLeg.initialState}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg}
+  Initial state of a directed Otto-cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.CycleLeg.finalState}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg}
+  Final state of a directed Otto-cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.ProcessKind}
+  Thermodynamic role of a directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Is Adiabatic]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind-isadiabatic}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.ProcessKind.IsAdiabatic}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind}
+  Whether a process kind is one of the two adiabatic strokes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Adiabatic.
+\end{proof}
+\begin{definition}[Is Isochoric]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind-isisochoric}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.ProcessKind.IsIsochoric}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind}
+  Whether a process kind is one of the two constant-volume strokes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Isochoric.
+\end{proof}
+\begin{definition}[Working Gas Model]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-workinggasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.WorkingGasModel}
+  The idealized material model used for the fuel--air mixture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Gas Model.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumequantity}
+  Thermodynamic observables at one numbered equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Diagram Axis Quantity]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-diagramaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.DiagramAxisQuantity}
+  The two physical quantities assigned to the diagram axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis Quantity.
+\end{proof}
+\begin{definition}[Diagram Axis]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-diagramaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.DiagramAxis}
+  The two axes of the supplied pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis.
+\end{proof}
+\begin{definition}[Pressure Axis Unit]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.PressureAxisUnit}
+  Unit text printed next to the pressure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Axis Unit.
+\end{proof}
+\begin{definition}[Path Shape]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.PathShape}
+  Qualitative geometry of a process path in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Shape.
+\end{proof}
+\begin{definition}[Heat Annotation]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatannotation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.HeatAnnotation}
+  The two purple heat-transfer labels visible in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Annotation.
+\end{proof}
+\begin{definition}[Heat Arrow Direction]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatarrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.HeatArrowDirection}
+  Direction of a purple heat-transfer arrow relative to the working gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Arrow Direction.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-diagramaxisquantity, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-diagramaxis, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressureaxisunit, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pathshape, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatannotation, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatarrowdirection}
+  Literal labels, arrows, and path shapes read from the primary raster. This record contains no efficiency formula or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Otto Cycle Setup]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.OttoCycleSetup}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumequantity, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityquantity, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cycleleg, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-processkind, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-workinggasmodel, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-thermodynamicstate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressurevolumefigure}
+  Independent physical data of the Otto engine. The compression ratio and thermal efficiency are dimensionless observables, not definitions of the requested closed form
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Otto Cycle Setup.
+\end{proof}
+\begin{definition}[state Temperature]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-statetemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.stateTemperature}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-temperaturereadout, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup}
+  Temperature readout at one numbered state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature.
+\end{proof}
+\begin{definition}[state Volume]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-statevolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.stateVolume}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumeincubicmetres, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-cyclestate, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup}
+  Volume readout at one numbered state, in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Volume.
+\end{proof}
+\begin{definition}[Matches Otto Cycle Description]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-matchesottocycledescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.MatchesOttoCycleDescription}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup}
+  The qualitative process assignment stated in the problem text. No efficiency value appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Otto Cycle Description.
+\end{proof}
+\begin{definition}[Matches Primary Otto Figure]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-matchesprimaryottofigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.MatchesPrimaryOttoFigure}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressureinpascals, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup}
+  Axes, labels, directed arrows, heat annotations, and state coordinates read from the primary image. These are calibrated figure data, not the requested efficiency conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Otto Figure.
+\end{proof}
+\begin{definition}[Has Physical Otto Parameters]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-hasphysicalottoparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.HasPhysicalOttoParameters}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumeincubicmetres, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-pressureinpascals, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-energyinjoules, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityinjoulesperkelvin, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-statetemperature}
+  Positivity and nondegeneracy conditions for a functioning Otto engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Otto Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Otto Cycle Laws]
+  \label{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-satisfiesidealottocyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0437.SatisfiesIdealOttoCycleLaws}
+  \uses{def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-volumeincubicmetres, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-energyinjoules, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-heatcapacityinjoulesperkelvin, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-ottocyclesetup, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-statetemperature, def:physics:phyx-mini-0437:phyxminiproblems-problemphyxmini0437-statevolume}
+  Governing relations for an ideal Otto cycle: r = V\_max / V\_min; isochoric legs preserve volume; an adiabatic leg satisfies T\_i / T\_f = (V\_f / V\_i)\textasciicircum{}(γ - 1); heat exchanged on either isochore is C\_V times the appropriate positive temperature difference; thermal efficiency is one minus rejected heat divided by added heat. These laws are generic physical relations. In particular, this structure does not contain the requested expression 1 - 1 / r\textasciicircum{}(γ - 1)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Otto Cycle Laws.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,302 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0175.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0175.source.json
+
+\chapter{Physics problem phyx\_mini\_0175}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0175}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Sound waves with frequency 3000\textbackslash{},\textbackslash{}text\{Hz\} and speed 343\textbackslash{},\textbackslash{}text\{m/s\} diffract through the rectangular opening of a speaker cabinet and into a large auditorium of length \textbackslash{}( d = 100\textbackslash{},\textbackslash{}text\{m\} \textbackslash{}). The opening, which has a horizontal width of 30.0\textbackslash{},\textbackslash{}text\{cm\}, faces a wall 100\textbackslash{},\textbackslash{}text\{m\} away.
+
+\#\# Question
+
+Along that wall, how far from the central axis will a listener be at the first diffraction minimum and thus have difficulty hearing the sound? (Neglect reflections.)
+
+\#\# Answer choices
+
+- A: A: 35.6m
+
+- B: B: 48.7m
+
+- C: C: 41.2m
+
+- D: D: 29.5m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a rectangular diagram with a speaker cabinet located on the left side. A line labeled "Central axis" runs horizontally from the speaker cabinet through the rectangle. The dimension "d" is indicated with a double-headed arrow along the bottom of the rectangle, representing the distance along the central axis. The terms "Speaker cabinet" and "Central axis" are labeled in corresponding positions. The rectangle is bordered by a thick line.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 41.2m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/175.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0175.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0175:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0175.listenerDistance_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesproblemandfigurereadouts, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-hasphysicalparameters, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiesacousticwavelaw, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiescontrolledfirstminimumdiffractionlaw, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfieswallgeometry, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesdisplayeddistance, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.AcousticLength}
+  A signed physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.AcousticFrequency}
+  A physical frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.AcousticSpeed}
+  A physical propagation speed, carrying the length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.lengthReadout}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength}
+  Read a physical length as a real scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.frequencyReadout}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticfrequency}
+  Read a physical frequency in inverse selected time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.speedReadout}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticspeed}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.metersValue}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-lengthreadout}
+  Metre readout used for the wall geometry and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.centimetersValue}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-lengthreadout}
+  Centimetre readout used for the stated opening width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[hertz Value]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-hertzvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.hertzValue}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticfrequency, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-frequencyreadout}
+  Hertz readout used for the stated tone frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz Value.
+\end{proof}
+\begin{definition}[meters Per Second Value]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-meterspersecondvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.metersPerSecondValue}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticspeed, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speedreadout}
+  Metres-per-second readout used for the stated sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second Value.
+\end{proof}
+\begin{definition}[Opening Geometry]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-openinggeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.OpeningGeometry}
+  The shape assigned to the speaker-cabinet opening
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Opening Geometry.
+\end{proof}
+\begin{definition}[Cabinet Alignment]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-cabinetalignment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.CabinetAlignment}
+  The alignment of the cabinet opening, central axis, and far wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cabinet Alignment.
+\end{proof}
+\begin{definition}[Propagation Approximation]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-propagationapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.PropagationApproximation}
+  The propagation approximation stipulated in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Approximation.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.FigureFeature}
+  Text labels and geometric features visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Speaker Diffraction Setup]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.SpeakerDiffractionSetup}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticfrequency, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticspeed, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-openinggeometry, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-cabinetalignment, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-propagationapproximation, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-figurefeature}
+  The acoustic wave, speaker opening, auditorium geometry, and unknown first minimum location. The opening height is not included because the problem gives only the horizontal width relevant to diffraction along the wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speaker Diffraction Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-centimetersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-hertzvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-meterspersecondvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  The scalar data and qualitative information supplied by the problem and its figure. In particular, this predicate contains no numerical readout of the requested listener distance and no answer-choice selection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-hertzvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-meterspersecondvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  Positivity conditions for the physical scalar readouts in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Is Positive Acute Angle]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-ispositiveacuteangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.IsPositiveAcuteAngle}
+  An angle is on the positive acute branch when it has a radian representative strictly between 0 and π/2. This selects the first-minimum ray on one side of the central axis and removes the periodic ambiguity of sine and tangent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Positive Acute Angle.
+\end{proof}
+\begin{definition}[Satisfies Acoustic Wave Law]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiesacousticwavelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.SatisfiesAcousticWaveLaw}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-lengthreadout, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-frequencyreadout, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speedreadout, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  The nondispersive acoustic-wave relation c = λ f, stated in every compatible choice of length and time units. It determines the wavelength from the given speed and frequency but does not prescribe the listener's position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Acoustic Wave Law.
+\end{proof}
+\begin{definition}[aperture Fresnel Number]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-aperturefresnelnumber}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.apertureFresnelNumber}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  The dimensionless aperture Fresnel number a² / (λ d) in metre readouts. It measures the finite-distance correction to the far-field diffraction pattern. Absolute values make the expression meaningful independently of the positivity assumptions used by the main theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of aperture Fresnel Number.
+\end{proof}
+\begin{definition}[Satisfies Controlled First Minimum Diffraction Law]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiescontrolledfirstminimumdiffractionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.SatisfiesControlledFirstMinimumDiffractionLaw}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-ispositiveacuteangle, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-aperturefresnelnumber}
+  A controlled finite-distance form of the first single-slit diffraction law. The Fraunhofer leading term is sin θ₁ = λ / a; rather than imposing it as an exact identity at the finite wall distance, the actual first-minimum sine has an explicit residual bounded by the square of the aperture Fresnel number. For a centered rectangular aperture the first correction to the location is second order in that number.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Controlled First Minimum Diffraction Law.
+\end{proof}
+\begin{definition}[Satisfies Wall Geometry]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfieswallgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.SatisfiesWallGeometry}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-lengthreadout, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup}
+  The right-triangle wall geometry y = d tan θ₁, where d is measured along the labelled central axis and y is the perpendicular distance along the wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Wall Geometry.
+\end{proof}
+\begin{lemma}[wavelength In Meters eq speed div frequency]
+  \label{lem:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-wavelengthinmeters-eq-speed-div-frequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.wavelengthInMeters_eq_speed_div_frequency}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesproblemandfigurereadouts, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiesacousticwavelaw}
+  The given acoustic data imply λ = 343/3000 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wavelength In Meters eq speed div frequency.
+\end{proof}
+\begin{lemma}[first Minimum Sine has controlled error]
+  \label{lem:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-firstminimumsine-has-controlled-error}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.firstMinimumSine_has_controlled_error}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-speakerdiffractionsetup, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesproblemandfigurereadouts, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiesacousticwavelaw, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-satisfiescontrolledfirstminimumdiffractionlaw}
+  The controlled diffraction law puts the actual first-minimum sine within the finite-distance remainder of the Fraunhofer value 343/900
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first Minimum Sine has controlled error.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.AnswerChoice}
+  Labels of the four distance answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-answerchoice-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.AnswerChoice.meters}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-answerchoice}
+  Metre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[Matches Displayed Distance]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-matchesdisplayeddistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.MatchesDisplayedDistance}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-acousticlength, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-metersvalue, def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-answerchoice}
+  Agreement with a distance displayed to the nearest tenth of a metre. The half-unit in the last displayed place is 0.05 m = 1/20 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Distance.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0175.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0175:phyxminiproblems-problemphyxmini0175-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

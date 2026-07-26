@@ -1,0 +1,765 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0978.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0978.source.json
+
+\chapter{Physics problem phyx\_mini\_0978}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0978}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A circular coil with \textbackslash{}( N\_1 = 5000 \textbackslash{}) turns is made of a conducting material with resistance \textbackslash{}( 0.0100\textbackslash{} \textbackslash{}Omega/\textbackslash{}text\{m\} \textbackslash{}) and radius \textbackslash{}( a = 40.0\textbackslash{} \textbackslash{}text\{cm\} \textbackslash{}). The coil is attached to a \textbackslash{}( C = 10.00\textbackslash{} \textbackslash{}mu\textbackslash{}text\{F\} \textbackslash{}) capacitor as shown. A second coil with radius \textbackslash{}( b = 4.00\textbackslash{} \textbackslash{}text\{cm\} \textbackslash{}), made of the same wire, with \textbackslash{}( N\_2 = 100 \textbackslash{}) turns, is concentric with the first coil and parallel to it. The capacitor has a charge of \textbackslash{}( +100\textbackslash{} \textbackslash{}mu\textbackslash{}text\{C\} \textbackslash{}) on its upper plate, and the switch \textbackslash{}( S \textbackslash{}) is open. At time \textbackslash{}( t = 0 \textbackslash{}) the switch is closed.
+
+\#\# Question
+
+What is the magnitude of the current in the smaller coil at \textbackslash{}( t = 1.26\textbackslash{} \textbackslash{}text\{ms\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 182mA
+
+- B: B: 365mA
+
+- C: C: 500mA
+
+- D: D: 730mA
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical setup with the following components and details:
+
+1. **Coils**:
+   - A smaller coil is inserted inside a larger coil.
+   - The smaller coil has "N₁ turns" and is positioned vertically in the center.
+   - The radius of the smaller coil is labeled "2b."
+
+2. **Larger Coil**:
+   - The larger, flat coil is horizontal with "N₂ turns" surrounding the smaller coil.
+   - The radius from the center of the smaller coil to the larger coil is labeled "a."
+
+3. **Electrical Connections**:
+   - The larger coil is connected to a capacitor, labeled "C."
+   - There is a switch labeled "S" connected in series with the capacitor.
+
+4. **Text and Labels**:
+   - "N₁ turns" refers to the number of turns in the smaller coil.
+   - "N₂ turns" refers to the number of turns in the larger coil.
+   - "2b" and "a" are distances related to the coils' dimensions.
+   - "C" indicates the capacitor connected to the circuit.
+   - "S" indicates the switch in the circuit.
+
+This setup likely represents an inductor-capacitor (LC) circuit with mutual inductance between the two coils.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 365mA
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/978.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0978.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0978:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0978.problem_phyx_mini_0978}
+\uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innertoouterradiusratio, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matcheswrittencoupledcoilscenario, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchesprimarycoupledcoilfigure, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchescoupledcoilnumericaldata, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchesswitchclosingprotocol, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-hasphysicalcoupledcoilparameters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiescircularwireresistancelaws, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-haschargedcapacitorinitialstate, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesidealouterrcdischargelaws, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-usestextbookvacuumpermeability, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesconcentriccircularcoilfluxlaws, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesfiniteradiusfluxapproximation, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesfaradayandinnerohmlaws, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-recordeddatasetanswer, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-observedinnercurrentmagnitudeinmilliamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-centerfieldcurrentestimateinamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-isuniquenearestdisplayedcurrentchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.energyDimension}
+  Energy has dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-energydimension}
+  Electric potential difference has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electriccurrentdimension, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  Electrical resistance has dimension voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[resistance Per Length Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.resistancePerLengthDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricalresistancedimension}
+  Resistance per unit wire length has dimension resistance per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance Per Length Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.capacitanceDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  Capacitance has dimension charge per voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.magneticFluxDensityDimension}
+  Magnetic flux density has dimension M T⁻¹ C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.magneticFluxDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdensitydimension}
+  Magnetic flux has dimension flux density times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Dimension.
+\end{proof}
+\begin{definition}[electromotive Force Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electromotiveforcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.electromotiveForceDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  Electromotive force has the same dimension as electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.inductanceDimension}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electriccurrentdimension, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  Inductance has dimension voltage times time per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Resistance Per Length Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.ResistancePerLengthMagnitude}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthdimension}
+  A nonnegative, unit-independent resistance per unit length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Per Length Magnitude.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Capacitance Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CapacitanceMagnitude}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancedimension}
+  A nonnegative, unit-independent capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Magnitude.
+\end{proof}
+\begin{definition}[Charge Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.ChargeMagnitude}
+  A nonnegative, unit-independent charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedChargeQuantity}
+  A signed, unit-independent capacitor charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Signed Potential Difference]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedpotentialdifference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedPotentialDifference}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electricpotentialdimension}
+  A signed, unit-independent electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Potential Difference.
+\end{proof}
+\begin{definition}[Signed Current Quantity]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedcurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedCurrentQuantity}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electriccurrentdimension}
+  A signed, unit-independent electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Current Quantity.
+\end{proof}
+\begin{definition}[Signed Magnetic Flux Density]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticfluxdensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedMagneticFluxDensity}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdensitydimension}
+  A signed, unit-independent magnetic flux density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Magnetic Flux Density.
+\end{proof}
+\begin{definition}[Signed Magnetic Flux]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticflux}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedMagneticFlux}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdimension}
+  A signed, unit-independent magnetic flux or flux linkage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Magnetic Flux.
+\end{proof}
+\begin{definition}[Signed Electromotive Force]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedelectromotiveforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SignedElectromotiveForce}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electromotiveforcedimension}
+  A signed, unit-independent induced electromotive force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Electromotive Force.
+\end{proof}
+\begin{definition}[Mutual Inductance Magnitude]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.MutualInductanceMagnitude}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-inductancedimension}
+  A nonnegative, unit-independent mutual inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mutual Inductance Magnitude.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.signedSIReadout}
+  Read a signed dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.lengthInMeters}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthmagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthmagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters}
+  Read a length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[resistance Per Length In Ohms Per Meter]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthinohmspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.resistancePerLengthInOhmsPerMeter}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthmagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read a wire's resistance per unit length in ohms per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance Per Length In Ohms Per Meter.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read a capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinfarads}
+  Read a capacitance in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[charge Magnitude In Coulombs]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.chargeMagnitudeInCoulombs}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read a nonnegative charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Coulombs.
+\end{proof}
+\begin{definition}[charge Magnitude In Microcoulombs]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeinmicrocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.chargeMagnitudeInMicrocoulombs}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeincoulombs}
+  Read a nonnegative charge magnitude in microcoulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Microcoulombs.
+\end{proof}
+\begin{definition}[signed Charge In Coulombs]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedchargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.signedChargeInCoulombs}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedchargequantity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed capacitor charge in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Charge In Coulombs.
+\end{proof}
+\begin{definition}[potential Difference In Volts]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-potentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.potentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedpotentialdifference, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference In Volts.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.currentInAmperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedcurrentquantity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticfluxdensity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed magnetic flux density in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[magnetic Flux In Webers]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxinwebers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.magneticFluxInWebers}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticflux, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed magnetic flux or linkage in webers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux In Webers.
+\end{proof}
+\begin{definition}[electromotive Force In Volts]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electromotiveforceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.electromotiveForceInVolts}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedelectromotiveforce, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedsireadout}
+  Read a signed electromotive force in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force In Volts.
+\end{proof}
+\begin{definition}[mutual Inductance In Henries]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.mutualInductanceInHenries}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-nonnegativesireadout}
+  Read a mutual inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mutual Inductance In Henries.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.timeInSeconds}
+  Read a point of Physlib Time in the chosen seconds coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[time In Milliseconds]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-timeinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.timeInMilliseconds}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-timeinseconds}
+  Read a point of Physlib Time in milliseconds after switching
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Milliseconds.
+\end{proof}
+\begin{definition}[Coil Role]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CoilRole}
+  Physical identifiers that do not depend on the conflicting N₁/N₂ labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Role.
+\end{proof}
+\begin{definition}[Figure Turn Label]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figureturnlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.FigureTurnLabel}
+  Literal turn-count labels printed in image 978.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Turn Label.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.FigureLengthLabel}
+  Literal geometric labels printed in image 978.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[Figure Length Meaning]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figurelengthmeaning}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.FigureLengthMeaning}
+  The geometric meaning of a printed length marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Meaning.
+\end{proof}
+\begin{definition}[Coil Circuit Role]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilcircuitrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CoilCircuitRole}
+  Electrical role assigned to a winding in the prose model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Circuit Role.
+\end{proof}
+\begin{definition}[Switch State]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-switchstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SwitchState}
+  State of the single switch shown in the circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch State.
+\end{proof}
+\begin{definition}[Coil Dynamical Model]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coildynamicalmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CoilDynamicalModel}
+  Idealized dynamical model used for each winding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coil Dynamical Model.
+\end{proof}
+\begin{definition}[Coupling Field Model]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-couplingfieldmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CouplingFieldModel}
+  Explicit finite-radius approximation contract used to couple the coils
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupling Field Model.
+\end{proof}
+\begin{definition}[Coupled Circular Coil Figure]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoilfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CoupledCircularCoilFigure}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilrole, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figureturnlabel, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figurelengthlabel, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-figurelengthmeaning}
+  Literal visual information in the primary raster. The maps state which physical winding each printed label denotes; they do not assign numerical turn counts or a current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupled Circular Coil Figure.
+\end{proof}
+\begin{definition}[Coupled Circular Coil Discharge Setup]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.CoupledCircularCoilDischargeSetup}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthmagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthmagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedchargequantity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedpotentialdifference, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedcurrentquantity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticfluxdensity, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedmagneticflux, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedelectromotiveforce, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductancemagnitude, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilrole, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilcircuitrole, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-switchstate, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coildynamicalmodel, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-couplingfieldmodel, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoilfigure}
+  Independent physical quantities and waveforms for the switching experiment. In particular, current .innerInduced is not defined from a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupled Circular Coil Discharge Setup.
+\end{proof}
+\begin{definition}[upper Plate Charge Waveform In Coulombs]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargewaveformincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.upperPlateChargeWaveformInCoulombs}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-signedchargeincoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Upper-plate charge waveform in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of upper Plate Charge Waveform In Coulombs.
+\end{proof}
+\begin{definition}[current Waveform In Amperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.currentWaveformInAmperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentinamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coilrole, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Oriented current waveform of one physical winding in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Waveform In Amperes.
+\end{proof}
+\begin{definition}[inner Flux Linkage Waveform In Webers]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagewaveforminwebers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.innerFluxLinkageWaveformInWebers}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxinwebers, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Inner-coil flux-linkage waveform in webers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner Flux Linkage Waveform In Webers.
+\end{proof}
+\begin{definition}[inner Flux Linkage Spatial Remainder In Webers]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagespatialremainderinwebers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.innerFluxLinkageSpatialRemainderInWebers}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxinwebers, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Finite-radius correction to the center-field linkage, in webers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner Flux Linkage Spatial Remainder In Webers.
+\end{proof}
+\begin{definition}[upper Plate Charge Derivative In Amperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargederivativeinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.upperPlateChargeDerivativeInAmperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargewaveformincoulombs}
+  Time derivative of the upper-plate charge readout, in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of upper Plate Charge Derivative In Amperes.
+\end{proof}
+\begin{definition}[outer Current Derivative In Amperes Per Second]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-outercurrentderivativeinamperespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.outerCurrentDerivativeInAmperesPerSecond}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes}
+  Time derivative of the outer-coil current, in amperes per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of outer Current Derivative In Amperes Per Second.
+\end{proof}
+\begin{definition}[inner Flux Linkage Rate In Webers Per Second]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagerateinweberspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.innerFluxLinkageRateInWebersPerSecond}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagewaveforminwebers}
+  Time derivative of inner-coil flux linkage, in webers per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner Flux Linkage Rate In Webers Per Second.
+\end{proof}
+\begin{definition}[inner Flux Linkage Spatial Remainder Rate In Volts]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagespatialremainderrateinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.innerFluxLinkageSpatialRemainderRateInVolts}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagespatialremainderinwebers}
+  Time derivative of the finite-radius linkage remainder, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner Flux Linkage Spatial Remainder Rate In Volts.
+\end{proof}
+\begin{definition}[inner To Outer Radius Ratio]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innertoouterradiusratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.innerToOuterRadiusRatio}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Dimensionless ratio of the inner radius to the outer radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inner To Outer Radius Ratio.
+\end{proof}
+\begin{definition}[Matches Written Coupled Coil Scenario]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matcheswrittencoupledcoilscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.MatchesWrittenCoupledCoilScenario}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  The physical winding roles and relative geometry stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Written Coupled Coil Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Coupled Coil Figure]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchesprimarycoupledcoilfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.MatchesPrimaryCoupledCoilFigure}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Exact transcription of image 978.png, including its literal assignment of N₁ to the inner winding and N₂ to the outer winding. This structure has no numerical current field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Coupled Coil Figure.
+\end{proof}
+\begin{definition}[Matches Coupled Coil Numerical Data]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchescoupledcoilnumericaldata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.MatchesCoupledCoilNumericalData}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthincentimeters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthinohmspermeter, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinmicrofarads, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeinmicrocoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-timeinmilliseconds, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  All numerical values from the prose, calibrated against physical quantities. The turn counts use unambiguous physical coil roles, not the conflicting subscripts printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Coupled Coil Numerical Data.
+\end{proof}
+\begin{definition}[Matches Switch Closing Protocol]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-matchesswitchclosingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.MatchesSwitchClosingProtocol}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  The switch is open before t = 0 and closed from t = 0 onward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Switch Closing Protocol.
+\end{proof}
+\begin{definition}[Has Physical Coupled Coil Parameters]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-hasphysicalcoupledcoilparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.HasPhysicalCoupledCoilParameters}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthinohmspermeter, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinfarads, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeincoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Positivity and nondegeneracy conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Coupled Coil Parameters.
+\end{proof}
+\begin{definition}[Satisfies Circular Wire Resistance Laws]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiescircularwireresistancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SatisfiesCircularWireResistanceLaws}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceperlengthinohmspermeter, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  Each circular winding uses N · 2πr of wire, and its resistance is its wire length times the resistance per metre. These laws apply uniformly to either coil and contain no observation-time current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Wire Resistance Laws.
+\end{proof}
+\begin{definition}[Has Charged Capacitor Initial State]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-haschargedcapacitorinitialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.HasChargedCapacitorInitialState}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeincoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargewaveformincoulombs}
+  The upper-plate charge is continuous at switching and initially equals the given positive charge magnitude. This is initial data, not the requested inner-coil current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Charged Capacitor Initial State.
+\end{proof}
+\begin{definition}[Satisfies Ideal Outer RCDischarge Laws]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesidealouterrcdischargelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SatisfiesIdealOuterRCDischargeLaws}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinfarads, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-potentialdifferenceinvolts, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargewaveformincoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-upperplatechargederivativeinamperes}
+  Ideal outer-loop RC laws after the switch closes. Charge leaves the upper plate at the outer-loop current, q = C V, and the capacitor voltage equals the resistive drop. These are the governing ODE laws, not its exponential solution or the final induced-current value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Outer RCDischarge Laws.
+\end{proof}
+\begin{definition}[Uses Textbook Vacuum Permeability]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-usestextbookvacuumpermeability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.UsesTextbookVacuumPermeability}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  The coherent-SI value of Physlib's free-space permeability parameter is the textbook 4π × 10⁻⁷. It is a universal calibration, not a current result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Vacuum Permeability.
+\end{proof}
+\begin{definition}[Satisfies Concentric Circular Coil Flux Laws]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesconcentriccircularcoilfluxlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SatisfiesConcentricCircularCoilFluxLaws}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-lengthinmeters, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxdensityinteslas, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-magneticfluxinwebers, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductanceinhenries, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagewaveforminwebers}
+  Exact circular-coil center-field and flux-linkage laws, together with the coefficient of the center-field leading term. The actual flux through the finite inner disk is retained as an independent waveform rather than equated globally to center field times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Concentric Circular Coil Flux Laws.
+\end{proof}
+\begin{definition}[Satisfies Finite Radius Flux Approximation]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesfiniteradiusfluxapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SatisfiesFiniteRadiusFluxApproximation}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductanceinhenries, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagewaveforminwebers, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagespatialremainderinwebers, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-outercurrentderivativeinamperespersecond, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagespatialremainderrateinvolts, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innertoouterradiusratio}
+  The small-disk approximation is an exact leading-term-plus-remainder decomposition, not a global assertion that the outer field is uniform. The rate of the spatial remainder is bounded by the square of the radius ratio, the expected first nonconstant radial order for concentric circular coils. This contract applies at arbitrary post-switch times and contains neither the observation-time current nor an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Finite Radius Flux Approximation.
+\end{proof}
+\begin{definition}[Satisfies Faraday And Inner Ohm Laws]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-satisfiesfaradayandinnerohmlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.SatisfiesFaradayAndInnerOhmLaws}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-electromotiveforceinvolts, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-innerfluxlinkagerateinweberspersecond}
+  Faraday's law gives the inner emf from the derivative of flux linkage, and Ohm's law gives the instantaneous response of the closed resistive inner loop. These laws hold at every post-switch time and do not mention 365 mA
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Faraday And Inner Ohm Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.AnswerChoice}
+  Labels of the four current choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Current In Milliamperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-answerchoice-displayedcurrentinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.AnswerChoice.displayedCurrentInMilliamperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-answerchoice}
+  Current magnitude printed by each choice, in milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Current In Milliamperes.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[observed Inner Current Magnitude In Milliamperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-observedinnercurrentmagnitudeinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.observedInnerCurrentMagnitudeInMilliamperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-currentwaveforminamperes}
+  Magnitude of the inner-coil current at the requested time, in milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of observed Inner Current Magnitude In Milliamperes.
+\end{proof}
+\begin{definition}[center Field Current Estimate In Amperes]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-centerfieldcurrentestimateinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.centerFieldCurrentEstimateInAmperes}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-resistanceinohms, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-capacitanceinfarads, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-chargemagnitudeincoulombs, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-mutualinductanceinhenries, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-timeinseconds, def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-coupledcircularcoildischargesetup}
+  The center-field estimate for the requested current magnitude, in amperes. The physical current remains an independent setup field; this definition uses only apparatus parameters and the ideal outer-loop solution's closed form
+\end{definition}
+\begin{proof}
+  This is the declared model definition of center Field Current Estimate In Amperes.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Current Choice]
+  \label{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-isuniquenearestdisplayedcurrentchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0978.IsUniqueNearestDisplayedCurrentChoice}
+  \uses{def:physics:phyx-mini-0978:phyxminiproblems-problemphyxmini0978-answerchoice}
+  A displayed choice is selected by the physical current when its absolute rounding error is strictly smaller than that of every other listed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Current Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

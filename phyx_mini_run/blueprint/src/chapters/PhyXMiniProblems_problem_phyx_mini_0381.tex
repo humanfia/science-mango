@@ -1,0 +1,360 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0381.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0381.source.json
+
+\chapter{Physics problem phyx\_mini\_0381}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0381}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The hydraulic piston/cylinder system shown in the figure has a cylinder diameter of D=0.1 m with a piston and rod mass of 25 kg. The rod has a diameter of 0.01 m with an outside atmospheric pressure of 101 kPa. The inside hydraulic fluid pressure is 250 kPa.
+
+\#\# Question
+
+How large a force can the rod push with in the upward direction?
+
+\#\# Answer choices
+
+- A: A: 490N
+
+- B: B: 932.9N
+
+- C: C: 154N
+
+- D: D: 10.2N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a fluid mechanics setup:
+
+1. **Container**: A cylindrical container holds a fluid and features a piston system. The container is labeled with pressure terms.
+
+2. **Piston**: The piston is located inside the container, and it partially covers the fluid. It's shown as a horizontal, thick section pressing downwards on the fluid.
+
+3. **Fluid Levels and Pressure**: 
+   - The fluid level is maintained below the piston.
+   - The pressure inside the cylinder is labeled as \textbackslash{}( P\_\{\textbackslash{}text\{cyl\}\} \textbackslash{}).
+   - The pressure above the piston is labeled as \textbackslash{}( P\_0 \textbackslash{}).
+
+4. **Force and Area**:
+   - An arrow labeled \textbackslash{}( F \textbackslash{}) points vertically downwards, indicating the force applied on the piston.
+   - A small circle above the piston is labeled \textbackslash{}( A\_\{\textbackslash{}text\{rod\}\} \textbackslash{}), suggesting the area of the rod where the force is applied.
+
+5. **Arrows and Lines**:
+   - Lines and arrows indicate the direction of force and fluid interaction.
+   - An arrow on the right side of the container shows a fluid outlet or line, indicating some interaction or flow.
+
+The setup appears to be demonstrating principles of pressure, force, and fluid mechanics.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 932.9N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/381.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0381.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0381:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0381.hydraulicRod_upwardPushForce}
+\uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matchesstatedhydraulicdata, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matchesprimaryhydraulicfigure, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matcheshydraulicoperatingscenario, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-satisfiespistongeometry, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hasphysicalhydraulicparameters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-usesterrestrialgravitycalibration, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-satisfieshydraulicforcelaws, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-isuniqueclosestdisplayedforce, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-roundstonearesttenthofnewton}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.LengthQuantity}
+  A nonnegative physical length, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.AccelerationQuantity}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.ForceQuantity}
+  A nonnegative force magnitude, with SI unit newton
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.lengthInMeters}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.areaInSquareMeters}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.massInKilograms}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinpascals}
+  Read a physical pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationquantity}
+  Read a physical acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.forceInNewtons}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forcequantity}
+  Read a physical force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.FigureObject}
+  Material or component visible in the supplied hydraulic-cylinder raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.FigureRegion}
+  The two pressure regions distinguished in the drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Figure Pressure Label]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figurepressurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.FigurePressureLabel}
+  Literal pressure labels printed in the drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Pressure Label.
+\end{proof}
+\begin{definition}[Figure Area Label]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figurearealabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.FigureAreaLabel}
+  The area label printed next to the circular rod cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Area Label.
+\end{proof}
+\begin{definition}[Figure Force Label]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureforcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.FigureForceLabel}
+  The force label printed above the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Force Label.
+\end{proof}
+\begin{definition}[Loaded Surface]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-loadedsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.LoadedSurface}
+  Surfaces that enter the piston force balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Loaded Surface.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.VerticalDirection}
+  Vertical orientation in the figure and in the requested output
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Operating Regime]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-operatingregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.OperatingRegime}
+  Static, idealized operating regime used by the elementary force balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Operating Regime.
+\end{proof}
+\begin{definition}[Supplied Hydraulic Piston Figure]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-suppliedhydraulicpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.SuppliedHydraulicPistonFigure}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureobject, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureregion, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figurepressurelabel, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figurearealabel, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureforcelabel, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-loadedsurface, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-verticaldirection}
+  Qualitative and schematic information transcribed from the primary raster. Coordinates are diagram readouts only; they are not physical lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Hydraulic Piston Figure.
+\end{proof}
+\begin{definition}[Hydraulic Piston Setup]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.HydraulicPistonSetup}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthquantity, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massquantity, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationquantity, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forcequantity, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-verticaldirection, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-operatingregime, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-suppliedhydraulicpistonfigure}
+  Physical apparatus and observables. In particular, neither force field is defined from an answer choice: the downward contact load on the assembly and the upward force exerted by the rod are independent physical quantities until the action--reaction law below relates their magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydraulic Piston Setup.
+\end{proof}
+\begin{definition}[Matches Stated Hydraulic Data]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matchesstatedhydraulicdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.MatchesStatedHydraulicData}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthinmeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massinkilograms, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinkilopascals, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Numerical data stated in the problem. No force value or answer choice occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Hydraulic Data.
+\end{proof}
+\begin{definition}[Matches Primary Hydraulic Figure]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matchesprimaryhydraulicfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.MatchesPrimaryHydraulicFigure}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figureobject, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-figurepressurelabel, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Primary-image evidence: P₀ lies above the piston, P\_cyl lies in the hydraulic fluid below it, A\_rod marks the rod end, and the arrow F is the downward reaction load on that end
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Hydraulic Figure.
+\end{proof}
+\begin{definition}[Matches Hydraulic Operating Scenario]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-matcheshydraulicoperatingscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.MatchesHydraulicOperatingScenario}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Idealizations implicit in the elementary static piston calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Hydraulic Operating Scenario.
+\end{proof}
+\begin{definition}[Satisfies Piston Geometry]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-satisfiespistongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.SatisfiesPistonGeometry}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthinmeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-areainsquaremeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Circular-face and annular-face geometry. Atmospheric pressure acts on the exposed upper annulus; the contacted rod end is represented separately by the downward load F shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Piston Geometry.
+\end{proof}
+\begin{definition}[Has Physical Hydraulic Parameters]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hasphysicalhydraulicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.HasPhysicalHydraulicParameters}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-lengthinmeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-areainsquaremeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massinkilograms, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinpascals, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Positivity and nondegeneracy conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Hydraulic Parameters.
+\end{proof}
+\begin{definition}[Uses Terrestrial Gravity Calibration]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-usesterrestrialgravitycalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.UsesTerrestrialGravityCalibration}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  The standard near-Earth acceleration used by the recorded numerical answer. This is a physical calibration, not a force conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Terrestrial Gravity Calibration.
+\end{proof}
+\begin{definition}[Satisfies Hydraulic Force Laws]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-satisfieshydraulicforcelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.SatisfiesHydraulicForceLaws}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-areainsquaremeters, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-massinkilograms, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-pressureinpascals, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forceinnewtons, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  Elementary mechanics of the idealized hydraulic piston: pressure force has magnitude p A on each loaded face; the assembly weight has magnitude m g; at static equilibrium, the upward cylinder-pressure force balances the atmospheric force on the exposed annulus, the weight, and the downward rod contact load; the upward rod push and downward contact load form an action--reaction pair. None of these laws prescribes the numerical value of the unknown rod force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydraulic Force Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.AnswerChoice}
+  Labels of the four force choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Force In Newtons]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-displayedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.displayedForceInNewtons}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-answerchoice}
+  Newton value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Force In Newtons.
+\end{proof}
+\begin{definition}[distance From Displayed Force]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-distancefromdisplayedforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.distanceFromDisplayedForce}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forceinnewtons, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-answerchoice, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-displayedforceinnewtons}
+  Distance between the physical upward push and a displayed force choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance From Displayed Force.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Force]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-isuniqueclosestdisplayedforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.IsUniqueClosestDisplayedForce}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-answerchoice, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-distancefromdisplayedforce}
+  A displayed answer is strictly closer than every other listed force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Force.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Of Newton]
+  \label{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-roundstonearesttenthofnewton}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0381.RoundsToNearestTenthOfNewton}
+  \uses{def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-forceinnewtons, def:physics:phyx-mini-0381:phyxminiproblems-problemphyxmini0381-hydraulicpistonsetup}
+  The physical newton readout rounds to the stated value at one decimal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Of Newton.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

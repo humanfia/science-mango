@@ -1,0 +1,374 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0393.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0393.source.json
+
+\chapter{Physics problem phyx\_mini\_0393}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0393}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In the city water tower, water is pumped up to a level 25 m above ground in a pressurized tank with air at 125 kPa over the water surface. This is illustrated in figure.
+
+\#\# Question
+
+Assuming water density of 1000 kg/m\$\textasciicircum{}3\$ and standard gravity, find the pressure required to pump more water in at ground level.
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 370kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The diagram illustrates a schematic of a fluid-filled tank with a specific structure. The tank has a large, rounded upper section and a narrow, cylindrical lower section, resembling an upside-down mushroom. The tank is filled with a blue liquid, representing the fluid content.
+
+Key elements in the diagram include:
+
+1. **Fluid**: The tank is filled with a blue-shaded liquid.
+
+2. **Gravity**: An arrow labeled "g" points downward on the left side, indicating the direction of gravitational force.
+
+3. **Height**: The height of the fluid column is denoted by the letter "H," marked with a bracket on the right side.
+
+Overall, the diagram visually represents a fluid column affected by gravity, possibly for a physics or engineering context related to fluid dynamics or hydrostatics.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 370kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/393.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0393.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0393:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0393.problem_phyx_mini_0393}
+\uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-matchesprimaryfigure, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-matcheswatertowerscenario, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-usesgivenwatertowerdata, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-hasphysicalwatertowerparameters, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-satisfieshydrostaticpumplaws, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-iscorrectanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.massDensityDimension}
+  The physical dimension of mass density, M L\textasciicircum{}-3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.accelerationDimension}
+  The physical dimension of acceleration, L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.LengthQuantity}
+  A nonnegative physical length, independent of the readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensitydimension}
+  A nonnegative, spatially uniform mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationdimension}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.PressureQuantity}
+  Physical pressure, represented by Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.lengthReadout}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthquantity}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.densityReadout}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensityquantity}
+  Read mass density in the selected mass unit per selected length unit cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.accelerationReadout}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationquantity}
+  Read acceleration in the selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[pressure Readout]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.pressureReadout}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity}
+  Read pressure in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.lengthInMeters}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensityquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityreadout}
+  Kilogram-per-cubic-metre readout of a uniform mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationreadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.pressureInPascals}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurereadout}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinpascals}
+  Kilopascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.FigureLabel}
+  Literal labels visible in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.VerticalDirection}
+  Vertical directions used to interpret arrows in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Tower Geometry]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-towergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.TowerGeometry}
+  Qualitative tower shape visible in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tower Geometry.
+\end{proof}
+\begin{definition}[Tower Liquid]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-towerliquid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.TowerLiquid}
+  The liquid stored and pumped through the tower
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tower Liquid.
+\end{proof}
+\begin{definition}[Headspace Gas]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-headspacegas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.HeadspaceGas}
+  The gas occupying the pressurized headspace above the water surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Headspace Gas.
+\end{proof}
+\begin{definition}[Water Tower Figure]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.WaterTowerFigure}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-figurelabel, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-verticaldirection, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-towergeometry}
+  Typed qualitative and dimensionful information read from the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Tower Figure.
+\end{proof}
+\begin{definition}[Water Tower Setup]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.WaterTowerSetup}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-massdensityquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationquantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-towerliquid, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-headspacegas, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowerfigure}
+  Independent physical quantities of the tower and pump. In particular, the ground water pressure and the minimum required pump pressure are independent fields; neither is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Tower Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  Evidence read from the primary bitmap. It records the labels g and H, the downward gravity arrow, and the endpoints and physical role of the height mark. It gives no numerical pressure answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Water Tower Scenario]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-matcheswatertowerscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.MatchesWaterTowerScenario}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  Qualitative information supplied by the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Water Tower Scenario.
+\end{proof}
+\begin{definition}[Uses Given Water Tower Data]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-usesgivenwatertowerdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.UsesGivenWaterTowerData}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthinmeters, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityinkilogramspercubicmeter, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  Numerical problem data. 49/5 m/s\textasciicircum{}2 is the 9.8 m/s\textasciicircum{}2 textbook value of standard gravity used by the recorded multiple-choice answer. No field fixes the ground-level water pressure or the required pump pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Given Water Tower Data.
+\end{proof}
+\begin{definition}[Has Physical Water Tower Parameters]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-hasphysicalwatertowerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.HasPhysicalWaterTowerParameters}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthinmeters, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityinkilogramspercubicmeter, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinpascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  Positivity conditions for a physically meaningful tower and pump state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Water Tower Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hydrostatic Pump Laws]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-satisfieshydrostaticpumplaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.SatisfiesHydrostaticPumpLaws}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthreadout, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityreadout, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationreadout, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurereadout, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  The governing hydrostatic and pump-threshold laws. The first relation is p\_ground = p\_surface + rho * g * H, stated in every coherent choice of mass, length, and time units. The second says that the minimum pump outlet pressure balances the water pressure at the ground inlet. Neither law mentions 370 kPa or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrostatic Pump Laws.
+\end{proof}
+\begin{definition}[hydrostatic Pressure Head In Pascals]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-hydrostaticpressureheadinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.hydrostaticPressureHeadInPascals}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-lengthinmeters, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-densityinkilogramspercubicmeter, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  The pressure head contributed by the elevated water column, expressed in pascals. This is a derived intermediate expression, not the requested pump pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hydrostatic Pressure Head In Pascals.
+\end{proof}
+\begin{definition}[Can Pump More Water]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-canpumpmorewater}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.CanPumpMoreWater}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressurequantity, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinpascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup}
+  A pump pressure strictly above the equilibrium threshold drives additional water into the tower. The multiple-choice question asks for the threshold, not for an arbitrary operating pressure satisfying this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Pump More Water.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.AnswerChoice}
+  Labels of the four pressure choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure Kilopascals]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-answerchoice-displayedpressurekilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.AnswerChoice.displayedPressureKilopascals}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-answerchoice}
+  Pressure in kilopascals printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure Kilopascals.
+\end{proof}
+\begin{definition}[Is Correct Answer]
+  \label{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-iscorrectanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.IsCorrectAnswer}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-answerchoice}
+  A choice is correct when it displays the physical pump-pressure threshold
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Answer.
+\end{proof}
+\begin{lemma}[hydrostatic Pressure Head In Pascals eq 245000]
+  \label{lem:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-hydrostaticpressureheadinpascals-eq-245000}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.hydrostaticPressureHeadInPascals_eq_245000}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-usesgivenwatertowerdata, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-hydrostaticpressureheadinpascals}
+  The 25 m water column contributes 245 kPa of hydrostatic head
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of hydrostatic Pressure Head In Pascals eq 245000.
+\end{proof}
+\begin{lemma}[water Pressure At Ground In Kilopascals eq 370]
+  \label{lem:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-waterpressureatgroundinkilopascals-eq-370}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.waterPressureAtGroundInKilopascals_eq_370}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-usesgivenwatertowerdata, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-satisfieshydrostaticpumplaws}
+  Hydrostatics makes the ground-inlet water pressure 370 kPa
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of water Pressure At Ground In Kilopascals eq 370.
+\end{proof}
+\begin{lemma}[minimum Pump Outlet Pressure In Kilopascals eq 370]
+  \label{lem:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-minimumpumpoutletpressureinkilopascals-eq-370}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0393.minimumPumpOutletPressureInKilopascals_eq_370}
+  \uses{def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-pressureinkilopascals, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-watertowersetup, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-usesgivenwatertowerdata, def:physics:phyx-mini-0393:phyxminiproblems-problemphyxmini0393-satisfieshydrostaticpumplaws}
+  The minimum ground-level pump outlet pressure is 370 kPa
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of minimum Pump Outlet Pressure In Kilopascals eq 370.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

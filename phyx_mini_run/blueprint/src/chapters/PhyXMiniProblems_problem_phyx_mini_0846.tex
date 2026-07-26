@@ -1,0 +1,255 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0846.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0846.source.json
+
+\chapter{Physics problem phyx\_mini\_0846}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0846}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the net electric flux through the cylinder?
+
+\#\# Answer choices
+
+- A: A: -1.2N m\textasciicircum{}2/C
+
+- B: B: -10N m\textasciicircum{}2/C
+
+- C: C: -2N m\textasciicircum{}2/C
+
+- D: D: 0N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cylindrical shape with a uniform electric field, represented by pink arrows, passing horizontally from left to right across and through the cylinder. The arrows indicate the direction of the electric field (\textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{})).
+
+Key elements include:
+
+- **Cylinder**: A 3D cylindrical shape is shown with one end visible and the other end partially shown with a dashed line.
+- **Electric Field**: Pink arrows representing the electric field (\textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{})) are directed parallel to the axis of the cylinder. Some arrows are also shown entering and exiting the cylinder, indicating that the field uniformly permeates the space.
+- **Dimension Label**: The cylinder’s diameter is labeled as \textbackslash{}( 2R \textbackslash{}) with a vertical arrow inside the cylinder showing this measurement.
+- **Text**: The electric field vector symbol (\textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{})) is written next to the arrows just outside the left side of the cylinder.
+
+The image is likely used to illustrate concepts related to electric fields and cylinders, possibly in a physics context involving Gauss's Law or field distribution around conductors.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/846.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0846.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0846:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0846.netElectricFluxThroughCylinder_eq_zero}
+\uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-matchessuppliedcylinderfigure, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-hasphysicalclosedcylindergeometry, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-isuniformelectricfieldparalleltocylinderaxis, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-satisfiesclosedcylinderelectricfluxlaws}
+The net electric flux through the closed cylinder is zero.
+\end{theorem}
+\begin{proof}
+The uniform field is parallel to the cylinder axis.  The orientation factors of the left cap, curved wall, and right cap are respectively $-1$, $0$, and $1$.  The flux law therefore gives contributions $-EA$, $0$, and $EA$.  Substitute these into finite additivity of the three surface contributions; they sum to zero.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.electricFieldStrengthDimension}
+  The dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.electricFluxDimension}
+  The dimension M L³ T⁻² C⁻¹ of electric flux, i.e. N m² / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.AreaQuantity}
+  A nonnegative, unit-independent physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthdimension}
+  A nonnegative magnitude of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.ElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxdimension}
+  A signed electric flux through an oriented surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.lengthInMeters}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthquantity}
+  SI readout of a physical length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areaquantity}
+  SI readout of a physical area, in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[electric Field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.electricFieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthquantity}
+  SI readout of electric-field strength, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.electricFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxquantity}
+  SI readout of signed electric flux, in newton-square-metres per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[Cylinder Surface Part]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-cylindersurfacepart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.CylinderSurfacePart}
+  The three pieces of the closed cylindrical Gaussian surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Surface Part.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.HorizontalDirection}
+  Horizontal directions needed to transcribe the side-view figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Uniform Axial Field Cylinder Figure]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.UniformAxialFieldCylinderFigure}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthquantity, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-cylindersurfacepart, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-horizontaldirection}
+  Typed data read directly from the supplied raster figure. The diameter label is a physical length; its printed text and its relation to the radius are recorded separately below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Axial Field Cylinder Figure.
+\end{proof}
+\begin{definition}[Closed Circular Cylinder]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-closedcircularcylinder}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.ClosedCircularCylinder}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthquantity, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areaquantity}
+  An abstract closed circular cylinder in three-dimensional physical space. cylinderAndBoundary identifies the spatial region on which the displayed field is asserted to be uniform; it is not a scalar substitute for the geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Closed Circular Cylinder.
+\end{proof}
+\begin{definition}[Uniform Axial Field Cylinder Setup]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.UniformAxialFieldCylinderSetup}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthquantity, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxquantity, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-cylindersurfacepart, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylinderfigure, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-closedcircularcylinder}
+  The physical setup and its independent flux observables. In particular, netElectricFlux is not defined from the displayed answer 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Axial Field Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Cylinder Figure]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-matchessuppliedcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.MatchesSuppliedCylinderFigure}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthinmeters, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup}
+  Primary-image evidence, including the field direction and the 2R label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Cylinder Figure.
+\end{proof}
+\begin{definition}[Has Physical Closed Cylinder Geometry]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-hasphysicalclosedcylindergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.HasPhysicalClosedCylinderGeometry}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-lengthinmeters, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areainsquaremeters, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup}
+  Regularity and circular-end geometry of the physical cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Closed Cylinder Geometry.
+\end{proof}
+\begin{definition}[Is Uniform Electric Field Parallel To Cylinder Axis]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-isuniformelectricfieldparalleltocylinderaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.IsUniformElectricFieldParallelToCylinderAxis}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup}
+  The displayed field is uniform throughout the cylinder and parallel to its unit axis. PhysLean's electric field retains the vector-field role; the dimensionful strength supplies its coherent-SI magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Uniform Electric Field Parallel To Cylinder Axis.
+\end{proof}
+\begin{definition}[axial Flux Orientation Factor]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-axialfluxorientationfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.axialFluxOrientationFactor}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-cylindersurfacepart}
+  Orientation factor for the flux of a uniform axial field through each part of the closed cylinder: inward at the left cap, tangent to the wall, and outward at the right cap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Flux Orientation Factor.
+\end{proof}
+\begin{definition}[Satisfies Closed Cylinder Electric Flux Laws]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-satisfiesclosedcylinderelectricfluxlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.SatisfiesClosedCylinderElectricFluxLaws}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-areainsquaremeters, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-uniformaxialfieldcylindersetup, def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-axialfluxorientationfactor}
+  Surface-flux evaluation and finite additivity for the closed cylinder. These are the governing flux-integral laws for a uniform field parallel to the axis; they state the three local contributions, not the requested net-zero answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Cylinder Electric Flux Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.AnswerChoice}
+  The answer labels printed beneath the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Flux Readout]
+  \label{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-answerchoicefluxreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0846.answerChoiceFluxReadout}
+  \uses{def:physics:phyx-mini-0846:phyxminiproblems-problemphyxmini0846-answerchoice}
+  Numerical answer-choice readouts in N m² / C; -6/5 is the exact value represented by the printed decimal -1.2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Flux Readout.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,207 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0339.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0339.source.json
+
+\chapter{Physics problem phyx\_mini\_0339}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0339}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+\textbackslash{}textbf\{Figure\} shows the \$pV\$-diagram for a process in which the temperature of the ideal gas remains constant at \$85\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\}\$.
+
+\#\# Question
+
+By how much did the internal energy of the gas change during this process?
+
+\#\# Answer choices
+
+- A: A: 15J
+
+- B: B: 0J
+
+- C: C: 25J
+
+- D: D: 32J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (P-V) diagram. It includes the following elements:
+
+- **Axes**: 
+  - The vertical axis is labeled as \textbackslash{}( p \textbackslash{}) (atm), representing pressure in atmospheres.
+  - The horizontal axis is labeled as \textbackslash{}( V \textbackslash{}) (\textbackslash{}( \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{})), representing volume in cubic meters.
+
+- **Data Points**:
+  - Point \textbackslash{}( a \textbackslash{}) is located at \textbackslash{}( 0.600 \textbackslash{}) atm.
+  - Point \textbackslash{}( b \textbackslash{}) is located at \textbackslash{}( 0.200 \textbackslash{}) atm and \textbackslash{}( 0.100 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{}).
+
+- **Curve**: 
+  - A blue curve connects points \textbackslash{}( a \textbackslash{}) and \textbackslash{}( b \textbackslash{}), indicating a process or transition from one state to another. The curve is slightly concave and has an arrow pointing from \textbackslash{}( a \textbackslash{}) to \textbackslash{}( b \textbackslash{}).
+
+- **Dashed Line**:
+  - A horizontal dashed line extends from point \textbackslash{}( a \textbackslash{}) to match the \textbackslash{}( V \textbackslash{})-coordinate of point \textbackslash{}( b \textbackslash{}) at \textbackslash{}( 0.100 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{}), showing an isobaric (constant pressure) path at \textbackslash{}( 0.200 \textbackslash{}) atm.
+
+- **Origin**:
+  - The origin of the graph is marked as \textbackslash{}( O \textbackslash{}).
+
+This diagram is likely depicting a process in thermodynamics, illustrating changes in state between two points.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/339.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0339.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0339:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0339.internalEnergyChange_eq_zero_joules}
+\uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-matchesscenarioandfiguredata, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-hasphysicalidealgasparameters, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-satisfiesidealgascaloriclaw, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-internalenergychangeinjoules}
+The internal-energy change along the displayed isothermal ideal-gas process is zero joules.
+\end{theorem}
+\begin{proof}
+The figure predicate states that every point of the process, hence both endpoints, has temperature $85^\circ$C.  The caloric law makes internal energy a function only of absolute temperature, so the endpoint internal energies agree.  Their difference, which is the defined internal-energy change, is therefore zero.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.GasVolume}
+  A physical volume, carrying the dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.pressureInAtmospheres}
+  The pressure readout in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-gasvolume}
+  The volume readout in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.temperatureInDegreesCelsius}
+  The Celsius readout obtained from an absolute-temperature value interpreted in kelvin. The offset is 273.15 K
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.energyInJoules}
+  The SI readout of an energy; for DimEnergy this is measured in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[PVDiagram Point]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-pvdiagrampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.PVDiagramPoint}
+  The two endpoint labels printed beside the blue process curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVDiagram Point.
+\end{proof}
+\begin{definition}[Ideal Gas State]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.IdealGasState}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-gasvolume}
+  A thermodynamic state of the ideal gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas State.
+\end{proof}
+\begin{definition}[Ideal Gas Sample]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.IdealGasSample}
+  Constitutive data for a fixed sample of ideal gas. In particular, internalEnergyAtTemperature expresses the ideal-gas fact that internal energy has temperature, rather than pressure or volume, as its state variable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Sample.
+\end{proof}
+\begin{definition}[Ideal Gas PVProcess]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.IdealGasPVProcess}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-pvdiagrampoint, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgasstate, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgassample}
+  The blue curve, parameterized from 0 to 1. The endpoint labels are stored explicitly so that its arrow direction is part of the model rather than only documentation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas PVProcess.
+\end{proof}
+\begin{definition}[state At A]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.stateAtA}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgasstate, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess}
+  State at the endpoint marked a in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state At A.
+\end{proof}
+\begin{definition}[state At B]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateatb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.stateAtB}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgasstate, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess}
+  State at the endpoint marked b in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state At B.
+\end{proof}
+\begin{definition}[Matches Scenario And Figure Data]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-matchesscenarioandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.MatchesScenarioAndFigureData}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-pressureinatmospheres, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-volumeincubicmeters, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-temperatureindegreescelsius, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateata, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateatb}
+  The direction and numerical readouts supplied by the problem and primary image. The blue curve, not either dashed coordinate guide, is the process. No value for the requested internal-energy change occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Figure Data.
+\end{proof}
+\begin{definition}[Has Physical Ideal Gas Parameters]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-hasphysicalidealgasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.HasPhysicalIdealGasParameters}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-volumeincubicmeters, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ideal Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Caloric Law]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-satisfiesidealgascaloriclaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.SatisfiesIdealGasCaloricLaw}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess}
+  The caloric equation of state for an ideal gas: at every state on the process, internal energy is the sample's fixed function of absolute temperature alone. This is a general governing law along the whole path; it does not assert that the endpoint energy change is zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Caloric Law.
+\end{proof}
+\begin{definition}[internal Energy Change In Joules]
+  \label{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-internalenergychangeinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0339.internalEnergyChangeInJoules}
+  \uses{def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-energyinjoules, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-idealgaspvprocess, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateata, def:physics:phyx-mini-0339:phyxminiproblems-problemphyxmini0339-stateatb}
+  The endpoint change U\_b - U\_a, read in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy Change In Joules.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

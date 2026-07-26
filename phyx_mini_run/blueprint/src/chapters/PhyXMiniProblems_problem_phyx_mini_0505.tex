@@ -1,0 +1,175 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0505.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0505.source.json
+
+\chapter{Physics problem phyx\_mini\_0505}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0505}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows \textbackslash{}( |\textbackslash{}psi(x)|\textasciicircum{}2 \textbackslash{}) for the electrons in an experiment.
+
+\#\# Question
+
+If \textbackslash{}( 10\textasciicircum{}4 \textbackslash{}) electrons are detected, how many are expected to land in the interval \textbackslash{}( -0.30 \textbackslash{}text\{ cm\} \textbackslash{}leq x \textbackslash{}leq 0.30 \textbackslash{}text\{ cm\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 500
+
+- B: B: 1000
+
+- C: C: 900
+
+- D: D: 1300
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph plotting \textbackslash{}(|\textbackslash{}psi(x)|\textasciicircum{}2\textbackslash{}) against \textbackslash{}(x\textbackslash{}).
+
+- **Axes**: 
+  - The x-axis represents \textbackslash{}(x\textbackslash{}) in centimeters (cm) and ranges from -1 to 1.
+  - The y-axis represents \textbackslash{}(|\textbackslash{}psi(x)|\textasciicircum{}2\textbackslash{}) in inverse centimeters (cm\textbackslash{}(\textasciicircum{}\{-1\}\textbackslash{})) and ranges from 0 to 1.
+
+- **Plot**: 
+  - The function forms a triangular shape.
+  - At \textbackslash{}(x = 0\textbackslash{}), \textbackslash{}(|\textbackslash{}psi(x)|\textasciicircum{}2 = 0\textbackslash{}).
+  - At \textbackslash{}(x = -1\textbackslash{}) and \textbackslash{}(x = 1\textbackslash{}), \textbackslash{}(|\textbackslash{}psi(x)|\textasciicircum{}2 = 1\textbackslash{}).
+  - The lines connecting these points are straight, indicating a linear relationship.
+
+- **Text**:
+  - The y-axis is labeled as \textbackslash{}(|\textbackslash{}psi(x)|\textasciicircum{}2\textbackslash{}) (cm\textbackslash{}(\textasciicircum{}\{-1\}\textbackslash{})).
+  - The x-axis is labeled as \textbackslash{}(x\textbackslash{}) (cm).
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 900
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/505.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0505.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0505:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0505.problem_phyx_mini_0505}
+\uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-probabilitydensityfigureaxes, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-detectionquestionreadout, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchessuppliedprobabilitydensityfigure, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchesdetectionquestion, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-satisfiesbornandcountinglaws, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-displayedexpectedcount}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[position Axis Unit]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-positionaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.positionAxisUnit}
+  The physical length unit used for every position-axis scalar readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Axis Unit.
+\end{proof}
+\begin{definition}[probability Density Dimension]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-probabilitydensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.probabilityDensityDimension}
+  The physical dimension carried by the graph's vertical-axis readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of probability Density Dimension.
+\end{proof}
+\begin{definition}[Electron Position Experiment]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.ElectronPositionExperiment}
+  The physical experiment, represented through calibrated scalar readouts. The argument of waveFunctionInCentimeterCoordinates and probabilityDensityPerCentimeter is the numerical coordinate in centimeters. The complex wavefunction readout therefore has the implicit unit cm⁻¹ᐟ², and its squared modulus has unit cm⁻¹. Interval probabilities are dimensionless. An expected count is real-valued even though the number of detected electrons is natural-valued
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electron Position Experiment.
+\end{proof}
+\begin{definition}[Probability Density Figure Axes]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-probabilitydensityfigureaxes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.ProbabilityDensityFigureAxes}
+  Numerical labels on the position-probability-density plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Probability Density Figure Axes.
+\end{proof}
+\begin{definition}[Detection Question Readout]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-detectionquestionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.DetectionQuestionReadout}
+  Numerical centimeter coordinates defining the interval asked about
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detection Question Readout.
+\end{proof}
+\begin{definition}[Matches Supplied Probability Density Figure]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchessuppliedprobabilitydensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.MatchesSuppliedProbabilityDensityFigure}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-probabilitydensityfigureaxes}
+  The supplied figure has endpoints (-1 cm, 1 cm⁻¹) and (1 cm, 1 cm⁻¹), a node at (0 cm, 0 cm⁻¹), straight segments between those points, and zero density outside [-1 cm, 1 cm]
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Probability Density Figure.
+\end{proof}
+\begin{definition}[Matches Detection Question]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchesdetectionquestion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.MatchesDetectionQuestion}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-detectionquestionreadout}
+  The prose data: 10⁴ detections and the interval [-0.30, 0.30] cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Detection Question.
+\end{proof}
+\begin{definition}[Satisfies Born And Counting Laws]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-satisfiesbornandcountinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.SatisfiesBornAndCountingLaws}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment}
+  General physical laws used in the calculation. The density is the squared modulus of a square-integrable, normalized one-dimensional wavefunction. The Born rule obtains interval probability by integrating that density, and the expected landing count is total detections times interval probability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Born And Counting Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Expected Count]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-displayedexpectedcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.displayedExpectedCount}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-answerchoice}
+  Expected-electron counts printed beside the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Expected Count.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-answerchoice}
+  The answer label recorded in the source dataset, retained as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[queried Interval Probability eq nine Hundredths]
+  \label{lem:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-queriedintervalprobability-eq-ninehundredths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0505.queriedIntervalProbability_eq_nineHundredths}
+  \uses{def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-electronpositionexperiment, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-probabilitydensityfigureaxes, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-detectionquestionreadout, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchessuppliedprobabilitydensityfigure, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-matchesdetectionquestion, def:physics:phyx-mini-0505:phyxminiproblems-problemphyxmini0505-satisfiesbornandcountinglaws}
+  The area under the plotted density over [-0.30, 0.30] cm is 0.09
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of queried Interval Probability eq nine Hundredths.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

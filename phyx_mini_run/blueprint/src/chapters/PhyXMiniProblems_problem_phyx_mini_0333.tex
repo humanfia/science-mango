@@ -1,0 +1,351 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0333.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0333.source.json
+
+\chapter{Physics problem phyx\_mini\_0333}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0333}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In an evacuated enclosure, a vertical cylindrical tank of diameter \$D\$ is sealed by a 3.00\textbackslash{},kg circular disk that can move up and down without friction. Beneath the disk is a quantity of ideal gas at temperature \$T\$ in the cylinder (\textbackslash{}textbf\{figure\}). Initially the disk is at rest at a distance of \$h = 4.00\$\textbackslash{},m above the bottom of the tank. When a lead brick of mass 9.00\textbackslash{},kg is gently placed on the disk, the disk moves downward.
+
+\#\# Question
+
+If the temperature of the gas is kept constant and no gas escapes from the tank, what distance above the bottom of the tank is the disk when it again comes to rest?
+
+\#\# Answer choices
+
+- A: A: 1m
+
+- B: B: 1.5m
+
+- C: C: 1.6m
+
+- D: D: 1.9m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cylindrical container with a cross-sectional view. Inside the container, there is a label "Ideal gas," with the temperature denoted by "T." At the top, there's a flat object labeled "Disk."
+
+The height of the gas column is represented by "h," and the diameter of the container is represented by "D." These dimensions are indicated by double-headed arrows with corresponding labels. The disk appears to sit just above the ideal gas. The overall container is likely illustrating a concept related to thermodynamics or physics involving ideal gases.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/333.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0333.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0333:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0333.finalDiskHeight_eq_one_meter}
+\uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthinmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-matchesproblemandprimaryfigure, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-iskeptisothermalandsealed, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-hasphysicalparameters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-satisfiesidealgasandmechanicallaws}
+When the \(9\,\mathrm{kg}\) brick is placed on the \(3\,\mathrm{kg}\) disk,
+isothermal compression lowers the gas-column height from \(4\,\mathrm m\) to
+\(1\,\mathrm m\), answer A.
+\end{theorem}
+\begin{proof}
+The evacuated upper chamber makes the equilibrium gas pressure equal to
+supported weight divided by disk area.  Thus the initial and final pressures
+are \(3g/A\) and \(12g/A\).  The gas is sealed and isothermal, so its ideal-gas
+law gives \(P_iV_i=P_fV_f\).  Since cylindrical volume is \(Ah\), positivity
+of \(A\) and \(g\) permits cancellation:
+\[
+ 3(4)=12h_f.
+\]
+Therefore \(h_f=1\,\mathrm m\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.LengthQuantity}
+  A physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.MassQuantity}
+  A physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.AreaQuantity}
+  A nonnegative physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.VolumeQuantity}
+  A physical volume, carrying the length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.PressureQuantity}
+  A physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.AccelerationQuantity}
+  A physical acceleration, used for the local gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.TemperatureQuantity}
+  An absolute-temperature quantity carrying Physlib's temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.MolarGasConstantQuantity}
+  The molar gas constant, with energy-per-temperature dimension. Its omitted inverse-mole dimension is paired with the explicitly molar scalar readout in amountOfGasMoles below because Physlib currently has no amount-of-substance component in Dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.lengthInMeters}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.massInKilograms}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areaquantity}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.pressureInPascals}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationquantity}
+  Metres-per-second-squared readout of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.temperatureInKelvin}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperaturequantity}
+  Kelvin readout of a dimensionful temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[molar Gas Constant In SI]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.molarGasConstantInSI}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantquantity}
+  SI readout of the molar gas constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In SI.
+\end{proof}
+\begin{definition}[Equilibrium State]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-equilibriumstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.EquilibriumState}
+  The two rest states compared in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equilibrium State.
+\end{proof}
+\begin{definition}[Tank Shape]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-tankshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.TankShape}
+  Shape of the tank indicated by the primary figure and prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Shape.
+\end{proof}
+\begin{definition}[Disk Shape]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-diskshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.DiskShape}
+  Shape of the movable seal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Shape.
+\end{proof}
+\begin{definition}[Disk Guide]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-diskguide}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.DiskGuide}
+  Constraint on the disk's allowed motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Guide.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.GasModel}
+  Material model of the gas under the disk
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Above Disk Medium]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-abovediskmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.AboveDiskMedium}
+  Medium above the disk inside the outer enclosure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Above Disk Medium.
+\end{proof}
+\begin{definition}[Brick Placement Protocol]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-brickplacementprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.BrickPlacementProtocol}
+  How the additional load is applied
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Brick Placement Protocol.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.VerticalDirection}
+  Vertical direction of the disk immediately after the brick is placed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Isothermal Disk Tank]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.IsothermalDiskTank}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthquantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massquantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areaquantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumequantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressurequantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationquantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperaturequantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantquantity, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-equilibriumstate, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-tankshape, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-diskshape, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-diskguide, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-gasmodel, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-abovediskmedium, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-brickplacementprotocol, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-verticaldirection}
+  The tank, disk, brick, gas variables, and labels D, h, and T appearing in the problem and primary figure. The two cases of EquilibriumState represent the initially resting disk and the disk when it again comes to rest. Their heights are independent fields; in particular, the final height is not assigned its requested value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Isothermal Disk Tank.
+\end{proof}
+\begin{definition}[supported Mass In Kilograms]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-supportedmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.supportedMassInKilograms}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massinkilograms, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-equilibriumstate, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank}
+  The mass supported by the gas in each rest state. This definition only unpacks which bodies are present; it does not prescribe either gas height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of supported Mass In Kilograms.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthinmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massinkilograms, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areainsquaremeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressureinpascals, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank}
+  Qualitative model choices, the three numerical readouts, and the primary figure's circular cross-section relation. The final height does not occur
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Is Kept Isothermal And Sealed]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-iskeptisothermalandsealed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.IsKeptIsothermalAndSealed}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperatureinkelvin, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank}
+  The stated isothermal and sealed operating conditions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Kept Isothermal And Sealed.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthinmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-massinkilograms, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areainsquaremeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumeincubicmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressureinpascals, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperatureinkelvin, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantinsi, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank}
+  Positivity conditions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas And Mechanical Laws]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-satisfiesidealgasandmechanicallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.SatisfiesIdealGasAndMechanicalLaws}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-lengthinmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-areainsquaremeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-volumeincubicmeters, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-pressureinpascals, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-temperatureinkelvin, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-molargasconstantinsi, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-isothermaldisktank, def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-supportedmassinkilograms}
+  The governing cylinder-geometry, ideal-gas, and static force-balance laws. The ideal-gas equation is written in compatible SI readouts as P V = n R T. The equilibrium equation is (P\_gas - P\_above) A = m\_supported g; the vacuum pressure itself is supplied separately by MatchesProblemAndPrimaryFigure. Neither law fixes the final height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas And Mechanical Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Height In Meters]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-answerheightinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.answerHeightInMeters}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-answerchoice}
+  Metre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Height In Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0333.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0333:phyxminiproblems-problemphyxmini0333-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

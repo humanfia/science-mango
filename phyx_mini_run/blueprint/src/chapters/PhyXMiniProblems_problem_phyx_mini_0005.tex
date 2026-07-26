@@ -1,0 +1,132 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0005.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0005.source.json
+
+\chapter{Physics problem phyx\_mini\_0005}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0005}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A person looking into an empty container is able to see the far edge of the container's bottom as shown in figure. The height of the container is \textbackslash{}( h \textbackslash{}), and its width is \textbackslash{}( d \textbackslash{}). When the container is completely filled with a fluid of index of refraction \textbackslash{}( n \textbackslash{}) and viewed from the same angle, the person can see the center of a coin at the middle of the container’s bottom
+
+\#\# Question
+
+For what range of values of \textbackslash{}( n \textbackslash{}) will the center of the coin not be visible for any values of \textbackslash{}( h \textbackslash{}) and \textbackslash{}( d \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( n>2.5 \textbackslash{})
+
+- B: B: \textbackslash{}( n>1.5 \textbackslash{})
+
+- C: C: \textbackslash{}( n>2 \textbackslash{})
+
+- D: D: \textbackslash{}( n>5 \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a vertical cross-section of a transparent container, such as a glass, with a coin at the bottom. 
+
+Key elements include:
+
+1. **Container**: It has slightly curved sides and is open at the top.
+2. **Coin**: Located at the bottom center of the container.
+3. **Eye**: Positioned above and to the side of the container, observing the coin.
+4. **Arrow**: A blue arrow represents the line of sight from the eye to the coin.
+5. **Text and Labels**:
+   - The height from the top of the container to the coin is labeled as \textbackslash{}( h \textbackslash{}).
+   - The horizontal distance from the side of the container to the point where the line of sight enters the container is labeled as \textbackslash{}( d \textbackslash{}).
+
+The diagram likely illustrates a concept related to optics or refraction.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( n>2 \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/5.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0005.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0005:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0005.refractiveIndex_gt_two_makes_coinCenter_invisible}
+\uses{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-containergeometry, def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-emptycontainerfaredgesightline, def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-coincentervisibleatsameviewingangle}
+If the fluid refractive index is greater than \(2\), then for every positive
+container height and width the coin centre cannot be visible at the same
+external angle from which the far bottom edge was visible in the empty
+container.
+\end{theorem}
+\begin{proof}
+Write \(x=d/h\), which is positive.  The empty-container sightline gives
+\(\tan\alpha=x\), whereas visibility of the bottom midpoint would give an
+acute fluid angle \(\beta\) with \(\tan\beta=x/2\).  For an acute angle
+\(\theta\),
+\[
+  \sin\theta=\frac{\tan\theta}{\sqrt{1+\tan^2\theta}}.
+\]
+Consequently
+\[
+ \frac{\sin\alpha}{\sin\beta}
+ =\frac{\sqrt{4+x^2}}{\sqrt{1+x^2}}<2,
+\]
+where the strict inequality follows after squaring from \(x>0\).  Both sines
+are positive.  Snell's law would therefore force the fluid refractive index
+to equal this ratio and hence be less than \(2\), contradicting the assumed
+strict lower bound.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[si Length Value]
+  \label{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-silengthvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0005.siLengthValue}
+  The real-valued readout of a physical length when it is expressed in SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of si Length Value.
+\end{proof}
+\begin{definition}[Container Geometry]
+  \label{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-containergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0005.ContainerGeometry}
+  \uses{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-silengthvalue}
+  The dimensionful labels in the container cross-section. The coin is at the midpoint of the bottom segment of length width; height is the vertical distance from the bottom to the horizontal fluid surface and viewing rim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Geometry.
+\end{proof}
+\begin{definition}[Snell Law At Fluid Air Interface]
+  \label{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-snelllawatfluidairinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0005.SnellLawAtFluidAirInterface}
+  Snell's law for a ray leaving a fluid through its horizontal surface into air of refractive index one. The refractive index is dimensionless, and both angle readouts are real numbers measured in radians from the surface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Fluid Air Interface.
+\end{proof}
+\begin{definition}[Empty Container Far Edge Sightline]
+  \label{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-emptycontainerfaredgesightline}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0005.EmptyContainerFarEdgeSightline}
+  \uses{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-silengthvalue, def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-containergeometry}
+  The empty-container figure readout at the fixed viewing angle: the sightline through the near top rim reaches the far bottom edge, so its horizontal run is the full width d and its vertical run is the height h
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Empty Container Far Edge Sightline.
+\end{proof}
+\begin{definition}[Coin Center Visible At Same Viewing Angle]
+  \label{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-coincentervisibleatsameviewingangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0005.CoinCenterVisibleAtSameViewingAngle}
+  \uses{def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-silengthvalue, def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-containergeometry, def:physics:phyx-mini-0005:phyxminiproblems-problemphyxmini0005-snelllawatfluidairinterface}
+  The center of the coin is visible at the same external viewing angle when an acute ray from the bottom midpoint to the near top rim has the figure-imposed half-width slope and obeys Snell's law at the fluid--air interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coin Center Visible At Same Viewing Angle.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

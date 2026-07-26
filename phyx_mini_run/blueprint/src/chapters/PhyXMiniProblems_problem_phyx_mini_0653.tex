@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0653.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0653.source.json
+
+\chapter{Physics problem phyx\_mini\_0653}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0653}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the probability density for finding a particle at position \$x\$.
+
+\#\# Question
+
+At what value of \$x\$ are you most likely to find the particle?
+
+\#\# Answer choices
+
+- A: A: 1 cm
+
+- B: B: -1 cm
+
+- C: C: 0 cm
+
+- D: D: 2 cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a plot depicting a triangular function. The horizontal axis is labeled \textbackslash{}(x \textbackslash{}, (\textbackslash{}text\{cm\})\textbackslash{}), ranging from -4 to 4. The vertical axis indicates \textbackslash{}(P(x)\textbackslash{}).
+
+The triangle is centered on the vertical line at \textbackslash{}(x = 0\textbackslash{}) and reaches its peak at this point, represented by a vertical line extending from the x-axis upwards, labeled with "a". The apex of the triangle is further labeled \textbackslash{}(P(x)\textbackslash{}).
+
+The triangle's base runs along the x-axis from -4 to 4, with its sides sloping down linearly from the apex to the endpoints of the base on both sides.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0 cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/653.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0653.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0653:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0653.problem_phyx_mini_0653}
+\uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-particlepositionexperiment, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-matchessuppliedpositiondensityfigure, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-figureplotstriangularpositiondensity, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-satisfiespositionprobabilitylaws, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquemostlikelycoordinatecm, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquecorrectanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.PositionQuantity}
+  A signed, unit-independent position on the one-dimensional axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Probability Density Quantity]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-probabilitydensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.ProbabilityDensityQuantity}
+  A nonnegative position-probability density, carrying inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Probability Density Quantity.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.positionReadout}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionquantity}
+  Numerical coordinate of a physical position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.densityReadout}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-probabilitydensityquantity}
+  Numerical density in the reciprocal of the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[position From Centimeters]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionfromcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.positionFromCentimeters}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionquantity}
+  Construct a physical position from its centimetre coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position From Centimeters.
+\end{proof}
+\begin{definition}[One Dimensional Position Distribution]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.OneDimensionalPositionDistribution}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionquantity, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-probabilitydensityquantity}
+  A particle's one-dimensional position distribution. The density and the dimensionless probability assigned to coordinate events are independent observables; the physical laws below relate them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of One Dimensional Position Distribution.
+\end{proof}
+\begin{definition}[density At Centimeter Coordinate]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityatcentimetercoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.densityAtCentimeterCoordinate}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityreadout, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionfromcentimeters, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution}
+  Probability-density readout at a coordinate whose numerical value is in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density At Centimeter Coordinate.
+\end{proof}
+\begin{definition}[Density Curve Shape]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densitycurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.DensityCurveShape}
+  The qualitative curve shape visible in the supplied plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Density Curve Shape.
+\end{proof}
+\begin{definition}[Horizontal Tick Label]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-horizontalticklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.HorizontalTickLabel}
+  Labels of the five horizontal tick marks visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Tick Label.
+\end{proof}
+\begin{definition}[Position Density Figure]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positiondensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.PositionDensityFigure}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionquantity, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-probabilitydensityquantity, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densitycurveshape, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-horizontalticklabel}
+  Axis labels, units, ticks, landmarks, and the apex-height label shown in image 653.png. The physical apex density is not assigned a numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Density Figure.
+\end{proof}
+\begin{definition}[Particle Position Experiment]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-particlepositionexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.ParticlePositionExperiment}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positiondensityfigure}
+  The particle distribution together with the graph that presents it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Position Experiment.
+\end{proof}
+\begin{definition}[Matches Supplied Position Density Figure]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-matchessuppliedpositiondensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.MatchesSuppliedPositionDensityFigure}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionreadout, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positiondensityfigure}
+  Text, centimetre calibration, tick labels, and plotted landmark positions read from the primary image. This records that the triangle's apex is drawn above the origin, but does not assert that the origin is the most likely position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Position Density Figure.
+\end{proof}
+\begin{definition}[Figure Plots Triangular Position Density]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-figureplotstriangularpositiondensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.FigurePlotsTriangularPositionDensity}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-positionreadout, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityreadout, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityatcentimetercoordinate, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-particlepositionexperiment}
+  The plotted curve is zero outside its base and is the linear interpolation from the left intercept to the positive height a, then back to the right intercept. This is primary-figure evidence; it contains no most-likely position or answer-choice conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Plots Triangular Position Density.
+\end{proof}
+\begin{definition}[Satisfies Position Probability Laws]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-satisfiespositionprobabilitylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.SatisfiesPositionProbabilityLaws}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityatcentimetercoordinate}
+  Normalization and the governing relation between a position density and the dimensionless probability of a measurable coordinate event. Nonnegativity is built into ProbabilityDensityQuantity through its NNReal value type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Position Probability Laws.
+\end{proof}
+\begin{definition}[Is Most Likely Coordinate Cm]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-ismostlikelycoordinatecm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.IsMostLikelyCoordinateCm}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-densityatcentimetercoordinate}
+  A centimetre coordinate is most likely precisely when the displayed density has a global maximum there. IsMaxOn states the governing maximization criterion without selecting a coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Most Likely Coordinate Cm.
+\end{proof}
+\begin{definition}[Is Unique Most Likely Coordinate Cm]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquemostlikelycoordinatecm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.IsUniqueMostLikelyCoordinateCm}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-ismostlikelycoordinatecm}
+  The displayed density has exactly one most-likely centimetre coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Most Likely Coordinate Cm.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Position Cm]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-displayedpositioncm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.displayedPositionCm}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-answerchoice}
+  Centimetre coordinate printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Position Cm.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Correct Answer]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-iscorrectanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.IsCorrectAnswer}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquemostlikelycoordinatecm, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-answerchoice, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-displayedpositioncm}
+  A displayed choice names the distribution's unique most-likely coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Answer.
+\end{proof}
+\begin{definition}[Is Unique Correct Answer]
+  \label{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquecorrectanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.IsUniqueCorrectAnswer}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-onedimensionalpositiondistribution, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-answerchoice, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-iscorrectanswer}
+  The selected displayed choice is the only choice satisfying the physical criterion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Correct Answer.
+\end{proof}
+\begin{lemma}[supplied Triangle unique Most Likely Coordinate]
+  \label{lem:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-suppliedtriangle-uniquemostlikelycoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0653.suppliedTriangle_uniqueMostLikelyCoordinate}
+  \uses{def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-particlepositionexperiment, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-matchessuppliedpositiondensityfigure, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-figureplotstriangularpositiondensity, def:physics:phyx-mini-0653:phyxminiproblems-problemphyxmini0653-isuniquemostlikelycoordinatecm}
+  The positive symmetric triangular profile has its unique global density maximum at the figure's apex, whose primary-image coordinate is 0 cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of supplied Triangle unique Most Likely Coordinate.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

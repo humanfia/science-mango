@@ -1,0 +1,200 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0301.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0301.source.json
+
+\chapter{Physics problem phyx\_mini\_0301}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0301}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A single pulse, given by \$h(x - 5.0t)\$, is shown in figure for \$t = 0\$. The scale of the vertical axis is set by \$h\_s = 2\$. Here \$x\$ is in centimeters and \$t\$ is in seconds.
+
+\#\# Question
+
+What is the speed of travel of the pulse?
+
+\#\# Answer choices
+
+- A: A: 4.2 cm/s
+
+- B: B: 4.5 cm/s
+
+- C: C: 4.7 cm/s
+
+- D: D: 5.0 cm/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph plotting \textbackslash{}( h(x) \textbackslash{}) against \textbackslash{}( x \textbackslash{}). 
+
+\#\#\# Key Details:
+- **Axes**:
+  - The horizontal axis is labeled \textbackslash{}( x \textbackslash{}) and ranges from 0 to 5.
+  - The vertical axis is labeled \textbackslash{}( h(x) \textbackslash{}) and starts at 0.
+  
+- **Graph**:
+  - A piecewise linear function is drawn in bold.
+  - The graph starts at (0,0), remains at height 0 until \textbackslash{}( x = 1 \textbackslash{}), increases linearly to a peak at \textbackslash{}( (3, h\_s) \textbackslash{}), then decreases back to height 0 at \textbackslash{}( x = 5 \textbackslash{}).
+  
+- **Lines**:
+  - A dashed horizontal line at height \textbackslash{}( h\_s \textbackslash{}) extends from the y-axis to the peak at \textbackslash{}( x = 3 \textbackslash{}).
+  - A vertical dashed line from the peak down to the x-axis at \textbackslash{}( x = 3 \textbackslash{}).
+
+- **Text**:
+  - The peak height is labeled \textbackslash{}( h\_s \textbackslash{}).
+  - To the right of the peak, there is additional text: \textbackslash{}( t = 0 \textbackslash{}).
+
+- **Grid**:
+  - A faint grid is visible, aiding in reading values from the graph.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 5.0 cm/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/301.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0301.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0301:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0301.pulse_travel_speed}
+\uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedincentimeterspersecond, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-travelingpulsesetup, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-matchesproblemandfigurereadouts, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-obeystranslatedpulselaw, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-hasconstantspeedcrestkinematics, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-answerchoicespeedincentimeterspersecond}
+The translated pulse travels rightward at $5$ centimetres per second, which is displayed choice D.
+\end{theorem}
+\begin{proof}
+The initial triangular profile has its unique scale-height crest at $x=3$.  In the translated profile $h(x-5t)$, the unique crest is therefore at $x=3+5t$.  Constant-speed rightward crest kinematics gives the same position as $x=3+vt$.  Compare at any positive time, for example $t=1$, to obtain $v=5$ centimetres per second.  The answer table assigns $5.0$ to choice D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.SpeedQuantity}
+  A nonnegative physical speed, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.speedReadout}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedquantity}
+  Read a physical speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Centimeters Per Second]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedincentimeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.speedInCentimetersPerSecond}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedquantity, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedreadout}
+  The speed readout in the units used by the problem, centimeters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Centimeters Per Second.
+\end{proof}
+\begin{definition}[Pulse Figure Label]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-pulsefigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.PulseFigureLabel}
+  Textual and symbolic labels visibly printed in the pulse raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulse Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.HorizontalDirection}
+  Direction along the one-dimensional horizontal coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[direction Sign]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-directionsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.directionSign}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-horizontaldirection}
+  Sign used to turn a nonnegative speed readout into an axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of direction Sign.
+\end{proof}
+\begin{definition}[Pulse Figure]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-pulsefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.PulseFigure}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-pulsefigurelabel}
+  All numerical geometry read directly from the primary raster. Coordinates have an Cm suffix because the horizontal axis is in centimeters. No physical unit is stated for the vertical pulse height, so it remains a scalar readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulse Figure.
+\end{proof}
+\begin{definition}[Traveling Pulse Setup]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-travelingpulsesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.TravelingPulseSetup}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedquantity, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-horizontaldirection, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-pulsefigure}
+  The independent physical and scalar quantities in the pulse model. translationCoefficientCmPerSecond is the coefficient printed in the phase argument; it is kept separate from the physical propagationSpeed. Their connection is supplied only by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traveling Pulse Setup.
+\end{proof}
+\begin{definition}[triangular Pulse Profile]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-triangularpulseprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.triangularPulseProfile}
+  The piecewise-linear scalar profile encoded by the three marked positions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of triangular Pulse Profile.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-travelingpulsesetup, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-triangularpulseprofile}
+  Problem-text and primary-raster readouts. In particular, translationCoefficient records the given 5.0 in h(x - 5.0 t); it does not assert the requested physical speed. The right foot is x = 4 in the raster, while x = 5 is only the right end of the displayed horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Obeys Translated Pulse Law]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-obeystranslatedpulselaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.ObeysTranslatedPulseLaw}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-travelingpulsesetup}
+  The governing translated-profile law supplied by the expression h(x - 5t). It uses the independently stored phase coefficient and does not assert a numerical value for the physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Translated Pulse Law.
+\end{proof}
+\begin{definition}[Has Constant Speed Crest Kinematics]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-hasconstantspeedcrestkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.HasConstantSpeedCrestKinematics}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-speedincentimeterspersecond, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-directionsign, def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-travelingpulsesetup}
+  General constant-speed crest kinematics. The crest is characterized by the displayed scale height, and its axial displacement is signed physical speed times elapsed time. This law does not identify the speed with the translation coefficient or with 5
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Constant Speed Crest Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.AnswerChoice}
+  The four displayed multiple-choice alternatives
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Speed In Centimeters Per Second]
+  \label{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-answerchoicespeedincentimeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0301.answerChoiceSpeedInCentimetersPerSecond}
+  \uses{def:physics:phyx-mini-0301:phyxminiproblems-problemphyxmini0301-answerchoice}
+  Numerical speed readout printed beside each answer choice, in cm/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Speed In Centimeters Per Second.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,218 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0002.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0002.source.json
+
+\chapter{Physics problem phyx\_mini\_0002}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0002}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The two mirrors illustrated in figure meet at a right angle. The beam of light in the vertical plane indicated by the dashed lines strikes mirror 1 as shown.
+
+\#\# Question
+
+Determine the distance the reflected light beam travels before striking mirror 2.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 1.30 \textbackslash{}text\{ m\} \textbackslash{})
+
+- B: B: \textbackslash{}( 3.34 \textbackslash{}text\{ m\} \textbackslash{})
+
+- C: C: \textbackslash{}( 1.94 \textbackslash{}text\{ m\} \textbackslash{})
+
+- D: D: \textbackslash{}( 2.08 \textbackslash{}text\{ m\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows two perpendicular mirrors labeled "Mirror 1" and "Mirror 2." They form a 90-degree angle with each other. A blue ray of light approaches the corner where the mirrors meet, striking Mirror 1. The angle of incidence with respect to Mirror 1 is shown as 40.0 degrees. The distance from the corner along Mirror 1 to the point of incidence is marked as 1.25 meters. Dotted lines outline the path and angles related to the light ray’s interaction with the mirrors.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 1.94 \textbackslash{}text\{ m\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0002.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0002:target}
+\lean{PhyXMiniProblems.Problem0002.reflected_light_distance_is_choice_C}
+\uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-metres, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-simetres, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-physicaldistance, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-degrees, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-configuration, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-answermetres}
+For two perpendicular plane mirrors, a ray striking mirror 1 at a point
+\(1.25\,\mathrm m\) from their corner and at \(40^\circ\) to its normal
+travels \(1.25/\sin40^\circ\) metres after reflection before reaching mirror
+2.  This distance rounds to \(1.94\,\mathrm m\), answer C.
+\end{theorem}
+\begin{proof}
+Restrict the configuration to the supplied two-dimensional vertical section.
+The mirror normals are perpendicular, and specular reflection preserves the
+\(40^\circ\) angle with mirror 1's normal.  The reflected segment, the
+\(1.25\,m\) corner-to-impact segment, and the segment of mirror 2 form a right
+triangle; the side opposite the reflected angle is \(1.25\,m\).  Hence
+\(\sin40^\circ=1.25/\ell\), where \(\ell\) is the reflected travel distance,
+and positivity gives \(\ell=1.25/\sin40^\circ\).  Certified sine bounds show
+\(1.935<\ell<1.945\), yielding the printed \(1.94\,m\) tolerance.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Space]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space}
+  \lean{PhyXMiniProblems.Problem0002.Space}
+  The Euclidean space containing both mirrors and the light rays. Coordinates are read in metres when they are converted to physical lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Space.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lengthquantity}
+  \lean{PhyXMiniProblems.Problem0002.LengthQuantity}
+  A physical quantity with the dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[metres]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-metres}
+  \lean{PhyXMiniProblems.Problem0002.metres}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lengthquantity}
+  Turn an SI-metre readout into a dimensionful physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of metres.
+\end{proof}
+\begin{definition}[si Metres]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-simetres}
+  \lean{PhyXMiniProblems.Problem0002.siMetres}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lengthquantity}
+  The SI-metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of si Metres.
+\end{proof}
+\begin{definition}[physical Distance]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-physicaldistance}
+  \lean{PhyXMiniProblems.Problem0002.physicalDistance}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lengthquantity, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-metres}
+  The physical distance between two points whose coordinates are SI-metre readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of physical Distance.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-degrees}
+  \lean{PhyXMiniProblems.Problem0002.degrees}
+  Convert the angle read from the figure in degrees to the radians used by Mathlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Light Ray]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray}
+  \lean{PhyXMiniProblems.Problem0002.LightRay}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space}
+  An oriented light ray with a unit direction vector. Its nonnegative parameter in pointAt is therefore the travelled distance in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Light Ray.
+\end{proof}
+\begin{definition}[point At]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray-pointat}
+  \lean{PhyXMiniProblems.Problem0002.LightRay.pointAt}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray}
+  The point reached after the given signed SI-metre parameter along a light ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of point At.
+\end{proof}
+\begin{definition}[Plane Mirror]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror}
+  \lean{PhyXMiniProblems.Problem0002.PlaneMirror}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space}
+  An ideal plane mirror. The final field says that unitNormal really characterizes the codimension-one direction of the reflecting surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Mirror.
+\end{proof}
+\begin{definition}[reflect Direction]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror-reflectdirection}
+  \lean{PhyXMiniProblems.Problem0002.PlaneMirror.reflectDirection}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror}
+  Reflect a propagation direction in the affine plane of a mirror. Translating the direction to a point of incidence and back lets us directly use Mathlib's affine reflection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflect Direction.
+\end{proof}
+\begin{definition}[Is Incident At]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-isincidentat}
+  \lean{PhyXMiniProblems.Problem0002.IsIncidentAt}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray-pointat, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror}
+  The incident ray reaches the indicated point on the indicated mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Incident At.
+\end{proof}
+\begin{definition}[Strikes At]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-strikesat}
+  \lean{PhyXMiniProblems.Problem0002.StrikesAt}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray-pointat, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror}
+  The ray strikes the indicated mirror at a strictly positive distance from its origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Strikes At.
+\end{proof}
+\begin{definition}[Is Specular Reflection At]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-isspecularreflectionat}
+  \lean{PhyXMiniProblems.Problem0002.IsSpecularReflectionAt}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror-reflectdirection, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-isincidentat}
+  The governing law of specular reflection at Mirror 1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Specular Reflection At.
+\end{proof}
+\begin{definition}[Meet At Right Angle]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-meetatrightangle}
+  \lean{PhyXMiniProblems.Problem0002.MeetAtRightAngle}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror}
+  The two plane mirrors share the marked corner and have orthogonal unit normals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Meet At Right Angle.
+\end{proof}
+\begin{definition}[Configuration]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-configuration}
+  \lean{PhyXMiniProblems.Problem0002.Configuration}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-space, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-metres, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-physicaldistance, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-degrees, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-lightray, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-planemirror, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-strikesat, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-isspecularreflectionat, def:physics:phyx-mini-0002:phyxminiproblems-problem0002-meetatrightangle}
+  All physical objects and figure readouts for the dashed vertical cross-section. In particular, no field gives the requested reflected travel distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Configuration.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-answerchoice}
+  \lean{PhyXMiniProblems.Problem0002.AnswerChoice}
+  Labels of the four multiple-choice answers shown with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Metres]
+  \label{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-answermetres}
+  \lean{PhyXMiniProblems.Problem0002.answerMetres}
+  \uses{def:physics:phyx-mini-0002:phyxminiproblems-problem0002-answerchoice}
+  The SI-metre readout printed next to each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Metres.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

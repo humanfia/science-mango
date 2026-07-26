@@ -1,0 +1,470 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0406.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0406.source.json
+
+\chapter{Physics problem phyx\_mini\_0406}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0406}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A beaker with a metal bottom is filled with 20 \$	ext\{g\}\$ of water at 20 \$\textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$. It is brought into good thermal contact with a 4000 \$	ext\{cm\}\textasciicircum{}3\$ container holding 0.40 \$	ext\{mol\}\$ of a monatomic gas at 10 \$	ext\{atm\}\$ pressure. Both containers are well insulated from their surroundings.You can assume that the containers themselves are nearly massless and do not affect the outcome.
+
+\#\# Question
+
+What is the gas pressure after a long time has elapsed?
+
+\#\# Answer choices
+
+- A: A: 5.0 atm
+
+- B: B: 10.0 atm
+
+- C: C: 2.8 atm
+
+- D: D: 1.0 atm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram showcasing a cross-sectional view of a container. It contains several labeled components:
+
+1. **Water**: A blue section at the top, labeled "Water."
+2. **Gas**: A larger yellow section beneath the blue section, labeled "Gas."
+3. **Thin Metal**: A thin black line separating the water and gas sections, labeled "Thin metal."
+4. **Insulation**: Surrounding both the water and gas sections is a gray area with small dots, labeled "Insulation."
+
+The diagram visually distinguishes each material using color and texture, and labels indicate their respective positions and materials.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 2.8 atm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/406.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0406.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0406:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0406.problem_phyx_mini_0406}
+\uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesinsulatedgaswaterscenario, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchessuppliedthermalcontactfigure, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesproblemreadouts, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-usesreferencewaterthermaldata, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-satisfiesinsulatedgaswaterlaws, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-recordeddatasetanswer, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-roundstodisplayedpressure, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-isuniqueclosestdisplayedpressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumedimension}
+  A nonnegative, unit-independent physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.AmountOfSubstanceScale}
+  An abstract physical amount-of-substance scale with a calibrated mole readout. The carrier is not identified with a bare real number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[Specific Heat Capacity Scale]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.SpecificHeatCapacityScale}
+  An abstract scale for mass-specific heat capacity, calibrated in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Heat Capacity Scale.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.massReadout}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[volume Readout]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.volumeReadout}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity}
+  Read a physical volume in the cube of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Readout.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.pressureInPascals}
+  Read a dimensionful pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.energyInJoules}
+  Read a dimensionful energy in coherent SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.massInGrams}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massreadout}
+  Gram readout used for the water mass in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.massInKilograms}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massreadout}
+  Kilogram readout used by the calorimetry law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumereadout}
+  Cubic-centimetre readout used for the gas-container volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumereadout}
+  Cubic-metre readout used by the SI ideal-gas law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.temperatureInKelvin}
+  Kelvin readout of Physlib's absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureinkelvin}
+  Celsius readout obtained from the absolute kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[pressure In Standard Atmospheres]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.pressureInStandardAtmospheres}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals}
+  Pressure as a multiple of Physlib's standard atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Standard Atmospheres.
+\end{proof}
+\begin{definition}[universal Molar Gas Constant J per mol K]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-universalmolargasconstant-j-per-mol-k}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.universalMolarGasConstant_J_per_mol_K}
+  Universal molar gas constant, read in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of universal Molar Gas Constant J per mol K.
+\end{proof}
+\begin{definition}[Thermal Stage]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-thermalstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.ThermalStage}
+  The given initial state and the equilibrium state reached after a long time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Stage.
+\end{proof}
+\begin{definition}[Gas Constitution]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-gasconstitution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.GasConstitution}
+  The constitution of the gas named in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Constitution.
+\end{proof}
+\begin{definition}[Interface Material]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-interfacematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.InterfaceMaterial}
+  Material forming the thermally conducting interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Interface Material.
+\end{proof}
+\begin{definition}[Thermal Contact Quality]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-thermalcontactquality}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.ThermalContactQuality}
+  Quality of thermal contact across the beaker bottom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Contact Quality.
+\end{proof}
+\begin{definition}[Exterior Boundary Condition]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-exteriorboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.ExteriorBoundaryCondition}
+  Thermal condition of the apparatus boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exterior Boundary Condition.
+\end{proof}
+\begin{definition}[Container Thermal Mass Model]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-containerthermalmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.ContainerThermalMassModel}
+  Thermal-mass idealization for the beaker and gas container
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Thermal Mass Model.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.FigureLabel}
+  Literal labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.FigureRegion}
+  The two material regions vertically separated by the thin metal line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Figure Region Content]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figureregioncontent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.FigureRegionContent}
+  Material shown in a region of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region Content.
+\end{proof}
+\begin{definition}[Supplied Thermal Contact Figure]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-suppliedthermalcontactfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.SuppliedThermalContactFigure}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figurelabel, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figureregion, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-figureregioncontent}
+  Qualitative information retained from the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Thermal Contact Figure.
+\end{proof}
+\begin{definition}[Gas State]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-gasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.GasState}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity}
+  A thermodynamic state of the monatomic gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas State.
+\end{proof}
+\begin{definition}[Water State]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-waterstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.WaterState}
+  A thermal state of the water
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water State.
+\end{proof}
+\begin{definition}[Insulated Gas Water Setup]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.InsulatedGasWaterSetup}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-thermalstage, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-gasconstitution, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-interfacematerial, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-thermalcontactquality, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-exteriorboundarycondition, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-containerthermalmassmodel, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-suppliedthermalcontactfigure, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-gasstate, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-waterstate}
+  All independent physical quantities of the experiment. The final gas pressure is an unknown observable inside the final GasState; it is not defined from an answer choice or requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Insulated Gas Water Setup.
+\end{proof}
+\begin{definition}[Matches Insulated Gas Water Scenario]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesinsulatedgaswaterscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.MatchesInsulatedGasWaterScenario}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  Qualitative apparatus and material assumptions stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Insulated Gas Water Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Thermal Contact Figure]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchessuppliedthermalcontactfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.MatchesSuppliedThermalContactFigure}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-suppliedthermalcontactfigure}
+  Qualitative labels and geometry read directly from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Thermal Contact Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massingrams, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubiccentimeters, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureindegreescelsius, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  Numerical data stated in the problem; no final pressure occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Reference Water Thermal Data]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-usesreferencewaterthermaldata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.UsesReferenceWaterThermalData}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  Supplemental textbook thermal data needed for the numerical calculation. The problem expects this material property rather than printing it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Reference Water Thermal Data.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massinkilograms, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubicmeters, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureinkelvin, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  Positivity and nondegeneracy conditions for physical observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Insulated Gas Water Laws]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-satisfiesinsulatedgaswaterlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.SatisfiesInsulatedGasWaterLaws}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-energyinjoules, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massinkilograms, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubicmeters, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureinkelvin, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-universalmolargasconstant-j-per-mol-k, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup}
+  Governing thermodynamic relations in coherent SI readouts: rigid volume, PV = nRT, monatomic-gas internal energy, water calorimetry, conservation of the isolated gas--water energy, and common long-time temperature. None contains a numerical final pressure or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Insulated Gas Water Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.AnswerChoice}
+  Labels of the four gas-pressure choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-displayedpressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.displayedPressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice}
+  Pressure in standard atmospheres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Atmospheres.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice}
+  The dataset's recorded answer, retained only as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Pressure]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-roundstodisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.RoundsToDisplayedPressure}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-displayedpressureinatmospheres}
+  A displayed pressure agrees after rounding to one decimal place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Pressure.
+\end{proof}
+\begin{definition}[Is Closest Displayed Pressure]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-isclosestdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.IsClosestDisplayedPressure}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-displayedpressureinatmospheres}
+  A choice is at least as close as every displayed pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Pressure.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Pressure]
+  \label{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-isuniqueclosestdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.IsUniqueClosestDisplayedPressure}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-answerchoice, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-isclosestdisplayedpressure}
+  The selected answer is the unique closest displayed pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Pressure.
+\end{proof}
+\begin{lemma}[mass In Kilograms eq mass In Grams div thousand]
+  \label{lem:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massinkilograms-eq-massingrams-div-thousand}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.massInKilograms_eq_massInGrams_div_thousand}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massquantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massingrams, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-massinkilograms}
+  Unit-conversion consequences of the dimensional quantity types
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mass In Kilograms eq mass In Grams div thousand.
+\end{proof}
+\begin{lemma}[volume In Cubic Meters eq volume In Cubic Centimeters div million]
+  \label{lem:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubicmeters-eq-volumeincubiccentimeters-div-million}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.volumeInCubicMeters_eq_volumeInCubicCentimeters_div_million}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumequantity, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubiccentimeters, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-volumeincubicmeters}
+  This lemma records the volume In Cubic Meters eq volume In Cubic Centimeters div million component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of volume In Cubic Meters eq volume In Cubic Centimeters div million.
+\end{proof}
+\begin{lemma}[pressure In Pascals eq atmospheres mul standard Atmosphere]
+  \label{lem:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals-eq-atmospheres-mul-standardatmosphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.pressureInPascals_eq_atmospheres_mul_standardAtmosphere}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinpascals, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres}
+  This lemma records the pressure In Pascals eq atmospheres mul standard Atmosphere component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pressure In Pascals eq atmospheres mul standard Atmosphere.
+\end{proof}
+\begin{lemma}[final Equilibrium Temperature In Kelvin eq]
+  \label{lem:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-finalequilibriumtemperatureinkelvin-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.finalEquilibriumTemperatureInKelvin_eq}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-temperatureinkelvin, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesproblemreadouts, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-usesreferencewaterthermaldata, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-satisfiesinsulatedgaswaterlaws}
+  The energy balance determines a common equilibrium temperature of about 345.20 K; the exact rational SI readout is retained here
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Equilibrium Temperature In Kelvin eq.
+\end{proof}
+\begin{lemma}[final Gas Pressure In Standard Atmospheres eq]
+  \label{lem:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-finalgaspressureinstandardatmospheres-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0406.finalGasPressureInStandardAtmospheres_eq}
+  \uses{def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-amountofsubstancescale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-specificheatcapacityscale, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-pressureinstandardatmospheres, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-insulatedgaswatersetup, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-matchesproblemreadouts, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-usesreferencewaterthermaldata, def:physics:phyx-mini-0406:phyxminiproblems-problemphyxmini0406-satisfiesinsulatedgaswaterlaws}
+  The final ideal-gas equation then gives approximately 2.83245 atm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Gas Pressure In Standard Atmospheres eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

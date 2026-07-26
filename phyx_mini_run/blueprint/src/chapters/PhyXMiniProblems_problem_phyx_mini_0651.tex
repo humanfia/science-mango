@@ -1,0 +1,195 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0651.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0651.source.json
+
+\chapter{Physics problem phyx\_mini\_0651}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0651}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the wave function of a particle confined between \$x = 0\$ \$nm\$ and \$x = 1.0\$ \$nm\$. The wave function is zero outside this region.
+
+\#\# Question
+
+Calculate the probability of finding the particle in the interval \$0\$ \$nm\$ \$\textbackslash{}le x \textbackslash{}le 0.25\$ \$nm\$.
+
+\#\# Answer choices
+
+- A: A: 0.020
+
+- B: B: 0.024
+
+- C: C: 0.028
+
+- D: D: 0.032
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of a graph with the following details:
+
+- **Axes**: 
+  - The horizontal axis is labeled \textbackslash{}(x\textbackslash{}) in nanometers (nm).
+  - The vertical axis is labeled \textbackslash{}(\textbackslash{}psi(x)\textbackslash{}).
+
+- **Graph**:
+  - The graph features a piecewise linear plot in red.
+  - The function starts from the origin (0,0).
+  - As \textbackslash{}(x\textbackslash{}) increases to 1 nm, the function initially increases linearly, reaching a maximum value at \textbackslash{}(x = 0.5\textbackslash{}) nm.
+  - Beyond \textbackslash{}(x = 0.5\textbackslash{}) nm, the function decreases linearly back to zero by \textbackslash{}(x = 1\textbackslash{}) nm.
+
+- **Text**:
+  - There is a label \textbackslash{}(c\textbackslash{}) on the vertical axis, indicating a particular value for \textbackslash{}(\textbackslash{}psi(x)\textbackslash{}).
+
+Overall, the plot showcases a symmetric triangular form peaking at the midpoint of the \textbackslash{}(x\textbackslash{}) range.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.028
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/651.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0651.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0651:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0651.problem_phyx_mini_0651}
+\uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-positionprobabilityquestion, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchessuppliedtriangularwavefunctionfigure, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchesstatedpositionquestion, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-satisfiesnormalizedbornmodel, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-roundstothousandth, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[position Axis Unit]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-positionaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.positionAxisUnit}
+  The Physlib length unit used for every scalar position readout below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Axis Unit.
+\end{proof}
+\begin{definition}[Triangular Wavefunction Figure]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.TriangularWavefunctionFigure}
+  Labels and numerical geometry read from the supplied wavefunction plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Wavefunction Figure.
+\end{proof}
+\begin{definition}[Triangular Wavefunction Experiment]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.TriangularWavefunctionExperiment}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionfigure}
+  The particle's one-dimensional position experiment. waveAmplitudePerSqrtNanometre is a pointwise representative of the quantum state, needed because the figure specifies point values. The physical square-integrability condition is imposed separately using Physlib's HilbertSpace.MemHS. intervalProbability is an independent observable whose relation to the wavefunction is supplied by the general Born law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Wavefunction Experiment.
+\end{proof}
+\begin{definition}[probability Density Per Nanometre]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-probabilitydensitypernanometre}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.probabilityDensityPerNanometre}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment}
+  The squared-modulus position density, numerically measured in nm⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of probability Density Per Nanometre.
+\end{proof}
+\begin{definition}[Position Probability Question]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-positionprobabilityquestion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.PositionProbabilityQuestion}
+  Numerical endpoints of the interval asked about in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Probability Question.
+\end{proof}
+\begin{definition}[Matches Supplied Triangular Wavefunction Figure]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchessuppliedtriangularwavefunctionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.MatchesSuppliedTriangularWavefunctionFigure}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment}
+  Direct transcription of the labels and tick locations in image 651.png, together with the two red straight-line segments and the stated confinement. The amplitude c is positive because the plotted peak lies above the axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Triangular Wavefunction Figure.
+\end{proof}
+\begin{definition}[Matches Stated Position Question]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchesstatedpositionquestion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.MatchesStatedPositionQuestion}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-positionprobabilityquestion}
+  The queried position interval is exactly 0 nm ≤ x ≤ 0.25 nm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Position Question.
+\end{proof}
+\begin{definition}[Satisfies Normalized Born Model]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-satisfiesnormalizedbornmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.SatisfiesNormalizedBornModel}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-probabilitydensitypernanometre}
+  The standard normalized one-dimensional Born model in nanometre coordinates. These are general laws and do not prescribe the probability of the currently queried interval or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Normalized Born Model.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.AnswerChoice}
+  Labels of the four probability values printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Probability]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-displayedprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.displayedProbability}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-answerchoice}
+  The dimensionless probability printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Probability.
+\end{proof}
+\begin{definition}[Rounds To Thousandth]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-roundstothousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.RoundsToThousandth}
+  A dimensionless probability has the indicated nearest-thousandth display. The half-open interval implements the usual half-up convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Thousandth.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-answerchoice, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-displayedprobability}
+  A displayed choice is strictly closer than every other printed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+\begin{lemma}[peak Amplitude sq eq three]
+  \label{lem:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-peakamplitude-sq-eq-three}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.peakAmplitude_sq_eq_three}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchessuppliedtriangularwavefunctionfigure, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-satisfiesnormalizedbornmodel}
+  Normalization of the asymmetric triangular wavefunction fixes the squared peak readout to 3 nm⁻¹
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of peak Amplitude sq eq three.
+\end{proof}
+\begin{lemma}[first Quarter Probability eq one div thirty Six]
+  \label{lem:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-firstquarterprobability-eq-one-div-thirtysix}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0651.firstQuarterProbability_eq_one_div_thirtySix}
+  \uses{def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-triangularwavefunctionexperiment, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-positionprobabilityquestion, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchessuppliedtriangularwavefunctionfigure, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-matchesstatedpositionquestion, def:physics:phyx-mini-0651:phyxminiproblems-problemphyxmini0651-satisfiesnormalizedbornmodel}
+  The Born probability over the first quarter of the box is exactly 1/36. This is a derived relation, not a premise of the physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first Quarter Probability eq one div thirty Six.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,274 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0221.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0221.source.json
+
+\chapter{Physics problem phyx\_mini\_0221}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0221}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A supersonic jet traveling at Mach \textbackslash{}( 2.0 \textbackslash{}) at an altitude of \textbackslash{}( 9500\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) passes directly over an observer on the ground.(See figure.)
+
+\#\# Question
+
+Where will the plane be relative to the observer when the latter hears the sonic boom?
+
+\#\# Answer choices
+
+- A: A: 28km
+
+- B: B: 24km
+
+- C: C: 20km
+
+- D: D: 16km
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two diagrams, labeled (a) and (b), illustrating the position and perspective of an observer relative to a jet airplane.
+
+\#\#\# Diagram (a):
+- **Jet Airplane:** Located above the observer, moving horizontally, depicted by speed lines.
+- **Observer:** Positioned on the ground, looking upward.
+- **Blue Lines:** Represent the shock wave (likely a sonic boom cone) extending from the plane.
+- **Dashed Line:** Vertical line from the airplane to the ground, labeled with a height of "9500 m."
+- **Angle (θ):** Formed between the shock wave (blue line) and the vertical line.
+- **Ground:** Represented as a flat horizontal surface beneath the observer.
+
+\#\#\# Diagram (b):
+- **Jet Airplane:** Similar position, now to the right of the observer.
+- **Observer:** Also looking upward, the direction of sound is shown by an arrow from the plane towards the observer.
+- **Blue Lines:** Continue to represent shock waves.
+- **Dashed Line:** Extends from the airplane, marking the path of sound to the observer.
+- **Angle (θ):** Shown from the observer's perspective toward the airplane and the direction of the sound.
+- **Label "Sound direction":** Points from the plane to the observer.
+
+In both diagrams, the observer is indicated as a small figure, emphasizing the large distance and the height of the airplane.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 16km
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/221.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0221.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0221:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0221.jetPositionWhenBoomHeard_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-matchesproblemandfigure, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-hasphysicalsonicboomparameters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-satisfiesmachconegeometry, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-matchesanswerchoice, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.AcousticLength}
+  A nonnegative physical length, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.lengthReadout}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.speedReadout}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.lengthInMeters}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthreadout}
+  Metre readout used by the altitude label and the exact displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthreadout}
+  Kilometre readout used by the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-speedreadout}
+  Metres-per-second readout used to state positivity of the two speeds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Aircraft Label]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-aircraftlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.AircraftLabel}
+  The jet aircraft drawn at the vertex of the blue Mach cone
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aircraft Label.
+\end{proof}
+\begin{definition}[Observer Label]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-observerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.ObserverLabel}
+  The person standing on the ground in both panels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observer Label.
+\end{proof}
+\begin{definition}[Wavefront Label]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-wavefrontlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.WavefrontLabel}
+  The blue trailing shock line responsible for the sonic boom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavefront Label.
+\end{proof}
+\begin{definition}[Figure Panel]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-figurepanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.FigurePanel}
+  The two explicitly labeled panels in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Panel.
+\end{proof}
+\begin{definition}[Figure Moment]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-figuremoment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.FigureMoment}
+  Physical moments depicted by the two figure panels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Moment.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.HorizontalDirection}
+  Orientations along the horizontal flight axis of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Sound Direction]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sounddirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.SoundDirection}
+  Direction of the dashed sound-direction arrow in panel (b)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Direction.
+\end{proof}
+\begin{definition}[Sonic Boom Setup]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.SonicBoomSetup}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-aircraftlabel, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-observerlabel, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-wavefrontlabel, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-figurepanel, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-figuremoment, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-horizontaldirection, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sounddirection}
+  Independent physical quantities and qualitative figure data. The horizontal distance and shock-path length at boom reception are not assigned numerical values here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonic Boom Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup}
+  Problem-text and primary-figure readouts. These state Mach 2, altitude 9500 m, the direct overflight, the panel roles, and the drawn directions. They do not state a horizontal distance or select an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Sonic Boom Parameters]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-hasphysicalsonicboomparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.HasPhysicalSonicBoomParameters}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-speedinmeterspersecond, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup}
+  Positivity, supersonic motion, and the acute physical branch of the Mach cone. These conditions rule out degenerate geometry without fixing the requested horizontal distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Sonic Boom Parameters.
+\end{proof}
+\begin{definition}[Satisfies Mach Cone Geometry]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-satisfiesmachconegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.SatisfiesMachConeGeometry}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthreadout, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-speedreadout, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup}
+  Governing relations for steady horizontal flight and the Mach-cone triangle. v\_jet = M c is the definition of Mach number. sin theta = c / v\_jet is the Mach-cone law. tan theta = h / x expresses the right triangle in panel (b). the Pythagorean relation identifies the slanted blue shock path. The laws are unit-compatible and contain no numerical horizontal distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mach Cone Geometry.
+\end{proof}
+\begin{lemma}[length In Kilometers eq length In Meters div thousand]
+  \label{lem:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinkilometers-eq-lengthinmeters-div-thousand}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.lengthInKilometers_eq_lengthInMeters_div_thousand}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinkilometers}
+  General conversion between the two distance readouts used here
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of length In Kilometers eq length In Meters div thousand.
+\end{proof}
+\begin{lemma}[horizontal Distance formula]
+  \label{lem:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-horizontaldistance-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.horizontalDistance_formula}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinmeters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-sonicboomsetup, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-hasphysicalsonicboomparameters, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-satisfiesmachconegeometry}
+  The general horizontal displacement formula derived from the Mach-cone law and the right triangle. It remains parameterized by the independent altitude and Mach number, so it does not encode this problem's numerical answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of horizontal Distance formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[distance In Kilometers]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-answerchoice-distanceinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.AnswerChoice.distanceInKilometers}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-answerchoice}
+  Integer-kilometre distances printed beside the four answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Kilometers.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-acousticlength, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-lengthinkilometers, def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-answerchoice}
+  A physical distance rounds to a displayed integer-kilometre answer. The half-kilometre tolerance is half of the choices' displayed 1 km precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0221.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0221:phyxminiproblems-problemphyxmini0221-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

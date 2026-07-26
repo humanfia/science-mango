@@ -1,0 +1,335 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0794.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0794.source.json
+
+\chapter{Physics problem phyx\_mini\_0794}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0794}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A motorist traveling at a constant \textbackslash{}( 15 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}) (\textbackslash{}( 54 \textbackslash{}, \textbackslash{}text\{km/h\} \textbackslash{}), or about \textbackslash{}( 34 \textbackslash{}, \textbackslash{}text\{mi/h\} \textbackslash{})) passes a school crossing where the speed limit is \textbackslash{}( 10 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}) (\textbackslash{}( 36 \textbackslash{}, \textbackslash{}text\{km/h\} \textbackslash{}), or about \textbackslash{}( 22 \textbackslash{}, \textbackslash{}text\{mi/h\} \textbackslash{})). Just as the motorist passes the school-crossing sign, a police officer on a motorcycle stopped there starts in pursuit with constant acceleration \textbackslash{}( 3.0 \textbackslash{}, \textbackslash{}text\{m/s\}\textasciicircum{}2 \textbackslash{}) as shown in figure.
+
+\#\# Question
+
+How much time elapses before the officer passes the motorist?
+
+\#\# Answer choices
+
+- A: A: 16s
+
+- B: B: 10s
+
+- C: C: 7s
+
+- D: D: 14s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a scenario involving a police officer and a motorist.
+
+1. **Scenes and Objects**:
+   - A road with an **x-axis** labeled for position.
+   - A "SCHOOL CROSSING" sign on the left.
+   - A police officer on a motorcycle initially at rest at position \textbackslash{}( x\_P \textbackslash{}) near the sign.
+   - A motorist driving a red car at position \textbackslash{}( x\_M \textbackslash{}).
+
+2. **Relationships**:
+   - The police officer's motorcycle exhibits a constant acceleration (\textbackslash{}( a\_\{Px\} = 3.0 \textbackslash{}, \textbackslash{}text\{m/s\}\textasciicircum{}2 \textbackslash{})).
+   - The motorist's car is moving with a constant velocity (\textbackslash{}( v\_\{M0x\} = 15 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{})).
+
+3. **Arrows**:
+   - An orange arrow pointing right from the motorcycle, indicating its acceleration.
+   - A green arrow pointing right from the car, indicating its constant velocity.
+
+4. **Text**:
+   - Descriptions beside the characters:
+     - "Police officer: initially at rest, constant \textbackslash{}( x \textbackslash{})-acceleration."
+     - "Motorist: constant \textbackslash{}( x \textbackslash{})-velocity."
+   - Mathematical expressions:
+     - \textbackslash{}( a\_\{Px\} = 3.0 \textbackslash{}, \textbackslash{}text\{m/s\}\textasciicircum{}2 \textbackslash{})
+     - \textbackslash{}( v\_\{M0x\} = 15 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{})
+
+The diagram provides a visual representation of the motion dynamics between a police officer and a motorist, highlighting the difference in acceleration and speed.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 10s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/794.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0794.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0794:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0794.officer_first_passes_motorist_after_ten_seconds}
+\uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchespursuitscenario, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchesproblemreadouts, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchessuppliedfigure, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-satisfiespursuitkinematics, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-isfirstpositivepassingtime, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-displayedelapsedseconds, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-recordeddatasetanswer}
+Starting together, the \(15\,\mathrm{m/s}\) motorist is first passed by the
+officer accelerating from rest at \(3\,\mathrm{m/s^2}\) after
+\(10\,\mathrm s\), answer B.
+\end{theorem}
+\begin{proof}
+For nonnegative \(t\), the two position laws reduce to
+\[
+ x_M(t)=15t,\qquad x_P(t)=\frac32t^2.
+\]
+Equality is \(t(3t/2-15)=0\), so its only positive solution is \(t=10\).
+Moreover \(x_P-x_M=\frac32t(t-10)\), which is negative for
+\(0<t<10\) and positive for \(t>10\).  These sign facts establish all three
+clauses of the first-positive-passing-time predicate.  The answer map sends B
+to \(10\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Position Quantity]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.SignedPositionQuantity}
+  A signed one-dimensional position with physical length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Position Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.SpeedQuantity}
+  A nonnegative physical speed carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.accelerationDimension}
+  The physical dimension L T⁻² of a linear acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationdimension}
+  A nonnegative physical linear-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[signed Position Readout]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.signedPositionReadout}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionquantity}
+  Read a signed position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Position Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.speedReadout}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.accelerationReadout}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationmagnitudequantity}
+  Read an acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.positionInMeters}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionreadout}
+  SI-metre readout of a signed x-position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedreadout}
+  Metre-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.speedInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedreadout}
+  Kilometre-per-hour readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationmagnitudequantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationreadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[speed In Miles Per Hour]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmilesperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.speedInMilesPerHour}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmeterspersecond}
+  The problem also reports approximate mile-per-hour conversions. One metre per second is exactly 3125 / 1397 international miles per hour, so this is a scalar readout derived from the dimensionful speed rather than a new physical speed primitive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Miles Per Hour.
+\end{proof}
+\begin{definition}[Road User]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-roaduser}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.RoadUser}
+  The two moving bodies distinguished in the pursuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road User.
+\end{proof}
+\begin{definition}[Axis Direction]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-axisdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.AxisDirection}
+  Directions along the horizontal road axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Direction.
+\end{proof}
+\begin{definition}[Motion Regime]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-motionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.MotionRegime}
+  Idealized one-dimensional translational motion regimes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Regime.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.FigureObject}
+  Objects and graphical features visible in image 794.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Position Label]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figurepositionlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.FigurePositionLabel}
+  Literal position labels visible on the figure's x-axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Position Label.
+\end{proof}
+\begin{definition}[Figure Motion Label]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figuremotionlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.FigureMotionLabel}
+  Literal component labels attached to the two rightward arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Motion Label.
+\end{proof}
+\begin{definition}[Supplied Pursuit Figure]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-suppliedpursuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.SuppliedPursuitFigure}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-axisdirection, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figureobject, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figurepositionlabel, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-figuremotionlabel}
+  Typed transcription of the supplied raster. The picture gives qualitative geometry and prints the two kinematic component values, but it contains no passing-time label and no answer-choice annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Pursuit Figure.
+\end{proof}
+\begin{definition}[School Crossing Pursuit]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.SchoolCrossingPursuit}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-signedpositionquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedquantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationmagnitudequantity, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-roaduser, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-axisdirection, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-motionregime, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-suppliedpursuitfigure}
+  Independent physical data for the school-crossing pursuit. The real argument of xPositionAtSeconds is explicitly an elapsed-time readout in seconds; each returned position remains a dimensionful physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of School Crossing Pursuit.
+\end{proof}
+\begin{definition}[Matches Pursuit Scenario]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchespursuitscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.MatchesPursuitScenario}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  Qualitative content of “just as the motorist passes the sign, the stopped officer starts in pursuit.” These assumptions identify the common initial place and the two motion regimes without assigning any later meeting time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pursuit Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-positioninmeters, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmeterspersecond, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinkilometersperhour, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmilesperhour, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  Exact numerical values from the prose and the stated rounded customary-unit conversions. In particular, no elapsed passing time appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmeterspersecond, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  Qualitative arrangement and literal values read from image 794.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Pursuit Kinematics]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-satisfiespursuitkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.SatisfiesPursuitKinematics}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-positioninmeters, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-speedinmeterspersecond, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  The standard constant-velocity and constant-acceleration position laws, written in coherent SI scalar readouts. They apply for every nonnegative elapsed time and are independent of the desired catch-up time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pursuit Kinematics.
+\end{proof}
+\begin{definition}[Is First Positive Passing Time]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-isfirstpositivepassingtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.IsFirstPositivePassingTime}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-positioninmeters, def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-schoolcrossingpursuit}
+  An elapsed time is the officer's first positive passing time when the two positions agree then, the officer is behind at every earlier positive time, and the officer is ahead at every later time. This definition does not name or build in the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is First Positive Passing Time.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.AnswerChoice}
+  The four displayed multiple-choice responses
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Elapsed Seconds]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-displayedelapsedseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.displayedElapsedSeconds}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-answerchoice}
+  Elapsed-time value, in seconds, printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Elapsed Seconds.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0794.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0794:phyxminiproblems-problemphyxmini0794-answerchoice}
+  The answer label recorded by the dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

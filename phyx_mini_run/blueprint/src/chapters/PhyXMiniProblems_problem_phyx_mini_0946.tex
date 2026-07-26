@@ -1,0 +1,394 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0946.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0946.source.json
+
+\chapter{Physics problem phyx\_mini\_0946}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0946}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Earth's magnetic field near the ground is typically \textbackslash{}( 0.50\textbackslash{},\textbackslash{}text\{G\} \textbackslash{}) (\textbackslash{}( 0.50\textbackslash{},\textbackslash{}text\{gauss\} \textbackslash{})), where \textbackslash{}( 1\textbackslash{},\textbackslash{}text\{G\} = 10\textasciicircum{}\{-4\}\textbackslash{},\textbackslash{}text\{T\} \textbackslash{}). In temperate northern latitudes, this field is inclined downward at an angle of approximately \textbackslash{}( 45\textasciicircum{}\textbackslash{}circ \textbackslash{}). Consider the feasibility of using the earth's magnetic field to enable the levitation device.
+
+\#\# Question
+
+Suppose we use easily obtainable \textbackslash{}( 1.0\textbackslash{},\textbackslash{}text\{T\} \textbackslash{}) permanent magnets to supply the horizontal magnetic field and suppose our bar has length \textbackslash{}( 10\textbackslash{},\textbackslash{}text\{cm\} \textbackslash{}). Estimate how much extra weight we could levitate with our device using a current of \textbackslash{}( 10\textbackslash{},\textbackslash{}text\{A\} \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 0.45N
+
+- B: B: 0.83N
+
+- C: C: 1.2N
+
+- D: D: 0.22N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physical setup typically used in physics to illustrate the principles of electromagnetism. Here is a detailed breakdown:
+
+- **Objects:**
+  - A straight conductor (depicted as a cylinder) is shown horizontally in color. It carries a current, labeled as \textbackslash{}( I \textbackslash{}), indicated by an arrow pointing to the right.
+  - Two vertical tracks or rails are present, one on either side of the conductor.
+  - A power source, shown as a battery, is connected to the rails.
+  
+- **Text and Labels:**
+  - The direction of the magnetic field \textbackslash{}(\textbackslash{}mathbf\{B\}\textbackslash{}) is perpendicular to the plane of the conductor, indicated by blue crosses (representing field lines going into the page).
+  - The separation between the rails is marked as \textbackslash{}( d \textbackslash{}).
+  - The length of the conductor is labeled as \textbackslash{}( L \textbackslash{}).
+  - The battery is labeled with an electromotive force \textbackslash{}(\textbackslash{}mathcal\{E\}\textbackslash{}).
+
+- **Relationships:**
+  - The rails are placed parallel to each other with the conductor bridging them.
+  - A magnetic field \textbackslash{}(\textbackslash{}mathbf\{B\}\textbackslash{}) is present perpendicular to the conductor, into the page.
+  - The electrical circuit is closed, suggesting that the current flows through the conductor from the positive to the negative terminal of the battery.
+
+Overall, the image illustrates a scenario where a conducting rod or bar moves through a magnetic field, or vice versa, showing the principle of electromagnetic induction. The arrangement is typical in discussions of magnetic force on a current-carrying conductor.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.83N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/946.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0946.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0946:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0946.supplied_data_determine_one_newton_lift}
+\uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forceinnewtons, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-matchespermanentmagnetlevitationdescription, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-matchesprimarylevitationdevicefigure, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-hasphysicallevitationparameters, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-hascalibratedmagneticfields, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-satisfiesstraightbarmagneticforcelaw, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-satisfiesthresholdlevitationbalance}
+For the perpendicular permanent-magnet apparatus, the stated
+$1.0\,\mathrm{T}$ field, $10\,\mathrm{A}$ current, and
+$10\,\mathrm{cm}$ active length determine an upward magnetic lift of
+$1.0\,\mathrm{N}$.  At the levitation threshold the extra supported weight
+is $1.0\,\mathrm{N}$ minus the bar's own weight.
+\end{theorem}
+\begin{proof}
+Convert the active length to $0.10\,\mathrm{m}$.  The current is perpendicular
+to the field, so the straight-bar magnetic-force law gives
+\[
+ F_B=BIL=(1.0)(10)(0.10)=1.0\,\mathrm{N}.
+\]
+The right-hand rule selects the upward direction.  At maximum load the
+vertical balance is
+$F_B=W_{\mathrm{bar}}+W_{\mathrm{extra}}$; substituting the lift value and
+rearranging gives
+$W_{\mathrm{extra}}=1.0\,\mathrm{N}-W_{\mathrm{bar}}$.
+The source provides no bar-weight calibration, so no numerical answer choice
+is inferred from this relation.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.magneticFluxDensityDimension}
+  Magnetic flux density (tesla) has dimension M T⁻¹ C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.electricCurrentDimension}
+  Electric current (ampere) has dimension C T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electromotive Force Dimension]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electromotiveforcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.electromotiveForceDimension}
+  Electromotive force (volt) has dimension M L² T⁻² C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.forceDimension}
+  Force and weight (newton) have dimension M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.MagneticFluxDensityMagnitude}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitydimension}
+  A nonnegative, unit-independent magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[Electromotive Force Magnitude]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electromotiveforcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.ElectromotiveForceMagnitude}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electromotiveforcedimension}
+  A nonnegative, unit-independent battery-emf magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromotive Force Magnitude.
+\end{proof}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.ForceMagnitude}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forcedimension}
+  A nonnegative, unit-independent force or weight magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitymagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  Read magnetic flux density in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Gauss]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityingauss}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.magneticFluxDensityInGauss}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitymagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas}
+  Read magnetic flux density in gauss. This definition records 1 G = 10⁻⁴ T, equivalently one tesla is 10⁴ G
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Gauss.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.lengthInMeters}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthmagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  Read length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthmagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthinmeters}
+  Read length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.currentInAmperes}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electriccurrentmagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  Read current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[emf In Volts]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-emfinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.emfInVolts}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electromotiveforcemagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  Read battery emf in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of emf In Volts.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.forceInNewtons}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forcemagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-nonnegativesireadout}
+  Read a force or weight in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Spatial Direction]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-spatialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.SpatialDirection}
+  Page-relative directions needed for the current, field, lift, and weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Direction.
+\end{proof}
+\begin{definition}[Physical Orientation]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-physicalorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.PhysicalOrientation}
+  Orientations of the bar, rails, and applied field relative to gravity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Physical Orientation.
+\end{proof}
+\begin{definition}[Field Inclination Sense]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-fieldinclinationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.FieldInclinationSense}
+  The downward inclination convention used for the earth's field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Inclination Sense.
+\end{proof}
+\begin{definition}[Field Marker Kind]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-fieldmarkerkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.FieldMarkerKind}
+  The field marker convention printed throughout the magnet gap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Marker Kind.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.FigureFeature}
+  Physical components visible in image 946.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.FigureQuantityLabel}
+  Quantity labels visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[expected Printed Symbol]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-expectedprintedsymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.expectedPrintedSymbol}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-figurequantitylabel}
+  The literal symbol printed for each figure quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Printed Symbol.
+\end{proof}
+\begin{definition}[Levitation Device Figure]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-levitationdevicefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.LevitationDeviceFigure}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-spatialdirection, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-physicalorientation, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-fieldmarkerkind, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-figurefeature, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-figurequantitylabel}
+  Literal presentation data from the primary raster. In particular, the raster shows that L spans the rails and d spans the bar thickness; it supplies no numerical value for the diameter or battery emf
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Levitation Device Figure.
+\end{proof}
+\begin{definition}[Current Carrying Bar Setup]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.CurrentCarryingBarSetup}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensitymagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthmagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electriccurrentmagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-electromotiveforcemagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forcemagnitude, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-spatialdirection, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-physicalorientation, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-fieldinclinationsense, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-levitationdevicefigure}
+  The physical state of the levitation apparatus. The vector fields use Physlib's spacetime-dependent magnetic-field type, while their calibrated magnitudes and all mechanical forces remain unit-independent quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Current Carrying Bar Setup.
+\end{proof}
+\begin{definition}[Matches Permanent Magnet Levitation Description]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-matchespermanentmagnetlevitationdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.MatchesPermanentMagnetLevitationDescription}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityingauss, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthincentimeters, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentinamperes, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  Numerical and qualitative facts stated in the problem prose. The earth-field data are retained even though the requested estimate uses permanent magnets
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Permanent Magnet Levitation Description.
+\end{proof}
+\begin{definition}[Matches Primary Levitation Device Figure]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-matchesprimarylevitationdevicefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.MatchesPrimaryLevitationDeviceFigure}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-expectedprintedsymbol, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  Primary-image evidence. The L dimension spans the rail separation and the d dimension spans the bar diameter, correcting the auxiliary caption's misidentification of d as the rail separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Levitation Device Figure.
+\end{proof}
+\begin{definition}[Has Physical Levitation Parameters]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-hasphysicallevitationparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.HasPhysicalLevitationParameters}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthinmeters, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentinamperes, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-emfinvolts, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forceinnewtons, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  Positive magnitudes and nonempty regions select a nondegenerate setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Levitation Parameters.
+\end{proof}
+\begin{definition}[Has Calibrated Magnetic Fields]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-hascalibratedmagneticfields}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.HasCalibratedMagneticFields}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  Calibration of the two scalar flux-density magnitudes against the norms of the corresponding Physlib vector fields in their stated regions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Calibrated Magnetic Fields.
+\end{proof}
+\begin{definition}[Satisfies Straight Bar Magnetic Force Law]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-satisfiesstraightbarmagneticforcelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.SatisfiesStraightBarMagneticForceLaw}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-magneticfluxdensityinteslas, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-lengthinmeters, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentinamperes, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forceinnewtons, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  Magnetic force on a straight active bar segment perpendicular to a uniform field. With current rightward and field into the page, the right-hand rule selects the upward force direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Straight Bar Magnetic Force Law.
+\end{proof}
+\begin{definition}[Satisfies Threshold Levitation Balance]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-satisfiesthresholdlevitationbalance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.SatisfiesThresholdLevitationBalance}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-forceinnewtons, def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-currentcarryingbarsetup}
+  At the maximum supported load, upward magnetic lift balances both the bar's own downward weight and the independent extra load. This generic balance does not state the requested value of the extra load
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Threshold Levitation Balance.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.AnswerChoice}
+  The four displayed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Weight In Newtons]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-answerchoiceweightinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.answerChoiceWeightInNewtons}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-answerchoice}
+  Displayed extra-weight value, in newtons, attached to each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Weight In Newtons.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0946.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0946:phyxminiproblems-problemphyxmini0946-answerchoice}
+  The answer label recorded by the dataset, retained as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,375 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0701.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0701.source.json
+
+\chapter{Physics problem phyx\_mini\_0701}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0701}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Luis uses a \textbackslash{}(20\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-long wrench to turn a nut. The wrench handle is tilted \textbackslash{}(30\textasciicircum{}\textbackslash{}circ\textbackslash{}) above the horizontal, and Luis pulls straight down on the end with a force of \textbackslash{}(100\textbackslash{},\textbackslash{}mathrm\{N\}\textbackslash{}).
+
+\#\# Question
+
+How much torque does Luis exert on the nut?
+
+\#\# Answer choices
+
+- A: A: -15Nm
+
+- B: B: -17Nm
+
+- C: C: -19Nm
+
+- D: D: -21Nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram related to the mechanics of forces and moments. 
+
+1. **Objects:**
+   - A wrench with a hexagonal socket on one end.
+   - A dashed line indicating the moment arm.
+
+2. **Dimensions and Measurements:**
+   - The wrench is labeled as 20 cm in length.
+   - An angle of 30° is marked between the wrench and the horizontal line.
+   - A force of 100 N is being applied downward, labeled as “Luis’s pull.”
+   - The line of action of the force creates an angle \textbackslash{}( \textbackslash{}phi = -120° \textbackslash{}) with respect to a reference line.
+
+3. **Text and Labels:**
+   - "Moment arm \textbackslash{}( d \textbackslash{})" is indicated with a perpendicular line from the socket to the line of action.
+   - The force vector is shown with an arrow pointing downward.
+   - The “Line of action” is labeled and follows the path of the force vector.
+
+4. **Relationships:**
+   - The force of 100 N is being applied at an angle to the wrench.
+   - The moment arm's perpendicular distance from the line of action is crucial for calculating torque.
+
+Overall, the diagram illustrates a scenario where a force is applied at an angle using a wrench, emphasizing concepts of torque and moment arms in physics.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -19Nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/701.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0701.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0701:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0701.problem_phyx_mini_0701}
+\uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquezinnewtonmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchesproblemdata, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-hasphysicalwrenchparameters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchessuppliedfigure, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-satisfieswrenchtorquelaws, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-isclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Spatial Vector]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.SpatialVector}
+  Three-dimensional coordinate vectors; the wrench diagram occupies the xy-plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Vector.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[torque Dimension]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.torqueDimension}
+  The physical dimension M L² T⁻² of torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Displacement Vector Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displacementvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.DisplacementVectorQuantity}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector}
+  A unit-independent spatial displacement vector from the nut to the pull
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Vector Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcedimension}
+  A nonnegative physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Spatial Force Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.SpatialForceQuantity}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcedimension}
+  A unit-independent spatial physical force vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Force Quantity.
+\end{proof}
+\begin{definition}[Moment Arm Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarmquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.MomentArmQuantity}
+  A nonnegative perpendicular distance from a pivot to a force line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Arm Quantity.
+\end{proof}
+\begin{definition}[Torque Vector Quantity]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.TorqueVectorQuantity}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquedimension}
+  A unit-independent physical torque axial vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torque Vector Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.lengthInMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthquantity}
+  Read a physical length in coherent SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthinmeters}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[displacement Vector In Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displacementvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.displacementVectorInMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displacementvectorquantity}
+  Read a spatial displacement vector in coherent SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Vector In Meters.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudequantity}
+  Read a nonnegative force magnitude in coherent SI newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[force Vector In Newtons]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcevectorinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.forceVectorInNewtons}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialforcequantity}
+  Read a spatial physical force vector in coherent SI newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Vector In Newtons.
+\end{proof}
+\begin{definition}[moment Arm In Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarminmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.momentArmInMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarmquantity}
+  Read the perpendicular moment arm in coherent SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Arm In Meters.
+\end{proof}
+\begin{definition}[torque Vector In Newton Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.torqueVectorInNewtonMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorquantity}
+  Read a physical torque axial vector in coherent SI newton-metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque Vector In Newton Meters.
+\end{proof}
+\begin{definition}[torque ZIn Newton Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquezinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.torqueZInNewtonMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorinnewtonmeters}
+  Read the signed z component of torque, positive out of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque ZIn Newton Meters.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.degreesToRadians}
+  Convert an angle measured in degrees to its dimensionless radian value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[unit Vector At Angle Degrees]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-unitvectoratangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.unitVectorAtAngleDegrees}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialvector, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-degreestoradians}
+  Unit direction in the xy-plane at a counterclockwise angle from the positive x-axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of unit Vector At Angle Degrees.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.RotationSense}
+  The two senses of rotation about the nut
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.FigureObject}
+  Physical objects and geometric constructions visible in image 701.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.FigureLabel}
+  Literal labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Direction]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figuredirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.FigureDirection}
+  Qualitative directions shown by the wrench and force arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Direction.
+\end{proof}
+\begin{definition}[Wrench Torque Figure]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.WrenchTorqueFigure}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figureobject, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figurelabel, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-figuredirection}
+  Typed transcription of the incidence and annotation data in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wrench Torque Figure.
+\end{proof}
+\begin{definition}[Wrench Torque Setup]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.WrenchTorqueSetup}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displacementvectorquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudequantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-spatialforcequantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarmquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorquantity, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-rotationsense, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquefigure}
+  Independent quantities for the wrench experiment. The scalar angles are signed diagram readouts in degrees. The physical lever arm, applied force, perpendicular distance, and torque are separate observables related only by the assumptions below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wrench Torque Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthincentimeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudeinnewtons, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup}
+  Numerical and directional data stated in the problem and printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Wrench Parameters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-hasphysicalwrenchparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.HasPhysicalWrenchParameters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthinmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudeinnewtons, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup}
+  Positivity conditions for a nondegenerate wrench and applied pull
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wrench Parameters.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup}
+  Exact qualitative evidence transcribed from image 701.png. This records the socket/nut pivot, the dashed references, the downward arrow, the line of action, and the perpendicular segment labelled d, without assigning a numerical moment arm or torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Wrench Torque Laws]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-satisfieswrenchtorquelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.SatisfiesWrenchTorqueLaws}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-lengthinmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displacementvectorinmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcemagnitudeinnewtons, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-forcevectorinnewtons, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarminmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-torquevectorinnewtonmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-unitvectoratangledegrees, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup}
+  General spatial-vector geometry and torque laws in coherent SI coordinates. The moment-arm field is constrained to be the perpendicular distance to the force line. The wrench and force directions are constrained to the xy-plane, and the independent torque axial vector is constrained by Mathlib's general three-dimensional crossProduct. These laws quantify the model but do not mention the numerical answer requested in this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Wrench Torque Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.AnswerChoice}
+  The four answer labels in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Torque In Newton Meters]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displayedtorqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.displayedTorqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-answerchoice}
+  Signed torque, in newton-metres, printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Torque In Newton Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-answerchoice}
+  Dataset answer metadata, retained separately from the physical conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-answerchoice, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-displayedtorqueinnewtonmeters}
+  A displayed choice is strictly closest to an exact signed torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+\begin{lemma}[moment Arm From Supplied Geometry]
+  \label{lem:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarmfromsuppliedgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0701.momentArmFromSuppliedGeometry}
+  \uses{def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-momentarminmeters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-wrenchtorquesetup, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchesproblemdata, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-hasphysicalwrenchparameters, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-matchessuppliedfigure, def:physics:phyx-mini-0701:phyxminiproblems-problemphyxmini0701-satisfieswrenchtorquelaws}
+  The perpendicular distance from the nut to the vertical force line is sqrt 3 / 10 m, obtained from the 20 cm radius at 30°
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of moment Arm From Supplied Geometry.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

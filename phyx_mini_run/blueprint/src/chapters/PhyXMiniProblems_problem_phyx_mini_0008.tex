@@ -1,0 +1,164 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0008.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0008.source.json
+
+\chapter{Physics problem phyx\_mini\_0008}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0008}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The index of refraction for violet light in silica flint glass is 1.66, and that for red light is 1.62.
+
+\#\# Question
+
+What is the angular spread of visible light passing through a prism of apex angle \textbackslash{}( 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) if the angle of incidence is \textbackslash{}( 50.0\textasciicircum{}\textbackslash{}circ \textbackslash{})? See figure.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 4.37\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 8.74\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 4.61\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 2.11\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a visual representation of light dispersion through a prism. Key elements include:
+
+- A triangular prism on the left through which a beam of "Visible light" enters from the left side.
+- As the light passes through the prism, it is dispersed into a spectrum of colors.
+- This spectrum is shown exiting the prism on the right, spreading out into different colored rays labeled as R (red), O (orange), Y (yellow), G (green), B (blue), and V (violet).
+- The spectrum of colors is projected onto a "Screen," demonstrating the dispersion effect.
+- Two labels indicate specific angles: "Deviation of red light" and "Angular spread," illustrating the angles at which the light is bent and spread after passing through the prism.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 4.61\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/8.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0008.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0008:target}
+\lean{PhyXMiniProblems.Problem0008.angularSpread_is_answer_C}
+\uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-degreestoradians, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismsetup, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismrayangles, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-satisfiesprismraylaws, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-angularspreadradians, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-dispersionfigurereadout, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-answerangledegrees}
+For a $60^\circ$ silica-flint prism in air at $50^\circ$ incidence, with
+dimensionless indices $n_R=1.62$ and $n_V=1.66$, impose the two Snell laws,
+the triangular-prism angle relation, the principal physical branches, and the
+usual deviation relation separately for red and violet rays. The
+violet-minus-red deviation is approximately $4.6118^\circ$ and therefore
+rounds to $4.61^\circ$, answer C. Colors, media, and ray states must remain
+typed physical roles, with real numbers used only for explicit angle and
+index readouts.
+\end{theorem}
+\begin{proof}
+For each color with index $n$, first-interface Snell refraction gives
+$r_1=\arcsin(\sin 50^\circ/n)$. Prism geometry gives
+$r_2=60^\circ-r_1$, and the second interface gives
+$e=\arcsin(n\sin r_2)$. The deviation is
+$\delta=50^\circ+e-60^\circ$. Evaluating this expression at $n_V$ and
+$n_R$ and subtracting gives about $4.6118^\circ$, which lies within
+$0.005^\circ$ of $4.61^\circ$ and is not equally close to another choice.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Visible Color]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-visiblecolor}
+  \lean{PhyXMiniProblems.Problem0008.VisibleColor}
+  The six outgoing ray labels shown on the screen, ordered from red to violet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Visible Color.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-opticalmedium}
+  \lean{PhyXMiniProblems.Problem0008.OpticalMedium}
+  The two media crossed by each ray in the prism experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-degreestoradians}
+  \lean{PhyXMiniProblems.Problem0008.degreesToRadians}
+  Convert a scalar angle read in degrees to its value in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Prism Setup]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismsetup}
+  \lean{PhyXMiniProblems.Problem0008.PrismSetup}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-visiblecolor, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-opticalmedium}
+  Experimental data shared by every color: a color-dependent dimensionless refractive index, the incidence angle, and the triangular prism's apex angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Setup.
+\end{proof}
+\begin{definition}[Prism Ray Angles]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismrayangles}
+  \lean{PhyXMiniProblems.Problem0008.PrismRayAngles}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-visiblecolor}
+  The four directed angle readouts needed to trace one colored ray through the two faces of the prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Angles.
+\end{proof}
+\begin{definition}[Satisfies Prism Ray Laws]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-satisfiesprismraylaws}
+  \lean{PhyXMiniProblems.Problem0008.SatisfiesPrismRayLaws}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-visiblecolor, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismsetup, def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismrayangles}
+  The geometrical-optics laws for one color. The interval conditions select the physical, principal-angle branch of Snell's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Prism Ray Laws.
+\end{proof}
+\begin{definition}[angular Spread Radians]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-angularspreadradians}
+  \lean{PhyXMiniProblems.Problem0008.angularSpreadRadians}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-prismrayangles}
+  The angular separation from the red ray to the violet ray in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Spread Radians.
+\end{proof}
+\begin{definition}[Dispersion Figure Readout]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-dispersionfigurereadout}
+  \lean{PhyXMiniProblems.Problem0008.DispersionFigureReadout}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-angularspreadradians}
+  The two angle labels explicitly drawn in the source figure. The colored rays terminate on the screen in the order represented by VisibleColor above
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dispersion Figure Readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-answerchoice}
+  \lean{PhyXMiniProblems.Problem0008.AnswerChoice}
+  Multiple-choice labels from the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-answerangledegrees}
+  \lean{PhyXMiniProblems.Problem0008.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0008:phyxminiproblems-problem0008-answerchoice}
+  The displayed degree value attached to each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

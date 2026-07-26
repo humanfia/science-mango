@@ -1,0 +1,457 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0979.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0979.source.json
+
+\chapter{Physics problem phyx\_mini\_0979}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0979}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A bar with mass \textbackslash{}( M = 1.20\textbackslash{} \textbackslash{}text\{kg\} \textbackslash{}) and resistance \textbackslash{}( R = 0.500\textbackslash{} \textbackslash{}Omega \textbackslash{}) slides without friction on a horizontal U-shaped rail with width \textbackslash{}( W = 40.0\textbackslash{} \textbackslash{}text\{cm\} \textbackslash{}) and negligible resistance. The bar is attached to a spring with spring constant \textbackslash{}( k = 90.0\textbackslash{} \textbackslash{}text\{N/m\} \textbackslash{}). A constant magnetic field with magnitude \textbackslash{}( 1.00\textbackslash{} \textbackslash{}text\{T\} \textbackslash{}) points into the plane everywhere in the vicinity. At time \textbackslash{}( t = 0 \textbackslash{}) the bar is stretched beyond its equilibrium position by an amount \textbackslash{}( x = 10.0\textbackslash{} \textbackslash{}text\{cm\} \textbackslash{}) and released from rest.
+
+\#\# Question
+
+What is the amplitude of the motion at time \textbackslash{}( t = 5.00\textbackslash{} \textbackslash{}text\{s\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 10.0cm
+
+- B: B: 5.13cm
+
+- C: C: 0cm
+
+- D: D: 1.2cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a U-shaped orange wire loop placed vertically in a magnetic field represented by blue Xs, indicating that the field (\textbackslash{}( \textbackslash{}vec\{B\} \textbackslash{})) is directed into the page. 
+
+- The loop has a movable vertical side marked with \textbackslash{}( M, R \textbackslash{}).
+- This movable side is attached to a spring on the left, which is connected to a fixed wall.
+- The spring is labeled with \textbackslash{}( k \textbackslash{}).
+- The horizontal sides of the loop are positioned such that the spring compresses or stretches along the horizontal axis \textbackslash{}( x \textbackslash{}).
+- The loop's height or the distance between its horizontal sides is labeled \textbackslash{}( W \textbackslash{}).
+
+This setup likely illustrates electromagnetic induction or force on a conductor in a magnetic field.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 5.13cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/979.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0979.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0979:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0979.amplitude_at_five_seconds}
+\uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-matchesprimaryelectromagneticspringfigure, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-matcheselectromagneticspringscenario, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-roundstohundredthcentimeter}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.magneticFluxDensityDimension}
+  Magnetic flux density has dimension M T⁻¹ C⁻¹ (tesla)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.electricalResistanceDimension}
+  Electrical resistance has dimension M L² T⁻¹ C⁻² (ohm)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[spring Constant Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.springConstantDimension}
+  A spring constant has dimension M T⁻² (newton per metre)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant Dimension.
+\end{proof}
+\begin{definition}[electromotive Force Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.electromotiveForceDimension}
+  Electromotive force has dimension M L² T⁻² C⁻¹ (volt)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.electricCurrentDimension}
+  Electric current has dimension C T⁻¹ (ampere)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.forceDimension}
+  Force has dimension M L T⁻² (newton)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[damping Coefficient Dimension]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.dampingCoefficientDimension}
+  A viscous damping coefficient has dimension M T⁻¹ (kg/s)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of damping Coefficient Dimension.
+\end{proof}
+\begin{definition}[Mass Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.MassMagnitude}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Magnitude.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Time Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.TimeMagnitude}
+  A nonnegative, unit-independent elapsed or clock time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Magnitude.
+\end{proof}
+\begin{definition}[Speed Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.SpeedMagnitude}
+  A nonnegative, unit-independent speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.MagneticFluxDensityMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensitydimension}
+  A nonnegative, unit-independent magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Spring Constant Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.SpringConstantMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantdimension}
+  A nonnegative, unit-independent spring constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Magnitude.
+\end{proof}
+\begin{definition}[Electromotive Force Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectromotiveForceMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforcedimension}
+  A nonnegative, unit-independent electromotive-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromotive Force Magnitude.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ForceMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forcedimension}
+  A nonnegative, unit-independent magnetic-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[Damping Coefficient Magnitude]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.DampingCoefficientMagnitude}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientdimension}
+  A nonnegative, unit-independent mechanical damping coefficient
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Damping Coefficient Magnitude.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.massInKilograms}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massmagnitude}
+  Read a mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.lengthInMeters}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthmagnitude}
+  Read a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.timeInSeconds}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timemagnitude}
+  Read a time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedmagnitude}
+  Read a speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensitymagnitude}
+  Read magnetic flux density in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistancemagnitude}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantmagnitude}
+  Read a spring constant in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[electromotive Force In Volts]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.electromotiveForceInVolts}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforcemagnitude}
+  Read an electromotive-force magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force In Volts.
+\end{proof}
+\begin{definition}[electric Current In Amperes]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.electricCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentmagnitude}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current In Amperes.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.forceInNewtons}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forcemagnitude}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[damping Coefficient In Kilograms Per Second]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientinkilogramspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.dampingCoefficientInKilogramsPerSecond}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientmagnitude}
+  Read a damping coefficient in kilograms per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of damping Coefficient In Kilograms Per Second.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.FigureObject}
+  Objects visibly present in image 979.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.FigureLabel}
+  Literal symbolic labels visible in image 979.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Spatial Direction]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-spatialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.SpatialDirection}
+  Named directions needed for the top-view geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Direction.
+\end{proof}
+\begin{definition}[Axis Orientation]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-axisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.AxisOrientation}
+  Orientation of an object or marked span in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Orientation.
+\end{proof}
+\begin{definition}[Electromagnetic Spring Figure]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectromagneticSpringFigure}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-figureobject, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-figurelabel, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-spatialdirection, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-axisorientation}
+  Literal qualitative content of the primary raster. It records labels and geometry only and contains no amplitude readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromagnetic Spring Figure.
+\end{proof}
+\begin{definition}[Electromagnetic Spring Setup]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectromagneticSpringSetup}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timemagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensitymagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistancemagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforcemagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forcemagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-spatialdirection, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringfigure}
+  Independent physical quantities and observables for the apparatus. The amplitude envelope is an observable indexed by clock time; it is not defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromagnetic Spring Setup.
+\end{proof}
+\begin{definition}[Matches Primary Electromagnetic Spring Figure]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-matchesprimaryelectromagneticspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.MatchesPrimaryElectromagneticSpringFigure}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup}
+  Every qualitative label and relation directly read from image 979.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Electromagnetic Spring Figure.
+\end{proof}
+\begin{definition}[Matches Electromagnetic Spring Scenario]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-matcheselectromagneticspringscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.MatchesElectromagneticSpringScenario}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup}
+  Qualitative prose assumptions about the idealized apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Electromagnetic Spring Scenario.
+\end{proof}
+\begin{definition}[Electromagnetic Spring Problem Data]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectromagneticSpringProblemData}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massinkilograms, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timeinseconds, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedinmeterspersecond, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensityinteslas, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistanceinohms, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantinnewtonspermeter, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup}
+  The numerical values stated in the prose, expressed as exact coherent-SI readouts. 40.0 cm and 10.0 cm are converted to metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromagnetic Spring Problem Data.
+\end{proof}
+\begin{definition}[Electromagnetic Spring Laws]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.ElectromagneticSpringLaws}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-massinkilograms, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-timeinseconds, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-speedinmeterspersecond, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensityinteslas, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistanceinohms, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-springconstantinnewtonspermeter, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromotiveforceinvolts, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electriccurrentinamperes, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-forceinnewtons, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientinkilogramspersecond, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup}
+  Generic physical laws used to derive the damping and amplitude. None mentions the answer choice 5.13 cm or fixes the amplitude at the observation time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromagnetic Spring Laws.
+\end{proof}
+\begin{theorem}[magnetic Damping Coefficient eq]
+  \label{thm:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticdampingcoefficient-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.magneticDampingCoefficient_eq}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticfluxdensityinteslas, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-resistanceinohms, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientinkilogramspersecond, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  The induction laws make the magnetic drag coefficient B² W² / R
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of magnetic Damping Coefficient eq.
+\end{proof}
+\begin{theorem}[magnetic Damping Coefficient eq eight twenty fifths]
+  \label{thm:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-magneticdampingcoefficient-eq-eight-twenty-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.magneticDampingCoefficient_eq_eight_twenty_fifths}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-dampingcoefficientinkilogramspersecond, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  For the stated apparatus, the magnetic damping coefficient is 0.32 kg/s
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of magnetic Damping Coefficient eq eight twenty fifths.
+\end{proof}
+\begin{theorem}[oscillator is Underdamped]
+  \label{thm:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-oscillator-isunderdamped}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.oscillator_isUnderdamped}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  The calibrated oscillator lies in the oscillatory, underdamped regime
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of oscillator is Underdamped.
+\end{proof}
+\begin{theorem}[decay Rate eq two fifteenths]
+  \label{thm:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-decayrate-eq-two-fifteenths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.decayRate_eq_two_fifteenths}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  The amplitude decay rate γ/(2M) is 2/15 s⁻¹
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of decay Rate eq two fifteenths.
+\end{proof}
+\begin{theorem}[amplitude at observation time eq]
+  \label{thm:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-amplitude-at-observation-time-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.amplitude_at_observation_time_eq}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringsetup, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringproblemdata, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-electromagneticspringlaws}
+  At 5 s, the model gives the exact amplitude 0.1 exp (-2/3) metres
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of amplitude at observation time eq.
+\end{proof}
+\begin{definition}[Rounds To Hundredth Centimeter]
+  \label{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-roundstohundredthcentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0979.RoundsToHundredthCentimeter}
+  \uses{def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthmagnitude, def:physics:phyx-mini-0979:phyxminiproblems-problemphyxmini0979-lengthinmeters}
+  RoundsToHundredthCentimeter length n means that the length, expressed in centimetres, lies within half of 0.01 cm of n / 100 centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Hundredth Centimeter.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

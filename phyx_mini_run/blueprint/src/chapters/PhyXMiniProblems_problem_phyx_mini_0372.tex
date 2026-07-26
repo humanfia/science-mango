@@ -1,0 +1,145 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0372.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0372.source.json
+
+\chapter{Physics problem phyx\_mini\_0372}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0372}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+0.10\textbackslash{},\textbackslash{}text\{g\} of helium gas follows the process \textbackslash{}( 1 \textbackslash{}rightarrow 2 \textbackslash{}rightarrow 3 \textbackslash{}) shown in figure.
+
+\#\# Question
+
+Find the value of \textbackslash{}( T\_1 \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: -29\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 556\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 636\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 784\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with pressure (\textbackslash{}(p\textbackslash{}), in atm) on the y-axis and volume (\textbackslash{}(V\textbackslash{}), in cm\textbackslash{}(\textasciicircum{}3\textbackslash{})) on the x-axis. It depicts a process involving three states marked as points 1, 2, and 3.
+
+- The graph starts at point 1, located at the origin (0,0), indicating zero pressure and volume.
+- From point 1, a line rises to point 2, with coordinates indicating a higher pressure and volume.
+- The graph then slopes down to point 3, showing a decrease in pressure but a still higher volume than at point 1.
+- Two arrows on the lines indicate the direction of the process from point 1 to point 2, and then from point 2 to point 3.
+- Text next to point 2 reads \textbackslash{}(T\_2 = 2926 \textbackslash{}, K\textbackslash{}); next to point 3 reads \textbackslash{}(T\_3 = 2438 \textbackslash{}, K\textbackslash{}).
+- The label \textbackslash{}(V\_3\textbackslash{}) is along the x-axis and corresponds with the volume at point 3.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: -29\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/372.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0372.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0372:target}
+\lean{PhyXMini0372.stateOneTemperature_from_heliumData}
+\uses{def:physics:phyx-mini-0372:phyxmini0372-gasspecies, def:physics:phyx-mini-0372:phyxmini0372-threestateprocess, def:physics:phyx-mini-0372:phyxmini0372-idealgasparameters, def:physics:phyx-mini-0372:phyxmini0372-satisfiesmassmolerelation, def:physics:phyx-mini-0372:phyxmini0372-satisfiesidealgasequation, def:physics:phyx-mini-0372:phyxmini0372-temperatureindegreescelsius}
+For \(0.10\,\mathrm g\) of helium, molar mass
+\(4\,\mathrm{g\,mol^{-1}}\), gas constant \(4103/50\) in the displayed
+units, and state-one readouts \(p_1=1\,\mathrm{atm}\),
+\(V_1=100\,\mathrm{cm^3}\), the state-one Celsius temperature is
+\(200000/4103-27315/100\).
+\end{theorem}
+\begin{proof}
+The mass--mole relation gives
+\(n=(1/10)/4=1/40\) mole.  Substituting \(p_1=1\), \(V_1=100\),
+\(R=4103/50\), and \(n=1/40\) in \(pV=nRT\) gives
+\(T_1=200000/4103\) kelvin; positivity permits the cancellations.
+The declared Celsius projection subtracts \(273.15=27315/100\), which is
+exactly the claimed expression.  The other state data are consistent
+scenario readouts but are not needed for this state-local calculation.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-gasspecies}
+  \lean{PhyXMini0372.GasSpecies}
+  The gas species named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-gassample}
+  \lean{PhyXMini0372.GasSample}
+  \uses{def:physics:phyx-mini-0372:phyxmini0372-gasspecies}
+  A fixed gas sample, with mass measured in grams and amount in moles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[PVState]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-pvstate}
+  \lean{PhyXMini0372.PVState}
+  One labelled point of the pressure-volume diagram. The scalar fields are readouts in the units printed on the axes. Temperature remains an absolute physical temperature rather than an unrestricted real number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVState.
+\end{proof}
+\begin{definition}[Three State Process]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-threestateprocess}
+  \lean{PhyXMini0372.ThreeStateProcess}
+  \uses{def:physics:phyx-mini-0372:phyxmini0372-gassample, def:physics:phyx-mini-0372:phyxmini0372-pvstate}
+  The three labelled states and the two directed process segments shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three State Process.
+\end{proof}
+\begin{definition}[Ideal Gas Parameters]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-idealgasparameters}
+  \lean{PhyXMini0372.IdealGasParameters}
+  \uses{def:physics:phyx-mini-0372:phyxmini0372-gasspecies}
+  Mixed-unit material and ideal-gas constants used by the textbook calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Mass Mole Relation]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-satisfiesmassmolerelation}
+  \lean{PhyXMini0372.SatisfiesMassMoleRelation}
+  \uses{def:physics:phyx-mini-0372:phyxmini0372-gassample, def:physics:phyx-mini-0372:phyxmini0372-idealgasparameters}
+  The governing conversion from sample mass to amount of substance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mass Mole Relation.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Equation]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-satisfiesidealgasequation}
+  \lean{PhyXMini0372.SatisfiesIdealGasEquation}
+  \uses{def:physics:phyx-mini-0372:phyxmini0372-gassample, def:physics:phyx-mini-0372:phyxmini0372-pvstate, def:physics:phyx-mini-0372:phyxmini0372-idealgasparameters}
+  The ideal-gas equation p V = n R T, expressed in the units printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Equation.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0372:phyxmini0372-temperatureindegreescelsius}
+  \lean{PhyXMini0372.temperatureInDegreesCelsius}
+  Celsius readout of an absolute temperature whose underlying readout is in kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

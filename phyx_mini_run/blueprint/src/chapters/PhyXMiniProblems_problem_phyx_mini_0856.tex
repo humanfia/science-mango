@@ -1,0 +1,353 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0856.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0856.source.json
+
+\chapter{Physics problem phyx\_mini\_0856}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0856}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows the potential energy of an electric dipole. Consider a dipole that oscillates between \textbackslash{}( \textbackslash{}pm 60\textasciicircum{}\textbackslash{}circ \textbackslash{}).
+
+\#\# Question
+
+What is the dipole's kinetic energy when it is aligned with the electric field?
+
+\#\# Answer choices
+
+- A: A: 1.1\textbackslash{}mu\textbackslash{}mathrm\{J\}
+
+- B: B: 1.2\textbackslash{}mu\textbackslash{}mathrm\{J\}
+
+- C: C: 1.3\textbackslash{}mu\textbackslash{}mathrm\{J\}
+
+- D: D: 1.0\textbackslash{}mu\textbackslash{}mathrm\{J\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a graph with a sinusoidal curve that represents a function of the form \textbackslash{}( U(\textbackslash{}phi) \textbackslash{}). The details are:
+
+- **Axes**: 
+  - The horizontal axis represents the angle \textbackslash{}(\textbackslash{}phi\textbackslash{}), marked in degrees (ranging from \textbackslash{}(-180\textasciicircum{}\textbackslash{}circ\textbackslash{}) to \textbackslash{}(180\textasciicircum{}\textbackslash{}circ\textbackslash{})).
+  - The vertical axis represents the value \textbackslash{}( U \textbackslash{}) in microjoules (\textbackslash{}(\textbackslash{}mu J\textbackslash{})), ranging from \textbackslash{}(-2\textbackslash{}) to \textbackslash{}(2\textbackslash{}).
+  
+- **Curve**: 
+  - The curve is sinusoidal, starting from the top at \textbackslash{}(-180\textasciicircum{}\textbackslash{}circ\textbackslash{}), descending through zero at \textbackslash{}(0\textasciicircum{}\textbackslash{}circ\textbackslash{}), reaching a minimum at around \textbackslash{}(-2\textbackslash{}) microjoules, then ascending back to zero at \textbackslash{}(180\textasciicircum{}\textbackslash{}circ\textbackslash{}).
+
+- **Labels**:
+  - The vertical axis is labeled \textbackslash{}( U\textbackslash{}, (\textbackslash{}mu J)\textbackslash{}).
+  - The horizontal axis is labeled \textbackslash{}(\textbackslash{}phi\textbackslash{}).
+
+The graph likely represents a potential energy function over a range of angles.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.0\textbackslash{}mu\textbackslash{}mathrm\{J\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/856.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0856.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0856:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0856.kineticEnergyWhenAligned_eq_one_microjoule}
+\uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinmicrojoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-alignedangle, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-matchesprimaryfigure, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatesbetweensixtydegrees, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-satisfieselectricdipoleoscillationlaws, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-recordeddatasetanswer, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answermatchesalignedkineticenergy}
+For a dipole oscillating between \(\pm60^\circ\), conservation of mechanical
+energy gives \(1\,\mu\mathrm J\) of kinetic energy at alignment, answer D.
+\end{theorem}
+\begin{proof}
+The potential law is \(U(\phi)=-pE\cos\phi\).  The figure gives
+\(U(0)=-2\,\mu\mathrm J\), hence \(pE=2\,\mu\mathrm J\).  Therefore
+\(U(60^\circ)=-1\,\mu\mathrm J\).  At the turning point the kinetic energy is
+zero, so the conserved total energy is \(-1\,\mu\mathrm J\).  At alignment,
+\[
+ K(0)=E_{\rm total}-U(0)=(-1)-(-2)=1\,\mu\mathrm J.
+\]
+The displayed-energy map assigns this value to recorded choice D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Dipole Moment Dimension]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricdipolemomentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.electricDipoleMomentDimension}
+  The dimension C L of the magnitude of an electric dipole moment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Dipole Moment Dimension.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.electricFieldStrengthDimension}
+  The dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[Electric Dipole Moment Magnitude]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricdipolemomentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.ElectricDipoleMomentMagnitude}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricdipolemomentdimension}
+  A nonnegative, unit-independent electric-dipole-moment magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Dipole Moment Magnitude.
+\end{proof}
+\begin{definition}[Electric Field Strength Magnitude]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.ElectricFieldStrengthMagnitude}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field-strength magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Magnitude.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[dipole Moment In Coulomb Meters]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-dipolemomentincoulombmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.dipoleMomentInCoulombMeters}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricdipolemomentmagnitude, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-nonnegativesireadout}
+  Electric-dipole-moment magnitude in coulomb-metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of dipole Moment In Coulomb Meters.
+\end{proof}
+\begin{definition}[electric Field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.electricFieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthmagnitude, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-nonnegativesireadout}
+  Electric-field-strength magnitude in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[joules]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.joules}
+  Construct a signed physical energy from its coherent-SI joule readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules.
+\end{proof}
+\begin{definition}[microjoules]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-microjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.microjoules}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-joules}
+  Construct a signed physical energy from its microjoule readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of microjoules.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.energyInJoules}
+  Read a signed physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Microjoules]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinmicrojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.energyInMicrojoules}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinjoules}
+  Read a signed physical energy in microjoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Microjoules.
+\end{proof}
+\begin{definition}[degrees To Angle]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-degreestoangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.degreesToAngle}
+  Convert a real-valued degree readout to a geometric angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Angle.
+\end{proof}
+\begin{definition}[aligned Angle]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-alignedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.alignedAngle}
+  Alignment of the dipole moment with the electric field, φ = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of aligned Angle.
+\end{proof}
+\begin{definition}[sixty Degrees]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-sixtydegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.sixtyDegrees}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-degreestoangle}
+  The magnitude of either stated turning angle, 60°
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sixty Degrees.
+\end{proof}
+\begin{definition}[anti Aligned Angle]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-antialignedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.antiAlignedAngle}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-degreestoangle}
+  Anti-alignment, represented by the 180° tick
+\end{definition}
+\begin{proof}
+  This is the declared model definition of anti Aligned Angle.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.FigureAxis}
+  The two axes visible in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Axis Quantity]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.FigureAxisQuantity}
+  The physical or geometric quantity assigned to a graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Quantity.
+\end{proof}
+\begin{definition}[Figure Axis Unit]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.FigureAxisUnit}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-microjoules}
+  The unit printed beside a graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Unit.
+\end{proof}
+\begin{definition}[Angle Tick]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-angletick}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.AngleTick}
+  The three labeled angular ticks in image 856.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angle Tick.
+\end{proof}
+\begin{definition}[Potential Energy Tick]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-potentialenergytick}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.PotentialEnergyTick}
+  The three labeled energy ticks in image 856.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Energy Tick.
+\end{proof}
+\begin{definition}[Trace Shape]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-traceshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.TraceShape}
+  Qualitative shape of the plotted potential-energy trace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Shape.
+\end{proof}
+\begin{definition}[Trace Color]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-tracecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.TraceColor}
+  Color of the plotted trace in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Color.
+\end{proof}
+\begin{definition}[Dipole Potential Energy Figure]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-dipolepotentialenergyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.DipolePotentialEnergyFigure}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxis, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxisquantity, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-figureaxisunit, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-angletick, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-potentialenergytick, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-traceshape, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-tracecolor}
+  Typed data represented by the potential-energy graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dipole Potential Energy Figure.
+\end{proof}
+\begin{definition}[External Field Model]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-externalfieldmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.ExternalFieldModel}
+  The external-field model relevant to the standard dipole energy law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of External Field Model.
+\end{proof}
+\begin{definition}[Oscillating Electric Dipole]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.OscillatingElectricDipole}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricdipolemomentmagnitude, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthmagnitude, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-dipolepotentialenergyfigure, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-externalfieldmodel}
+  Independent physical observables for the oscillating dipole. The energy functions are not defined from one another; their relation is imposed by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillating Electric Dipole.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-microjoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinmicrojoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-alignedangle, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-antialignedangle, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole}
+  Literal axis labels, ticks, and calibrated potential-energy readouts from the primary raster. These are figure/data premises and do not state the requested kinetic energy at alignment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Oscillates Between Sixty Degrees]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatesbetweensixtydegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.OscillatesBetweenSixtyDegrees}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinjoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-alignedangle, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-sixtydegrees, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole}
+  The prose statement that the dipole oscillates between ±60°. The two endpoints are turning points, so their kinetic energy vanishes; alignment lies on the traversed arc. These facts are initial/trajectory data, not the current conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillates Between Sixty Degrees.
+\end{proof}
+\begin{definition}[Satisfies Electric Dipole Oscillation Laws]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-satisfieselectricdipoleoscillationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.SatisfiesElectricDipoleOscillationLaws}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-dipolemomentincoulombmeters, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinjoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole}
+  The governing electrostatic and mechanical laws. The potential-energy law is U(φ) = -p E cos φ; conservation and kinetic-energy nonnegativity are asserted on the configurations actually traversed by the oscillation. No field below mentions the requested value 1 μJ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electric Dipole Oscillation Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.AnswerChoice}
+  Labels of the four kinetic-energy choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Kinetic Energy In Microjoules]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-displayedkineticenergyinmicrojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.displayedKineticEnergyInMicrojoules}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answerchoice}
+  Kinetic-energy readout, in microjoules, printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Kinetic Energy In Microjoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answerchoice}
+  The answer label recorded by the source dataset; it is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Aligned Kinetic Energy]
+  \label{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answermatchesalignedkineticenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0856.AnswerMatchesAlignedKineticEnergy}
+  \uses{def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-energyinmicrojoules, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-alignedangle, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-oscillatingelectricdipole, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-answerchoice, def:physics:phyx-mini-0856:phyxminiproblems-problemphyxmini0856-displayedkineticenergyinmicrojoules}
+  A displayed choice matches the independently modeled aligned energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Aligned Kinetic Energy.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

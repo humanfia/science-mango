@@ -1,0 +1,364 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0358.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0358.source.json
+
+\chapter{Physics problem phyx\_mini\_0358}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0358}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An ideal diatomic gas has a molar internal energy equal to \textbackslash{}( E = \textbackslash{}frac\{5\}\{2\}RT \textbackslash{}) which depends only on its absolute temperature \textbackslash{}( T \textbackslash{}). A mole of this gas is taken quasi\textbackslash{}-statically first from state \textbackslash{}( A \textbackslash{}) to state \textbackslash{}( B \textbackslash{}), and then from state \textbackslash{}( B \textbackslash{}) to state \textbackslash{}( C \textbackslash{}) along the straight line paths shown in the diagram of pressure \textbackslash{}( p \textbackslash{}) versus volume \textbackslash{}( V \textbackslash{}).
+
+\#\# Question
+
+What is the work done by the gas in the process \textbackslash{}( A \textbackslash{}rightarrow B \textbackslash{}rightarrow C \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 1300J
+
+- B: B: 1895J
+
+- C: C: 1550J
+
+- D: D: 1600J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph showing a pressure-volume (p-V) diagram with three key points labeled A, B, and C. 
+
+- **Axes**: 
+  - The y-axis is labeled as \textbackslash{}( p \textbackslash{}) with units \textbackslash{}((10\textasciicircum{}\{6\} \textbackslash{}, \textbackslash{}text\{dynes\} \textbackslash{}, \textbackslash{}text\{cm\}\textasciicircum{}\{-2\})\textbackslash{}).
+  - The x-axis is labeled as \textbackslash{}( V \textbackslash{}) with units \textbackslash{}((10\textasciicircum{}\{3\} \textbackslash{}, \textbackslash{}text\{cm\}\textasciicircum{}\{3\})\textbackslash{}).
+
+- **Grid and Scale**:
+  - Both axes have grids with equal spacing, allowing for accurate interpretation of values.
+  
+- **Points and Lines**:
+  - Point A is around (1, 4) on the graph.
+  - Point B is approximately at (2, 7).
+  - Point C is roughly at (3, 5).
+  - The points are connected by lines with arrows indicating the direction from A to B and B to C, suggesting a process path or sequence.
+
+- **Text**: 
+  - This includes the labels for the axes and the annotation of points A, B, and C.
+
+The graph likely represents a thermodynamic process or cycle involving changes in pressure and volume.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1300J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/358.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0358.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0358:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0358.workDoneByGasAlongABC_eq_1300_joules}
+\uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-matchesproblemandprimaryfigure, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-hasphysicalgasparameters, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-satisfiesdiatomicidealgascaloriclaw, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-satisfiesquasistaticstraightpathworklaw, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-totalworkbygasinjoules}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.GasVolume}
+  A signed physical gas volume, with dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Absolute Temperature]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-absolutetemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.AbsoluteTemperature}
+  An absolute-temperature quantity, with Physlib's temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Absolute Temperature.
+\end{proof}
+\begin{definition}[Molar Gas Constant]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.MolarGasConstant}
+  The molar gas constant, represented with energy-per-temperature dimension. Physlib's current Dimension has no amount-of-substance component, so the inverse-mole role is recorded by the name and paired with a scalar mole readout below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant.
+\end{proof}
+\begin{definition}[Molar Internal Energy]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molarinternalenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.MolarInternalEnergy}
+  Molar internal energy. Its omitted inverse-mole component is handled in the same way as for MolarGasConstant; the underlying energy dimension is the grounded Physlib type DimEnergy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Internal Energy.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasvolume}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Diagram Units]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeindiagramunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.volumeInDiagramUnits}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasvolume, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeincubicmeters}
+  Read a volume in the horizontal-axis unit 10³ cm³, equivalently litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Diagram Units.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.pressureInPascals}
+  Read a pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Diagram Units]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureindiagramunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.pressureInDiagramUnits}
+  Read a pressure in the vertical-axis unit 10⁶ dyn cm⁻², which is exactly one bar or 10⁵ Pa
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Diagram Units.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-absolutetemperature}
+  Kelvin readout of a dimensionful absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Gas Constant In Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstantinjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.molarGasConstantInJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstant}
+  SI readout of the molar gas constant in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[molar Internal Energy In Joules Per Mole]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molarinternalenergyinjoulespermole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.molarInternalEnergyInJoulesPerMole}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molarinternalenergy}
+  Joule-per-mole readout of a molar internal energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Internal Energy In Joules Per Mole.
+\end{proof}
+\begin{definition}[work In Joules]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-workinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.workInJoules}
+  Joule readout of a signed physical work quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work In Joules.
+\end{proof}
+\begin{definition}[pressure Axis Scale Dynes Per Square Centimeter]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureaxisscaledynespersquarecentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.pressureAxisScaleDynesPerSquareCentimeter}
+  Number of dynes per square centimetre represented by one vertical unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Axis Scale Dynes Per Square Centimeter.
+\end{proof}
+\begin{definition}[volume Axis Scale Cubic Centimeters]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeaxisscalecubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.volumeAxisScaleCubicCentimeters}
+  Number of cubic centimetres represented by one horizontal unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Axis Scale Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure Diagram Unit In Pascals]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressurediagramunitinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.pressureDiagramUnitInPascals}
+  SI pressure represented by one vertical plot unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Diagram Unit In Pascals.
+\end{proof}
+\begin{definition}[volume Diagram Unit In Cubic Meters]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumediagramunitincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.volumeDiagramUnitInCubicMeters}
+  SI volume represented by one horizontal plot unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Diagram Unit In Cubic Meters.
+\end{proof}
+\begin{definition}[joules Per Diagram Area Unit]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-joulesperdiagramareaunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.joulesPerDiagramAreaUnit}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressurediagramunitinpascals, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumediagramunitincubicmeters}
+  Energy represented by one unit of area in the supplied pV diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Diagram Area Unit.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.GasModel}
+  Material model specified in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[PVDiagram State]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pvdiagramstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.PVDiagramState}
+  The three state labels printed in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVDiagram State.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.ProcessLeg}
+  The two directed legs of the route A → B → C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[Process Regime]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-processregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.ProcessRegime}
+  Thermodynamic regime stated for both legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Regime.
+\end{proof}
+\begin{definition}[Path Shape]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.PathShape}
+  Geometric shape of a leg in the pressure-volume plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Shape.
+\end{proof}
+\begin{definition}[Axis Label]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-axislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.AxisLabel}
+  Literal variable labels appearing on the axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Label.
+\end{proof}
+\begin{definition}[Axis Scale Label]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-axisscalelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.AxisScaleLabel}
+  Literal scale labels printed beside the two axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Scale Label.
+\end{proof}
+\begin{definition}[Diatomic Gas PVProcess]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.DiatomicGasPVProcess}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasvolume, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-absolutetemperature, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstant, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molarinternalenergy, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-gasmodel, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pvdiagramstate, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-processleg, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-processregime, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pathshape, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-axislabel, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-axisscalelabel}
+  The one-mole gas sample and its piecewise-straight process. The leg works are independent dimensionful fields. In particular, neither they nor their sum is assigned any requested numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diatomic Gas PVProcess.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeindiagramunits, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureindiagramunits, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  Problem-text data and exact transcription of the primary raster. The auxiliary caption's approximate (1,4), (2,7), (3,5) transcription is not used because the problem designates the image as primary evidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Gas Parameters]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-hasphysicalgasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.HasPhysicalGasParameters}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeincubicmeters, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureinpascals, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-temperatureinkelvins, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Diatomic Ideal Gas Caloric Law]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-satisfiesdiatomicidealgascaloriclaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.SatisfiesDiatomicIdealGasCaloricLaw}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-temperatureinkelvins, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-molarinternalenergyinjoulespermole, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  The caloric equation of state stated in the problem: the molar internal energy is a function only of absolute temperature and obeys Uₘ(T) = (5/2) R T. This law makes no assertion about work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Diatomic Ideal Gas Caloric Law.
+\end{proof}
+\begin{definition}[Satisfies Quasi Static Straight Path Work Law]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-satisfiesquasistaticstraightpathworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.SatisfiesQuasiStaticStraightPathWorkLaw}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-volumeindiagramunits, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-pressureindiagramunits, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-workinjoules, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-joulesperdiagramareaunit, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  Boundary-work law for a quasi-static straight segment in a pV diagram. Linear pressure variation makes the integral ∫ p dV equal average pressure times volume change. The final factor converts diagram-area units to joules. This general law contains none of the requested segment or total work values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasi Static Straight Path Work Law.
+\end{proof}
+\begin{definition}[total Work By Gas In Joules]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-totalworkbygasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.totalWorkByGasInJoules}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-workinjoules, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess}
+  Total work by the gas along the concatenated route A → B → C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Work By Gas In Joules.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Work In Joules]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-displayedworkinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.displayedWorkInJoules}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-answerchoice}
+  Work readout in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Work In Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[work Along Straight Process Legs]
+  \label{lem:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-workalongstraightprocesslegs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0358.workAlongStraightProcessLegs}
+  \uses{def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-workinjoules, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-diatomicgaspvprocess, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-matchesproblemandprimaryfigure, def:physics:phyx-mini-0358:phyxminiproblems-problemphyxmini0358-satisfiesquasistaticstraightpathworklaw}
+  The two straight legs contribute 700 J and 600 J, respectively. Both equalities are conclusions derived from the general boundary-work law and the primary-image readouts; neither occurs in a premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of work Along Straight Process Legs.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

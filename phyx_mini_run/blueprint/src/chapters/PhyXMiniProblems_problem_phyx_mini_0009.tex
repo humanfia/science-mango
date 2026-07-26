@@ -1,0 +1,187 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0009.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0009.source.json
+
+\chapter{Physics problem phyx\_mini\_0009}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0009}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A triangular glass prism with apex angle \textbackslash{}( \textbackslash{}Phi = 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) has an index of refraction \textbackslash{}( n = 1.50 \textbackslash{}) as shown in figure.
+
+\#\# Question
+
+What is the smallest angle of incidence \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) for which a light ray can emerge from the other side?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 24.6\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 29.1\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 27.9\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 21.5\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a triangle representing a prism, illustrating an optical concept. Within the prism, there are two arrows indicating the path of a light ray entering and passing through the prism. The light enters from the left side, bending as it passes through the prism.
+
+Key elements in the image:
+- A triangle (prism) with a shaded appearance to represent its three-dimensional nature.
+- Two arrows representing the path of a light ray.
+- A dashed line outside the prism at the entry point of the light ray, marking the angle of incidence.
+- The angle of incidence is labeled \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}).
+- An arc at the top of the prism is labeled \textbackslash{}( \textbackslash{}Phi \textbackslash{}), likely representing the prism's angle.
+
+The scene illustrates the refraction of light as it passes through the prism, changing its direction.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 27.9\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/9.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0009.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0009:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0009.smallestIncidenceAngle_is_choiceC}
+\uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-radiansofdegrees, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-canemerge, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-answerchoicedegrees, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-roundstonearesttenthdegree}
+For a prism of apex angle $60^\circ$ and dimensionless index $3/2$ in air,
+model both the principal-branch angles giving strict transmission into air
+and the non-strict convention that counts the tangent critical ray as ``just
+emerging.'' The strict set has infimum, and the non-strict set has least
+element,
+\[
+\arcsin\!\left(\frac32\sin\!\left(60^\circ-
+  \arcsin\!\left(\frac23\right)\right)\right),
+\]
+which rounds to $27.9^\circ$, answer C. The formal statement must distinguish
+these two conventions rather than put the critical ray inside a strict set.
+\end{theorem}
+\begin{proof}
+At the limiting ray the exit refraction angle is $90^\circ$, so Snell's law
+gives the internal critical angle $c=\arcsin(2/3)$. The two internal
+normal-referenced angles sum to the apex angle, hence the first refraction
+angle is $60^\circ-c$. Entry Snell refraction then gives the displayed
+inverse-sine expression. Monotonicity of sine on the principal branch shows
+that smaller incidence cannot emerge and every larger admissible incidence
+can. Thus the value is the strict set's infimum and, when the tangent ray is
+admitted, the non-strict set's least member. Its degree value rounds to
+$27.9$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[radians Of Degrees]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-radiansofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.radiansOfDegrees}
+  Convert a real-valued angle readout in degrees to its radian readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Of Degrees.
+\end{proof}
+\begin{definition}[degrees Of Radians]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-degreesofradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.degreesOfRadians}
+  Convert a real-valued angle readout in radians to its degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees Of Radians.
+\end{proof}
+\begin{definition}[Triangular Glass Prism]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.TriangularGlassPrism}
+  The material data and apex-angle label of the triangular prism. Angle fields are real-valued radian readouts. Refractive indices use PhysLean's dimension-tagged type at the dimensionless dimension 1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Glass Prism.
+\end{proof}
+\begin{definition}[Physically Valid]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism-physicallyvalid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.TriangularGlassPrism.PhysicallyValid}
+  \uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism}
+  Physical range conditions for the prism data used in this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Physically Valid.
+\end{proof}
+\begin{definition}[Snell Law At Interface]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-snelllawatinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.SnellLawAtInterface}
+  Snell's law at one interface. The refractive indices are dimensionless PhysLean quantities and the angles are radian magnitudes measured from the local surface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Interface.
+\end{proof}
+\begin{definition}[Is Principal Optical Angle]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-isprincipalopticalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.IsPrincipalOpticalAngle}
+  A nonnegative incidence or refraction angle on its closed principal branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Principal Optical Angle.
+\end{proof}
+\begin{definition}[Prism Ray Path]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-prismraypath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.PrismRayPath}
+  The four normal-referenced angles of a ray that enters the left face and exits the right face of the prism in the figure. entranceIncidenceRadians is the figure label θ₁
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Path.
+\end{proof}
+\begin{definition}[Obeys Geometrical Optics]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-prismraypath-obeysgeometricaloptics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.PrismRayPath.ObeysGeometricalOptics}
+  \uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-snelllawatinterface, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-isprincipalopticalangle, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-prismraypath}
+  The governing geometrical-optics relations for a ray crossing both prism faces. The two internal normal-referenced angles add to the apex angle Φ, and Snell's law holds at both interfaces. The allowed range of the emergence angle is kept as an explicit parameter so that strict transmission and the tangent-inclusive limiting convention cannot be conflated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Geometrical Optics.
+\end{proof}
+\begin{definition}[Can Emerge]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-canemerge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.CanEmerge}
+  \uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-triangularglassprism, def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-prismraypath}
+  An incident angle permits emergence under a specified emergence-angle convention when some ray path obeys the prism geometry and Snell's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Emerge.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.AnswerChoice}
+  The answer-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Degrees]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-answerchoicedegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.answerChoiceDegrees}
+  \uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-answerchoice}
+  The degree readout printed next to each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Degrees.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Degree]
+  \label{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-roundstonearesttenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0009.RoundsToNearestTenthDegree}
+  \uses{def:physics:phyx-mini-0009:phyxminiproblems-problemphyxmini0009-degreesofradians}
+  A radian angle rounds to the displayed degree value to the nearest tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

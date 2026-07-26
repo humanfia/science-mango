@@ -1,0 +1,336 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0696.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0696.source.json
+
+\chapter{Physics problem phyx\_mini\_0696}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0696}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(500\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) ball and a \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) ball are connected by a massless \textbackslash{}(50\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-long rod. They rotate about the center of mass at \textbackslash{}(40\textbackslash{},\textbackslash{}mathrm\{rpm\}\textbackslash{}).
+
+\#\# Question
+
+What is the speed of the \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) ball?
+
+\#\# Answer choices
+
+- A: A: 1.76m/s
+
+- B: B: 1.92m/s
+
+- C: C: 1.68m/s
+
+- D: D: 1.84m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram showing a system of two masses connected by a rod. The left mass \textbackslash{}( m\_1 \textbackslash{}) is labeled as 2.0 kg, and the right mass \textbackslash{}( m\_2 \textbackslash{}) is labeled as 500 g. Each mass is represented by a circle. The masses are connected by a rod, with the left section labeled \textbackslash{}( r\_1 \textbackslash{}) and the right section labeled \textbackslash{}( r\_2 \textbackslash{}). There is a symbol at the center of the rod indicating the center of mass \textbackslash{}( x\_\{cm\} \textbackslash{}).
+
+A horizontal line at the bottom represents the x-axis. The positions of the masses are given as \textbackslash{}( x\_1 = 0 \textbackslash{}, m \textbackslash{}) on the left for \textbackslash{}( m\_1 \textbackslash{}) and \textbackslash{}( x\_2 = 0.50 \textbackslash{}, m \textbackslash{}) on the right for \textbackslash{}( m\_2 \textbackslash{}). The center of mass is marked along this axis.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.68m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/696.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0696.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0696:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0696.twoKilogramBallSpeed_eq_two_pi_over_fifteen}
+\uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedinmeterspersecond, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesproblemandprimaryfigure, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-hasphysicaltwoballrodparameters, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-satisfiesmasslesstwoballrotationlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.MassQuantity}
+  A nonnegative physical mass, independent of a chosen mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.LengthQuantity}
+  A nonnegative physical length, used for the rod and rotation radii
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Axial Position Quantity]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.AxialPositionQuantity}
+  A signed one-dimensional position along the figure's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position Quantity.
+\end{proof}
+\begin{definition}[Rotation Rate Quantity]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.RotationRateQuantity}
+  A nonnegative rotation frequency measured in revolutions per unit time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Rate Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude, measured in radians per unit time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.massReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massquantity}
+  Read a physical mass in the selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.lengthReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthquantity}
+  Read a nonnegative physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[axial Position Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.axialPositionReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionquantity}
+  Read a signed axial position in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Position Readout.
+\end{proof}
+\begin{definition}[rotation Rate Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.rotationRateReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratequantity}
+  Read a rotation frequency in revolutions per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Rate Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedquantity}
+  Read an angular speed in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.speedReadout}
+  Read a physical speed in the selected coherent length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedreadout}
+  Metre-per-second readout used by the question and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Ball]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.Ball}
+  The two ball labels written in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball.
+\end{proof}
+\begin{definition}[Position Label]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-positionlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.PositionLabel}
+  The three labeled positions on the image's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Label.
+\end{proof}
+\begin{definition}[Radius Label]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-radiuslabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.RadiusLabel}
+  The two rod segments from the center of mass to the ball centers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radius Label.
+\end{proof}
+\begin{definition}[position Label]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball-positionlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.Ball.positionLabel}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-positionlabel}
+  The coordinate label associated with each ball label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Label.
+\end{proof}
+\begin{definition}[radius Label]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball-radiuslabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.Ball.radiusLabel}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-radiuslabel}
+  The center-of-mass lever-arm label associated with each ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radius Label.
+\end{proof}
+\begin{definition}[Rod Mass Model]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rodmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.RodMassModel}
+  The idealized mass distribution of the connecting rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Mass Model.
+\end{proof}
+\begin{definition}[Connector Model]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-connectormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.ConnectorModel}
+  The mechanical constraint imposed by the connector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connector Model.
+\end{proof}
+\begin{definition}[Rotation Axis Location]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationaxislocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.RotationAxisLocation}
+  The point about which the problem says the assembly rotates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis Location.
+\end{proof}
+\begin{definition}[Two Ball Rod Figure]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.TwoBallRodFigure}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-positionlabel, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-radiuslabel}
+  Qualitative marks and labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Ball Rod Figure.
+\end{proof}
+\begin{definition}[Two Ball Rod Rotation Setup]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.TwoBallRodRotationSetup}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massquantity, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthquantity, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionquantity, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratequantity, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedquantity, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-positionlabel, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-radiuslabel, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rodmassmodel, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-connectormodel, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationaxislocation, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodfigure}
+  Independent physical quantities of the rotating two-ball system. In particular, each ball speed and each radius is stored independently and is related to the other quantities only by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Ball Rod Rotation Setup.
+\end{proof}
+\begin{definition}[mass Weighted Center Position Readout]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massweightedcenterpositionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.massWeightedCenterPositionReadout}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup}
+  The mass-weighted center of the two ball positions, evaluated in coherent selected units. Mathlib's Finset.centerMass supplies the actual weighted affine combination; the massless-rod law below identifies it with x\_cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Weighted Center Position Readout.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratereadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup}
+  Numerical readouts from the prose and primary image, together with their figure roles. The center-of-mass coordinate and both ball speeds are absent: they must be derived from the physical laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Two Ball Rod Parameters]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-hasphysicaltwoballrodparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.HasPhysicalTwoBallRodParameters}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratereadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup}
+  Positivity and nondegeneracy conditions for the rotating assembly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Two Ball Rod Parameters.
+\end{proof}
+\begin{definition}[Satisfies Massless Two Ball Rotation Laws]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-satisfiesmasslesstwoballrotationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.SatisfiesMasslessTwoBallRotationLaws}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-axialpositionreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-rotationratereadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-angularspeedreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-ball, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-massweightedcenterpositionreadout}
+  The physical laws used to answer the question: because the rod is massless, x\_cm is the mass-weighted center of the two ball centers; each rᵢ is the distance from its ball center to x\_cm, and the two radii span the straight rod; one revolution is 2π radians, so ω = 2π f; rigid uniform rotation gives the tangential-speed magnitude vᵢ = ω rᵢ. All equations are stated in coherent selected units. No field contains the requested 2π/15 m/s speed or the recorded 1.68 m/s choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Massless Two Ball Rotation Laws.
+\end{proof}
+\begin{lemma}[center Of Mass Radii In Meters]
+  \label{lem:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-centerofmassradiiinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.centerOfMassRadiiInMeters}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-lengthreadout, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesproblemandprimaryfigure, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-hasphysicaltwoballrodparameters, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-satisfiesmasslesstwoballrotationlaws}
+  The 2.0 kg ball lies 0.10 m from x\_cm, while the 500 g ball lies 0.40 m from it. This is derived from the independent mass and coordinate readouts plus the massless-rod center-of-mass law
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of center Of Mass Radii In Meters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.AnswerChoice}
+  Labels attached to the four displayed speed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-answerchoice}
+  Metre-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Speed]
+  \label{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesdisplayedspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.MatchesDisplayedSpeed}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-speedinmeterspersecond, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-answerchoice}
+  A physical speed matches a two-decimal-place displayed choice when its SI readout differs from the printed value by at most half of 0.01 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Speed.
+\end{proof}
+\begin{theorem}[five Hundred Gram Ball Speed matches recorded Choice C]
+  \label{thm:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-fivehundredgramballspeed-matches-recordedchoicec}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0696.fiveHundredGramBallSpeed_matches_recordedChoiceC}
+  \uses{def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-twoballrodrotationsetup, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesproblemandprimaryfigure, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-hasphysicaltwoballrodparameters, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-satisfiesmasslesstwoballrotationlaws, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-recordedanswerchoice, def:physics:phyx-mini-0696:phyxminiproblems-problemphyxmini0696-matchesdisplayedspeed}
+  The dataset's recorded 1.68 m/s choice is consistent with the other ball, m₂ = 500 g, whose center-of-mass radius is 0.40 m. Keeping this as a conclusion rather than a premise exposes the source inconsistency without changing the target above
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of five Hundred Gram Ball Speed matches recorded Choice C.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

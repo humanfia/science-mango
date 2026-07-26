@@ -1,0 +1,221 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0735.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0735.source.json
+
+\chapter{Physics problem phyx\_mini\_0735}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0735}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Rock faults are ruptures along which opposite faces of rock have slid past each other. In figure, points \$A\$ and \$B\$ coincided before the rock in the foreground slid down to the right. The net displacement \$\textbackslash{}vec\{AB\}\$ is along the plane of the fault. The horizontal component of \$\textbackslash{}vec\{AB\}\$ is the strike-slip \$AC\$. The component of \$\textbackslash{}vec\{AB\}\$ that is directed down the plane of the fault is the dip-slip \$AD\$.
+
+\#\# Question
+
+What is the magnitude of the net displacement \$\textbackslash{}vec\{AB\}\$ if the strike-slip is \$22.0\textbackslash{} m\$ and the dip-slip is \$17.0\textbackslash{} m\$?
+
+\#\# Answer choices
+
+- A: A: 23.7 m
+
+- B: B: 25.4 m
+
+- C: C: 27.8 m
+
+- D: D: 29.6 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a fault plane, commonly used in geology to illustrate fault movements. It shows two blocks with a fault plane between them. Here's a detailed description:
+
+1. **Blocks**: 
+   - The diagram features two blocks, each representing sections of the Earth's crust. They are textured to resemble rock surfaces.
+   
+2. **Fault Plane**: 
+   - A central diagonal surface between the two blocks represents the fault plane. It is labeled accordingly.
+
+3. **Arrows and Lines**: 
+   - An orange arrow points from point A to point B, indicating movement along the fault plane.
+   - A dashed line between points C and D represents the horizontal line on the fault plane.
+
+4. **Labels**: 
+   - "Strike-slip" is labeled along the horizontal dimension, indicating lateral movement along the plane.
+   - "Dip-slip" is labeled along the vertical dimension, indicating vertical movement.
+   
+5. **Angles and Bearings**: 
+   - There is a red angle marked at point A, where the meeting lines of strike-slip and dip-slip are highlighted. 
+   - The Greek letter φ (phi) denotes the angle between the dashed line and the vertical, representing the dip angle of the fault plane.
+
+6. **Points**: 
+   - Points A, B, C, and D mark key intersections and angles within the diagram to illustrate geometric relationships.
+
+The diagram effectively shows the components and mechanics involved in fault plane movements, useful for understanding geological shifts.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 27.8 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/735.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0735.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0735:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0735.netDisplacementMagnitude}
+\uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementmagnitudeinmeters, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanefigure, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-matchesprimaryfigure, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultcomponentlaws, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-matchesproblemdata}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Fault Plane Vector]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanevector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.FaultPlaneVector}
+  A real two-dimensional coordinate vector intrinsic to the fault plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fault Plane Vector.
+\end{proof}
+\begin{definition}[Displacement Vector]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.DisplacementVector}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanevector}
+  A unit-independent physical displacement vector of length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Vector.
+\end{proof}
+\begin{definition}[displacement Readout]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.displacementReadout}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanevector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector}
+  Read a physical displacement vector in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Readout.
+\end{proof}
+\begin{definition}[displacement In Meters]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.displacementInMeters}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanevector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementreadout}
+  Read a physical displacement vector in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement In Meters.
+\end{proof}
+\begin{definition}[displacement Magnitude Readout]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementmagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.displacementMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementreadout}
+  Read the magnitude of a physical displacement in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Magnitude Readout.
+\end{proof}
+\begin{definition}[displacement Magnitude In Meters]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementmagnitudeinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.displacementMagnitudeInMeters}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementmagnitudereadout}
+  Read the magnitude of a physical displacement in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Magnitude In Meters.
+\end{proof}
+\begin{definition}[Fault Point]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.FaultPoint}
+  The four point labels printed on the supplied fault-plane diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fault Point.
+\end{proof}
+\begin{definition}[Fault Segment]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.FaultSegment}
+  The labeled segments used in the parallelogram decomposition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fault Segment.
+\end{proof}
+\begin{definition}[segment Start]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.segmentStart}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultpoint, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultsegment}
+  The initial endpoint associated with each labeled segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of segment Start.
+\end{proof}
+\begin{definition}[segment End]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.segmentEnd}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultpoint, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultsegment}
+  The terminal endpoint associated with each labeled segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of segment End.
+\end{proof}
+\begin{definition}[Segment Role]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.SegmentRole}
+  Kinematic roles assigned to lines in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Role.
+\end{proof}
+\begin{definition}[Segment Style]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentstyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.SegmentStyle}
+  Drawing styles that distinguish the figure's arrow and construction lines
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Style.
+\end{proof}
+\begin{definition}[Fault Plane Figure]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.FaultPlaneFigure}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementvector, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultpoint, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultsegment, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentrole, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-segmentstyle}
+  The physical vectors and auxiliary annotations displayed in image 735. The dip angle phi is dimensionless and is represented by its radian readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fault Plane Figure.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultpoint, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanefigure}
+  Evidence read from the primary raster and the scenario text. These fields record labels, line styles, qualitative motion, and the acute angle phi; they do not constrain the requested net magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Fault Component Laws]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultcomponentlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.FaultComponentLaws}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementreadout, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanefigure}
+  The component law for the free displacement vectors in the fault plane. It is stated in every length unit: AB is the vector sum of AC and AD, and the strike and dip directions are perpendicular
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fault Component Laws.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0735.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-displacementmagnitudeinmeters, def:physics:phyx-mini-0735:phyxminiproblems-problemphyxmini0735-faultplanefigure}
+  The two measured component magnitudes supplied in the question. No field here mentions the net magnitude or the recorded answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

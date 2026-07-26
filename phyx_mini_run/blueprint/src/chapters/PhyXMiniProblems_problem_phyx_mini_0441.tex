@@ -1,0 +1,358 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0441.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0441.source.json
+
+\chapter{Physics problem phyx\_mini\_0441}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0441}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Air in an automobile tire is initially at \$-10 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}	ext\{C\}\$ and \$190 \textbackslash{}, \textbackslash{}text\{kPa\}\$. After the automobile is driven awhile, the temperature rises to \$10 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}	ext\{C\}\$. You must make one assumption on your own.
+
+\#\# Question
+
+Find the new pressure.
+
+\#\# Answer choices
+
+- A: A: 220.0 kPa
+
+- B: B: 213.1 kPa
+
+- C: C: 200.0 kPa
+
+- D: D: 204.4 kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a detailed illustration of a car tire. The tire is presented with a visible tread pattern on its outer surface. The wheel rim is shown in the center of the tire, and it is colored light blue.
+
+A valve stem protrudes from the tire, and an arrow points towards this component, labeling it as "Air P". The label suggests that air pressure is an important factor related to the tire, likely indicating where air is inserted to inflate it. The tire is presented in a three-dimensional view, allowing for a clear visual understanding of its structure.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 204.4 kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/441.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0441.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0441:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0441.finalPressure_roundsTo_204_point_4_kPa_answerD}
+\uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinkilopascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-reportedpressureinkilopascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-matchesproblemstatement, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-matchesprimaryfigure, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-usesidealizedrigidsealedtiremodel, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-hasphysicaltireairparameters, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-satisfiestireidealgaslaw, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-recordedanswerchoice, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-roundstoonedecimal}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.GasVolume}
+  Interior gas volume, carrying the physical dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Molar Gas Constant]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.MolarGasConstant}
+  The molar gas constant, carrying energy-per-temperature dimension. Physlib's dimension vector has no amount-of-substance coordinate, so the inverse-mole role is recorded by the type name and paired with an explicit mole readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.pressureInPascals}
+  Read a dimensionful pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinpascals}
+  Read a dimensionful pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasvolume}
+  Read the tire's physical interior volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[molar Gas Constant In SI]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstantinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.molarGasConstantInSI}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstant}
+  Read the molar gas constant in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In SI.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.temperatureInKelvins}
+  Read an absolute temperature in kelvins from its storage unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[celsius Zero In Kelvins]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-celsiuszeroinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.celsiusZeroInKelvins}
+  Exact Celsius zero offset, expressed in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of celsius Zero In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureinkelvins, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-celsiuszeroinkelvins}
+  Celsius readout of a Physlib absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Tire Condition]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.TireCondition}
+  The two tire-air states named in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Condition.
+\end{proof}
+\begin{definition}[Automobile Use]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobileuse}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.AutomobileUse}
+  The process described between the two states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Automobile Use.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.GasModel}
+  Equation-of-state model assigned to the tire air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.GasSpecies}
+  Gas species relevant to the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Pressure Interpretation]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinterpretation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.PressureInterpretation}
+  Whether a pressure readout is absolute or relative to the atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Interpretation.
+\end{proof}
+\begin{definition}[Valve Condition]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-valvecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.ValveCondition}
+  State of the valve stem during the drive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Condition.
+\end{proof}
+\begin{definition}[Tire Volume Model]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirevolumemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.TireVolumeModel}
+  Mechanical idealization used for the tire interior
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Volume Model.
+\end{proof}
+\begin{definition}[Tire Feature]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.TireFeature}
+  Tire features visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Feature.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.FigureColor}
+  Color used for the central wheel rim in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.FigureLabel}
+  The text attached to the pressure arrow in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure View]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figureview}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.FigureView}
+  Perspective in which the tire is drawn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure View.
+\end{proof}
+\begin{definition}[Automobile Tire Figure]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletirefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.AutomobileTireFigure}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirefeature, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figurecolor, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figurelabel, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-figureview}
+  Qualitative labels and geometry transcribed from the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Automobile Tire Figure.
+\end{proof}
+\begin{definition}[Tire Air State]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tireairstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.TireAirState}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasvolume}
+  Absolute pressure, volume, and absolute temperature at one tire condition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Air State.
+\end{proof}
+\begin{definition}[Tire Air Sample]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tireairsample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.TireAirSample}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasspecies}
+  The same physical air sample is used at both conditions. Its amount is an explicit scalar readout in moles rather than a replacement type for the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Air Sample.
+\end{proof}
+\begin{definition}[Automobile Tire Air Setup]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.AutomobileTireAirSetup}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstant, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirecondition, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobileuse, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-gasmodel, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinterpretation, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-valvecondition, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirevolumemodel, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletirefigure, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tireairstate, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tireairsample}
+  All independent data in the tire model. In particular, the final pressure is an unconstrained DimPressure field until the assumptions and ideal-gas law are imposed; it is not defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Automobile Tire Air Setup.
+\end{proof}
+\begin{definition}[reported Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-reportedpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.reportedPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinkilopascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-tirecondition, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  The pressure displayed to the reader. An absolute report is the thermodynamic pressure itself; a gauge report subtracts the ambient absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reported Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureindegreescelsius, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-reportedpressureinkilopascals}
+  Numerical data stated in the prose. This structure contains no numerical value for the final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  Figure-derived facts; the raster contains no numerical pressure readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Idealized Rigid Sealed Tire Model]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-usesidealizedrigidsealedtiremodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.UsesIdealizedRigidSealedTireModel}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  Explicit modeling choices needed to infer a pressure. The requested self-supplied assumption is interiorVolumeUnchanged; the sealed fixed-sample, ideal-gas, and absolute-pressure interpretations are also made explicit so that the thermodynamic calculation is unambiguous
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Idealized Rigid Sealed Tire Model.
+\end{proof}
+\begin{definition}[Has Physical Tire Air Parameters]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-hasphysicaltireairparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.HasPhysicalTireAirParameters}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinpascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-volumeincubicmeters, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstantinsi, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureinkelvins, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  Positivity conditions selecting physically meaningful ideal-gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tire Air Parameters.
+\end{proof}
+\begin{definition}[Satisfies Tire Ideal Gas Law]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-satisfiestireidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.SatisfiesTireIdealGasLaw}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinpascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-volumeincubicmeters, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-molargasconstantinsi, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureinkelvins, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup}
+  The macroscopic ideal-gas equation pV = nRT, in coherent SI readouts, at each condition. It is a general governing law and does not assign a value to the final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Tire Ideal Gas Law.
+\end{proof}
+\begin{lemma}[final Pressure temperature Ratio]
+  \label{lem:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-finalpressure-temperatureratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.finalPressure_temperatureRatio}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinkilopascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-temperatureinkelvins, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-automobiletireairsetup, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-matchesproblemstatement, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-usesidealizedrigidsealedtiremodel, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-hasphysicaltireairparameters, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-satisfiestireidealgaslaw}
+  For a fixed amount of ideal gas in a fixed volume, pressure is proportional to absolute temperature. This relation is a derived conclusion, not one of the law or scenario fields above
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Pressure temperature Ratio.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.AnswerChoice}
+  Labels of the four answer choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-answerchoice-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.AnswerChoice.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-pressureinkilopascals, def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-answerchoice}
+  Kilopascal value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To One Decimal]
+  \label{def:physics:phyx-mini-0441:phyxminiproblems-problemphyxmini0441-roundstoonedecimal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0441.RoundsToOneDecimal}
+  RoundsToOneDecimal actual displayed says that displayed is the result of rounding actual to the nearest tenth, with a half-open tie convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To One Decimal.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

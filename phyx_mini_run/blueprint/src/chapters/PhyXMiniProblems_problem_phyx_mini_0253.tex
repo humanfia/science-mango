@@ -1,0 +1,232 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0253.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0253.source.json
+
+\chapter{Physics problem phyx\_mini\_0253}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0253}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The vertical axis scale is set by \$v\_s = 4.0\textbackslash{} cm/s\$.
+
+\#\# Question
+
+What is the phase constant (positive) for the harmonic oscillator with the velocity function \$v(t)\$ given in figure if the position function \$x(t)\$ has the form \$x = x\_m \textbackslash{}cos(\textbackslash{}omega t + \textbackslash{}phi)\$?
+
+\#\# Answer choices
+
+- A: A: 4.86 rad
+
+- B: B: 5.12 rad
+
+- C: C: 5.36 rad
+
+- D: D: 5.72 rad
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a smooth, symmetrical curve resembling a sine wave. The x-axis is labeled with "t" and represents time, while the y-axis is labeled with "v (cm/s)" and represents velocity in centimeters per second. The peak and trough of the curve are labeled with "vₛ" and "-vₛ" respectively, indicating maximum and minimum velocity values. The curve crosses the horizontal axis midway, illustrating oscillation above and below zero velocity. Grid lines are present, aiding in reading values from the graph.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 5.36 rad
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/253.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0253.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0253:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0253.phaseConstant_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-hasphysicalparameters, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-matchesprimaryvelocitygraph, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-satisfiescosineharmonicoscillatorlaws, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-recordedanswerchoice, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Oscillator Length]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.OscillatorLength}
+  A one-dimensional oscillator displacement or displacement amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillator Length.
+\end{proof}
+\begin{definition}[Oscillator Time]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatortime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.OscillatorTime}
+  A physical time shown on the horizontal graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillator Time.
+\end{proof}
+\begin{definition}[Angular Frequency]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-angularfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.AngularFrequency}
+  A physical angular frequency, with radians treated as dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency.
+\end{proof}
+\begin{definition}[Oscillator Velocity]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.OscillatorVelocity}
+  A signed one-dimensional velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillator Velocity.
+\end{proof}
+\begin{definition}[Oscillator Acceleration]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatoracceleration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.OscillatorAcceleration}
+  A signed one-dimensional acceleration, equivalently a velocity-graph slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillator Acceleration.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.centimetersValue}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorlength}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[seconds Value]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-secondsvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.secondsValue}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatortime}
+  Read a physical time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds Value.
+\end{proof}
+\begin{definition}[radians Per Second Value]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-radianspersecondvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.radiansPerSecondValue}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-angularfrequency}
+  Read an angular frequency in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Per Second Value.
+\end{proof}
+\begin{definition}[centimeters Per Second Value]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.centimetersPerSecondValue}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorvelocity}
+  Read a signed velocity in centimetres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Per Second Value.
+\end{proof}
+\begin{definition}[centimeters Per Second Squared Value]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondsquaredvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.centimetersPerSecondSquaredValue}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatoracceleration}
+  Read a signed acceleration in centimetres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Per Second Squared Value.
+\end{proof}
+\begin{definition}[Graph Axis Quantity]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-graphaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.GraphAxisQuantity}
+  Physical roles of the two axes in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis Quantity.
+\end{proof}
+\begin{definition}[Velocity Graph Oscillator]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.VelocityGraphOscillator}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorlength, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatortime, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-angularfrequency, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatorvelocity, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-oscillatoracceleration, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-graphaxisquantity}
+  The oscillator quantities and the labeled/read-off features of the primary velocity graph. The field phaseConstant is not assigned an answer here. It is constrained only through the harmonic-oscillator laws below and is the quantity determined by the theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Graph Oscillator.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimetersvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-radianspersecondvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator}
+  Positivity and the standard positive representative convention for phase
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Matches Primary Velocity Graph]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-matchesprimaryvelocitygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.MatchesPrimaryVelocityGraph}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-secondsvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondsquaredvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator}
+  Readouts supplied by the primary image and the stated scale calibration. There are four grid intervals from zero to v\_s = 4 cm/s and one further interval to the positive peak. At the displayed time origin the curve has value v\_s and negative slope. These are graph observations, not assumptions of the requested phase or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Velocity Graph.
+\end{proof}
+\begin{definition}[Satisfies Cosine Harmonic Oscillator Laws]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-satisfiescosineharmonicoscillatorlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.SatisfiesCosineHarmonicOscillatorLaws}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimetersvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-secondsvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-radianspersecondvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-centimeterspersecondsquaredvalue, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator}
+  The position, velocity, and acceleration functions obey the cosine-form simple-harmonic-motion model with the sign convention stated in the problem. All three equations are expressed in coherent centimetre/second readouts. In particular, differentiating x\_m cos (ω t + φ) gives the minus sign in the velocity law. No phase value or answer-choice statement is included in this governing-law interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cosine Harmonic Oscillator Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-answerchoice-radians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.AnswerChoice.radians}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-answerchoice}
+  Phase in radians printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-answerchoice}
+  Agreement with a phase displayed to the nearest hundredth of a radian
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[phase Constant exact]
+  \label{lem:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-phaseconstant-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0253.phaseConstant_exact}
+  \uses{def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-velocitygraphoscillator, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-hasphysicalparameters, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-matchesprimaryvelocitygraph, def:physics:phyx-mini-0253:phyxminiproblems-problemphyxmini0253-satisfiescosineharmonicoscillatorlaws}
+  The graph gives v(0)/v\_m = 4/5 on the descending branch. With v = -v\_m sin (ω t + φ) and the positive representative convention, this selects the fourth-quadrant phase 2π - arcsin (4/5). This is the exact symbolic part of
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of phase Constant exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,252 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0869.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0869.source.json
+
+\chapter{Physics problem phyx\_mini\_0869}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0869}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure is a graph of \textbackslash{}( E\_\{x\} \textbackslash{}). The potential at the origin is \textbackslash{}( -50 \textbackslash{} \textbackslash{}mathrm\{V\} \textbackslash{}).
+
+\#\# Question
+
+What is the potential at \textbackslash{}( x = 3.0 \textbackslash{} \textbackslash{}mathrm\{m\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 120V
+
+- B: B: -140V
+
+- C: C: -2000V
+
+- D: D: -200V
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph showing a plot of \textbackslash{}( E\_x \textbackslash{}) versus \textbackslash{}( x \textbackslash{}). 
+
+- The y-axis is labeled \textbackslash{}( E\_x \textbackslash{}) (V/m), indicating the electric field strength in volts per meter.
+- The x-axis is labeled \textbackslash{}( x \textbackslash{}) (m), representing the position in meters.
+- The plot consists of two segments:
+  - From \textbackslash{}( x = 0 \textbackslash{}) to \textbackslash{}( x = 2 \textbackslash{}), the electric field \textbackslash{}( E\_x \textbackslash{}) is constant at 200 V/m.
+  - From \textbackslash{}( x = 2 \textbackslash{}) to \textbackslash{}( x = 3 \textbackslash{}), the electric field \textbackslash{}( E\_x \textbackslash{}) decreases linearly to 0 V/m. 
+
+- The graph uses a magenta line to represent the data, and the background contains a grid for reference.
+- The plot is positioned within labeled axes with grid lines for clarity.
+
+\#\# Dataset metadata
+
+Electrostatics; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -200V
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/869.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0869.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0869:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0869.answerD_isUniqueDisplayedMatch}
+\uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matcheselectrostaticscenario, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-calibratesphyslibelectricfield, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matchesprimaryelectricfieldgraph, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-usesstatedoriginpotential, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-satisfieselectrostaticpotentialdifferencelaw, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-answerchoice, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-choicematchestarget}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricPotentialDimension}
+  The dimension M L\textasciicircum{}2 T\textasciicircum{}-2 C\textasciicircum{}-1 of electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Field Component Dimension]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricFieldComponentDimension}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialdimension}
+  The dimension M L T\textasciicircum{}-2 C\textasciicircum{}-1 of an electric-field component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Component Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialdimension}
+  A signed, unit-independent electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Signed Electric Field Component Quantity]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-signedelectricfieldcomponentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.SignedElectricFieldComponentQuantity}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentdimension}
+  A signed, unit-independent Cartesian component of electric field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Electric Field Component Quantity.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialquantity}
+  Coherent-SI readout of an electric potential, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[electric Field Component In Volts Per Meter]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricFieldComponentInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-signedelectricfieldcomponentquantity}
+  Coherent-SI readout of a signed electric-field component, in volts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Component In Volts Per Meter.
+\end{proof}
+\begin{definition}[Plot Axis]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-plotaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.PlotAxis}
+  The two coordinate axes visible in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis.
+\end{proof}
+\begin{definition}[Plot Axis Role]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-plotaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.PlotAxisRole}
+  Physical role attached to a graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis Role.
+\end{proof}
+\begin{definition}[Trace Color]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-tracecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.TraceColor}
+  Color category of the plotted trace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Color.
+\end{proof}
+\begin{definition}[Electric Field Graph Figure]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldgraphfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.ElectricFieldGraphFigure}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-plotaxis, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-plotaxisrole, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-tracecolor}
+  Literal diagram metadata. All coordinates and tick values are scalar readouts in the units printed on the corresponding axis; the physical field values are connected to them separately in MatchesPrimaryElectricFieldGraph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Graph Figure.
+\end{proof}
+\begin{definition}[Electrostatic Line Setup]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.ElectrostaticLineSetup}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialquantity, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-signedelectricfieldcomponentquantity, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldgraphfigure}
+  The physical electrostatic system sampled by the graph. Its scalar fields are independent data, not definitions in terms of -200 or answer D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrostatic Line Setup.
+\end{proof}
+\begin{definition}[Matches Electrostatic Scenario]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matcheselectrostaticscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.MatchesElectrostaticScenario}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  The prose identifies the system as electrostatic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Electrostatic Scenario.
+\end{proof}
+\begin{definition}[Calibrates Physlib Electric Field]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-calibratesphyslibelectricfield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.CalibratesPhyslibElectricField}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentinvoltspermeter, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  Calibration of the typed scalar component against Physlib's one-dimensional electric field along the plotted spatial line. The raw Physlib vector component is interpreted in coherent SI units. Time independence states the electrostatic condition rather than any numerical target value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Calibrates Physlib Electric Field.
+\end{proof}
+\begin{definition}[Matches Primary Electric Field Graph]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matchesprimaryelectricfieldgraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.MatchesPrimaryElectricFieldGraph}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentinvoltspermeter, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  Axis data and trace values read from the primary raster. The affine formula on [2, 3] expresses the visible straight segment from (2, 200) to (3, 0). It describes the supplied field graph only; it does not state a potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Electric Field Graph.
+\end{proof}
+\begin{definition}[Uses Stated Origin Potential]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-usesstatedoriginpotential}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.UsesStatedOriginPotential}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialinvolts, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  The stated datum that the potential at the origin is -50 V
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Stated Origin Potential.
+\end{proof}
+\begin{definition}[Satisfies Electrostatic Potential Difference Law]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-satisfieselectrostaticpotentialdifferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.SatisfiesElectrostaticPotentialDifferenceLaw}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialinvolts, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentinvoltspermeter, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup}
+  The electrostatic potential-difference law on the plotted interval, V(b) - V(a) = - integral\_a\textasciicircum{}b E\_x(x) dx. The integration variable is the displayed metre coordinate, so integrating a V/m readout produces a voltage readout. The law is quantified over every subinterval of [0, 3]; it does not assume the requested endpoint value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electrostatic Potential Difference Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.AnswerChoice}
+  Labels attached to the four displayed potential choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Potential In Volts]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-displayedpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.displayedPotentialInVolts}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-answerchoice}
+  Potential readout printed beside an answer label, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Potential In Volts.
+\end{proof}
+\begin{definition}[choice Matches Target]
+  \label{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-choicematchestarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.choiceMatchesTarget}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialinvolts, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-answerchoice, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-displayedpotentialinvolts}
+  A displayed choice agrees with the potential at the plotted endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of choice Matches Target.
+\end{proof}
+\begin{lemma}[electric Field Area From Primary Graph eq one Hundred Fifty Volts]
+  \label{lem:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldareafromprimarygraph-eq-onehundredfiftyvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricFieldAreaFromPrimaryGraph_eq_oneHundredFiftyVolts}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricfieldcomponentinvoltspermeter, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matchesprimaryelectricfieldgraph}
+  The signed area under the supplied E\_x graph from 0 m to 3 m is 150 V
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Field Area From Primary Graph eq one Hundred Fifty Volts.
+\end{proof}
+\begin{theorem}[electric Potential At Three Meters eq neg Two Hundred Volts]
+  \label{thm:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialatthreemeters-eq-negtwohundredvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0869.electricPotentialAtThreeMeters_eq_negTwoHundredVolts}
+  \uses{def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electricpotentialinvolts, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-electrostaticlinesetup, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matcheselectrostaticscenario, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-calibratesphyslibelectricfield, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-matchesprimaryelectricfieldgraph, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-usesstatedoriginpotential, def:physics:phyx-mini-0869:phyxminiproblems-problemphyxmini0869-satisfieselectrostaticpotentialdifferencelaw}
+  The requested potential at x = 3 m is -200 V. This is the Lean declaration corresponding to
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Potential At Three Meters eq neg Two Hundred Volts.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

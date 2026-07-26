@@ -1,0 +1,313 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0704.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0704.source.json
+
+\chapter{Physics problem phyx\_mini\_0704}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0704}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The engine in a small airplane is specified to have a torque of \textbackslash{}(60\textbackslash{},\textbackslash{}mathrm\{N\textbackslash{},m\}\textbackslash{}). This engine drives a \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{})-long, \textbackslash{}(40\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) propeller.
+
+\#\# Question
+
+On start-up,how long does it take the propeller to reach \textbackslash{}(200\textbackslash{},\textbackslash{}mathrm\{rpm\}\textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 5.0s
+
+- B: B: 4.8s
+
+- C: C: 4.6s
+
+- D: D: 4.4s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a propeller with an axis of rotation. The propeller is vertically oriented, and the diagram highlights various details about it:
+
+- The propeller has a length labeled as \textbackslash{}(L = 2.0 \textbackslash{}, \textbackslash{}text\{m\}\textbackslash{}).
+- It has a mass denoted as \textbackslash{}(M = 40 \textbackslash{}, \textbackslash{}text\{kg\}\textbackslash{}).
+- An arrow indicates the direction of rotation due to torque from the engine.
+- The phrase "The torque from the engine rotates the propeller" is written in blue text with a dotted arrow pointing towards the propeller to indicate the application of torque.
+- The rotation axis is marked as "Axis".
+
+Overall, the diagram is a clear representation of the mechanical aspects involved in the rotation of a propeller.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.6s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/704.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0704.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0704:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0704.propeller_startup_duration_and_answer_choice}
+\uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timeinseconds, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerstartupsetup, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-matchesproblemdata, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-matchessourcefigure, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-validpropellerstartupphysics, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-answerchoice, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-answerchoice-durationseconds}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.TimeQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Torque Magnitude Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torquemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.TorqueMagnitudeQuantity}
+  A nonnegative torque magnitude, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torque Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.MomentOfInertiaQuantity}
+  A moment of inertia about the displayed axis, with dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.AngularSpeedQuantity}
+  A nonnegative angular speed; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Acceleration Quantity]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.AngularAccelerationQuantity}
+  A nonnegative angular acceleration; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Acceleration Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.lengthInMeters}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Metre readout of the total tip-to-tip propeller length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.massInKilograms}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Kilogram readout of the propeller mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.timeInSeconds}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timequantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[torque In Newton Meters]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.torqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torquemagnitudequantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Newton-metre readout of a torque magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque In Newton Meters.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-momentofinertiaquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Kilogram-metre-squared readout of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Radian-per-second readout of an angular speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Acceleration In Radians Per Second Squared]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularaccelerationinradianspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.angularAccelerationInRadiansPerSecondSquared}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularaccelerationquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-nonnegativesireadout}
+  Radian-per-second-squared readout of an angular acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration In Radians Per Second Squared.
+\end{proof}
+\begin{definition}[angular Speed In Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedinrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.angularSpeedInRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedinradianspersecond}
+  Revolutions-per-minute readout, using one revolution as 2 * π radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Revolutions Per Minute.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.FigureObject}
+  Objects and graphical annotations visibly present in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.FigureTextLabel}
+  Text labels printed in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.FigurePoint}
+  Distinguished locations in the supplied propeller drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Propeller Figure Readout]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerfigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.PropellerFigureReadout}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figureobject, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figuretextlabel, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-figurepoint}
+  Scalar labels and incidence information read directly from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propeller Figure Readout.
+\end{proof}
+\begin{definition}[Rotation Axis Placement]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-rotationaxisplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.RotationAxisPlacement}
+  Placement of the fixed rotation axis relative to the propeller
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis Placement.
+\end{proof}
+\begin{definition}[Propeller Mass Model]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellermassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.PropellerMassModel}
+  Mass-distribution idealization used to compute the axial inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propeller Mass Model.
+\end{proof}
+\begin{definition}[Startup Torque Regime]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-startuptorqueregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.StartupTorqueRegime}
+  Torque regime during the modeled startup interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Startup Torque Regime.
+\end{proof}
+\begin{definition}[Propeller Startup Setup]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerstartupsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.PropellerStartupSetup}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timequantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torquemagnitudequantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-momentofinertiaquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularaccelerationquantity, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerfigurereadout, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-rotationaxisplacement, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellermassmodel, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-startuptorqueregime}
+  The physical quantities and figure attached to the startup experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propeller Startup Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torqueinnewtonmeters, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedinrevolutionsperminute, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerstartupsetup}
+  The values stated in the text for the driving torque and target speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Source Figure]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-matchessourcefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.MatchesSourceFigure}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthinmeters, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massinkilograms, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerstartupsetup}
+  The labels and geometry read from the supplied image, including the coherence of its scalar labels with the dimensionful setup quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Source Figure.
+\end{proof}
+\begin{definition}[Valid Propeller Startup Physics]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-validpropellerstartupphysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.ValidPropellerStartupPhysics}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-lengthinmeters, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-massinkilograms, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-timeinseconds, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-torqueinnewtonmeters, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularspeedinradianspersecond, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-angularaccelerationinradianspersecondsquared, def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-propellerstartupsetup}
+  Governing fixed-axis dynamics and the uniform-rod idealization. The final startup duration is deliberately absent. The last field is the constant-angular-acceleration kinematic law relating the still-unknown duration to the initial and target angular speeds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valid Propeller Startup Physics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.AnswerChoice}
+  Letter labels used by the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[duration Seconds]
+  \label{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-answerchoice-durationseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0704.AnswerChoice.durationSeconds}
+  \uses{def:physics:phyx-mini-0704:phyxminiproblems-problemphyxmini0704-answerchoice}
+  The duration in seconds printed beside each answer-choice letter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Seconds.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

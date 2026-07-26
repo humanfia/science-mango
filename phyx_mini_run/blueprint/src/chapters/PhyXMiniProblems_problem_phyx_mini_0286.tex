@@ -1,0 +1,293 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0286.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0286.source.json
+
+\chapter{Physics problem phyx\_mini\_0286}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0286}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A sand scorpion can detect the motion of a nearby beetle (its prey) by the waves the motion sends along the sand surface. The waves are of two types: transverse waves traveling at \textbackslash{}(v\_t = 50\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}) and longitudinal waves traveling at \textbackslash{}(v\_l = 150\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}). If a sudden motion sends out such waves, a scorpion can tell the distance of the beetle from the difference \textbackslash{}(\textbackslash{}Delta t\textbackslash{}) in the arrival times of the waves at its leg nearest the beetle.
+
+\#\# Question
+
+If \textbackslash{}(\textbackslash{}Delta t = 4.0\textbackslash{},\textbackslash{}mathrm\{ms\}\textbackslash{}), what is the beetle's distance?
+
+\#\# Answer choices
+
+- A: A: 20 cm
+
+- B: B: 25 cm
+
+- C: C: 35 cm
+
+- D: D: 30 cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic illustration showing two objects, a scorpion and a beetle, positioned on curved surfaces. 
+
+- **Top Section**: A scorpion is standing on an arched surface. Two arrows labeled \textbackslash{}(\textbackslash{}vec\{v\}\_l\textbackslash{}) extend outwards and upwards from the curve, showing movement or propagation direction.
+
+- **Middle Section**: A vertical line marked with \textbackslash{}(d\textbackslash{}) connects the scorpion at the top with the beetle at the bottom, indicating a distance between them.
+
+- **Bottom Section**: A beetle is shown on another arched surface. Two arrows labeled \textbackslash{}(\textbackslash{}vec\{v\}\_t\textbackslash{}) extend outwards and upwards from this curve, similar to the ones near the scorpion.
+
+- **Text**: The bottom part of the illustration includes the label "Beetle," showing the identification of the bottom figure. There are directional vectors, \textbackslash{}(\textbackslash{}vec\{v\}\_l\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{v\}\_t\textbackslash{}), which could represent forces, velocities, or signals.
+
+Overall, the illustration seems to depict a comparative concept involving the scorpion and beetle.
+
+\#\# Dataset metadata
+
+Wave Properties; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 30 cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/286.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0286.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0286:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0286.beetleDistance_is_thirtyCentimeters_and_choiceD}
+\uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthinmeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthincentimeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-matchesproblemandfigure, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-hasphysicalparameters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-satisfiescommonpathwavetravelmodel, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.LengthQuantity}
+  A nonnegative physical separation, independent of the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.DurationQuantity}
+  A nonnegative physical duration, independent of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.SpeedQuantity}
+  A nonnegative physical propagation speed with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.lengthReadout}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.durationReadout}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationquantity}
+  Read a physical duration in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.speedReadout}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedquantity}
+  Read a physical speed in coherent units of length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.lengthInMeters}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthreadout}
+  Metre readout of the beetle-to-scorpion separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthreadout}
+  Centimetre readout used by the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.durationInSeconds}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationreadout}
+  Second readout used in the constant-speed propagation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Milliseconds]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.durationInMilliseconds}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationreadout}
+  Millisecond readout used for the stated arrival-time difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Milliseconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedreadout}
+  Metre-per-second readout of a sand-wave propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Sand Wave Mode]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.SandWaveMode}
+  The two modes of sand-surface disturbance named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sand Wave Mode.
+\end{proof}
+\begin{definition}[Detection Endpoint]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-detectionendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.DetectionEndpoint}
+  The emitting and detecting endpoints of the timing experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detection Endpoint.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.FigureObject}
+  The two animals shown in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Level]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figurelevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.FigureLevel}
+  Vertical placement of an object or label in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Level.
+\end{proof}
+\begin{definition}[Figure Distance Label]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figuredistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.FigureDistanceLabel}
+  The distance label printed on the central double-headed arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Distance Label.
+\end{proof}
+\begin{definition}[Figure Velocity Label]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figurevelocitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.FigureVelocityLabel}
+  The velocity-vector labels printed beside the two wave modes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Velocity Label.
+\end{proof}
+\begin{definition}[Sand Scorpion Figure]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandscorpionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.SandScorpionFigure}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavemode, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figureobject, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figurelevel, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figuredistancelabel, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-figurevelocitylabel}
+  Qualitative geometry and labels read from the primary bitmap. The locations of the velocity labels are kept as visual evidence only; they do not assert that either wave begins at a different physical source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sand Scorpion Figure.
+\end{proof}
+\begin{definition}[Sand Wave Detection Setup]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.SandWaveDetectionSetup}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavemode, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-detectionendpoint, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandscorpionfigure}
+  The physical observables in the detection experiment. In particular, beetleDistance is an independent unknown: it is not defined using the recorded answer or either wave speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sand Wave Detection Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinmilliseconds, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedinmeterspersecond, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup}
+  Numerical readouts from the prose and qualitative labels from the primary image. This interface contains no numerical value for beetleDistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthinmeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinseconds, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedinmeterspersecond, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup}
+  Positivity and temporal ordering for a nondegenerate detection event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Common Path Wave Travel Model]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-satisfiescommonpathwavetravelmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.SatisfiesCommonPathWaveTravelModel}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthinmeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinseconds, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedinmeterspersecond, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup}
+  The ideal common-path time-of-flight model. Each mode obeys distance = speed × travel duration, and simultaneous emission makes the measured lag the transverse duration minus the longitudinal duration. These are governing laws and contain no requested distance value or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Common Path Wave Travel Model.
+\end{proof}
+\begin{lemma}[distance In Meters eq arrival Difference div reciprocal Speed Gap]
+  \label{lem:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-distanceinmeters-eq-arrivaldifference-div-reciprocalspeedgap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.distanceInMeters_eq_arrivalDifference_div_reciprocalSpeedGap}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthinmeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-durationinseconds, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-speedinmeterspersecond, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-sandwavedetectionsetup, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-hasphysicalparameters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-satisfiescommonpathwavetravelmodel}
+  For two modes traversing the same distance, the arrival lag gives d = Δt / (1 / v\_t - 1 / v\_l). This is a derived general relation, not a premise of the final result
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of distance In Meters eq arrival Difference div reciprocal Speed Gap.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[centimeters]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-answerchoice-centimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.AnswerChoice.centimeters}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-answerchoice}
+  Distance in centimetres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0286.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthquantity, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-lengthincentimeters, def:physics:phyx-mini-0286:phyxminiproblems-problemphyxmini0286-answerchoice}
+  A modeled physical distance agrees exactly with a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

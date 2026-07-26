@@ -1,0 +1,350 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0458.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0458.source.json
+
+\chapter{Physics problem phyx\_mini\_0458}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0458}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An insulated cylinder is divided into two parts of \$1 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3\$ each by an initially locked piston, as shown in figure. Side \$A\$ has air at \$200 \textbackslash{}, \textbackslash{}text\{kPa\}\$, \$300 \textbackslash{}, \textbackslash{}text\{K\}\$, and side \$B\$ has air at \$1.0 \textbackslash{}, \textbackslash{}text\{MPa\}\$, \$1000 \textbackslash{}, \textbackslash{}text\{K\}\$. The piston is now unlocked so that it is free to move, and it conducts heat so that the air comes to a uniform temperature \$T\_A = T\_B\$.
+
+\#\# Question
+
+Find the final \$P\$.
+
+\#\# Answer choices
+
+- A: A: 400 kPa
+
+- B: B: 1000 kPa
+
+- C: C: 500 kPa
+
+- D: D: 613 kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional view of a container divided into two compartments labeled "A" and "B," both filled with air. A movable, vertical piston separates these compartments. 
+
+- **Compartments**: Both sides are filled with air and labeled accordingly.
+- **Piston**: Located in between the compartments, vertically aligned, and depicted with lines indicating it can move up or down.
+- **Text**: The compartments are marked with "A" or "B" followed by the word "Air" to indicate the content.
+- **Background and Border**: The container is outlined and surrounded by a hatched pattern.
+
+The setup suggests the context of a physics or engineering problem, likely related to pressure or volume changes.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 613 kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/458.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0458.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0458:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0458.finalPressureAndEnergyCharacterization}
+\uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finalpressureinkilopascals, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finaltemperatureinkelvins, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-statespecificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-matchessuppliedcylinderfigure, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-matchesproblemdata, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-hasphysicalparameters, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-satisfiesconductingpistonidealairlaws, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-displayedpressureinkilopascals}
+For the insulated two-compartment cylinder, the common final pressure is
+\(5T_f/6\) kilopascals, and conservation of internal energy gives the stated
+mass-weighted caloric relation.  Consequently the displayed \(613\,\mathrm
+{kPa}\) is equivalent to \(T_f=3678/5\,\mathrm K\).
+\end{theorem}
+\begin{proof}
+The initial ideal-gas equations give
+\(m_AR=200/300=2/3\) and \(m_BR=1000/1000=1\), so the trapped mass ratio is
+\(m_A:m_B=2:3\).  At the final common pressure and temperature, summing the
+two ideal-gas equations and using total volume \(2\,\mathrm{m^3}\) gives
+\[
+ 2P_f=(m_A+m_B)RT_f=\frac53T_f,
+\]
+hence \(P_f=5T_f/6\).  Thermal equilibrium makes both final specific internal
+energies equal; multiplying total-energy conservation by the common mass
+scale gives
+\[
+ 5u_f=2u_{A,i}+3u_{B,i}.
+\]
+Finally \(5T_f/6=613\) is equivalent, by nonzero rational cancellation, to
+\(T_f=3678/5\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.VolumeQuantity}
+  Physical volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Air Mass Quantity]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.AirMassQuantity}
+  Physical mass of one trapped air sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Mass Quantity.
+\end{proof}
+\begin{definition}[Specific Internal Energy Quantity]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificinternalenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.SpecificInternalEnergyQuantity}
+  Mass-specific internal energy, carrying dimension L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Internal Energy Quantity.
+\end{proof}
+\begin{definition}[Specific Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.SpecificGasConstantQuantity}
+  The mass-specific gas constant, with dimension L² T⁻² Θ⁻¹, or energy per unit mass per absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Gas Constant Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[air Mass In Kilograms]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.airMassInKilograms}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassquantity}
+  Read a physical mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of air Mass In Kilograms.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinpascals}
+  Read a physical pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.temperatureInKelvins}
+  Read an absolute temperature in kelvins. Physlib temperatures store a value relative to an explicit zero-preserving temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[specific Internal Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificinternalenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.specificInternalEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificinternalenergyquantity}
+  Read specific internal energy in kilojoules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Gas Constant In Kilojoules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantinkilojoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.specificGasConstantInKilojoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantquantity}
+  Read the specific gas constant in kilojoules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Gas Constant In Kilojoules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[Compartment]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.Compartment}
+  The compartment labels visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compartment.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.ProcessStage}
+  The stages before and after releasing the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.GasSpecies}
+  The gas named in each compartment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Piston Constraint]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pistonconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.PistonConstraint}
+  Whether piston translation along the cylinder is constrained
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Constraint.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.FigureObject}
+  Individually identifiable objects in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Two Compartment Cylinder Figure]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-suppliedtwocompartmentcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.SuppliedTwoCompartmentCylinderFigure}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartment, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-figureobject}
+  Qualitative information read from the primary image. These fields encode only visible topology, orientation, labels, and colour; no numerical answer occurs in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Two Compartment Cylinder Figure.
+\end{proof}
+\begin{definition}[Compartment Air State]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartmentairstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.CompartmentAirState}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumequantity, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassquantity}
+  One equilibrium state of the trapped gas on one side of the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compartment Air State.
+\end{proof}
+\begin{definition}[Ideal Air Caloric Model]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-idealaircaloricmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.IdealAirCaloricModel}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificinternalenergyquantity}
+  An abstract caloric model for ideal air. The source does not supply its table entries or a closed formula, so the temperature-to-internal-energy relation is kept abstract rather than calibrated to the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Air Caloric Model.
+\end{proof}
+\begin{definition}[Conducting Piston Cylinder Setup]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.ConductingPistonCylinderSetup}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantquantity, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartment, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-processstage, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-gasspecies, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pistonconstraint, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-suppliedtwocompartmentcylinderfigure, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartmentairstate, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-idealaircaloricmodel}
+  The two-compartment experiment and its independently stored observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Conducting Piston Cylinder Setup.
+\end{proof}
+\begin{definition}[final Pressure]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finalpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.finalPressure}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  The common final pressure, named using the left compartment readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Pressure.
+\end{proof}
+\begin{definition}[final Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finalpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.finalPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinkilopascals, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finalpressure}
+  The requested final-pressure readout in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[final Temperature In Kelvins]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-finaltemperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.finalTemperatureInKelvins}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-temperatureinkelvins, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  The final-temperature readout in kelvins, named using compartment A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Temperature In Kelvins.
+\end{proof}
+\begin{definition}[state Specific Internal Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-statespecificinternalenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.stateSpecificInternalEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-compartment, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-processstage, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  The ideal-air table readout at one state's temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Specific Internal Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[Matches Supplied Cylinder Figure]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-matchessuppliedcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.MatchesSuppliedCylinderFigure}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  Exact qualitative topology and labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Cylinder Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumeincubicmeters, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinkilopascals, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-temperatureinkelvins, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  Numerical readouts and apparatus facts stated in the problem. No final pressure, final temperature, air-table entry, or answer label is a field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumeincubicmeters, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassinkilograms, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinkilopascals, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-temperatureinkelvins, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantinkilojoulesperkilogramkelvin, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Conducting Piston Ideal Air Laws]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-satisfiesconductingpistonidealairlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.SatisfiesConductingPistonIdealAirLaws}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-volumeincubicmeters, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-airmassinkilograms, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-pressureinkilopascals, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-temperatureinkelvins, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-specificgasconstantinkilojoulesperkilogramkelvin, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-conductingpistoncylindersetup, def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-statespecificinternalenergyinkilojoulesperkilogram}
+  Macroscopic governing physics for the two trapped air samples: every state obeys the mass-specific ideal-gas equation PV = mRT; the piston preserves the mass of each trapped sample; the cylinder preserves total volume; insulation preserves the total internal energy of the two air samples; a free conducting piston gives final mechanical and thermal equilibrium. These laws contain no solved pressure, final temperature, air-table calibration, or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Conducting Piston Ideal Air Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.AnswerChoice}
+  The four answer labels printed with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-displayedpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.displayedPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-answerchoice}
+  The pressure displayed by each choice, in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0458.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0458:phyxminiproblems-problemphyxmini0458-answerchoice}
+  Dataset metadata recording the supplied answer label; never a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

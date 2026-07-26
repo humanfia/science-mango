@@ -1,0 +1,344 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0184.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0184.source.json
+
+\chapter{Physics problem phyx\_mini\_0184}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0184}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The \$40 \textbackslash{}, \textbackslash{}text\{cm\}\$-long tube of figure has a \$40 \textbackslash{}, \textbackslash{}text\{cm\}\$-long insert that can be pulled in and out. A vibrating tuning fork is held next to the tube. As the insert is slowly pulled out, the sound from the tuning fork creates standing waves in the tube when the total length \$L\$ is \$42.5 \textbackslash{}, \textbackslash{}text\{cm\}\$, \$56.7 \textbackslash{}, \textbackslash{}text\{cm\}\$, and \$70.9 \textbackslash{}, \textbackslash{}text\{cm\}\$.Assume \$v\_\{\textbackslash{}text\{sound\}\} = 343 \textbackslash{}, \textbackslash{}text\{m/s\}\$.
+
+\#\# Question
+
+What is the frequency of the tuning fork?
+
+\#\# Answer choices
+
+- A: A: 2.415 kHz
+
+- B: B: 0.605 kHz
+
+- C: C: 0.807 kHz
+
+- D: D: 12.1 kHz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a diagram with a tuning fork on the left side. Two sets of parallel lines extend to the right with arrows indicating measurements. There are two arrows labeled "40 cm," representing equal distances, one along the top and another along a middle section. Another arrow labeled "L" extends below all the lines, indicating a total length. The lines and arrows suggest measurements related to sound waves or resonance.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 12.1 kHz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/184.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0184.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0184:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0184.problem_phyx_mini_0184}
+\uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinhertz, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinkilohertz, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuppliedtelescopingtubefigure, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesproblemandresonancereadouts, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuccessiveresonancesequence, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-hasphysicalacousticparameters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesopentuberesonancelaw, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesacousticwavespeedlaw, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-answerchoice, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.SpeedQuantity}
+  A nonnegative physical acoustic propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.lengthReadout}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.frequencyReadout}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.speedReadout}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.lengthInMeters}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout}
+  Centimeter readout used by the problem statement and primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinhertz}
+  Kilohertz readout used by the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedreadout}
+  Meter-per-second readout of the sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Tube Part]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tubepart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.TubePart}
+  The two physical tube pieces whose lengths are marked 40 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Part.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.FigureLengthLabel}
+  Labels on the three dimension arrows in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[Resonance Observation]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-resonanceobservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.ResonanceObservation}
+  The three resonant configurations observed while pulling out the insert
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resonance Observation.
+\end{proof}
+\begin{definition}[Tube End]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tubeend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.TubeEnd}
+  The two open ends visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube End.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.AcousticBoundaryCondition}
+  Acoustic boundary condition at a tube end
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Insert Mobility]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-insertmobility}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.InsertMobility}
+  Motion allowed by the overlapping insert pictured in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Insert Mobility.
+\end{proof}
+\begin{definition}[Tuning Fork Placement]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tuningforkplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.TuningForkPlacement}
+  Placement of the vibrating acoustic source relative to the tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tuning Fork Placement.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.AcousticMedium}
+  The propagation medium stipulated by the acoustic scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Telescoping Tube Resonance Setup]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.TelescopingTubeResonanceSetup}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tubepart, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-figurelengthlabel, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-resonanceobservation, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tubeend, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-acousticboundarycondition, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-insertmobility, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tuningforkplacement, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-acousticmedium}
+  All independent objects, physical quantities, and observations in the experiment. commonEndCorrection is a configuration-independent offset between geometric and effective acoustic length; it accommodates the usual open-end correction and cancels when successive resonances are subtracted. No field assigns a numerical wavelength or frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Telescoping Tube Resonance Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Telescoping Tube Figure]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuppliedtelescopingtubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.MatchesSuppliedTelescopingTubeFigure}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthincentimeters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  Primary-image information: both component arrows are labelled 40 cm, the lower arrow is the varying total length L, the insert telescopes axially, and the drawn acoustic column is open at the fork and insert ends. The final inequalities state the overlap geometry 40 cm ≤ L ≤ 80 cm without fixing a resonant value or frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Telescoping Tube Figure.
+\end{proof}
+\begin{definition}[Matches Problem And Resonance Readouts]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesproblemandresonancereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.MatchesProblemAndResonanceReadouts}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthincentimeters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedinmeterspersecond, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  Numerical readouts stated in the prose: the three total lengths and sound speed. Each listed configuration is an observed standing wave. There is no frequency or wavelength value in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Resonance Readouts.
+\end{proof}
+\begin{definition}[Matches Successive Resonance Sequence]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuccessiveresonancesequence}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.MatchesSuccessiveResonanceSequence}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  The resonances were encountered successively while the insert was pulled out. This is an observation-order input, not a numerical spacing or answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Successive Resonance Sequence.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthinmeters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinhertz, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedinmeterspersecond, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  Positivity and nondegeneracy conditions for the acoustic model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Open Tube Resonance Law]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesopentuberesonancelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.SatisfiesOpenTubeResonanceLaw}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-resonanceobservation, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  The open-open tube standing-wave law. At every observed resonance, twice the effective acoustic length is an integral number of wavelengths. Successive pulled-out resonances have consecutive longitudinal mode numbers. The law is generic over observations and units and contains neither a derived wavelength nor the requested tuning-fork frequency value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Open Tube Resonance Law.
+\end{proof}
+\begin{definition}[Satisfies Acoustic Wave Speed Law]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesacousticwavespeedlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.SatisfiesAcousticWaveSpeedLaw}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthreadout, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyreadout, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-speedreadout, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup}
+  The nondispersive acoustic-wave relation v = λ f, stated in every compatible choice of length and time units. This governing law relates three independent physical quantities and does not contain the requested numerical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Acoustic Wave Speed Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.AnswerChoice}
+  Labels of the four answers printed with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-displayedanswerfrequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.displayedAnswerFrequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-answerchoice}
+  Numerical kilohertz value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency In Kilohertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-answerchoice}
+  Answer label recorded in the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinkilohertz, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-answerchoice, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-displayedanswerfrequencyinkilohertz}
+  A setup's physical frequency is exactly the value printed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[length In Meters eq length In Centimeters div hundred]
+  \label{lem:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthinmeters-eq-lengthincentimeters-div-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.lengthInMeters_eq_lengthInCentimeters_div_hundred}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthquantity, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthinmeters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthincentimeters}
+  Conversion between the centimeter and meter readouts used here
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of length In Meters eq length In Centimeters div hundred.
+\end{proof}
+\begin{lemma}[sound Wavelength In Meters eq]
+  \label{lem:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-soundwavelengthinmeters-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.soundWavelengthInMeters_eq}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-lengthinmeters, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesproblemandresonancereadouts, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuccessiveresonancesequence, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesopentuberesonancelaw}
+  The separation of either pair of successive resonances is 14.2 cm, so the open-tube resonance law gives wavelength 2 * 14.2 cm = 0.284 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sound Wavelength In Meters eq.
+\end{proof}
+\begin{lemma}[tuning Fork Frequency In Hertz eq]
+  \label{lem:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-tuningforkfrequencyinhertz-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0184.tuningForkFrequencyInHertz_eq}
+  \uses{def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-frequencyinhertz, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-telescopingtuberesonancesetup, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchesproblemandresonancereadouts, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-matchessuccessiveresonancesequence, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesopentuberesonancelaw, def:physics:phyx-mini-0184:phyxminiproblems-problemphyxmini0184-satisfiesacousticwavespeedlaw}
+  Combining λ = 0.284 m with v = λ f and v = 343 m/s gives the exact fork frequency 85750 / 71 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tuning Fork Frequency In Hertz eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

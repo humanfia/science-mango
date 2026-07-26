@@ -1,0 +1,341 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0203.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0203.source.json
+
+\chapter{Physics problem phyx\_mini\_0203}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0203}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A block of mass \textbackslash{}( m \textbackslash{}) is supported by two identical parallel vertical springs, each with spring stiffness constant \textbackslash{}( k \textbackslash{}) (figure).
+
+\#\# Question
+
+What will be the frequency of vertical oscillation?
+
+\#\# Answer choices
+
+- A: A: \$\textbackslash{}frac\{1\}\{2\textbackslash{}pi\} \textbackslash{}sqrt\{\textbackslash{}frac\{k\}\{2m\}\}\$
+
+- B: B: \$\textbackslash{}frac\{1\}\{2\textbackslash{}pi\} \textbackslash{}sqrt\{\textbackslash{}frac\{2k\}\{m\textasciicircum{}2\}\}\$
+
+- C: C: \$\textbackslash{}frac\{1\}\{2\textbackslash{}pi\} \textbackslash{}sqrt\{\textbackslash{}frac\{k\}\{m\}\}\$
+
+- D: D: \$\textbackslash{}frac\{1\}\{2\textbackslash{}pi\} \textbackslash{}sqrt\{\textbackslash{}frac\{2k\}\{m\}\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram showing a mass-spring system. It features the following elements:
+
+- A horizontal, beige-colored support at the top.
+- Two identical, vertical springs attached to the support, both labeled with the letter "k," indicating their spring constant.
+- A yellow square block labeled "m" representing a mass. This mass is suspended from both springs.
+- The springs are coiled, suggesting that they are capable of extending and compressing. They are symmetrically placed on either side of the mass.
+
+This setup is indicative of a simple harmonic oscillator with two springs acting in parallel to support a single mass.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$\textbackslash{}frac\{1\}\{2\textbackslash{}pi\} \textbackslash{}sqrt\{\textbackslash{}frac\{2k\}\{m\}\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/203.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0203.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0203:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0203.problem_phyx_mini_0203}
+\uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-matchesproblemandsuppliedfigure, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-hasphysicalparallelspringparameters, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-satisfiesexacthookeparallelandequilibriumlaws, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-satisfiesexactidealhookeandynamics, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.LengthQuantity}
+  A nonnegative physical length, used for static spring extensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Displacement Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displacementquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.DisplacementQuantity}
+  A signed vertical displacement from the block's static equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.AccelerationQuantity}
+  A nonnegative acceleration, with dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.ForceQuantity}
+  A signed vertical force, with dimension mass times acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.SpringStiffnessQuantity}
+  Spring stiffness, with dimension mass divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.FrequencyQuantity}
+  Cyclic frequency, measured in cycles per unit time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.AngularFrequencyQuantity}
+  Angular frequency; radians are dimensionless, so this is inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.massReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.lengthReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthquantity}
+  Read a nonnegative length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[displacement Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displacementreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.displacementReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displacementquantity}
+  Read a signed displacement in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.accelerationReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationquantity}
+  Read an acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[force Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-forcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.forceReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-forcequantity}
+  Read a signed force in coherent selected mass, length, and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Readout.
+\end{proof}
+\begin{definition}[stiffness Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.stiffnessReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springstiffnessquantity}
+  Read spring stiffness in the selected mass unit per time unit squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.frequencyReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyquantity}
+  Read cyclic frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[angular Frequency Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.angularFrequencyReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyquantity}
+  Read angular frequency in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Readout.
+\end{proof}
+\begin{definition}[Spring Side]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.SpringSide}
+  The two springs distinguished by their horizontal placement in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Side.
+\end{proof}
+\begin{definition}[Spring Arrangement]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springarrangement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.SpringArrangement}
+  Mechanical arrangements relevant to combining two spring stiffnesses
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Arrangement.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.Orientation}
+  Orientations visible in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.FigureLabel}
+  Mathematical labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Parallel Spring Figure]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.ParallelSpringFigure}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springside, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-figurelabel}
+  Qualitative facts readable from the primary image. The image contains no numerical scale; it identifies only the support, block, two springs, labels, attachments, vertical orientation, and left/right placement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Spring Figure.
+\end{proof}
+\begin{definition}[Parallel Spring Oscillator Setup]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.ParallelSpringOscillatorSetup}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displacementquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-forcequantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springstiffnessquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyquantity, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springside, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-springarrangement, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-orientation, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringfigure}
+  Independent quantities and functions of the physical setup. Restoring-force functions and the two natural frequencies are unconstrained here. In particular, neither frequency is defined to equal an answer formula. displacementTrajectoryInUnits is the one-dimensional displacement from static equilibrium expressed in the selected length and time units, matching the coordinate-level interface used by Physlib's classical oscillator
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Spring Oscillator Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Supplied Figure]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-matchesproblemandsuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.MatchesProblemAndSuppliedFigure}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup}
+  Problem data and primary-image evidence. The stiffness equalities say that both pictured springs are identical and labeled k; they do not constrain the requested natural frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Parallel Spring Parameters]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-hasphysicalparallelspringparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.HasPhysicalParallelSpringParameters}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup}
+  Positivity and nondegeneracy conditions for the physical oscillator
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parallel Spring Parameters.
+\end{proof}
+\begin{definition}[Satisfies Exact Hooke Parallel And Equilibrium Laws]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-satisfiesexacthookeparallelandequilibriumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.SatisfiesExactHookeParallelAndEquilibriumLaws}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-lengthreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displacementreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-accelerationreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-forcereadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup}
+  Exact constitutive, parallel-combination, and equilibrium laws: each ideal spring obeys Hooke's law for every signed displacement from equilibrium, not merely to first order near zero; the two actual restoring forces add because both springs attach to the same moving block; the effective stiffness is the sum of the individual stiffnesses; at static equilibrium the effective spring force balances the block's weight. None of these fields states the requested frequency in terms of the individual spring constant k
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Hooke Parallel And Equilibrium Laws.
+\end{proof}
+\begin{definition}[effective Oscillator In Units]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-effectiveoscillatorinunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.effectiveOscillatorInUnits}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-hasphysicalparallelspringparameters}
+  Package the positive mass and effective-stiffness readouts as Physlib's exact classical harmonic oscillator in any coherent mass and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of effective Oscillator In Units.
+\end{proof}
+\begin{definition}[Satisfies Exact Ideal Hookean Dynamics]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-satisfiesexactidealhookeandynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.SatisfiesExactIdealHookeanDynamics}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-angularfrequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-hasphysicalparallelspringparameters, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-effectiveoscillatorinunits}
+  Exact undamped dynamics of the ideal Hookean system. The first two fields are a genuine differentiability/equation-of-motion contract for the unitwise trajectory. The third identifies the system's independent natural angular frequency with Physlib's characteristic frequency of that exact oscillator; the final field is the standard conversion ω = 2πf. The unknown effective stiffness has not been replaced by 2k in this interface, so the current answer remains a conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Ideal Hookean Dynamics.
+\end{proof}
+\begin{lemma}[effective Stiffness Readout eq two mul k]
+  \label{lem:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-effectivestiffnessreadout-eq-two-mul-k}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.effectiveStiffnessReadout_eq_two_mul_k}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-matchesproblemandsuppliedfigure, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-satisfiesexacthookeparallelandequilibriumlaws}
+  The effective-stiffness conclusion is derived from the parallel combination law and the source datum that each individual spring has stiffness k
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of effective Stiffness Readout eq two mul k.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.AnswerChoice}
+  Labels attached to the four symbolic answer formulas in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency Readout]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displayedanswerfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.displayedAnswerFrequencyReadout}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-massreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-stiffnessreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-answerchoice}
+  The four printed formulas interpreted as cyclic-frequency readouts in coherent selected units. These are answer-list metadata and do not constrain the independent natural frequency stored in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency Readout.
+\end{proof}
+\begin{definition}[recorded Dataset Answer Choice]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-recordeddatasetanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.recordedDatasetAnswerChoice}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-answerchoice}
+  The label recorded as correct in the dataset metadata; not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0203.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-frequencyreadout, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-parallelspringoscillatorsetup, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-answerchoice, def:physics:phyx-mini-0203:phyxminiproblems-problemphyxmini0203-displayedanswerfrequencyreadout}
+  The modeled cyclic frequency agrees with one printed symbolic choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,271 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0373.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0373.source.json
+
+\chapter{Physics problem phyx\_mini\_0373}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0373}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+4.0\textbackslash{},\textbackslash{}text\{g\} of oxygen gas, starting at 20\textasciicircum{}\textbackslash{}cir\textbackslash{}text\{C\}, follow the process \textbackslash{}( 1 
+ightarrow 2 \textbackslash{}) shown in figure.
+
+\#\# Question
+
+What is temperature \textbackslash{}( T\_2 \textbackslash{}) (in \textbackslash{}\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\})?
+
+\#\# Answer choices
+
+- A: A: 2364\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 556\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 636\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 784\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a pressure-volume relationship. It features:
+
+- A coordinate plane with the horizontal axis labeled "V" (for volume) and the vertical axis labeled "p" (for pressure).
+- The axes are marked with the origin labeled as "0."
+- The vertical axis has a point labeled "p₁."
+- The horizontal axis has a point labeled "V₁."
+- There are two significant points on the graph: point "1" located at (V₁, p₁) and point "2" located higher and to the right.
+- An arrowed line connects these two points, indicating a process or transition from point "1" to point "2." 
+
+The graph illustrates a relationship where both pressure and volume are increasing from point 1 to point 2.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 2364\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/373.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0373.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0373:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0373.temperature_at_state_two_eq_2364_celsius}
+\uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureincelsius, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-matchesoxygenproblemdata, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-matchesprimarypvdiagram, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-hasphysicaloxygengasparameters, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-satisfiesmolaridealgaslaws}
+For the fixed oxygen sample, tripling both pressure and volume raises the
+temperature from \(20^\circ\mathrm C\) to \(2364^\circ\mathrm C\), answer A.
+\end{theorem}
+\begin{proof}
+The initial Celsius readout corresponds, under the declared textbook offset,
+to \(T_1=20+273=293\,\mathrm K\).  The ideal-gas equations at the two states
+have the same positive factor \(nR\).  The figure gives
+\(p_2=3p_1\) and \(V_2=3V_1\), so division of the two equations gives
+\(T_2=9T_1=2637\,\mathrm K\).  Subtracting \(273\) yields
+\(2364^\circ\mathrm C\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.VolumeQuantity}
+  A physical gas volume, carrying the dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.MassQuantity}
+  A physical sample mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.MolarGasConstantQuantity}
+  The molar gas constant has energy-per-temperature dimension. Its inverse-mole role is represented by the name of its scalar readout and by the explicit amount-of-substance factor in the ideal-gas law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.pressureInPascals}
+  SI pressure readout in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumequantity}
+  SI volume readout in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.massInGrams}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massquantity}
+  Mass readout in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.temperatureInKelvins}
+  Absolute-temperature readout in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.temperatureInCelsius}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureinkelvins}
+  Celsius readout using the textbook offset 273 K employed by the answer choices. With the more precise offset 273.15 K, the displayed integer answer would instead differ by 1.2 °C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[molar Gas Constant In Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantinjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.molarGasConstantInJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantquantity}
+  SI readout of the molar gas constant in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.GasSpecies}
+  The chemical species named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.GasModel}
+  The equation-of-state model used to interpret the process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.StateLabel}
+  The two numbered equilibrium states in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.AxisQuantity}
+  Physical quantity printed on a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.PathGeometry}
+  Geometry of the directed path drawn between the two states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumequantity}
+  A dimensionful equilibrium state of the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Oxygen Ideal Gas Process]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.OxygenIdealGasProcess}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumequantity, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massquantity, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantquantity, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-gasspecies, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-gasmodel, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-statelabel, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-axisquantity, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pathgeometry, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-thermodynamicstate}
+  The fixed oxygen sample, its two states, and the labels transcribed from the pressure-volume figure. Coordinate values are not built into this structure; they occur only in the separate data predicates below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oxygen Ideal Gas Process.
+\end{proof}
+\begin{definition}[Matches Oxygen Problem Data]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-matchesoxygenproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.MatchesOxygenProblemData}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massingrams, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureincelsius, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess}
+  The data stated in the prose, together with the standard molar mass of molecular oxygen and the kelvin calibration needed for the absolute temperature readout. No value of the final temperature occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Oxygen Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary PVDiagram]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-matchesprimarypvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.MatchesPrimaryPVDiagram}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pressureinpascals, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumeincubicmeters, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess}
+  Transcription of the primary p-V image. The point labelled 1 is at (V₁,p₁), the arrow runs from 1 to 2, and point 2 is on the third pressure and volume ticks. These are figure/data readouts, not the requested temperature conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary PVDiagram.
+\end{proof}
+\begin{definition}[Has Physical Oxygen Gas Parameters]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-hasphysicaloxygengasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.HasPhysicalOxygenGasParameters}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pressureinpascals, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumeincubicmeters, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massingrams, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureinkelvins, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess}
+  Positivity conditions selecting physically meaningful gas parameters and equilibrium states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Oxygen Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Molar Ideal Gas Laws]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-satisfiesmolaridealgaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.SatisfiesMolarIdealGasLaws}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-pressureinpascals, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-volumeincubicmeters, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-massingrams, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-temperatureinkelvins, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-oxygenidealgasprocess}
+  The governing relations for this fixed ideal-gas sample: sample mass equals amount of substance times oxygen's molar mass; every labelled equilibrium state satisfies pV = nRT in coherent SI readouts. Neither law supplies a final temperature or a pressure-volume ratio specific to the current question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Molar Ideal Gas Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Temperature Celsius]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-answertemperaturecelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.answerTemperatureCelsius}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-answerchoice}
+  Celsius value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Temperature Celsius.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0373.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0373:phyxminiproblems-problemphyxmini0373-answerchoice}
+  The answer label recorded by the dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

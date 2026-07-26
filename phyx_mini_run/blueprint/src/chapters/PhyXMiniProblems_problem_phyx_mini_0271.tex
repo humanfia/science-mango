@@ -1,0 +1,325 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0271.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0271.source.json
+
+\chapter{Physics problem phyx\_mini\_0271}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0271}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, three \$10000\textbackslash{} kg\$ ore cars are held at rest on a mine railway using a cable that is parallel to the rails, which are inclined at angle \$\textbackslash{}theta = 30\textasciicircum{}\textbackslash{}circ\$. The cable stretches \$15\textbackslash{} cm\$ just before the coupling between the two lower cars breaks, detaching the lowest car.
+
+\#\# Question
+
+Assuming that the cable obeys Hooke's law, find the amplitude of the resulting oscillations of the remaining two cars.
+
+\#\# Answer choices
+
+- A: A: 0.030 m
+
+- B: B: 0.040 m
+
+- C: C: 0.050 m
+
+- D: D: 0.060 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an inclined surface with three mine carts on a track, loaded with rocks. The track is aligned with a pulley system at the top right. The angle of inclination is labeled as \textbackslash{}( \textbackslash{}theta \textbackslash{}) at the bottom left. The second cart (from the left) is labeled as "Car that breaks free." The area outside the track shows a textured surface resembling dirt or gravel.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.050 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/271.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0271.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0271:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0271.oscillationAmplitude_is_five_centimeters_and_matches_answerC}
+\uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesproblemdata, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchessuppliedfigure, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-hasphysicalparameters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-satisfieselasticcableoscillatorlaws, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-recordedanswerchoice, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.LengthQuantity}
+  A nonnegative physical length, used for cable extensions and amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.ForceQuantity}
+  A nonnegative physical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.AccelerationQuantity}
+  A nonnegative acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.SpeedQuantity}
+  A nonnegative speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Cable Stiffness Quantity]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.CableStiffnessQuantity}
+  A cable stiffness, with dimension force per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.massInKilograms}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.lengthInMeters}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.forceInNewtons}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-forcequantity}
+  Newton readout of a physical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationquantity}
+  Metres-per-second-squared readout of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedquantity}
+  Metres-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[cable Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.cableStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessquantity}
+  Newton-per-metre readout of the elastic cable's stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cable Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.degreesToRadians}
+  Convert an angle stated in degrees to its dimensionless radian value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Ore Car]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-orecar}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.OreCar}
+  The three ore cars, ordered by position along the incline
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ore Car.
+\end{proof}
+\begin{definition}[Load Stage]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-loadstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.LoadStage}
+  The load configurations relevant to the cable equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Load Stage.
+\end{proof}
+\begin{definition}[Car Coupling]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-carcoupling}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.CarCoupling}
+  The two couplings between adjacent cars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Car Coupling.
+\end{proof}
+\begin{definition}[Cable Orientation]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cableorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.CableOrientation}
+  Orientation of the cable relative to the mine railway
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Orientation.
+\end{proof}
+\begin{definition}[Oscillation Model]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-oscillationmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.OscillationModel}
+  Idealized model for the motion after the coupling failure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Model.
+\end{proof}
+\begin{definition}[Supplied Figure]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-suppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.SuppliedFigure}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-orecar}
+  Qualitative components and annotations visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Figure.
+\end{proof}
+\begin{definition}[Mine Car Cable Setup]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.MineCarCableSetup}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-forcequantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-orecar, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-loadstage, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-carcoupling, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cableorientation, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-oscillationmodel, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-suppliedfigure}
+  The complete apparatus and the unknown post-break quantities. The new equilibrium extension and the oscillation amplitude are independent fields. In particular, neither is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mine Car Cable Setup.
+\end{proof}
+\begin{definition}[attached Mass In Kilograms]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-attachedmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.attachedMassInKilograms}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massinkilograms, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-orecar, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-loadstage, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup}
+  Total mass carried by the cable at a given stage, read in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of attached Mass In Kilograms.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massinkilograms, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedinmeterspersecond, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup}
+  Numerical and qualitative facts stated by the problem. The gravity and cable stiffness are deliberately not assigned numerical values because both cancel when the two static equilibria are compared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup}
+  Primary-image readout: three cars lie on an inclined rail, the cable from the upper car runs along the rails toward a pulley, θ marks the incline, and the break-free annotation identifies the lowest car
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-massinkilograms, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessinnewtonspermeter, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup}
+  Positivity and nondegeneracy of the physical inputs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Elastic Cable Oscillator Laws]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-satisfieselasticcableoscillatorlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.SatisfiesElasticCableOscillatorLaws}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-forceinnewtons, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-speedinmeterspersecond, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-cablestiffnessinnewtonspermeter, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-degreestoradians, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-attachedmassinkilograms}
+  Hooke's law and force balance for the old and new static equilibria, followed by the general Physlib harmonic-oscillator model for release about the new equilibrium. The amplitude field is linked only to Physlib's general amplitude computed from initial position and velocity. No numerical post-break extension, amplitude, or answer choice occurs in these laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Elastic Cable Oscillator Laws.
+\end{proof}
+\begin{lemma}[post Break Equilibrium Extension is ten centimeters]
+  \label{lem:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-postbreakequilibriumextension-is-ten-centimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.postBreakEquilibriumExtension_is_ten_centimeters}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesproblemdata, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-hasphysicalparameters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-satisfieselasticcableoscillatorlaws}
+  Comparing Hooke equilibrium for three equal cars with that for the remaining two cars gives a new cable extension of 10 cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of post Break Equilibrium Extension is ten centimeters.
+\end{proof}
+\begin{lemma}[oscillation Amplitude eq equilibrium Shift]
+  \label{lem:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-oscillationamplitude-eq-equilibriumshift}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.oscillationAmplitude_eq_equilibriumShift}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-minecarcablesetup, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesproblemdata, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-satisfieselasticcableoscillatorlaws}
+  For an undamped linear oscillator released from rest, Physlib's amplitude--phase conversion makes the amplitude the magnitude of the initial displacement from the new equilibrium
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of oscillation Amplitude eq equilibrium Shift.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-answerchoice-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.AnswerChoice.meters}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-answerchoice}
+  Oscillation amplitude in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0271.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthquantity, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-lengthinmeters, def:physics:phyx-mini-0271:phyxminiproblems-problemphyxmini0271-answerchoice}
+  Exact agreement of a physical amplitude with a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,363 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0455.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0455.source.json
+
+\chapter{Physics problem phyx\_mini\_0455}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0455}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A copper block of volume \$1 \textbackslash{}, \textbackslash{}text\{L\}\$ is heat treated at \$500 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ and now cooled in a \$200 \textbackslash{}, \textbackslash{}text\{L\}\$ oil bath initially at \$20 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, as shown in figure.
+
+\#\# Question
+
+Assuming no heat transfer with the surroundings, what is the final temperature?
+
+\#\# Answer choices
+
+- A: A: 243 \textbackslash{}
+
+- B: B: 110 \textbackslash{}
+
+- C: C: 56 \textbackslash{}
+
+- D: D: 25 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional view of a container filled with oil. The oil is illustrated by blue horizontal lines, and the word "Oil" is labeled within this region on the right side. 
+
+In the center of the container, there is a rectangular object labeled "Copper." The container is outlined with a thick gray border, likely representing the container walls. The background outside the container is filled with diagonal lines. The arrangement suggests that the copper is submerged in oil.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 25 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/455.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0455.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0455:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0455.problem_phyx_mini_0455}
+\uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-usesroundedclassroommaterialdata, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-hasphysicalthermalparameters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-satisfiesisolatedconstantspecificheatcalorimetry, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-recordedanswerchoice, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-roundstodisplayedwholedegree, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-isuniqueclosestdisplayedtemperature}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.VolumeQuantity}
+  A nonnegative physical volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.MassQuantity}
+  A nonnegative physical mass carrying dimension M
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.MassDensityQuantity}
+  A nonnegative mass density carrying dimension M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Specific Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.SpecificHeatCapacityQuantity}
+  Specific heat capacity, with dimension L² T⁻² Θ⁻¹, read in joules per kilogram-kelvin in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.HeatCapacityQuantity}
+  Heat capacity of a complete body, with dimension M L² T⁻² Θ⁻¹, read in joules per kelvin in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[Heat Quantity]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.HeatQuantity}
+  Signed physical heat represented by Physlib's dimensionful energy type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.volumeInLiters}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumequantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeincubicmeters}
+  Read a physical volume in litres, using 1 m³ = 1000 L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.massInKilograms}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massquantity}
+  Read a physical mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massdensityquantity}
+  Read a mass density in coherent SI kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[specific Heat In Joules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatinjoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.specificHeatInJoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatcapacityquantity}
+  Read a specific heat capacity in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Heat In Joules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[heat Capacity In Joules Per Kelvin]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityinjoulesperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.heatCapacityInJoulesPerKelvin}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityquantity}
+  Read a body's heat capacity in joules per kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Capacity In Joules Per Kelvin.
+\end{proof}
+\begin{definition}[heat In Joules]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.heatInJoules}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatquantity}
+  Read signed physical heat in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.temperatureInKelvins}
+  Read an absolute Temperature in kelvins from its storage-unit scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureinkelvins}
+  Convert an absolute-temperature readout to degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Thermal Body]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-thermalbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.ThermalBody}
+  The two finite bodies that exchange heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Body.
+\end{proof}
+\begin{definition}[Material Kind]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-materialkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.MaterialKind}
+  Material identity specified for each body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Material Kind.
+\end{proof}
+\begin{definition}[System Boundary Kind]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-systemboundarykind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.SystemBoundaryKind}
+  Thermal character of the combined copper-oil system boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of System Boundary Kind.
+\end{proof}
+\begin{definition}[Thermal Contact Kind]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-thermalcontactkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.ThermalContactKind}
+  Geometric/contact relation between the copper and the oil
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Contact Kind.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.FigureLabel}
+  Literal material labels visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Copper In Oil Figure]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperinoilfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.CopperInOilFigure}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-figurelabel}
+  Qualitative data transcribed from image 455.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Copper In Oil Figure.
+\end{proof}
+\begin{definition}[Copper Oil Calorimetry Setup]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.CopperOilCalorimetrySetup}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumequantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massquantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massdensityquantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatcapacityquantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityquantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatquantity, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-thermalbody, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-materialkind, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-systemboundarykind, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-thermalcontactkind, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperinoilfigure}
+  Independent physical observables for the immersion experiment. The common final temperature and the heat received by each body are not defined from an answer choice; the governing calorimetry laws below constrain them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Copper Oil Calorimetry Setup.
+\end{proof}
+\begin{definition}[initial Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-initialtemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.initialTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-thermalbody, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  Initial-temperature readout of one body in degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[final Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.finalTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  Requested common final-temperature readout in degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Primary Figure]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-matchesproblemstatementandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.MatchesProblemStatementAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeinliters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-initialtemperatureindegreescelsius}
+  The prose data and qualitative primary-image readouts. This premise records the two stated volumes, the two initial temperatures, the insulated boundary, and the displayed immersion geometry. It contains no final-temperature or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Rounded Classroom Material Data]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-usesroundedclassroommaterialdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.UsesRoundedClassroomMaterialData}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-densityinkilogramspercubicmeter, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  Rounded classroom material data required to turn the stated volumes into heat capacities: copper density 8960 kg/m³, oil density 800 kg/m³, copper specific heat 385 J/(kg K), and oil specific heat 2000 J/(kg K). These are independent material-property calibrations, not the requested final temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Classroom Material Data.
+\end{proof}
+\begin{definition}[Has Physical Thermal Parameters]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-hasphysicalthermalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.HasPhysicalThermalParameters}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeincubicmeters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massinkilograms, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-densityinkilogramspercubicmeter, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityinjoulesperkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureinkelvins, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  Positivity conditions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermal Parameters.
+\end{proof}
+\begin{definition}[Satisfies Isolated Constant Specific Heat Calorimetry]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-satisfiesisolatedconstantspecificheatcalorimetry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.SatisfiesIsolatedConstantSpecificHeatCalorimetry}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-volumeincubicmeters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-massinkilograms, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-densityinkilogramspercubicmeter, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatcapacityinjoulesperkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-heatinjoules, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-temperatureinkelvins, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup}
+  Constant-specific-heat calorimetry for both bodies: m = ρV converts the given volumes to masses; C = mc converts masses and specific heats to body heat capacities; Q = C(T\_f - T\_i) gives the signed sensible heat into each body; and Q\_copper + Q\_oil = 0 expresses the isolated-system energy balance. All four fields are generic laws over the two bodies and contain no numerical final temperature or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isolated Constant Specific Heat Calorimetry.
+\end{proof}
+\begin{lemma}[final Temperature In Degrees Celsius from Source Data]
+  \label{lem:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius-fromsourcedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.finalTemperatureInDegreesCelsius_fromSourceData}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-densityinkilogramspercubicmeter, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-hasphysicalthermalparameters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-satisfiesisolatedconstantspecificheatcalorimetry}
+  The source-supplied volumes and initial temperatures determine the equilibrium temperature only up to the copper and oil material properties. Cancelling the common litre-to-cubic-metre scale gives this symbolic Celsius relation. It uses no supplemental density or specific-heat calibration and therefore makes the source's numerical underdetermination explicit in the formal model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Temperature In Degrees Celsius from Source Data.
+\end{proof}
+\begin{lemma}[final Temperature In Degrees Celsius exact]
+  \label{lem:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.finalTemperatureInDegreesCelsius_exact}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-usesroundedclassroommaterialdata, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-hasphysicalthermalparameters, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-satisfiesisolatedconstantspecificheatcalorimetry}
+  The heat-balance model has the exact Celsius solution 1269500 / 50539, approximately 25.12 °C. This is a derived intermediate result, not a premise field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Temperature In Degrees Celsius exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Temperature Degrees Celsius]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-displayedtemperaturedegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.displayedTemperatureDegreesCelsius}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-answerchoice}
+  Whole-degree Celsius temperature printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Temperature Degrees Celsius.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-answerchoice}
+  Dataset metadata records answer choice D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Whole Degree]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-roundstodisplayedwholedegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.RoundsToDisplayedWholeDegree}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-answerchoice, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-displayedtemperaturedegreescelsius}
+  The modeled final temperature rounds to a displayed whole degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Whole Degree.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Temperature]
+  \label{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-isuniqueclosestdisplayedtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0455.IsUniqueClosestDisplayedTemperature}
+  \uses{def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-copperoilcalorimetrysetup, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-finaltemperatureindegreescelsius, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-answerchoice, def:physics:phyx-mini-0455:phyxminiproblems-problemphyxmini0455-displayedtemperaturedegreescelsius}
+  The selected displayed temperature is closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Temperature.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

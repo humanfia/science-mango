@@ -1,0 +1,259 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0489.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0489.source.json
+
+\chapter{Physics problem phyx\_mini\_0489}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0489}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Assume the sun to be a perfect emitter at \textbackslash{}( T = 5500\textbackslash{},\textbackslash{}mathrm\{K\} \textbackslash{}). The Sun's radius is \textbackslash{}( 7.0 \textbackslash{}times 10\textasciicircum{}8\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}).The distance between the Sun and the Earth is \textbackslash{}( 1.5 \textbackslash{}times 10\textasciicircum{}\{11\}\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{})(figure).
+
+\#\# Question
+
+From this, determine the power per unit area arriving at the Earth.
+
+\#\# Answer choices
+
+- A: A: \$1050\textbackslash{}
+
+- B: B: \$1200\textbackslash{}
+
+- C: C: \$1000\textbackslash{}
+
+- D: D: \$1100\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a diagram illustrating the distance between the Sun and Earth. On the left, there is a depiction of the Sun, represented as a bright yellow circle with a jagged outline to indicate its radiant energy. The label "Sun" is placed inside it. To the right is a smaller depiction of Earth, shown as a blue and brown circle labeled "Earth."
+
+The two objects are connected by parallel yellow lines, symbolizing the distance between them. Above these lines, there is mathematical text stating the distance: \textbackslash{}( r = 1.5 \textbackslash{}times 10\textasciicircum{}\{11\} \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}). This denotes the average distance from the Earth to the Sun, which is approximately 150 million kilometers.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$1100\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/489.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0489.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0489:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0489.powerPerUnitArea_arrivingAtEarth_matches_answer_D}
+\uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradianceinwattspersquaremeter, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-matchesproblemstatement, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-matchesprimarysunearthfigure, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-usestextbookstefanboltzmannconstant, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-hasphysicalsolarirradianceparameters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-satisfiesperfectemitterradiationlaws, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-answerchoice, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-answerirradianceinwattspersquaremeter}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Radiant Power Quantity]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-radiantpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.RadiantPowerQuantity}
+  A nonnegative radiant power, with SI unit watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radiant Power Quantity.
+\end{proof}
+\begin{definition}[Irradiance Quantity]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradiancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.IrradianceQuantity}
+  A nonnegative irradiance (radiant power per area), with SI unit W / m²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Irradiance Quantity.
+\end{proof}
+\begin{definition}[Stefan Boltzmann Constant Quantity]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.StefanBoltzmannConstantQuantity}
+  The Stefan--Boltzmann constant has SI unit W / (m² K⁴), hence physical dimension mass * time⁻³ * temperature⁻⁴
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stefan Boltzmann Constant Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.lengthInMeters}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthquantity}
+  Read a physical length in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[radiant Power In Watts]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-radiantpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.radiantPowerInWatts}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-radiantpowerquantity}
+  Read a radiant power in SI watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radiant Power In Watts.
+\end{proof}
+\begin{definition}[irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.irradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradiancequantity}
+  Read an irradiance in SI watts per square metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[stefan Boltzmann Constant In SI]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.stefanBoltzmannConstantInSI}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantquantity}
+  Read the Stefan--Boltzmann constant in SI W / (m² K⁴)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stefan Boltzmann Constant In SI.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.temperatureInKelvins}
+  Read a Physlib absolute temperature in kelvins. The explicit storage unit is needed because Temperature stores a nonnegative magnitude in an arbitrary zero-preserving temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Thermal Emitter Model]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-thermalemittermodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.ThermalEmitterModel}
+  Radiation model assigned to the Sun by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Emitter Model.
+\end{proof}
+\begin{definition}[Celestial Body Label]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-celestialbodylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.CelestialBodyLabel}
+  The two named celestial bodies shown in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celestial Body Label.
+\end{proof}
+\begin{definition}[Figure Distance Symbol]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-figuredistancesymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.FigureDistanceSymbol}
+  The separation symbol printed above the connector lines in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Distance Symbol.
+\end{proof}
+\begin{definition}[Sun Earth Figure]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-sunearthfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.SunEarthFigure}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthquantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-celestialbodylabel, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-figuredistancesymbol}
+  Raw information represented by the primary bitmap. Its two yellow boundary lines connect the left-hand Sun to the right-hand Earth, and the displayed distance carries the label r
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sun Earth Figure.
+\end{proof}
+\begin{definition}[Spherical Stellar Emitter]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-sphericalstellaremitter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.SphericalStellarEmitter}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthquantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-radiantpowerquantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradiancequantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-thermalemittermodel}
+  The spherical stellar emitter. Surface radiant exitance, total luminosity, and temperature are independent physical quantities; their relations are supplied only by the governing-law structure below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Stellar Emitter.
+\end{proof}
+\begin{definition}[Solar Irradiance Setup]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.SolarIrradianceSetup}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthquantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradiancequantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantquantity, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-sunearthfigure, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-sphericalstellaremitter}
+  All physical quantities in the Sun--Earth setup. In particular, irradianceAtEarth is an independent observable, not a definition involving an answer choice or the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solar Irradiance Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-temperatureinkelvins, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  The perfect-emitter model and numerical source data stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Sun Earth Figure]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-matchesprimarysunearthfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.MatchesPrimarySunEarthFigure}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  Primary-image readout: Sun is on the left, Earth is on the right, both names are shown, two yellow connector lines are drawn, and their displayed separation is r = 1.5 × 10\textasciicircum{}11 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Sun Earth Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Stefan Boltzmann Constant]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-usestextbookstefanboltzmannconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.UsesTextbookStefanBoltzmannConstant}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantinsi, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  The standard textbook calibration σ = 5.67 × 10⁻⁸ W/(m² K⁴). This is an input constant for the Stefan--Boltzmann law, not the requested irradiance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Stefan Boltzmann Constant.
+\end{proof}
+\begin{definition}[Has Physical Solar Irradiance Parameters]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-hasphysicalsolarirradianceparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.HasPhysicalSolarIrradianceParameters}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantinsi, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-temperatureinkelvins, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  Positivity of the physical source, geometry, and radiation constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Solar Irradiance Parameters.
+\end{proof}
+\begin{definition}[Satisfies Perfect Emitter Radiation Laws]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-satisfiesperfectemitterradiationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.SatisfiesPerfectEmitterRadiationLaws}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-radiantpowerinwatts, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradianceinwattspersquaremeter, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantinsi, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-temperatureinkelvins, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup}
+  The governing radiation laws. A perfect blackbody has surface radiant exitance σ T⁴; its spherical surface produces luminosity 4 π R² M; and isotropic propagation spreads that luminosity across the sphere of radius equal to the Sun--Earth separation. None of these fields contains the recorded 1100 W/m² answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Perfect Emitter Radiation Laws.
+\end{proof}
+\begin{lemma}[earth Irradiance eq stefan Boltzmann times radius Ratio Sq]
+  \label{lem:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-earthirradiance-eq-stefanboltzmann-times-radiusratiosq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.earthIrradiance_eq_stefanBoltzmann_times_radiusRatioSq}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-lengthinmeters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-irradianceinwattspersquaremeter, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-stefanboltzmannconstantinsi, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-temperatureinkelvins, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-solarirradiancesetup, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-hasphysicalsolarirradianceparameters, def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-satisfiesperfectemitterradiationlaws}
+  Combining blackbody emission with spherical dilution gives the usual solar irradiance formula. This is a derived relation, not one of the law fields
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Irradiance eq stefan Boltzmann times radius Ratio Sq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-answerirradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0489.answerIrradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0489:phyxminiproblems-problemphyxmini0489-answerchoice}
+  Irradiance readout in W/m² printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Irradiance In Watts Per Square Meter.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

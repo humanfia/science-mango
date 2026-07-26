@@ -1,0 +1,346 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0812.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0812.source.json
+
+\chapter{Physics problem phyx\_mini\_0812}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0812}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+We want to slide a 12 kg crate up a 2.5-m-long ramp inclined at \textbackslash{}( 30\textasciicircum{}\textbackslash{}circ \textbackslash{}). A worker, ignoring friction, calculates that he can do this by giving it an initial speed of 5.0 m/s at the bottom and letting it go. But friction is \textbackslash{}textit\{not\} negligible; the crate slides only 1.6 m up the ramp, stops, and slides back down as shown in figure.
+
+\#\# Question
+
+How fast is the crate moving when it reaches the bottom of the ramp?
+
+\#\# Answer choices
+
+- A: A: 3.2m/s
+
+- B: B: 2.5m/s
+
+- C: C: 5m/s
+
+- D: D: 1.5m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a person pushing a box up a ramp towards a truck. Here's a detailed description:
+
+1. **Objects**:
+   - There is a person positioned at the bottom of a ramp, pushing an orange box.
+   - The ramp is inclined at an angle of 30° and leads up to the back of a truck.
+   - The truck is partially visible on the right side of the image.
+
+2. **Measurements**:
+   - The ramp has a total length of 2.5 meters, with distances marked: 1.6 meters from the base to a point on the ramp, and 2.5 meters to the top where the ramp meets the truck.
+
+3. **Velocity and Points**:
+   - At the bottom of the ramp (Point 1), the box has a velocity of \textbackslash{}( v\_1 = 5.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}).
+   - Near the top of the ramp (Point 2), the velocity of the box is \textbackslash{}( v\_2 = 0 \textbackslash{}).
+
+4. **Angles and Orientation**:
+   - The ramp is inclined at an angle of 30° from the horizontal plane.
+   - A green arrow indicates the direction of the box's motion with the initial velocity.
+
+5. **Points Noted**:
+   - The ramp is marked at three points: Point 1 at the base, Point 2 near the top, and another Point 3 at the base aligned with Point 1.
+
+The scene illustrates a physics problem involving motion on an inclined plane, examining concepts like velocity and distances.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 2.5m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/812.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0812.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0812:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0812.returnSpeedAtRampBottom_is_answerB}
+\uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedinmeterspersecond, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-matchesrampproblemdata, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-matchesprimaryrampfigure, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-hasphysicalrampparameters, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-satisfiesinclineworkenergylaws, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.accelerationDimension}
+  The physical dimension of acceleration, L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.forceDimension}
+  The physical dimension of force, M L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.MassQuantity}
+  A nonnegative physical mass, independent of the chosen readout units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.LengthQuantity}
+  A nonnegative physical length or distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.SpeedQuantity}
+  A nonnegative physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.ForceQuantity}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forcedimension}
+  A nonnegative physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.EnergyQuantity}
+  A physical energy, represented by Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[nonnegative Quantity Readout]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.nonnegativeQuantityReadout}
+  Read a nonnegative dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Quantity Readout.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.energyReadout}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyquantity}
+  Read a physical energy in the coherent energy unit induced by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.massInKilograms}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  Kilogram readout of the crate's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.lengthInMeters}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  Metre readout of a ramp length or distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  Metres-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.forceInNewtons}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forcequantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  Newton readout of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.energyInJoules}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyreadout}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[kinetic Energy From Readouts]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-kineticenergyfromreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.kineticEnergyFromReadouts}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout}
+  The classical scalar kinetic-energy expression in any coherent unit system. This is a general physical formula helper and contains no problem answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kinetic Energy From Readouts.
+\end{proof}
+\begin{definition}[Ramp Point]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-ramppoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.RampPoint}
+  The three points explicitly numbered in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ramp Point.
+\end{proof}
+\begin{definition}[Along Ramp Direction]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-alongrampdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.AlongRampDirection}
+  The two directions of travel along the ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Along Ramp Direction.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.FigureComponent}
+  Individually identifiable objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Friction Model]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-frictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.FrictionModel}
+  Whether friction is omitted or retained in a model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Friction Model.
+\end{proof}
+\begin{definition}[Worker Prediction]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-workerprediction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.WorkerPrediction}
+  The worker's qualitative prediction under his frictionless calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Worker Prediction.
+\end{proof}
+\begin{definition}[Ramp Figure]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-rampfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.RampFigure}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-ramppoint, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-alongrampdirection, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-figurecomponent}
+  Literal labels and qualitative geometry transcribed from the primary image. Point 3 has no speed label: its speed is the requested unknown
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ramp Figure.
+\end{proof}
+\begin{definition}[Crate Ramp Setup]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.CrateRampSetup}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forcequantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyquantity, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-ramppoint, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-frictionmodel, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-workerprediction, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-rampfigure}
+  Independent quantities describing the crate and ramp. In particular, speedAt .point3BottomReturn is not defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crate Ramp Setup.
+\end{proof}
+\begin{definition}[Matches Ramp Problem Data]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-matchesrampproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.MatchesRampProblemData}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massinkilograms, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup}
+  Prose/model data not supplied as literal graphical labels. Standard gravity is the terrestrial calibration implicit in the numerical mechanics problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ramp Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Ramp Figure]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-matchesprimaryrampfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.MatchesPrimaryRampFigure}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthinmeters, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-speedinmeterspersecond, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup}
+  Primary-raster evidence and its calibration to the physical quantities. The point-3 speed label is explicitly absent, so no return-speed value enters this premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Ramp Figure.
+\end{proof}
+\begin{definition}[Has Physical Ramp Parameters]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-hasphysicalrampparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.HasPhysicalRampParameters}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-massinkilograms, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-lengthinmeters, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-forceinnewtons, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyinjoules, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup}
+  Positivity conditions selecting the intended physical ramp model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ramp Parameters.
+\end{proof}
+\begin{definition}[Satisfies Incline Work Energy Laws]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-satisfiesinclineworkenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.SatisfiesInclineWorkEnergyLaws}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-nonnegativequantityreadout, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-energyreadout, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-kineticenergyfromreadouts, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-ramppoint, def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-craterampsetup}
+  The classical work--energy model for the two legs. Every stored kinetic energy is related to its independent speed and mass by K = (1/2) m v\textasciicircum{}2. On the upward leg, both gravity's incline component and kinetic friction do negative work. On the downward leg, gravity does positive work and the same kinetic friction magnitude does negative work. These laws hold in every coherent unit system and contain no numerical return speed or answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Incline Work Energy Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.AnswerChoice}
+  Labels attached to the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed Meters Per Second]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-answerchoice-displayedspeedmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.AnswerChoice.displayedSpeedMetersPerSecond}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-answerchoice}
+  Speed in metres per second printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed Meters Per Second.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0812.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0812:phyxminiproblems-problemphyxmini0812-answerchoice}
+  An answer is closest when its printed speed has no greater absolute error than any other printed option. This makes the dataset's rounding explicit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

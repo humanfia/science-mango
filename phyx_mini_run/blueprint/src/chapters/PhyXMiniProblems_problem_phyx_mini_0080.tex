@@ -1,0 +1,250 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0080.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0080.source.json
+
+\chapter{Physics problem phyx\_mini\_0080}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0080}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, first-order reflection from the reflection planes shown occurs when an x-ray beam of wavelength \$0.260 \textbackslash{}, \textbackslash{}text\{nm\}\$ makes an angle \$	heta = 63.8\textasciicircum{}\textbackslash{}circ\$ with the top face of the crystal.
+
+\#\# Question
+
+What is the unit cell size \$a\_0\$?
+
+\#\# Answer choices
+
+- A: A: 0.405nm
+
+- B: B: 0.520nm
+
+- C: C: 0.570nm
+
+- D: D: 0.640nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an atomic lattice structure typically associated with X-ray diffraction studies. Key elements include:
+
+- **Green Dots**: Represent atoms arranged in a lattice.
+- **Black Lines**: Connect the atoms, illustrating the geometric arrangement within the lattice.
+- **Red Arrow and Text**: A red arrow labeled "X rays" shows the direction of incoming X-ray beams at an angle denoted by \textbackslash{}(\textbackslash{}theta\textbackslash{}) with respect to the lattice plane.
+- **Angle (\textbackslash{}(\textbackslash{}theta\textbackslash{}))**: Indicates the angle of incidence of the X-rays on the lattice.
+- **Distance Annotations**: Two distances labeled \textbackslash{}(a\_0\textbackslash{}). One is vertical, representing the spacing between layers of atoms, and the other is horizontal, marking the distance between atoms in the same plane.
+
+This diagram is often used to explain Bragg's Law in the context of X-ray crystallography.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.570nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/80.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0080.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0080:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0080.problem_phyx_mini_0080}
+\uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasstatedreadouts, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-matchesshownlatticefigure, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesdiagonalplanespacinglaw, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesbraggreflectionlaw, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasphysicaldiffractionparameters, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-isclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.LengthQuantity}
+  A signed physical length whose representations cohere across unit choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.lengthValueIn}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity}
+  Read a physical length as a real scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.nanometersValue}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthvaluein}
+  The numerical readout of a physical length in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[degrees As Angle]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-degreesasangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.degreesAsAngle}
+  Interpret a scalar angle given in degrees as a Mathlib real angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees As Angle.
+\end{proof}
+\begin{definition}[Unit Cell Edge Label]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-unitcelledgelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.UnitCellEdgeLabel}
+  The two a₀ arrows drawn in the square lattice cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Unit Cell Edge Label.
+\end{proof}
+\begin{definition}[Reflection Plane Family]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-reflectionplanefamily}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.ReflectionPlaneFamily}
+  The family of parallel diagonal reflection planes explicitly shown
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflection Plane Family.
+\end{proof}
+\begin{definition}[XRay Beam]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraybeam}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.XRayBeam}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity}
+  The monochromatic incident x-ray beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of XRay Beam.
+\end{proof}
+\begin{definition}[Square Lattice Crystal]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-squarelatticecrystal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.SquareLatticeCrystal}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity}
+  Crystal lengths relevant to the depicted square lattice cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Square Lattice Crystal.
+\end{proof}
+\begin{definition}[XRay Diffraction Figure]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraydiffractionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.XRayDiffractionFigure}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-unitcelledgelabel, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-reflectionplanefamily}
+  Geometric quantities and labels read from the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of XRay Diffraction Figure.
+\end{proof}
+\begin{definition}[Reflection Observation]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-reflectionobservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.ReflectionObservation}
+  The observed reflected order and the two angles used in Bragg's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflection Observation.
+\end{proof}
+\begin{definition}[XRay Crystal Setup]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.XRayCrystalSetup}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraybeam, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-squarelatticecrystal, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraydiffractionfigure, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-reflectionobservation}
+  Complete physical setup for the x-ray reflection observation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of XRay Crystal Setup.
+\end{proof}
+\begin{definition}[Has Stated Readouts]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasstatedreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.HasStatedReadouts}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-degreesasangle, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  This structure records the Has Stated Readouts component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Readouts.
+\end{proof}
+\begin{definition}[Matches Shown Lattice Figure]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-matchesshownlatticefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.MatchesShownLatticeFigure}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-degreesasangle, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  This structure records the Matches Shown Lattice Figure component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Shown Lattice Figure.
+\end{proof}
+\begin{definition}[Satisfies Diagonal Plane Spacing Law]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesdiagonalplanespacinglaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.SatisfiesDiagonalPlaneSpacingLaw}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  This def records the Satisfies Diagonal Plane Spacing Law component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Diagonal Plane Spacing Law.
+\end{proof}
+\begin{definition}[Satisfies Bragg Reflection Law]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesbraggreflectionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.SatisfiesBraggReflectionLaw}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  This def records the Satisfies Bragg Reflection Law component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bragg Reflection Law.
+\end{proof}
+\begin{definition}[Has Physical Diffraction Parameters]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasphysicaldiffractionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.HasPhysicalDiffractionParameters}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup}
+  Positivity and physical-branch conditions for the depicted observation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Diffraction Parameters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Unit Cell Size Nanometers]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-answerunitcellsizenanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.answerUnitCellSizeNanometers}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-answerchoice}
+  Unit-cell sizes printed beside the answer choices, in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Unit Cell Size Nanometers.
+\end{proof}
+\begin{definition}[Is Closest Answer]
+  \label{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-isclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.IsClosestAnswer}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-lengthquantity, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-answerchoice, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-answerunitcellsizenanometers}
+  A choice is strictly nearer to a length readout than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer.
+\end{proof}
+\begin{lemma}[bragg glancing angle eq eighteen point eight degrees]
+  \label{lem:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-bragg-glancing-angle-eq-eighteen-point-eight-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.bragg_glancing_angle_eq_eighteen_point_eight_degrees}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-degreesasangle, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasstatedreadouts, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-matchesshownlatticefigure}
+  This lemma records the bragg glancing angle eq eighteen point eight degrees component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bragg glancing angle eq eighteen point eight degrees.
+\end{proof}
+\begin{lemma}[unit cell size nanometers formula]
+  \label{lem:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-unit-cell-size-nanometers-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0080.unit_cell_size_nanometers_formula}
+  \uses{def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-nanometersvalue, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-xraycrystalsetup, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasstatedreadouts, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesdiagonalplanespacinglaw, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-satisfiesbraggreflectionlaw, def:physics:phyx-mini-0080:phyxminiproblems-problemphyxmini0080-hasphysicaldiffractionparameters}
+  This lemma records the unit cell size nanometers formula component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of unit cell size nanometers formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

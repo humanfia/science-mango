@@ -1,0 +1,295 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0622.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0622.source.json
+
+\chapter{Physics problem phyx\_mini\_0622}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0622}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A rectangular painting measures \textbackslash{}(1.00\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) tall and \textbackslash{}(1.50\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) wide, figure. It is hung on the side wall of a spaceship which is moving past the Earth at a speed of \textbackslash{}(0.90c\textbackslash{}).
+
+\#\# Question
+
+What are the dimensions as seen by an observer on the Earth?
+
+\#\# Answer choices
+
+- A: A: 0.69m
+
+- B: B: 0.67m
+
+- C: C: 0.65m
+
+- D: D: 0.62m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a rectangular painting with a visible scene and some annotations. 
+
+\#\#\# Content:
+1. **Scene**:
+   - The painting depicts a landscape with mountains and a river running through it.
+   - There are trees in the foreground.
+   - A sun is shown in the sky, possibly depicting either sunrise or sunset.
+
+2. **Annotations**:
+   - The height of the painting is labeled as `1.00 m`.
+   - The width of the painting is indicated by a question mark, suggesting it is unknown or to be determined.
+
+3. **Appearance and Colors**:
+   - The sky is a gradient of blue, transitioning to a warmer hue near the horizon.
+   - The mountains are brown, with distinctive peaks.
+   - The river is a light color, likely blue, contrasting with the surrounding landscape.
+   - The trees are green.
+   - The sun is orange.
+
+The painting is set against a light yellow background.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.65m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/622.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0622.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0622:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0622.problem_phyx_mini_0622}
+\uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchespaintingonspaceshipscenario, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessuppliedpaintingfigure, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesproblemreadouts, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessidewallmotiongeometry, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-hasphysicalrelativisticparameters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-satisfiesaxissensitivelorentzlengthlaw, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesdisplayedwidthchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.lengthReadout}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.lengthInMeters}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthquantity, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthreadout}
+  Meter readout used by the problem, figure, and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.speedInMetersPerSecond}
+  Read a physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light In Meters Per Second]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-vacuumspeedoflightinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.vacuumSpeedOfLightInMetersPerSecond}
+  Physlib's vacuum speed of light, read in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light In Meters Per Second.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.InertialFrameLabel}
+  The two inertial frames relevant to the dimension measurements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[Painting Dimension]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.PaintingDimension}
+  The two physical dimensions of the rectangular painting
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Painting Dimension.
+\end{proof}
+\begin{definition}[Motion Axis Role]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-motionaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MotionAxisRole}
+  Whether a painting dimension is parallel or transverse to the motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Axis Role.
+\end{proof}
+\begin{definition}[Figure Dimension Annotation]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-figuredimensionannotation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.FigureDimensionAnnotation}
+  The two kinds of dimension annotation appearing in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Dimension Annotation.
+\end{proof}
+\begin{definition}[Painting Figure]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.PaintingFigure}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingdimension, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-figuredimensionannotation}
+  Literal evidence carried by phyx\_data/test\_image/622.png. The image labels the vertical arrow as 1.00 m and places a question mark under the horizontal arrow. The landscape content is retained as a qualitative check that the outlined rectangle is the painting referred to in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Painting Figure.
+\end{proof}
+\begin{definition}[Relativistic Painting Setup]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.RelativisticPaintingSetup}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthquantity, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-inertialframelabel, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingdimension, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-motionaxisrole, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingfigure}
+  Independent physical quantities in the problem. In particular, earthMeasuredDimension is an observable field rather than a definition made from an answer choice or from the contraction formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relativistic Painting Setup.
+\end{proof}
+\begin{definition}[speed Fraction Of Light]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedfractionoflight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.speedFractionOfLight}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedinmeterspersecond, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-vacuumspeedoflightinmeterspersecond, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup}
+  The dimensionless speed parameter β = v/c in coherent SI readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Fraction Of Light.
+\end{proof}
+\begin{definition}[lorentz Factor]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lorentzfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.lorentzFactor}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedfractionoflight}
+  The Lorentz factor supplied by Physlib for the setup's relative speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of lorentz Factor.
+\end{proof}
+\begin{definition}[Matches Painting On Spaceship Scenario]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchespaintingonspaceshipscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MatchesPaintingOnSpaceshipScenario}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup}
+  The prose scenario and the operational meaning of an Earth-frame length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Painting On Spaceship Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Painting Figure]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessuppliedpaintingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MatchesSuppliedPaintingFigure}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingfigure}
+  Quantitative and qualitative evidence read directly from the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Painting Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedfractionoflight}
+  Numerical data stated in the problem. The height is linked to the primary figure's printed rest-frame value; the width and speed come from the prose. No Earth-frame dimension or answer-choice value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Side Wall Motion Geometry]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessidewallmotiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MatchesSideWallMotionGeometry}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup}
+  The side-wall orientation relevant to Lorentz length contraction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Side Wall Motion Geometry.
+\end{proof}
+\begin{definition}[Has Physical Relativistic Parameters]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-hasphysicalrelativisticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.HasPhysicalRelativisticParameters}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-vacuumspeedoflightinmeterspersecond, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-speedfractionoflight}
+  Positivity and the nonnegative subluminal regime of the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Relativistic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Axis Sensitive Lorentz Length Law]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-satisfiesaxissensitivelorentzlengthlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.SatisfiesAxisSensitiveLorentzLengthLaw}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthreadout, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-paintingdimension, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lorentzfactor}
+  The governing special-relativistic length law. For every painting dimension and every common length unit, a component parallel to the relative motion is divided by γ(β), while a transverse component is unchanged. This generic law contains neither the numerical Earth-frame dimensions nor an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Axis Sensitive Lorentz Length Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.AnswerChoice}
+  Labels of the four width choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Width In Meters]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-displayedwidthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.displayedWidthInMeters}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-answerchoice}
+  Width in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Width In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-answerchoice}
+  The answer label recorded by the source dataset; this is metadata only
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Width Choice]
+  \label{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesdisplayedwidthchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.MatchesDisplayedWidthChoice}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-answerchoice, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-displayedwidthinmeters}
+  Agreement with a width displayed to two decimal places. The strict tolerance 0.005 m excludes a rounding tie at a hundredth-place boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Width Choice.
+\end{proof}
+\begin{lemma}[earth Measured Height In Meters eq one]
+  \label{lem:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-earthmeasuredheightinmeters-eq-one}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.earthMeasuredHeightInMeters_eq_one}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessuppliedpaintingfigure, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesproblemreadouts, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessidewallmotiongeometry, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-satisfiesaxissensitivelorentzlengthlaw}
+  The transverse 1.00 m height is unchanged for the Earth observer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Measured Height In Meters eq one.
+\end{proof}
+\begin{lemma}[earth Measured Width In Meters exact]
+  \label{lem:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-earthmeasuredwidthinmeters-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0622.earthMeasuredWidthInMeters_exact}
+  \uses{def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-lengthinmeters, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-relativisticpaintingsetup, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchesproblemreadouts, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-matchessidewallmotiongeometry, def:physics:phyx-mini-0622:phyxminiproblems-problemphyxmini0622-satisfiesaxissensitivelorentzlengthlaw}
+  The longitudinal Earth-frame width is the 1.50 m proper width divided by the Lorentz factor at β = 0.90
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Measured Width In Meters exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

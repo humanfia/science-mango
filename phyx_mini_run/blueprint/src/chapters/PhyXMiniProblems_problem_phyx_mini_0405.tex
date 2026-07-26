@@ -1,0 +1,311 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0405.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0405.source.json
+
+\chapter{Physics problem phyx\_mini\_0405}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0405}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An experiment measures the temperature of a 500 \$	ext\{g\}\$ substance while steadily supplying heat to it. Figure shows the results of the experiment.
+
+\#\# Question
+
+What are the heats of vaporization?
+
+\#\# Answer choices
+
+- A: A: 1.2 \textbackslash{}times 10\textasciicircum{}4 \textbackslash{}
+
+- B: B: 6.0 \textbackslash{}times 10\textasciicircum{}4 \textbackslash{}
+
+- C: C: 1.2 \textbackslash{}times 10\textasciicircum{}5 \textbackslash{}
+
+- D: D: 2.4 \textbackslash{}times 10\textasciicircum{}5 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a temperature vs. heat energy graph. Here’s a description:
+
+- **Axes**: 
+  - The y-axis (vertical) represents temperature in degrees Celsius (T (°C)).
+  - The x-axis (horizontal) represents heat energy in kilojoules (Q (kJ)).
+
+- **Data Line**:
+  - The line begins at (-40 °C, 0 kJ) and rises linearly to (0 °C, 20 kJ).
+  - It holds constant at 0 °C between approximately 20 kJ and 100 kJ.
+  - It then rises linearly, from 0 °C to 60 °C, between 100 kJ and approximately 180 kJ.
+  - The line remains constant at 60 °C between approximately 180 kJ and 200 kJ.
+  - Finally, it rises again at 200 kJ onwards.
+
+The graph likely represents the heat absorption of a substance undergoing phase changes, possibly from solid to liquid and liquid to gas, as indicated by the flat portions where temperature remains constant during phase transitions.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.2 \textbackslash{}times 10\textasciicircum{}5 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/405.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0405.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0405:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0405.problem_phyx_mini_0405}
+\uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatinjoulesperkilogram, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesproblemandprimaryfigure, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-satisfiesspecificlatentheatofvaporizationlaw, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Specific Latent Heat Quantity]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.SpecificLatentHeatQuantity}
+  Specific latent heat, equivalently energy per unit mass, with dimension L² T⁻². Its coherent SI readout is in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Latent Heat Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.massInKilograms}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.massInGrams}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massquantity, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massinkilograms}
+  Read a physical mass in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.energyInJoules}
+  Read a signed physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-energyinjoules}
+  Read a signed physical energy in kilojoules, the graph's horizontal unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[specific Latent Heat In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.specificLatentHeatInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatquantity}
+  Read a specific latent heat in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Latent Heat In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.temperatureInDegreesCelsius}
+  Celsius readout of Physlib's nonnegative absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.AxisQuantity}
+  The physical quantity printed on each graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.AxisUnit}
+  The units explicitly printed beside the graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Heat Supply Mode]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatsupplymode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.HeatSupplyMode}
+  The way heat is delivered according to the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Supply Mode.
+\end{proof}
+\begin{definition}[Phase Change Kind]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-phasechangekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.PhaseChangeKind}
+  The phase changes represented by the two horizontal portions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Phase Change Kind.
+\end{proof}
+\begin{definition}[Curve Segment Shape]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.CurveSegmentShape}
+  Visual shape of a segment in the temperature-versus-heat graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Segment Shape.
+\end{proof}
+\begin{definition}[Curve Point Label]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvepointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.CurvePointLabel}
+  Named vertices and the rightmost visible point of the plotted polyline
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Point Label.
+\end{proof}
+\begin{definition}[Curve Segment]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.CurveSegment}
+  The five successive portions of the heating curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Segment.
+\end{proof}
+\begin{definition}[segment Start Label]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-segmentstartlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.segmentStartLabel}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvepointlabel, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegment}
+  Initial vertex of each successive curve segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of segment Start Label.
+\end{proof}
+\begin{definition}[segment Finish Label]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-segmentfinishlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.segmentFinishLabel}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvepointlabel, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegment}
+  Final vertex of each successive curve segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of segment Finish Label.
+\end{proof}
+\begin{definition}[Heating Curve Point]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurvepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.HeatingCurvePoint}
+  A dimensionful point on the supplied heating curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heating Curve Point.
+\end{proof}
+\begin{definition}[Heating Curve Experiment]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.HeatingCurveExperiment}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massquantity, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatquantity, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-axisquantity, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-axisunit, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatsupplymode, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-phasechangekind, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegmentshape, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvepointlabel, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-curvesegment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurvepoint}
+  The heated sample and its plotted curve. The latent heat is an independent dimensionful field; it is not defined as the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heating Curve Experiment.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massingrams, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-energyinkilojoules, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-temperatureindegreescelsius, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment}
+  The stated sample mass and a transcription of the primary raster. The point values are read in the units printed on the axes. No numerical value of the specific latent heat requested in the question occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[vaporization Heat Absorbed In Joules]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-vaporizationheatabsorbedinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.vaporizationHeatAbsorbedInJoules}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-energyinjoules, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment}
+  Heat absorbed during the constant-temperature vaporization segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vaporization Heat Absorbed In Joules.
+\end{proof}
+\begin{definition}[Satisfies Specific Latent Heat Of Vaporization Law]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-satisfiesspecificlatentheatofvaporizationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.SatisfiesSpecificLatentHeatOfVaporizationLaw}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massinkilograms, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatinjoulesperkilogram, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-vaporizationheatabsorbedinjoules}
+  The governing phase-change energy balance Q\_vap = m L\_v, expressed in coherent SI readouts. It is a general physical law and contains no numerical value for the current question's requested latent heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Specific Latent Heat Of Vaporization Law.
+\end{proof}
+\begin{lemma}[sample Mass In Kilograms eq one Half]
+  \label{lem:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-samplemassinkilograms-eq-onehalf}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.sampleMassInKilograms_eq_oneHalf}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-massinkilograms, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesproblemandprimaryfigure}
+  The stated 500 g sample has mass 0.5 kg. This is a derived conversion, not a premise field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sample Mass In Kilograms eq one Half.
+\end{proof}
+\begin{lemma}[vaporization Heat Absorbed In Joules eq sixty Thousand]
+  \label{lem:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-vaporizationheatabsorbedinjoules-eq-sixtythousand}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.vaporizationHeatAbsorbedInJoules_eq_sixtyThousand}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesproblemandprimaryfigure, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-vaporizationheatabsorbedinjoules}
+  The primary figure's 120 kJ to 180 kJ plateau absorbs 60000 J. This intermediate graph calculation remains on the conclusion side
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of vaporization Heat Absorbed In Joules eq sixty Thousand.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Specific Latent Heat In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-displayedspecificlatentheatinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.displayedSpecificLatentHeatInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-answerchoice}
+  Specific latent heat in J/kg displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Specific Latent Heat In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Answer]
+  \label{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-matchesdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0405.MatchesDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-specificlatentheatinjoulesperkilogram, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-heatingcurveexperiment, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-answerchoice, def:physics:phyx-mini-0405:phyxminiproblems-problemphyxmini0405-displayedspecificlatentheatinjoulesperkilogram}
+  A displayed choice agrees with the experiment's derived latent heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

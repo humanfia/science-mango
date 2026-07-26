@@ -1,0 +1,523 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0790.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0790.source.json
+
+\chapter{Physics problem phyx\_mini\_0790}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0790}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 500.0 g bird is flying horizontally at 2.25 m/s, not paying much attention, when it suddenly flies into a stationary vertical bar, hitting it 25.0 cm below the top as shown in figure. The bar is uniform, 0.750 m long, has a mass of 1.50 kg, and is hinged at its base.
+
+\#\# Question
+
+What is the angular velocity of the bar just as it reaches the ground?
+
+\#\# Answer choices
+
+- A: A: 4.08 rad/s
+
+- B: B: 6.58 rad/s
+
+- C: C: 2.17 rad/s
+
+- D: D: 12.39 rad/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram involving a yellow vertical rod attached to a hinge at the bottom. The rod is standing upright on a horizontal surface. 
+
+A green arrow labeled "Bird" is pointing toward the rod from the left side, indicating a direction of motion or force. The arrow is positioned horizontally and is aligned with the top of the rod.
+
+There is a dashed horizontal line extending from the arrow to the rod, with a vertical distance labeled as "25.0 cm" between the top of the rod and the dashed line. This distance is marked with double-headed arrows indicating the vertical measurement. 
+
+The hinge, where the rod is attached, is highlighted with a black dot on the horizontal surface.
+
+\#\# Dataset metadata
+
+Rotational Motion; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.58 rad/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/790.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0790.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0790:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0790.angularVelocity_when_bar_reaches_ground}
+\uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesprimarybirdbarfigure, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matcheshingedbarscenario, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesbirdstoppingimpactidealization, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesstandardterrestrialgravity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hasphysicalbirdbarparameters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesfrictionlessbarfallenergylaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-recordeddatasetanswer, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-roundstodisplayedhundredth, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-isuniqueclosestangularspeedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.accelerationDimension}
+  Acceleration has dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.momentOfInertiaDimension}
+  A scalar moment of inertia has dimension mass times length squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[angular Momentum Dimension]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentumdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.angularMomentumDimension}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiadimension}
+  Angular momentum has dimension mass times length squared per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.SpeedQuantity}
+  A nonnegative, unit-independent speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Tangential Velocity Component Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.TangentialVelocityComponentQuantity}
+  A signed tangential velocity component. Unlike DimSpeed, this carrier uses ℝ, allowing a separated bird's post-impact component to record continued forward motion, rest, or rebound without collapsing velocity to a bare scalar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tangential Velocity Component Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.AngularSpeedQuantity}
+  The magnitude of an axial angular velocity. Radians are dimensionless, so its physical dimension is inverse time. The answer choices ask only for this magnitude, not for a signed rotation convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiadimension}
+  A nonnegative moment of inertia about the base hinge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Angular Momentum Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentumquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.AngularMomentumQuantity}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentumdimension}
+  A signed angular-momentum component about the hinge. Positive orientation is chosen to be the rotation induced by the incoming bird
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Momentum Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.EnergyQuantity}
+  Mechanical energy, using Physlib's unit-independent energy quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.signedSIReadout}
+  Coherent-SI readout of a signed dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.massInKilograms}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.lengthInMeters}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Metre-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[tangential Velocity Component In Meters Per Second]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.tangentialVelocityComponentInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-signedsireadout}
+  Signed metre-per-second readout of a tangential velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tangential Velocity Component In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Radian-per-second readout of an angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiaquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-nonnegativesireadout}
+  Kilogram-metre-squared readout of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[angular Momentum In Kilogram Meters Squared Per Second]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentuminkilogrammeterssquaredpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.angularMomentumInKilogramMetersSquaredPerSecond}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentumquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-signedsireadout}
+  Kilogram-metre-squared-per-second readout of angular momentum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum In Kilogram Meters Squared Per Second.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.energyInJoules}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-energyquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-signedsireadout}
+  Joule readout of a mechanical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Impact Stage]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-impactstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.ImpactStage}
+  Stages on the two sides of the short bird-bar collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Impact Stage.
+\end{proof}
+\begin{definition}[Bird Post Impact Disposition]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdpostimpactdisposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BirdPostImpactDisposition}
+  Whether the bird separates from the bar after impact or remains attached. The supplied problem and figure do not select either constructor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Post Impact Disposition.
+\end{proof}
+\begin{definition}[Bar Stage]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-barstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BarStage}
+  Bar states needed for the impact and the subsequent fall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Stage.
+\end{proof}
+\begin{definition}[Bar Orientation]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-barorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BarOrientation}
+  The orientations of the bar relevant to the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Orientation.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.HorizontalDirection}
+  Horizontal direction of the bird's arrow in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Bird Bar Figure Object]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BirdBarFigureObject}
+  Physical and graphical objects visible in image 790.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Bar Figure Object.
+\end{proof}
+\begin{definition}[Bird Bar Figure Label]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BirdBarFigureLabel}
+  Text labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Bar Figure Label.
+\end{proof}
+\begin{definition}[Bird Bar Figure]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.BirdBarFigure}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-horizontaldirection, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigureobject, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigurelabel}
+  Literal qualitative evidence from the supplied raster. The numeric field is the printed 25.0 cm label, not a distance inferred from drawing pixels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Bar Figure.
+\end{proof}
+\begin{definition}[Hinged Bar Impact Setup]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.HingedBarImpactSetup}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiaquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentumquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-energyquantity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-impactstage, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdpostimpactdisposition, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-barstage, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-barorientation, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-birdbarfigure}
+  Independent physical quantities for the collision and the falling bar. In particular, the final angular speed is an observable field: it is not defined from the answer choice or from the desired formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hinged Bar Impact Setup.
+\end{proof}
+\begin{definition}[Matches Primary Bird Bar Figure]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesprimarybirdbarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.MatchesPrimaryBirdBarFigure}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Facts read directly from the primary image: a rightward bird arrow and dashed horizontal guide meet a vertical bar, the vertical marker from the bar's top to that guide reads 25.0 cm, and the bar is hinged to the ground at its base
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Bird Bar Figure.
+\end{proof}
+\begin{definition}[Matches Bird Bar Problem Data]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.MatchesBirdBarProblemData}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Numerical and qualitative data stated in the problem. The distances are stored independently; their geometric relation belongs to the governing-law structure below. Deliberately, this structure says nothing about the bird's post-impact velocity component or disposition, because the source says nothing about them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Bird Bar Problem Data.
+\end{proof}
+\begin{definition}[Matches Hinged Bar Scenario]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matcheshingedbarscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.MatchesHingedBarScenario}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Qualitative states before impact and when the bar reaches the ground. These conditions identify the fall through ninety degrees without assigning the unknown final angular speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Hinged Bar Scenario.
+\end{proof}
+\begin{definition}[Uses Bird Stopping Impact Idealization]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesbirdstoppingimpactidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.UsesBirdStoppingImpactIdealization}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  The collision model required by the recorded answer: the bird is brought to rest in the short impact and then separates, so it contributes no energy or moment of inertia during the bar's fall. This is an explicit modeling assumption, not a conclusion about the bar's final angular speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Bird Stopping Impact Idealization.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Conventional near-Earth gravitational calibration for the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Has Physical Bird Bar Parameters]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hasphysicalbirdbarparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.HasPhysicalBirdBarParameters}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Positivity and nondegeneracy conditions for the displayed physical setup. They contain no solved angular speed at either post-impact stage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Bird Bar Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Hinged Bar Laws]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.SatisfiesUniformHingedBarLaws}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Geometry and mass distribution of a thin uniform bar hinged at one end. The impact lever arm is the bar length minus the labeled distance below its top; the center of mass is halfway along the bar; and I\_hinge = M L\textasciicircum{}2 / 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Hinged Bar Laws.
+\end{proof}
+\begin{definition}[Satisfies Short Impact Angular Momentum Laws]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.SatisfiesShortImpactAngularMomentumLaws}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularmomentuminkilogrammeterssquaredpersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Angular momentum about the base hinge during the short collision. The hinge impulse has zero moment about the hinge, and the gravitational impulse is negligible over the collision duration. The bird's path is perpendicular to the vertical lever arm, so its contribution is m v r. The immediately post-impact component is signed in the positive rotation convention; hence a negative readout represents rebound
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Short Impact Angular Momentum Laws.
+\end{proof}
+\begin{definition}[Satisfies Frictionless Bar Fall Energy Laws]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesfrictionlessbarfallenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.SatisfiesFrictionlessBarFallEnergyLaws}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-energyinjoules, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup}
+  Mechanical-energy laws for the bar after the inelastic impact. Energy is not asserted to be conserved across the bird-bar collision. During the fall, the loss of gravitational potential energy becomes additional rotational kinetic energy because hinge friction is negligible
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Frictionless Bar Fall Energy Laws.
+\end{proof}
+\begin{lemma}[hinge To Impact Distance is one half meter]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingetoimpactdistance-is-one-half-meter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.hingeToImpactDistance_is_one_half_meter}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws}
+  The figure and bar length place the impact point one half metre above the hinge
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of hinge To Impact Distance is one half meter.
+\end{proof}
+\begin{lemma}[bar Moment Of Inertia is nine over thirty two]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-barmomentofinertia-is-nine-over-thirty-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.barMomentOfInertia_is_nine_over_thirty_two}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws}
+  The stated uniform bar has hinged moment of inertia 9/32 kg m\textasciicircum{}2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bar Moment Of Inertia is nine over thirty two.
+\end{proof}
+\begin{lemma}[short Impact balance exposes outgoing bird velocity]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-shortimpact-balance-exposes-outgoing-bird-velocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.shortImpact_balance_exposes_outgoing_bird_velocity}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-massinkilograms, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-lengthinmeters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-speedinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-tangentialvelocitycomponentinmeterspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws}
+  Before any stop-and-separate idealization is imposed, conservation leaves the bar's post-impact angular speed coupled to the bird's unspecified outgoing tangential velocity. This relation makes the source underdetermination explicit rather than assigning the missing bird state in MatchesBirdBarProblemData
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of short Impact balance exposes outgoing bird velocity.
+\end{proof}
+\begin{lemma}[angular Speed immediately After Impact is two]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeed-immediatelyafterimpact-is-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.angularSpeed_immediatelyAfterImpact_is_two}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesbirdstoppingimpactidealization, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hasphysicalbirdbarparameters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws}
+  Conservation of angular momentum during the bird-stopping impact starts the bar at 2 rad/s. This intermediate result is not a premise of the target
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of angular Speed immediately After Impact is two.
+\end{proof}
+\begin{lemma}[final Angular Speed squared]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-finalangularspeed-squared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.finalAngularSpeed_squared}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesbirdstoppingimpactidealization, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesstandardterrestrialgravity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hasphysicalbirdbarparameters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesfrictionlessbarfallenergylaws}
+  Energy conservation during the fall, with g = 9.81 m/s\textasciicircum{}2, gives omega\_ground\textasciicircum{}2 = 4 + 3g/L = 1081/25. The unknown final observable remains on the left-hand side
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Angular Speed squared.
+\end{proof}
+\begin{lemma}[final Angular Speed exact]
+  \label{lem:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-finalangularspeed-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.finalAngularSpeed_exact}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-angularspeedinradianspersecond, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hingedbarimpactsetup, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-matchesbirdbarproblemdata, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesbirdstoppingimpactidealization, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-usesstandardterrestrialgravity, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-hasphysicalbirdbarparameters, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesuniformhingedbarlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesshortimpactangularmomentumlaws, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-satisfiesfrictionlessbarfallenergylaws}
+  Because angular speed is represented by a nonnegative physical magnitude, the squared relation selects the principal real square root rather than a signed ± pair
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Angular Speed exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.AnswerChoice}
+  Labels of the four angular-speed choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians Per Second]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice-radianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.AnswerChoice.radiansPerSecond}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice}
+  Radian-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Hundredth]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-roundstodisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.RoundsToDisplayedHundredth}
+  The exact physical value rounds to a displayed hundredth when it lies within half a hundredth of that displayed value. The half-open convention resolves the irrelevant exact-tie case
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Hundredth.
+\end{proof}
+\begin{definition}[Is Closest Angular Speed Choice]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-isclosestangularspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.IsClosestAngularSpeedChoice}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice}
+  A displayed angular-speed choice is closest to an exact value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Angular Speed Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Angular Speed Choice]
+  \label{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-isuniqueclosestangularspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0790.IsUniqueClosestAngularSpeedChoice}
+  \uses{def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-answerchoice, def:physics:phyx-mini-0790:phyxminiproblems-problemphyxmini0790-isclosestangularspeedchoice}
+  A displayed angular-speed choice is the unique closest choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Angular Speed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

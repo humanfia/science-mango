@@ -1,0 +1,384 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0412.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0412.source.json
+
+\chapter{Physics problem phyx\_mini\_0412}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0412}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A monatomic gas follows the process \$1 \textbackslash{}rightarrow 2 \textbackslash{}rightarrow 3\$ shown in figure.
+
+\#\# Question
+
+How much heat is needed for process \$2 \textbackslash{}rightarrow 3\$?
+
+\#\# Answer choices
+
+- A: A: 91 J
+
+- B: B: 0 J
+
+- C: C: -91 J
+
+- D: D: -150 J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram depicting a thermodynamic process. The axes are labeled "p (atm)" for pressure in atmospheres (y-axis) and "V (cm³)" for volume in cubic centimeters (x-axis).
+
+There are three marked points: 1, 2, and 3. 
+
+- Point 1 is at approximately 3 atm and 100 cm³.
+- Point 2 is at approximately 3 atm and 300 cm³.
+- Point 3 is at approximately 1 atm and 300 cm³.
+
+The process from point 1 to point 2 is an isobaric expansion (constant pressure) shown by a horizontal line with an arrow pointing right. The process from point 2 to point 3 is an isochoric cooling (constant volume) shown by a vertical line with an arrow pointing downward.
+
+A red dashed curve labeled "100°C isotherm" runs between point 1 and point 3, representing an isothermal process at 100°C that the system does not follow. The curve shows the relationship between pressure and volume at constant temperature.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -91 J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/412.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0412.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0412:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0412.heatForTwoToThree_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-matchesproblemandprimaryfigure, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-hasphysicalstatecoordinates, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-obeysmonatomicidealgasthermodynamics, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-displayedheatinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-recordedanswerchoice, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-roundstonearestwholejoule}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.VolumeQuantity}
+  A nonnegative physical volume, carrying dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.PressureQuantity}
+  Thermodynamic pressure, represented by Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.TemperatureQuantity}
+  A nonnegative absolute temperature, carrying the temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.EnergyQuantity}
+  Signed heat, work, or internal energy, represented by dimensionful energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumequantity}
+  SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubicmeters}
+  Cubic-centimetre readout used by the horizontal axis of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.pressureInPascals}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Standard Atmospheres]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressureinstandardatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.pressureInStandardAtmospheres}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurequantity}
+  Standard-atmosphere readout used by the vertical axis of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Standard Atmospheres.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperaturequantity}
+  SI kelvin readout of an absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperaturequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperatureinkelvins}
+  Degrees-Celsius readout used by the dashed isotherm annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.energyInJoules}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyquantity}
+  Joule readout of a signed dimensionful energy quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[atmosphere Cubic Centimeter In Joules]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-atmospherecubiccentimeterinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.atmosphereCubicCentimeterInJoules}
+  One standard atmosphere times one cubic centimetre, expressed in joules. This is the unit conversion 101325 Pa × 10⁻⁶ m³ = 0.101325 J
+\end{definition}
+\begin{proof}
+  This is the declared model definition of atmosphere Cubic Centimeter In Joules.
+\end{proof}
+\begin{definition}[Gas Atomicity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gasatomicity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.GasAtomicity}
+  Atomicity of the gas specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Atomicity.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.GasModel}
+  Equation-of-state model used for the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.GasSample}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gasatomicity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gasmodel}
+  A physical gas sample, distinguished from any of its scalar readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.StateLabel}
+  The three state labels printed in the pressure-volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ProcessLeg}
+  The two directed process legs followed by the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ProcessKind}
+  Thermodynamic classification of a depicted process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Process Direction]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ProcessDirection}
+  Qualitative change indicated by a directed process arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Direction.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperaturequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyquantity}
+  Pressure, volume, temperature, and internal energy at equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Thermodynamic Process]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-thermodynamicprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ThermodynamicProcess}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyquantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processkind, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processdirection}
+  A directed thermodynamic process. Heat is positive when transferred into the gas, and boundary work is positive when done by the gas. Neither energy field is defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Process.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.FigureAxis}
+  The two Cartesian axes in the primary pressure-volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.AxisQuantity}
+  Physical role assigned to a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.AxisDisplayUnit}
+  Unit text printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.AxisSymbol}
+  Literal physical-quantity symbol printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.PathGeometry}
+  Geometric appearance of a process leg in the p-V plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Figure Line Style]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-figurelinestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.FigureLineStyle}
+  Visible line style used for a feature of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Line Style.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurequantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processleg, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-figureaxis, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axisquantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axisdisplayunit, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-axissymbol, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pathgeometry, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-figurelinestyle}
+  Structured transcription of image 412.png. The dashed isotherm is retained as a figure feature separate from the two solid paths actually followed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Monatomic Gas Process Setup]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.MonatomicGasProcessSetup}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-gassample, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processleg, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-thermodynamicstate, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-thermodynamicprocess, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressurevolumefigure}
+  The gas, its three states, the two process legs, and the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Monatomic Gas Process Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubiccentimeters, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressureinstandardatmospheres, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperatureindegreescelsius, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processleg, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup}
+  Exact transcription of the prose and primary bitmap. The figure fixes state coordinates, process classifications, directions, and the dashed 100°C isotherm. It supplies no numerical heat, work, or internal-energy value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical State Coordinates]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-hasphysicalstatecoordinates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.HasPhysicalStateCoordinates}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubicmeters, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressureinpascals, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-temperatureinkelvins, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup}
+  Positivity conditions selecting physically meaningful state coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical State Coordinates.
+\end{proof}
+\begin{definition}[Obeys Monatomic Ideal Gas Thermodynamics]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-obeysmonatomicidealgasthermodynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.ObeysMonatomicIdealGasThermodynamics}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-volumeincubiccentimeters, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-pressureinstandardatmospheres, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-atmospherecubiccentimeterinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-statelabel, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-processleg, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup}
+  The laws used for a monatomic ideal gas, with explicit unit readouts: U = (3/2) pV at each equilibrium state; Q\_in = ΔU + W\_by for each directed process; and an isochoric leg has zero boundary work. All three relations are generic over the setup's states or legs and contain no problem-specific heat value or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Monatomic Ideal Gas Thermodynamics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.AnswerChoice}
+  The four labels printed beside the multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Joules]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-displayedheatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.displayedHeatInJoules}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-answerchoice}
+  Heat readout in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Whole Joule]
+  \label{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-roundstonearestwholejoule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.RoundsToNearestWholeJoule}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyquantity, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyinjoules}
+  A unit-labelled heat readout rounds to a displayed whole-joule value when it lies strictly within half a joule of that value. This generic display rule contains no problem-specific answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Whole Joule.
+\end{proof}
+\begin{lemma}[heat For Two To Three from monatomic first law]
+  \label{lem:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-heatfortwotothree-from-monatomic-first-law}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0412.heatForTwoToThree_from_monatomic_first_law}
+  \uses{def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-energyinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-atmospherecubiccentimeterinjoules, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-monatomicgasprocesssetup, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-matchesproblemandprimaryfigure, def:physics:phyx-mini-0412:phyxminiproblems-problemphyxmini0412-obeysmonatomicidealgasthermodynamics}
+  The governing laws and the state-2/state-3 figure data give Q₂₃ = (3/2)(1 atm·300 cm³ - 3 atm·300 cm³). This intermediate heat relation is a conclusion, not a premise field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of heat For Two To Three from monatomic first law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,413 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0444.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0444.source.json
+
+\chapter{Physics problem phyx\_mini\_0444}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0444}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider two tanks, \$A\$ and \$B\$, connected by a valve, as shown in figure. Each has a volume of \$200 \textbackslash{}, \textbackslash{}text\{L\}\$, and tank \$A\$ has R-410a at \$25 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$, \$10\textbackslash{}\%\$ liquid and \$90\textbackslash{}\%\$ vapor by volume, while tank \$B\$ is evacuated. The valve is now opened, and saturated vapor flows from \$A\$ to \$B\$ until the pressure in \$B\$ has reached that in \$A\$, at which point the valve is closed. This process occurs slowly such that all temperatures stay at \$25 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}	ext\{C\}\$ throughout the process.
+
+\#\# Question
+
+How much has the quality changed in tank \$A\$ during the process?
+
+\#\# Answer choices
+
+- A: A: 0.016
+
+- B: B: 0.500
+
+- C: C: 0.159
+
+- D: D: 0.283
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows two containers labeled "A" and "B." Container A has some liquid at the bottom, represented with a blue fill and horizontal lines indicating water. Container B is empty. Both containers are connected to a light bulb represented in the top center by two lines leading to it from the containers. The light bulb is depicted by a circle with an "X" inside it. This setup suggests a simple circuit or illustration of electrical or fluid dynamics concepts.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.283
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/444.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0444.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0444:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0444.quality_change_in_tank_A_is_choice_D}
+\uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-qualitychangeintanka, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchessuppliedtwotankfigure, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchesr410atankscenario, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchesreferencer410apropertydata, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-hasphysicalr410aparameters, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-satisfiesisothermalsaturatedtransferlaws, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-answerchoice, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-isreportedqualitychange}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[specific Volume Dimension]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.specificVolumeDimension}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumedimension}
+  The physical dimension of specific volume, L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Dimension.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumedimension}
+  A nonnegative physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.SpecificVolumeQuantity}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumedimension}
+  A nonnegative thermodynamic specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[volume In Litres]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeinlitres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.volumeInLitres}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumequantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeincubicmetres}
+  Read a physical volume in litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Litres.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.massInKilograms}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massquantity}
+  Read a physical mass in coherent SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Metres Per Kilogram]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumeincubicmetresperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.specificVolumeInCubicMetresPerKilogram}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumequantity}
+  Read a specific volume in cubic metres per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Metres Per Kilogram.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[Measured Temperature]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-measuredtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.MeasuredTemperature}
+  Physlib represents absolute temperature in a zero-preserving unit. A Celsius value is therefore retained as an instrument readout attached to the same absolute temperature, with its affine calibration imposed below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Measured Temperature.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.temperatureInKelvin}
+  Read an absolute temperature in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[Tank Label]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TankLabel}
+  The two tank labels printed in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Label.
+\end{proof}
+\begin{definition}[System Stage]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.SystemStage}
+  The equilibrium endpoints of the transfer process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of System Stage.
+\end{proof}
+\begin{definition}[Refrigerant Phase]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.RefrigerantPhase}
+  Liquid and vapor contributions to a tank inventory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerant Phase.
+\end{proof}
+\begin{definition}[Refrigerant Kind]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.RefrigerantKind}
+  Refrigerant identity, kept distinct from scalar property readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerant Kind.
+\end{proof}
+\begin{definition}[Tank Contents Region]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankcontentsregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TankContentsRegion}
+  Thermodynamic region occupied by the contents of one tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Contents Region.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.ValvePosition}
+  Operational position of the valve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Transfer Direction]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-transferdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TransferDirection}
+  Direction of net refrigerant transfer through the connecting line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transfer Direction.
+\end{proof}
+\begin{definition}[Transfer Regime]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-transferregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TransferRegime}
+  Slow-process idealization stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transfer Regime.
+\end{proof}
+\begin{definition}[Tank Shape]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TankShape}
+  Rectangular tank outline visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Shape.
+\end{proof}
+\begin{definition}[Tank State]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TankState}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumequantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massquantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-measuredtemperature, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantkind, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankcontentsregion}
+  Physical state and phase inventory of one tank at one endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank State.
+\end{proof}
+\begin{definition}[Refrigerant Transfer]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigeranttransfer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.RefrigerantTransfer}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massquantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantkind, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-transferdirection}
+  The integrated stream that passes through the valve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerant Transfer.
+\end{proof}
+\begin{definition}[Supplied Two Tank Figure]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-suppliedtwotankfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.SuppliedTwoTankFigure}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankshape}
+  Qualitative content of the primary raster. Horizontal coordinates encode only left-to-right placement in the drawing, not physical lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Two Tank Figure.
+\end{proof}
+\begin{definition}[R410 AProperty Table]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-r410apropertytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.R410APropertyTable}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumequantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase}
+  An external equilibrium-property table for saturated R-410A. Its outputs are physical pressure and specific volume rather than untyped scalars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of R410 AProperty Table.
+\end{proof}
+\begin{definition}[Two Tank R410 AExperiment]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.TwoTankR410AExperiment}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumequantity, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-measuredtemperature, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-valveposition, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-transferregime, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tankstate, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigeranttransfer, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-suppliedtwotankfigure, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-r410apropertytable}
+  The complete experiment. Tank volume is stage-independent, expressing rigidity. The transfer mass and endpoint states are independent observables until the governing laws below are assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Tank R410 AExperiment.
+\end{proof}
+\begin{definition}[phase Mass In Kilograms]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.phaseMassInKilograms}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment}
+  Kilograms of one phase in a specified endpoint tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of phase Mass In Kilograms.
+\end{proof}
+\begin{definition}[total Mass In Kilograms]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totalmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.totalMassInKilograms}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms}
+  Total refrigerant mass in one endpoint tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Mass In Kilograms.
+\end{proof}
+\begin{definition}[phase Volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasevolumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.phaseVolumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeincubicmetres, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-refrigerantphase, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment}
+  Cubic metres occupied by one phase in a specified endpoint tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of phase Volume In Cubic Metres.
+\end{proof}
+\begin{definition}[total Occupied Volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totaloccupiedvolumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.totalOccupiedVolumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasevolumeincubicmetres}
+  Total volume occupied by liquid and vapor in one endpoint tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Occupied Volume In Cubic Metres.
+\end{proof}
+\begin{definition}[vapor Quality]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-vaporquality}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.vaporQuality}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-tanklabel, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-systemstage, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totalmassinkilograms}
+  Thermodynamic quality is vapor mass divided by total refrigerant mass. This definition contains no answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vapor Quality.
+\end{proof}
+\begin{definition}[quality Change In Tank A]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-qualitychangeintanka}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.qualityChangeInTankA}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-vaporquality}
+  Final minus initial vapor quality in tank A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of quality Change In Tank A.
+\end{proof}
+\begin{definition}[Matches Supplied Two Tank Figure]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchessuppliedtwotankfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.MatchesSuppliedTwoTankFigure}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-suppliedtwotankfigure}
+  Facts visible in the primary two-tank raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Two Tank Figure.
+\end{proof}
+\begin{definition}[Matches R410 ATank Scenario]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchesr410atankscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.MatchesR410ATankScenario}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeinlitres, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-pressureinpascals, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasevolumeincubicmetres}
+  Prose data and qualitative process facts. The final pressure equality is the stated stopping condition. No field fixes either endpoint quality or its change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches R410 ATank Scenario.
+\end{proof}
+\begin{definition}[Matches Reference R410 AProperty Data]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-matchesreferencer410apropertydata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.MatchesReferenceR410APropertyData}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment}
+  Calibrated saturation-table readouts at 25 °C. The rounded values v\_f = 0.0009444 m³/kg and v\_g = 0.015164 m³/kg are constitutive R-410A property data, not the requested quality change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference R410 AProperty Data.
+\end{proof}
+\begin{definition}[Has Physical R410 AParameters]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-hasphysicalr410aparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.HasPhysicalR410AParameters}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeincubicmetres, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-temperatureinkelvin, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totalmassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasevolumeincubicmetres}
+  Positivity and nondegeneracy of the physical state parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical R410 AParameters.
+\end{proof}
+\begin{definition}[Satisfies Isothermal Saturated Transfer Laws]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-satisfiesisothermalsaturatedtransferlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.SatisfiesIsothermalSaturatedTransferLaws}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-volumeincubicmetres, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-massinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-temperatureinkelvin, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasemassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totalmassinkilograms, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-phasevolumeincubicmetres, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-totaloccupiedvolumeincubicmetres}
+  The governing endpoint physics: Celsius and kelvin readouts refer to the same absolute temperature; each saturated phase obeys V\_phase = m\_phase v\_phase; non-evacuated contents fill their rigid tank; their pressure is the saturation pressure at their temperature; the integrated vapor stream is exactly the mass lost by A and gained by initially evacuated B. These laws are uniform physical relations and contain no numerical quality
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isothermal Saturated Transfer Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.AnswerChoice}
+  Labels of the four printed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Quality Change]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-displayedqualitychange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.displayedQualityChange}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-answerchoice}
+  Dimensionless quality changes printed beside the answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Quality Change.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-answerchoice}
+  The dataset's recorded label, retained only as answer metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Reported Quality Change]
+  \label{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-isreportedqualitychange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0444.IsReportedQualityChange}
+  \uses{def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-twotankr410aexperiment, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-qualitychangeintanka, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-answerchoice, def:physics:phyx-mini-0444:phyxminiproblems-problemphyxmini0444-displayedqualitychange}
+  Agreement with a three-decimal display: the exact modeled change lies within half of one unit in the last printed decimal place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Reported Quality Change.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

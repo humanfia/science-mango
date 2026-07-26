@@ -1,0 +1,205 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0047.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0047.source.json
+
+\chapter{Physics problem phyx\_mini\_0047}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0047}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You pass 633\textbackslash{} \textbackslash{}mathrm\{nm\} laser light through a narrow slit and observe the diffraction pattern on a screen 6.0\textbackslash{} \textbackslash{}mathrm\{m\} away. The distance on the screen between the centers of the first minima on either side of the central bright fringe is 32\textbackslash{} \textbackslash{}mathrm\{mm\}.
+
+\#\# Question
+
+How wide is the slit?
+
+\#\# Answer choices
+
+- A: A: 643nm
+
+- B: B: 633nm
+
+- C: C: 639nm
+
+- D: D: 533nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a diffraction setup. On the left, there is a barrier with a single slit, labeled "Slit width = ?" indicating that the slit width is unknown. A light wave passes through this slit, creating a diffraction pattern on the screen to the right.
+
+The screen is positioned at a distance of 6.0 meters from the slit, as indicated by the label "x = 6.0 m." On the screen, a series of light and dark bands, known as interference fringes, are visible. The central band is the brightest.
+
+The spacing between the fringes on the screen is marked as "32 mm," measured vertically. The axes x and y are labeled at the top right of the screen, with x being horizontal and y vertical.
+
+Overall, the diagram depicts an experimental setup to determine the width of the slit using the interference pattern produced on the screen.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 633nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/47.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0047.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0047:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0047.problem_phyx_mini_0047}
+\uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinnanometers, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-firstminimumgeometry, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-matchesproblemandfigurereadouts, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-hasphysicalparameters, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-usesfraunhofersingleslitmodel, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-satisfiesfirstminimumdiffractionlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.OpticalLength}
+  A signed, unit-independent physical quantity carrying length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.lengthReadout}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength}
+  Read a physical length as a real scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.lengthInMeters}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout}
+  Metre readout for axial geometry and positivity conditions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout}
+  Millimetre readout for the screen separation in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout}
+  Nanometre readout for the wavelength, answers, and requested width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[Aperture Geometry]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-aperturegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.ApertureGeometry}
+  The aperture geometry selected by the single opening in the barrier
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aperture Geometry.
+\end{proof}
+\begin{definition}[Diffraction Regime]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-diffractionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.DiffractionRegime}
+  The far-field diffraction model used for the first-minimum law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diffraction Regime.
+\end{proof}
+\begin{definition}[Single Slit Apparatus]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.SingleSlitApparatus}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-aperturegeometry, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-diffractionregime}
+  The monochromatic laser, aperture, and observation screen in the experiment. The unknown physical quantity is slitWidth; no field assigns it a numerical value or defines it from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Single Slit Apparatus.
+\end{proof}
+\begin{definition}[First Minimum Geometry]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-firstminimumgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.FirstMinimumGeometry}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-opticallength}
+  Signed screen coordinates and propagation angles for the two first minima. The central-axis coordinate makes the origin drawn at the intersection of the figure's x and y axes explicit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of First Minimum Geometry.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinmeters, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinmillimeters, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinnanometers, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-firstminimumgeometry}
+  The text and primary-image data: one narrow slit, λ = 633 nm, x = 6.0 m, a centered y = 0 optical axis, and 32 mm between the centers of the upper and lower first minima. This predicate contains no value for the unknown slit width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthinmeters, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-firstminimumgeometry}
+  Physical branch conditions for the nondegenerate apparatus. The two rays lie on the signed acute branches shown in the figure. These conditions do not determine the numerical slit width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Uses Fraunhofer Single Slit Model]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-usesfraunhofersingleslitmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.UsesFraunhoferSingleSlitModel}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus}
+  The one-slit apparatus is interpreted in the Fraunhofer regime
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Fraunhofer Single Slit Model.
+\end{proof}
+\begin{definition}[Satisfies First Minimum Diffraction Laws]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-satisfiesfirstminimumdiffractionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.SatisfiesFirstMinimumDiffractionLaws}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-lengthreadout, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-singleslitapparatus, def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-firstminimumgeometry}
+  Exact first-order Fraunhofer single-slit minima and straight slit-to-screen ray geometry. In any coherent length unit the laws are a sin θ\_upper = λ, a sin θ\_lower = -λ, and y - y₀ = L tan θ. The opposite-angle field records the reflection symmetry of the two first minima about the central optical axis. No field contains the requested width or any displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies First Minimum Diffraction Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.AnswerChoice}
+  Labels of the four slit-width answers printed with the dataset item
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Slit Width In Nanometers]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-displayedslitwidthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.displayedSlitWidthInNanometers}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-answerchoice}
+  Nanometre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Slit Width In Nanometers.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0047.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0047:phyxminiproblems-problemphyxmini0047-answerchoice}
+  The answer label recorded by the source dataset, retained as metadata only
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

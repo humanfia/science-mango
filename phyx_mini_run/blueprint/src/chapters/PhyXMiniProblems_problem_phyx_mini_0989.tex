@@ -1,0 +1,425 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0989.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0989.source.json
+
+\chapter{Physics problem phyx\_mini\_0989}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0989}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A solenoid of unknown resistance and inductance is connected in series with a \textbackslash{}( 50.0\textbackslash{} \textbackslash{}Omega \textbackslash{}) resistor, a \textbackslash{}( 25.0\textbackslash{} \textbackslash{}text\{V\} \textbackslash{}) battery with negligible internal resistance, and a switch. Using an ideal voltmeter, the voltage \textbackslash{}( v\_R \textbackslash{}) across the resistor is recorded as a function of time \textbackslash{}( t \textbackslash{}) after the switch is closed. Your measured values are shown in figure, where \textbackslash{}( v\_R \textbackslash{}) is plotted versus \textbackslash{}( t \textbackslash{}). In addition, \textbackslash{}( v\_R = 0 \textbackslash{}) just after the switch is closed and \textbackslash{}( v\_R = 25.0\textbackslash{} \textbackslash{}text\{V\} \textbackslash{}) a long time after it is closed.
+
+\#\# Question
+
+How much energy is stored in the inductor a long time after the switch is closed?
+
+\#\# Answer choices
+
+- A: A: 0.10J
+
+- B: B: 0.050J
+
+- C: C: 0.25J
+
+- D: D: 0.20J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a scatter plot graph depicting data points. The horizontal axis is labeled as "t (ms)" ranging from 0.0 to 15.0 in increments of 2.5, representing time in milliseconds. The vertical axis is labeled as "v\_R (V)" ranging from 0.0 to 25.0 in increments of 5.0, representing voltage in volts.
+
+The data points are represented by black dots, which appear to follow an upward trend, indicating an increase in voltage over time. The pattern of dots suggests a nonlinear relationship, possibly exponential. The graph is divided into grid squares to aid in visualizing the data distribution.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.050J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/989.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0989.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0989:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0989.problem_phyx_mini_0989}
+\uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-energyinjoules, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matcheswrittenscenario, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchesstatedmeasurements, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchessuppliedvoltagetimegraph, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-hasphysicalseriesrlparameters, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-satisfiesidealseriesrlaws, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.electricPotentialDimension}
+  Electric potential difference has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentdimension, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricpotentialdimension}
+  Electrical resistance has dimension potential difference per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[electrical Inductance Dimension]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricalinductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.electricalInductanceDimension}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricalresistancedimension}
+  Electrical inductance has dimension resistance times time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Inductance Dimension.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.TimeQuantity}
+  A nonnegative, unit-independent elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Voltage Quantity]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltagequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.VoltageQuantity}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricpotentialdimension}
+  A nonnegative, unit-independent voltage magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricalresistancedimension}
+  A nonnegative, unit-independent resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electricalinductancedimension}
+  A nonnegative, unit-independent inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentdimension}
+  A nonnegative current magnitude in the orientation of the series loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.nonnegativeReadout}
+  Read a nonnegative dimensionful quantity in the selected coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.timeReadout}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  Read an elapsed time in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.timeInSeconds}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timereadout}
+  Read an elapsed time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[time In Milliseconds]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.timeInMilliseconds}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timereadout}
+  Read an elapsed time in milliseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Milliseconds.
+\end{proof}
+\begin{definition}[voltage In Volts]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.voltageInVolts}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltagequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  Read a voltage magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistancequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  Read a resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductancequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.currentInAmperes}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentquantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-nonnegativereadout}
+  Read a current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.energyInJoules}
+  Read Physlib's dimensionful energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.CircuitComponent}
+  Components named in the written series-circuit setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.ComponentModel}
+  Lumped models assigned to the named circuit components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Circuit Topology]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-circuittopology}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.CircuitTopology}
+  Connectivity distinguished by this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Topology.
+\end{proof}
+\begin{definition}[Voltmeter Connection]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltmeterconnection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.VoltmeterConnection}
+  The only meter connection used in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltmeter Connection.
+\end{proof}
+\begin{definition}[Switch State]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-switchstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.SwitchState}
+  Ideal switch state as a function of time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch State.
+\end{proof}
+\begin{definition}[Graph Axis Label]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-graphaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.GraphAxisLabel}
+  Axis meanings printed on the primary graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis Label.
+\end{proof}
+\begin{definition}[Data Marker]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-datamarker}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.DataMarker}
+  Marker style used for every measured point in 989.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Data Marker.
+\end{proof}
+\begin{definition}[Trace Shape]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-traceshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.TraceShape}
+  Qualitative shape of the measured transient
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Shape.
+\end{proof}
+\begin{definition}[Resistor Voltage Time Graph]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistorvoltagetimegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.ResistorVoltageTimeGraph}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-graphaxislabel, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-datamarker, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-traceshape}
+  Literal graph metadata and calibrated sample readouts. The fitted asymptote and time constant are data-analysis readouts of the black-dot trace, not the requested energy or an encoded inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor Voltage Time Graph.
+\end{proof}
+\begin{definition}[Series Solenoid Circuit]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.SeriesSolenoidCircuit}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltagequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistancequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductancequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-electriccurrentquantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-circuitcomponent, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-componentmodel, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-circuittopology, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltmeterconnection, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-switchstate, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistorvoltagetimegraph}
+  The physical circuit and its independent observables. The real argument of the transient functions is elapsed time in seconds. Long-time current, resistor voltage, and stored energy are fields rather than definitions made from the expected answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series Solenoid Circuit.
+\end{proof}
+\begin{definition}[Matches Written Scenario]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matcheswrittenscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.MatchesWrittenScenario}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  Qualitative component roles, series topology, and switching protocol
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Written Scenario.
+\end{proof}
+\begin{definition}[Matches Stated Measurements]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchesstatedmeasurements}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.MatchesStatedMeasurements}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltageinvolts, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistanceinohms, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  Numerical data stated in the prose. The solenoid's winding resistance and inductance are deliberately absent: they are unknown parameters inferred from the steady and transient measurements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Measurements.
+\end{proof}
+\begin{definition}[Matches Supplied Voltage Time Graph]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchessuppliedvoltagetimegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.MatchesSuppliedVoltageTimeGraph}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinmilliseconds, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltageinvolts, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  Primary-raster evidence from 989.png, including the plotted axes, thirteen black samples at integer millisecond times 2,...,14, their calibration to the physical voltage trace, and the 8 ms time constant obtained by fitting the standard rising exponential with a 25 V asymptote
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Voltage Time Graph.
+\end{proof}
+\begin{definition}[Has Physical Series RLParameters]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-hasphysicalseriesrlparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.HasPhysicalSeriesRLParameters}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinseconds, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltageinvolts, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistanceinohms, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductanceinhenries, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-energyinjoules, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  Sign and nondegeneracy conditions for the passive physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Series RLParameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Series RLaws]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-satisfiesidealseriesrlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.SatisfiesIdealSeriesRLaws}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinseconds, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-voltageinvolts, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistanceinohms, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductanceinhenries, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-currentinamperes, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-energyinjoules, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit}
+  The uniform lumped-circuit laws used in the solution. No field gives a numerical value for the inductance or stored energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Series RLaws.
+\end{proof}
+\begin{lemma}[time In Milliseconds eq thousand mul time In Seconds]
+  \label{lem:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinmilliseconds-eq-thousand-mul-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.timeInMilliseconds_eq_thousand_mul_timeInSeconds}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timequantity, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinseconds, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-timeinmilliseconds}
+  The millisecond readout is one thousand times the SI-second readout
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of time In Milliseconds eq thousand mul time In Seconds.
+\end{proof}
+\begin{lemma}[long Time Series Current eq half Ampere]
+  \label{lem:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-longtimeseriescurrent-eq-halfampere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.longTimeSeriesCurrent_eq_halfAmpere}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-currentinamperes, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchesstatedmeasurements, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-satisfiesidealseriesrlaws}
+  The measured long-time resistor voltage and 50 Ω label give 0.5 A
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of long Time Series Current eq half Ampere.
+\end{proof}
+\begin{lemma}[solenoid Winding Resistance eq zero Ohms]
+  \label{lem:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-solenoidwindingresistance-eq-zeroohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.solenoidWindingResistance_eq_zeroOhms}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-resistanceinohms, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchesstatedmeasurements, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-satisfiesidealseriesrlaws}
+  Because the resistor receives the full source voltage at long times, the otherwise unknown solenoid winding resistance is inferred to vanish
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of solenoid Winding Resistance eq zero Ohms.
+\end{proof}
+\begin{lemma}[solenoid Inductance eq two Fifths Henry]
+  \label{lem:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-solenoidinductance-eq-twofifthshenry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.solenoidInductance_eq_twoFifthsHenry}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-inductanceinhenries, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchesstatedmeasurements, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matchessuppliedvoltagetimegraph, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-satisfiesidealseriesrlaws}
+  The 8 ms graph fit and 50 Ω total resistance give L = 0.4 H
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of solenoid Inductance eq two Fifths Henry.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.AnswerChoice}
+  Labels of the four energies displayed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Energy In Joules]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-displayedenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.displayedEnergyInJoules}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-answerchoice}
+  Energy in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Energy In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-answerchoice}
+  The answer label recorded by the source dataset, retained as metadata only
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Long Time Stored Energy]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matcheslongtimestoredenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.MatchesLongTimeStoredEnergy}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-energyinjoules, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-answerchoice, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-displayedenergyinjoules}
+  A displayed choice exactly matches the independent stored-energy observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Long Time Stored Energy.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0989.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-seriessolenoidcircuit, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-answerchoice, def:physics:phyx-mini-0989:phyxminiproblems-problemphyxmini0989-matcheslongtimestoredenergy}
+  A choice is the unique exact match among the four displayed energies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

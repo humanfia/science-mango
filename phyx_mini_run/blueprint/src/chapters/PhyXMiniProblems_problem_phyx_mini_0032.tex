@@ -1,0 +1,189 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0032.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0032.source.json
+
+\chapter{Physics problem phyx\_mini\_0032}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0032}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The object in figure is midway between the lens and the mirror, which are separated by a distance \textbackslash{}( d = 25.0 \textbackslash{}text\{ cm\} \textbackslash{}). The magnitude of the mirror's radius of curvature is \textbackslash{}( 20.0 \textbackslash{}text\{ cm\} \textbackslash{}), and the lens has a focal length of \textbackslash{}( -16.7 \textbackslash{}text\{ cm\} \textbackslash{}).
+
+\#\# Question
+
+What is the overall magnification?
+
+\#\# Answer choices
+
+- A: A: 4.78
+
+- B: B: 4.50
+
+- C: C: 5.52
+
+- D: D: 8.05
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram containing three main components: a lens, an object, and a mirror. 
+
+- **Lens**: On the left, there is a diverging (concave) lens represented in blue, with its thinner edges and thicker middle. The label "Lens" is above it.
+
+- **Object**: In the center, there is an upward-pointing gray arrow, labeled "Object."
+
+- **Mirror**: On the right, there is a concave mirror, also depicted in blue, facing the lens. The label "Mirror" is above it.
+
+A horizontal line connects the lens, object, and mirror, symbolizing an optical axis. Below this line, the distance between the lens and the mirror is indicated by a double-headed arrow labeled "d."
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 8.05
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/32.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0032.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0032:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0032.problem_phyx_mini_0032}
+\uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesfigurereadouts, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-hasdepictedopticaltypes, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-connectsimagingstages, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-satisfiesparaxialgoverninglaws, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesanswertonearesthundredth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.LengthQuantity}
+  A signed physical length, independent of the unit in which it is read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.centimeterUnitChoices}
+  Unit choices whose length component is the centimeter used in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthquantity, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-centimeterunitchoices}
+  The signed scalar centimeter readout of a dimensionful length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.FigureComponent}
+  The three labeled components, ordered left-to-right in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Lens Mirror Setup]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.LensMirrorSetup}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthquantity, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-figurecomponent}
+  Physical quantities for the two-stage paraxial imaging process. mirrorImagePosition is the real intermediate image formed after reflection. It becomes the signed object position for the return passage through the lens. The sign convention takes positive mirror object/image distances on the side facing the lens, and a positive lens object distance on the incident (right) side of the lens. Thus the intermediate image to the left of the lens gives a negative returnLensObjectDistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Mirror Setup.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup}
+  Spatial and numerical readouts supplied by the source and the primary image: the lens is left of the object, the object is at the midpoint of the 25.0 cm bench, the concave mirror has radius magnitude 20.0 cm, and the diverging lens has signed focal length -16.7 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Has Depicted Optical Types]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-hasdepictedopticaltypes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.HasDepictedOpticalTypes}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup}
+  The physical sign branch depicted in the problem: a diverging lens, a concave mirror, and a real first-stage mirror image. These are qualitative optical properties, not the requested numerical magnification
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Depicted Optical Types.
+\end{proof}
+\begin{definition}[Connects Imaging Stages]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-connectsimagingstages}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.ConnectsImagingStages}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup}
+  Geometry connecting the mirror image to the return pass through the lens. Positions increase from the lens toward the mirror. For the reflected, left-moving light, the signed lens object distance is the intermediate image position minus the lens position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connects Imaging Stages.
+\end{proof}
+\begin{definition}[Satisfies Paraxial Governing Laws]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-satisfiesparaxialgoverninglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.SatisfiesParaxialGoverningLaws}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup}
+  Standard paraxial governing laws for the concave-mirror stage and the return thin-lens stage. The equations use signed centimeter readouts, while each magnification is dimensionless. The final field is the general composition law for successive transverse magnifications; it contains no numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Paraxial Governing Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.AnswerChoice}
+  The four displayed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Magnification]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-answermagnification}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.answerMagnification}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-answerchoice}
+  The dimensionless overall magnification printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Magnification.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesanswertonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.MatchesAnswerToNearestHundredth}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-answerchoice, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-answermagnification}
+  Agreement with a magnification displayed to the nearest hundredth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Hundredth.
+\end{proof}
+\begin{lemma}[mirror stage values]
+  \label{lem:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-mirror-stage-values}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.mirror_stage_values}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesfigurereadouts, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-connectsimagingstages, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-satisfiesparaxialgoverninglaws}
+  The mirror data determine fₘ = 10 cm, pₘ = 12.5 cm, qₘ = 50 cm, and mirror magnification -4
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mirror stage values.
+\end{proof}
+\begin{lemma}[return lens stage values]
+  \label{lem:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-return-lens-stage-values}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0032.return_lens_stage_values}
+  \uses{def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lengthincentimeters, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-lensmirrorsetup, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-matchesfigurereadouts, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-connectsimagingstages, def:physics:phyx-mini-0032:phyxminiproblems-problemphyxmini0032-satisfiesparaxialgoverninglaws}
+  The mirror image lies 25 cm left of the lens and is therefore a virtual object for the return lens pass. The signed lens equation gives qₗ = -4175/83 cm and lens magnification -167/83
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of return lens stage values.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

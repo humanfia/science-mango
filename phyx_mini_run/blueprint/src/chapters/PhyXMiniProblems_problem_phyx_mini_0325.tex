@@ -1,0 +1,323 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0325.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0325.source.json
+
+\chapter{Physics problem phyx\_mini\_0325}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0325}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows an air-filled, acoustic interferometer, used to demonstrate the interference of sound waves. Sound source \$S\$ is an oscillating diaphragm; \$D\$ is a sound detector, such as the ear or a microphone. Path \$SBD\$ can be varied in length, but path \$SAD\$ is fixed. At \$D\$, the sound wave coming along path \$SBD\$ interferes with that coming along path \$SAD\$. In one demonstration, the sound intensity at \$D\$ has a minimum value of \$100\$ units at one position of the movable arm and continuously climbs to a maximum value of \$900\$ units when that arm is shifted by \$1.65\$ cm.
+
+\#\# Question
+
+Find the ratio of the amplitude at \$D\$ of the \$SAD\$ wave to that of the \$SBD\$ wave.
+
+\#\# Answer choices
+
+- A: A: 5
+
+- B: B: 4
+
+- C: C: 3
+
+- D: D: 2
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a tube with two pathways and labeled sections. 
+
+- The tube is shaped like a racetrack with two branches and a joining section at the bottom.
+- There are two pathways labeled "A" and "B" on the left and right sides, respectively.
+- At the top, there's an object resembling a speaker or sound source labeled "S."
+- The bottom of the diagram features an ear illustration labeled "D," indicating a sound destination or detection point.
+- The main structure appears to resemble a basic representation of an acoustic or experimental setup involving sound traveling through different pathways.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 2
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/325.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0325.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0325:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0325.problem_phyx_mini_0325}
+\uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-matchesproblemandfigurereadouts, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-hasphysicalacousticparameters, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-satisfiescoherentacousticinterference, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-amplituderatioatd}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Path Length]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpathlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticPathLength}
+  A nonnegative physical acoustic-path length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Path Length.
+\end{proof}
+\begin{definition}[acoustic Pressure Dimension]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpressuredimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.acousticPressureDimension}
+  The physical dimension of acoustic pressure: mass per length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Pressure Dimension.
+\end{proof}
+\begin{definition}[Acoustic Pressure Amplitude]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpressureamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticPressureAmplitude}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpressuredimension}
+  A nonnegative acoustic pressure amplitude carried by one path at D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Pressure Amplitude.
+\end{proof}
+\begin{definition}[acoustic Intensity Dimension]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.acousticIntensityDimension}
+  The physical dimension of acoustic intensity: power per area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity Dimension.
+\end{proof}
+\begin{definition}[Acoustic Intensity]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticIntensity}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensitydimension}
+  A nonnegative physical acoustic intensity at the detector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Intensity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.lengthReadout}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpathlength}
+  Read a physical path length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[pressure Amplitude In Pascals]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-pressureamplitudeinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.pressureAmplitudeInPascals}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpressureamplitude}
+  Read an acoustic pressure amplitude in coherent SI pressure units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Amplitude In Pascals.
+\end{proof}
+\begin{definition}[acoustic Intensity In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensityinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.acousticIntensityInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensity}
+  Read an acoustic intensity in coherent SI watt-per-square-metre units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Acoustic Path]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticPath}
+  The two source-to-detector routes named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Path.
+\end{proof}
+\begin{definition}[Arm Position]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-armposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.ArmPosition}
+  The two endpoint positions of the movable arm in the demonstration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arm Position.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.FigureLabel}
+  All letter labels visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Role]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-figurerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.FigureRole}
+  Physical roles of the labels in the acoustic interferometer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Role.
+\end{proof}
+\begin{definition}[Tube Geometry]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-tubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.TubeGeometry}
+  Qualitative shape of the two-branch tube in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Geometry.
+\end{proof}
+\begin{definition}[Sound Source Kind]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-soundsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.SoundSourceKind}
+  The sound-producing object at S
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Source Kind.
+\end{proof}
+\begin{definition}[Sound Detector Kind]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-sounddetectorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.SoundDetectorKind}
+  The physical detector pictured at D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Detector Kind.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticMedium}
+  The propagation medium filling the interferometer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Acoustic Interferometer Figure]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticInterferometerFigure}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-figurelabel, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-figurerole, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-tubegeometry}
+  Typed qualitative contents of the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Interferometer Figure.
+\end{proof}
+\begin{definition}[Acoustic Interferometer Setup]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AcousticInterferometerSetup}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpathlength, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpressureamplitude, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensity, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticpath, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-armposition, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-soundsourcekind, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-sounddetectorkind, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticmedium, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometerfigure}
+  Physical parameters and observable readouts for the demonstration. detectorIntensityReading is expressed in the arbitrary units used for the reported values 100 and 900. detectorTrace takes a displacement in centimetres from the initial arm position. The two positive scale factors are left as physical calibration parameters; neither fixes the requested amplitude ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Interferometer Setup.
+\end{proof}
+\begin{definition}[coherent Pressure Square]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-coherentpressuresquare}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.coherentPressureSquare}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-pressureamplitudeinpascals, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-armposition, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup}
+  The squared resultant pressure factor for two coherent waves with phase difference phaseDifferenceRadians position. This is the general superposition expression, not a problem-specific answer formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coherent Pressure Square.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-lengthreadout, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup}
+  Problem statement and primary-image evidence. Branch A is fixed, branch B is movable, and moving the pictured U-shaped arm changes both straight segments of SBD, hence twice the arm displacement. The last four fields formalize that the detector reading continuously and monotonically climbs from the stated minimum to the stated maximum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-lengthreadout, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-pressureamplitudeinpascals, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup}
+  Positivity and nondegeneracy assumptions. In particular, no ordering is imposed on the two amplitudes: neither the text nor the image states which arriving wave is stronger
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Coherent Acoustic Interference]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-satisfiescoherentacousticinterference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.SatisfiesCoherentAcousticInterference}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-lengthreadout, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-coherentpressuresquare}
+  The governing laws of the ideal coherent acoustic interferometer. The phase is generated by the path-length difference modulo the cosine. The physical intensity is proportional to the squared coherent pressure sum, and the detector applies a positive linear calibration to that intensity. The observed minimum and maximum are respectively destructive and constructive interference endpoints. No field states an amplitude ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Coherent Acoustic Interference.
+\end{proof}
+\begin{definition}[amplitude Ratio At D]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-amplituderatioatd}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.amplitudeRatioAtD}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-pressureamplitudeinpascals, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup}
+  The requested amplitude at D of the SAD wave divided by that of SBD
+\end{definition}
+\begin{proof}
+  This is the declared model definition of amplitude Ratio At D.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.AnswerChoice}
+  Labels of the four amplitude-ratio choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Amplitude Ratio]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-displayedamplituderatio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.displayedAmplitudeRatio}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-answerchoice}
+  The numerical ratio printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Amplitude Ratio.
+\end{proof}
+\begin{definition}[Is Correct Answer]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-iscorrectanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.IsCorrectAnswer}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-amplituderatioatd, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-answerchoice, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-displayedamplituderatio}
+  A choice is correct when its displayed value equals the physical ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Answer.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-answerchoice}
+  The answer label recorded by the dataset; this is metadata, not a law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Value]
+  \label{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-recordedanswervalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.recordedAnswerValue}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-displayedamplituderatio, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-recordedanswerchoice}
+  The value printed beside the dataset's recorded answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Value.
+\end{proof}
+\begin{lemma}[endpoint Detector Reading Relations]
+  \label{lem:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-endpointdetectorreadingrelations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.endpointDetectorReadingRelations}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-pressureamplitudeinpascals, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-satisfiescoherentacousticinterference}
+  At destructive and constructive interference, the detector readings are a common positive scale times (a - b)\textasciicircum{}2 and (a + b)\textasciicircum{}2, respectively. This is a derived intermediate relation, not a model premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of endpoint Detector Reading Relations.
+\end{proof}
+\begin{lemma}[amplitude Ratio At D possibilities]
+  \label{lem:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-amplituderatioatd-possibilities}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0325.amplitudeRatioAtD_possibilities}
+  \uses{def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-acousticinterferometersetup, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-matchesproblemandfigurereadouts, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-hasphysicalacousticparameters, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-satisfiescoherentacousticinterference, def:physics:phyx-mini-0325:phyxminiproblems-problemphyxmini0325-amplituderatioatd}
+  The readings 100 and 900 give an amplitude-sum to absolute amplitude-difference ratio of three. Since the source does not order the two amplitudes, the oriented ratio requested in the question has the two reciprocal possibilities 2 and 1/2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of amplitude Ratio At D possibilities.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

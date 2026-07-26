@@ -1,0 +1,329 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0400.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0400.source.json
+
+\chapter{Physics problem phyx\_mini\_0400}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0400}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 1-m\$\textasciicircum{}3\$ rigid tank has propane at 100 kPa, 300 K and connected by a valve to another tank of 0.5 m\$\textasciicircum{}3\$ with propane at 250 kPa, 400 K. The valve is opened, and the two tanks come to a uniform state at 325 K.
+
+\#\# Question
+
+What is the final pressure?
+
+\#\# Answer choices
+
+- A: A: 4MPa
+
+- B: B: 139.9kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic diagram of two tanks connected by pipes. 
+
+- **Tanks**: There are two cylindrical tanks labeled "A" and "B." Tank A is positioned above tank B.
+- **Pipes**: Pipes connect the two tanks with a flow path that goes from the bottom of tank A to the top of tank B.
+- **Valve**: There is a valve depicted on the pipe between the two tanks, indicating a control point in the flow path.
+- **Flow Direction**: The design suggests a fluid can move from tank A to tank B, possibly controlled by the valve. 
+- **Color**: The tanks are shaded in blue, with tank A being lighter and tank B being darker.
+
+The overall setup implies a fluid transfer or mixing system where the flow can be regulated.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 139.9kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/400.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0400.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0400:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0400.finalPressureInKilopascals_exact_and_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinkilopascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-matchesprimaryfigure, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-matchesproblemstatement, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-hasphysicalparameters, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-obeysidealgasandamountconservation, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-reachesuniformpressure, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-finalpressureinkilopascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-recordedanswerchoice, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-agreeswithonedecimalkilopascalrounding}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.GasVolume}
+  A physical gas volume, carrying the length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.MolarGasConstantQuantity}
+  The molar gas constant with its energy-per-temperature dimension. Physlib's Dimension has no amount-of-substance coordinate. Its inverse-mole role is therefore recorded by the type name and by the explicit mole readouts paired with this quantity in the ideal-gas law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasvolume}
+  Read a physical gas volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinpascals}
+  Read a physical pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.temperatureInKelvins}
+  Read an absolute Temperature in kelvins. The storage scale is explicit because Physlib's Temperature permits an arbitrary zero-preserving unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Gas Constant In Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantinjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.molarGasConstantInJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantquantity}
+  Read the molar gas constant in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[Tank Label]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tanklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.TankLabel}
+  The tank labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Label.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ProcessStage}
+  The initially separated state and the final uniform state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Vertical Position]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-verticalposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.VerticalPosition}
+  Vertical placement of a tank in the supplied schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Position.
+\end{proof}
+\begin{definition}[Tank Shape]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.TankShape}
+  Shape in which each rigid tank is drawn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Shape.
+\end{proof}
+\begin{definition}[Pipe Attachment]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pipeattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.PipeAttachment}
+  The attachment location of the connecting pipe at a tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipe Attachment.
+\end{proof}
+\begin{definition}[Tank Shade]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankshade}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.TankShade}
+  The blue fill shades distinguishing the two tanks in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Shade.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ValvePosition}
+  Position of the control valve at a modeled stage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Tank Mechanical Model]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankmechanicalmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.TankMechanicalModel}
+  Mechanical model stated for both vessels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Mechanical Model.
+\end{proof}
+\begin{definition}[Connection Model]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ConnectionModel}
+  Idealization of the pipe shown between the two tanks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connection Model.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.GasModel}
+  Equation-of-state model used for the propane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.GasSpecies}
+  Gas species distinguished by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Portion]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasportion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.GasPortion}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasspecies}
+  A physical gas portion, retaining both its species and its calibrated amount readout. The portion itself is not identified with a bare real number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Portion.
+\end{proof}
+\begin{definition}[Two Tank Valve Figure]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-twotankvalvefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.TwoTankValveFigure}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tanklabel, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-verticalposition, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankshape, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pipeattachment, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankshade}
+  Labels and geometry read directly from the primary image. In particular, the bitmap shows no flow-direction arrow; flow after opening is part of the process model, not an invented graphical readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Tank Valve Figure.
+\end{proof}
+\begin{definition}[Connected Propane Tanks]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ConnectedPropaneTanks}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasvolume, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantquantity, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tanklabel, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-processstage, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-valveposition, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-tankmechanicalmodel, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectionmodel, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasmodel, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-gasportion, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-twotankvalvefigure}
+  The two tanks, their thermodynamic observables at both stages, their propane portions, and the connecting equipment. The final pressure is an independent observable; no numerical answer is stored or defined here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connected Propane Tanks.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  Primary-image evidence: A is the upper light-blue horizontal cylinder and B the lower dark-blue one. A visible pipe runs from the bottom of A to the top of B through a visible valve on the left
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-volumeincubicmeters, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinkilopascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-temperatureinkelvins, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  Numerical and qualitative data stated in the problem. These fields specify the two initial states and the final temperature, but no numerical final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-volumeincubicmeters, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinpascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-temperatureinkelvins, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  Positivity conditions selecting physically meaningful states and data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Gas And Amount Conservation]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-obeysidealgasandamountconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ObeysIdealGasAndAmountConservation}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-volumeincubicmeters, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinpascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-temperatureinkelvins, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  Macroscopic ideal-gas and closed-system amount-conservation laws. The SI readout equation is dimensionally coherent because Pa · m³ = J. Neither law contains a numerical final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Gas And Amount Conservation.
+\end{proof}
+\begin{definition}[Reaches Uniform Pressure]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-reachesuniformpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.ReachesUniformPressure}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinpascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  Opening the valve allows mechanical equilibration, so the final uniform state has one pressure. This is a qualitative equilibrium law, not the requested numerical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaches Uniform Pressure.
+\end{proof}
+\begin{definition}[final Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-finalpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.finalPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinkilopascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-connectedpropanetanks}
+  The common final-pressure readout, taken from tank A, in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-answerchoice-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.AnswerChoice.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-pressureinkilopascals, def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-answerchoice}
+  Kilopascal value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-answerchoice}
+  Answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Agrees With One Decimal Kilopascal Rounding]
+  \label{def:physics:phyx-mini-0400:phyxminiproblems-problemphyxmini0400-agreeswithonedecimalkilopascalrounding}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0400.AgreesWithOneDecimalKilopascalRounding}
+  Agreement with a displayed pressure rounded to the nearest 0.1 kPa: the exact value is strictly within half of one tenth of the displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With One Decimal Kilopascal Rounding.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

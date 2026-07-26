@@ -1,0 +1,215 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0346.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0346.source.json
+
+\chapter{Physics problem phyx\_mini\_0346}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0346}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You have recorded measurements of the heat flow \textbackslash{}( Q \textbackslash{}) into 0.300 mol of a gas that starts at \textbackslash{}( T\_1 = 20.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\} \textbackslash{}) and ends at a temperature \textbackslash{}( T\_2 \textbackslash{}). You measured \textbackslash{}( Q \textbackslash{}) for three processes: one isobaric, one isochoric, and one adiabatic. In each case, \textbackslash{}( T\_2 \textbackslash{}) was the same. \textbackslash{}textbf\{figure\} summarizes your results. But you lost a page from your lab notebook and don’t have a record of the value of \textbackslash{}( T\_2 \textbackslash{}); you also don’t know which process was isobaric, isochoric, or adiabatic. Each process was done at a sufficiently low pressure for the gas to be treated as ideal.
+
+\#\# Question
+
+What is the value of \textbackslash{}( T\_2 \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 28.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}L
+
+- B: B: 20.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}
+
+- C: C: 10.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}
+
+- D: D: 25.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a bar chart. 
+
+- **Title**: Absent, but the y-axis is labeled with "Q (J)" and the x-axis is labeled with "Process."
+- **Y-axis**: Represents values ranging from 0 to 60, in increments of 10.
+- **X-axis**: Labeled with categories "a," "b," and "c."
+- **Bars**:
+  - **Bar a**: A very small value, close to 0.
+  - **Bar b**: An orange bar reaching 30.
+  - **Bar c**: A red bar reaching 50.
+- **Gridlines**: Present for easier interpretation of values.
+
+The chart shows the comparative values of Q (in Joules) for each process.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 20.0\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/346.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0346.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0346:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0346.finalTemperature_is_answerA}
+\uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-temperatureincelsius, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-matchesidealgasprocessscenario, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-obeysidealgasheatlaws, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-matchesheatflowfigure, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-isnearestanswerchoice}
+The three consistent heat bars and Mayer's relation determine
+\[
+ T_2=20+\frac{20000}{2493}\;^\circ\mathrm C,
+\]
+about \(28.0^\circ\mathrm C\), so the physically supported answer is A rather
+than the dataset's recorded B.
+\end{theorem}
+\begin{proof}
+The bijection between bars and process kinds makes the near-zero bar \(a\)
+the adiabatic process, because \(b\) and \(c\) have positive heats.  Since
+\(C_p-C_v=R>0\) and the nonadiabatic bars are \(30\) and \(50\) joules, \(b\)
+is isochoric and \(c\) is isobaric.  Subtract their heat laws:
+\[
+ 20=n(C_p-C_v)\Delta T
+   =\frac3{10}\frac{831}{100}\Delta T.
+\]
+Hence \(\Delta T=20000/2493\) kelvin.  Celsius differences equal kelvin
+differences, so adding the initial \(20^\circ\mathrm C\) gives the claimed
+exact readout.  Direct rational comparison makes A the unique nearest choice.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.energyInJoules}
+  Read a dimensionful energy in SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.temperatureInCelsius}
+  Read an absolute Temperature in degrees Celsius, taking Temperature.toReal as the absolute-kelvin readout used by the SI thermodynamic model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[Figure Process]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-figureprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.FigureProcess}
+  The three process labels printed on the horizontal axis of the chart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Process.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.ProcessKind}
+  The three thermodynamic process types whose chart labels were lost
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Heat Flow Bar Chart]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-heatflowbarchart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.HeatFlowBarChart}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-figureprocess}
+  The supplied bar chart. heatIntoGas uses the sign convention from the problem: positive values are heat transferred into the gas. The remaining fields retain the numerical scale printed on the vertical Q (J) axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Flow Bar Chart.
+\end{proof}
+\begin{definition}[Ideal Gas Heat Experiment]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.IdealGasHeatExperiment}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-figureprocess, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-processkind, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-heatflowbarchart}
+  The gas sample and its three runs. A single finalTemperature field records that every process ends at the same T₂. The real-valued thermodynamic constants are named SI readouts, not replacements for temperature or heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Heat Experiment.
+\end{proof}
+\begin{definition}[temperature Change In Kelvins]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-temperaturechangeinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.temperatureChangeInKelvins}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment}
+  The common temperature change of all three runs, measured in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Change In Kelvins.
+\end{proof}
+\begin{definition}[Matches Ideal Gas Process Scenario]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-matchesidealgasprocessscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.MatchesIdealGasProcessScenario}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-temperatureincelsius, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment}
+  The prose setup, kept separate from both governing laws and chart readouts. Function.Bijective says that labels a, b, and c represent exactly one isobaric, one isochoric, and one adiabatic process without revealing which label has which role
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Gas Process Scenario.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment}
+  Positivity assumptions for the physical ideal-gas branch, together with the standard classroom SI readout R = 8.31 J/(mol K) used at the precision of the chart and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Gas Heat Laws]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-obeysidealgasheatlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.ObeysIdealGasHeatLaws}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-energyinjoules, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-temperaturechangeinkelvins}
+  The governing constant-heat-capacity ideal-gas relations. The isochoric and isobaric fields state Q = n Cᵥ ΔT and Q = n Cₚ ΔT; the adiabatic field states Q = 0; and the final field is Mayer's ideal-gas relation Cₚ - Cᵥ = R. None specifies the value of the final temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Gas Heat Laws.
+\end{proof}
+\begin{definition}[Matches Heat Flow Figure]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-matchesheatflowfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.MatchesHeatFlowFigure}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-energyinjoules, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-idealgasheatexperiment}
+  Primary-image readouts. Bars b and c meet the 30 J and 50 J grid lines. The thin bar a is recorded faithfully as nonnegative and below 1 J rather than silently treating a visually near-zero height as an exact measurement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Heat Flow Figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.AnswerChoice}
+  The four multiple-choice labels in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Temperature Celsius]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answertemperaturecelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.answerTemperatureCelsius}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answerchoice}
+  Celsius value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Temperature Celsius.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answerchoice}
+  The dataset metadata records answer choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0346.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answerchoice, def:physics:phyx-mini-0346:phyxminiproblems-problemphyxmini0346-answertemperaturecelsius}
+  A displayed answer is selected by strict proximity to the derived Celsius readout. This keeps the multiple-choice comparison independent of the dataset's recorded answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

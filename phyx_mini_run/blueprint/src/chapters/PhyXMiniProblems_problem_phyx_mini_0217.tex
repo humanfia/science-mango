@@ -1,0 +1,353 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0217.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0217.source.json
+
+\chapter{Physics problem phyx\_mini\_0217}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0217}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You put your ear very near a \textbackslash{}( 15\textbackslash{},\textbackslash{}mathrm\{cm\} \textbackslash{})-diameter seashell (figure).
+
+\#\# Question
+
+Estimate the frequency of the sound of the ocean.
+
+\#\# Answer choices
+
+- A: A: 510Hz
+
+- B: B: 530Hz
+
+- C: C: 550Hz
+
+- D: D: 570Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene on a beach. A person with long blond hair, tied in pigtails, is wearing a sleeveless pink top. This person is holding a large conch shell to their ear. The background shows a clear blue sky with a few scattered clouds and a calm ocean with waves gently meeting the sandy shore. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Sound
+
+\paragraph{Recorded answer/context.}
+D: D: 570Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/217.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0217.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0217:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0217.problem_phyx_mini_0217}
+\uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyinhertz, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesprimaryfigure, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesproblemstatement, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-hasphysicalacousticparameters, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesstandardambientairsoundspeed, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesfundamentalclosedopendiameterapproximation, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-satisfiesquarterwaveacousticlaws, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-recordeddatasetanswer, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-isclosestdisplayedfrequencychoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticLength}
+  A nonnegative physical length, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticFrequency}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticSpeed}
+  A nonnegative physical sound speed, carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.lengthReadout}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticlength}
+  Read a physical length as a real scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.frequencyReadout}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticfrequency}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.speedReadout}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticspeed}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticlength, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthreadout}
+  Centimeter readout used for the shell diameter in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.lengthInMeters}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticlength, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthreadout}
+  Meter readout used in the acoustic-wave calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticfrequency, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticspeed, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedreadout}
+  Meter-per-second readout of the sound propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Seashell Kind]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.SeashellKind}
+  The shell type visible in the supplied beach image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Seashell Kind.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticMedium}
+  The acoustic medium occupying the resonating shell cavity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Resonator End]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonatorend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.ResonatorEnd}
+  The two ends of the one-dimensional idealized shell cavity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resonator End.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticBoundaryCondition}
+  Boundary behavior used by the longitudinal quarter-wave model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Resonance Mode]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonancemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.ResonanceMode}
+  The resonant mode retained in this order-of-magnitude estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resonance Mode.
+\end{proof}
+\begin{definition}[Acoustic Excitation]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticexcitation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AcousticExcitation}
+  The broadband excitation responsible for the familiar shell sound
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Excitation.
+\end{proof}
+\begin{definition}[Perceived Sound Mechanism]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-perceivedsoundmechanism}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.PerceivedSoundMechanism}
+  Physical interpretation of the sound heard by the listener
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Perceived Sound Mechanism.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.FigureObject}
+  Salient objects visible in the primary bitmap; the image has no text labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Seashell Figure]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.SeashellFigure}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-figureobject}
+  Categorical evidence extracted from the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Seashell Figure.
+\end{proof}
+\begin{definition}[Seashell Resonance Setup]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.SeashellResonanceSetup}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticlength, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticfrequency, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticspeed, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellkind, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticmedium, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonatorend, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticboundarycondition, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonancemode, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-acousticexcitation, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-perceivedsoundmechanism, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellfigure}
+  Independent physical quantities in the seashell estimate. Neither the resonant wavelength nor the resonant frequency is assigned a numerical value in this setup structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Seashell Resonance Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  The primary image shows a conch held next to the listener's ear, with ocean, beach, and sky in the background. It has no printed dimension or frequency label. This predicate contains no wavelength or frequency value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthincentimeters, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  The sole numerical measurement stated in the prose is the shell's 15 cm diameter. No resonant wavelength or frequency is included here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthinmeters, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyinhertz, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedinmeterspersecond, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  Positivity and nondegeneracy conditions for the physical acoustic model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Uses Standard Ambient Air Sound Speed]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesstandardambientairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.UsesStandardAmbientAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedinmeterspersecond, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  The conventional elementary estimate for sound in ambient air, kept separate from both the supplied diameter and the governing resonance laws because the problem itself does not state a temperature or propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Ambient Air Sound Speed.
+\end{proof}
+\begin{definition}[Uses Fundamental Closed Open Diameter Approximation]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesfundamentalclosedopendiameterapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.UsesFundamentalClosedOpenDiameterApproximation}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthreadout, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  The geometric idealization needed to turn the given diameter into a cavity scale: the conch contains ambient air, its mouth is open, its deep end is effectively closed, and only the fundamental response is retained. The effective resonator length is approximated by the stated shell diameter in every length unit. This model contains no frequency value or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Fundamental Closed Open Diameter Approximation.
+\end{proof}
+\begin{definition}[Satisfies Quarter Wave Acoustic Laws]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-satisfiesquarterwaveacousticlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.SatisfiesQuarterWaveAcousticLaws}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthreadout, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyreadout, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-speedreadout, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup}
+  Governing laws for the idealized fundamental open--closed acoustic resonance: the cavity occupies one quarter of a wavelength, and the nondispersive wave relation is v = f lambda. These laws are stated in compatible selected units and contain neither the derived frequency nor a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quarter Wave Acoustic Laws.
+\end{proof}
+\begin{lemma}[shell Diameter In Meters eq three Twentieths]
+  \label{lem:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-shelldiameterinmeters-eq-threetwentieths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.shellDiameterInMeters_eq_threeTwentieths}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthinmeters, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesproblemstatement}
+  Converting the stated 15 cm diameter gives 3/20 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of shell Diameter In Meters eq three Twentieths.
+\end{proof}
+\begin{lemma}[resonant Wavelength In Meters eq three Fifths]
+  \label{lem:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonantwavelengthinmeters-eq-threefifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.resonantWavelengthInMeters_eq_threeFifths}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-lengthinmeters, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesproblemstatement, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesfundamentalclosedopendiameterapproximation, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-satisfiesquarterwaveacousticlaws}
+  Under the diameter-scale quarter-wave model, the resonant wavelength is 4 * 0.15 m = 0.60 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resonant Wavelength In Meters eq three Fifths.
+\end{proof}
+\begin{lemma}[resonant Frequency In Hertz eq seventeen Hundred Thirds]
+  \label{lem:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-resonantfrequencyinhertz-eq-seventeenhundredthirds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.resonantFrequencyInHertz_eq_seventeenHundredThirds}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyinhertz, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-matchesproblemstatement, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesstandardambientairsoundspeed, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-usesfundamentalclosedopendiameterapproximation, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-satisfiesquarterwaveacousticlaws}
+  At 340 m/s, the idealized 0.60 m wavelength gives the exact model value 1700/3 Hz, approximately 566.7 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resonant Frequency In Hertz eq seventeen Hundred Thirds.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.AnswerChoice}
+  Labels of the four frequency estimates printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency Hertz]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-displayedanswerfrequencyhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.displayedAnswerFrequencyHertz}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-answerchoice}
+  Hertz value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-answerchoice}
+  The answer label recorded in the supplied dataset; this is never a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[displayed Answer Error Hertz]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-displayedanswererrorhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.displayedAnswerErrorHertz}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-frequencyinhertz, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-answerchoice, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-displayedanswerfrequencyhertz}
+  Absolute discrepancy between the modeled resonance and a displayed estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Error Hertz.
+\end{proof}
+\begin{definition}[Is Closest Displayed Frequency Choice]
+  \label{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-isclosestdisplayedfrequencychoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0217.IsClosestDisplayedFrequencyChoice}
+  \uses{def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-seashellresonancesetup, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-answerchoice, def:physics:phyx-mini-0217:phyxminiproblems-problemphyxmini0217-displayedanswererrorhertz}
+  A displayed estimate is strictly closer than every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Frequency Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

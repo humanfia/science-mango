@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0526.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0526.source.json
+
+\chapter{Physics problem phyx\_mini\_0526}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0526}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A moving rod is observed to have a length of \textbackslash{}( \textbackslash{}ell = 2.00 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}) and to be oriented at an angle of \textbackslash{}( \textbackslash{}theta = 30.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) with respect to the direction of motion as shown in figure. The rod has a speed of \textbackslash{}( 0.995c \textbackslash{}).
+
+\#\# Question
+
+What is the orientation angle in the proper frame?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 2.50\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 2.80\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 3.00\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 3.30\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a rod positioned at an angle above a dashed line. The rod is marked with the length symbol "ℓ", and the angle of inclination from the dashed line is marked as "θ". Below the dashed line, an arrow pointing to the right is labeled "Direction of motion". The arrow indicates the movement direction parallel to the dashed line.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 3.30\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/526.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0526.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0526:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0526.properFrameOrientationOfMovingRod}
+\uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedfractionoflight, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-properorientationdegrees, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-matchesproblemstatement, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-matchessuppliedrodfigure, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-hasphysicalmovingrodparameters, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-satisfiesrodprojectiongeometry, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-obeysspecialrelativisticrodcontraction, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-isnearestanswerchoice, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-agreeswhenroundedtotwodecimals}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.LengthQuantity}
+  A nonnegative physical rod length, independent of the chosen unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.SpeedQuantity}
+  A real-valued physical speed carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.lengthReadout}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.speedReadout}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedquantity}
+  Scalar readout of a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.vacuumSpeedOfLightReadout}
+  Physlib's exact vacuum speed of light in selected coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[angle In Degrees]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-angleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.angleInDegrees}
+  Convert a radian angle to the dimensionless numerical value in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle In Degrees.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.InertialFrameLabel}
+  The laboratory frame and the rod's proper (rest) frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[Rod Component]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-rodcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.RodComponent}
+  Components of the rod measured relative to the direction of motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Component.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.FigureLabel}
+  Text or symbols printed in the supplied schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Arrow Direction]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-figurearrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.FigureArrowDirection}
+  Direction of the arrow drawn below the dashed motion axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow Direction.
+\end{proof}
+\begin{definition}[Moving Rod Figure]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.MovingRodFigure}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-figurelabel, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-figurearrowdirection}
+  Qualitative transcription of phyx\_data/test\_image/526.png. The bitmap has no numerical scale; the numerical length, angle, and speed come from the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Rod Figure.
+\end{proof}
+\begin{definition}[Moving Rod Setup]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.MovingRodSetup}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthquantity, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedquantity, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-inertialframelabel, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-rodcomponent, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodfigure}
+  The moving rod and its independent measurements in two inertial frames. properOrientationRadians is deliberately an independent observable. It is not defined by the requested formula or by an answer choice. The component lengths are also independent quantities until the geometric and relativistic laws below are assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Rod Setup.
+\end{proof}
+\begin{definition}[speed Fraction Of Light]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedfractionoflight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.speedFractionOfLight}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-vacuumspeedoflightreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup}
+  The dimensionless special-relativistic speed parameter β = v/c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Fraction Of Light.
+\end{proof}
+\begin{definition}[proper Orientation Degrees]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-properorientationdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.properOrientationDegrees}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-angleindegrees, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup}
+  Proper orientation read in degrees, for comparison with the choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of proper Orientation Degrees.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedfractionoflight}
+  The inertial-frame roles and numerical data stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Rod Figure]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-matchessuppliedrodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.MatchesSuppliedRodFigure}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodfigure}
+  Primary-image evidence: ℓ lies on the rising rod, θ is measured from the dashed direction-of-motion line, and the motion arrow points right. These qualitative fields contain no proper-frame angle or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Rod Figure.
+\end{proof}
+\begin{definition}[Has Physical Moving Rod Parameters]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-hasphysicalmovingrodparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.HasPhysicalMovingRodParameters}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedfractionoflight}
+  Positivity, acute-angle, and subluminal conditions for the intended physical configuration. They select the physical branches of tan and arctan but do not specify the requested numerical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Moving Rod Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rod Projection Geometry]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-satisfiesrodprojectiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.SatisfiesRodProjectionGeometry}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup}
+  Euclidean component geometry in both frames. The two projection equations are stated in every length unit. They are ordinary geometry, not the requested proper-angle formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rod Projection Geometry.
+\end{proof}
+\begin{definition}[Obeys Special Relativistic Rod Contraction]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-obeysspecialrelativisticrodcontraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.ObeysSpecialRelativisticRodContraction}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-lengthreadout, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-movingrodsetup, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-speedfractionoflight}
+  Special-relativistic length contraction for a boost parallel to the dashed motion axis. The longitudinal laboratory component is the proper component divided by Physlib's LorentzGroup.γ β; the transverse component is invariant. Neither law mentions the target angle or any displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Special Relativistic Rod Contraction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.AnswerChoice}
+  Labels of the four orientation choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Orientation Degrees]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-displayedorientationdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.displayedOrientationDegrees}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-answerchoice}
+  Degree value displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Orientation Degrees.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-answerchoice, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-displayedorientationdegrees}
+  A choice is at least as close to an angle as every displayed alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+\begin{definition}[Agrees When Rounded To Two Decimals]
+  \label{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-agreeswhenroundedtotwodecimals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0526.AgreesWhenRoundedToTwoDecimals}
+  \uses{def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-answerchoice, def:physics:phyx-mini-0526:phyxminiproblems-problemphyxmini0526-displayedorientationdegrees}
+  Agreement with a degree value displayed to two decimal places. Half of one unit in the final decimal place is 0.005 = 1 / 200 degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees When Rounded To Two Decimals.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,417 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0396.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0396.source.json
+
+\chapter{Physics problem phyx\_mini\_0396}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0396}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 5-kg piston in a cylinder with a diameter of 100 mm is loaded with a linear spring and the outside atmospheric pressure is 100 kPa. The spring exerts no force on the piston when it is at the bottom of the cylinder, and for the state shown, the pressure is 400 kPa with volume 0.4 L. The valve is opened to let some air in, causing the piston to rise 2 cm.
+
+\#\# Question
+
+Find the new pressure.
+
+\#\# Answer choices
+
+- A: A: 4MPa
+
+- B: B: 515.3kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic of a mechanical system involving a cylinder, spring, piston, and air supply line. Here is a detailed description:
+
+- A vertical cylinder contains a piston and spring system. The spring is compressed between the top of the cylinder and the piston.
+- Inside the cylinder, below the piston, there is a space labeled "Air," filled with air.
+- The pressure above the piston is indicated as \textbackslash{}(P\_0\textbackslash{}).
+- To the left of the cylinder, "g" with a downward arrow represents the gravitational force acting on the system.
+- A horizontal line connects the air inside the cylinder to an "Air supply line" on the right. There is a valve represented by an "X" within a circle on this line.
+- The air supply line extends vertically and is labeled accordingly.
+
+The diagram illustrates a basic pneumatic system with a spring-loaded piston in a cylinder and an air supply mechanism.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 515.3kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/396.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0396.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0396:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0396.newPressure_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinkilopascals, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-matchesproblemandprimaryfigure, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-usestextbookterrestrialgravity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-hasphysicalparameters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-satisfiescylinderandpistonkinematics, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-satisfieslinearspringandstaticequilibrium, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-answerpressureinkilopascals}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.MassQuantity}
+  A physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.LengthQuantity}
+  A signed physical length or vertical displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.AreaQuantity}
+  The nonnegative cross-sectional area supplied by Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.VolumeQuantity}
+  A physical volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.PressureQuantity}
+  A physical pressure carrying dimension M L⁻¹ T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.AccelerationQuantity}
+  A physical acceleration, used for the downward gravitational field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.ForceQuantity}
+  A force magnitude carrying dimension M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SpringStiffnessQuantity}
+  A linear spring stiffness, with dimension force per length, M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.massInKilograms}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.lengthInMeters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters}
+  Millimetre readout used for the stated cylinder diameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters}
+  Centimetre readout used for the stated piston rise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areaquantity}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.volumeInLiters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumequantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeincubicmeters}
+  Litre readout used for the initial gas volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.pressureInPascals}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressurequantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinpascals}
+  Kilopascal readout used in the problem statement and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationquantity}
+  Metres-per-second-squared readout of physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.forceInNewtons}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forcequantity}
+  Newton readout of a physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[spring Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.springStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessquantity}
+  Newton-per-metre readout of a linear spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Gas State]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-gasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.GasState}
+  Gas states before and after the valve admits additional air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas State.
+\end{proof}
+\begin{definition}[Piston Position]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pistonposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.PistonPosition}
+  Piston locations needed to express the unloaded-spring reference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Position.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.VerticalDirection}
+  Vertical directions appearing in the prose or primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Cylinder Cross Section]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-cylindercrosssection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.CylinderCrossSection}
+  The circular shape stated for the cylinder bore
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Cross Section.
+\end{proof}
+\begin{definition}[Piston Guide]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pistonguide}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.PistonGuide}
+  Constraint on the piston's motion in the cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Guide.
+\end{proof}
+\begin{definition}[Spring Model]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SpringModel}
+  Constitutive model stated for the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Model.
+\end{proof}
+\begin{definition}[Air Transfer Direction]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-airtransferdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.AirTransferDirection}
+  Direction of air transfer when the depicted valve is opened
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Transfer Direction.
+\end{proof}
+\begin{definition}[Valve Operation]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-valveoperation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.ValveOperation}
+  Operation performed on the valve during the transition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Operation.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.FigureComponent}
+  Physical components distinguished in image 396.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.FigureLabel}
+  Text or symbols printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Label Target]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurelabeltarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.FigureLabelTarget}
+  Which component or region a visible figure label denotes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label Target.
+\end{proof}
+\begin{definition}[Spring Loaded Piston Figure]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SpringLoadedPistonFigure}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-verticaldirection, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurecomponent, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurelabel, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-figurelabeltarget}
+  Structured transcription of the geometry and labels in image 396.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Loaded Piston Figure.
+\end{proof}
+\begin{definition}[Spring Loaded Piston Setup]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SpringLoadedPistonSetup}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areaquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumequantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressurequantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forcequantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessquantity, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-gasstate, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pistonposition, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-cylindercrosssection, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pistonguide, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springmodel, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-airtransferdirection, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-valveoperation, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonfigure}
+  Independent physical quantities for the cylinder, piston, spring, gas, and air-admission process. In particular, the final gas pressure and the spring stiffness are independent fields; neither is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Loaded Piston Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massinkilograms, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmillimeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthincentimeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeinliters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinkilopascals, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forceinnewtons, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  Numerical data from the prose and qualitative data from the primary image. The final pressure, the recorded value 515.3 kPa, and every answer-choice value are deliberately absent from this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-usestextbookterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.UsesTextbookTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  Standard textbook calibration for the downward gravitational acceleration. This is a physical input needed to turn the stated mass into a weight; it does not mention or determine the requested final pressure by itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massinkilograms, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areainsquaremeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeincubicmeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinpascals, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forceinnewtons, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  Positivity and nonnegativity conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Cylinder And Piston Kinematics]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-satisfiescylinderandpistonkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SatisfiesCylinderAndPistonKinematics}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areainsquaremeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-volumeincubicmeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  Circular-cylinder geometry and piston kinematics. Because the spring is unloaded at the bottom, upward piston travel is its compression. The gas volume equals cross-sectional area times piston height, and the final piston height is obtained by adding the stated rise. No pressure value occurs in these laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cylinder And Piston Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Linear Spring And Static Equilibrium]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-satisfieslinearspringandstaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.SatisfiesLinearSpringAndStaticEquilibrium}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-massinkilograms, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-lengthinmeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-areainsquaremeters, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-pressureinpascals, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-forceinnewtons, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-springloadedpistonsetup}
+  Hooke's law and quasistatic vertical force balance in coherent SI readouts. For either gas state, P\_gas A = P\_atmosphere A + m g + F\_spring. The law constrains the unknown final pressure but does not assume its numerical value or any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linear Spring And Static Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-answerpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.answerPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-answerchoice}
+  Kilopascal value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0396.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0396:phyxminiproblems-problemphyxmini0396-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

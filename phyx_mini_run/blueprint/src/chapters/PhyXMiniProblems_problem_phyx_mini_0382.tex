@@ -1,0 +1,379 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0382.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0382.source.json
+
+\chapter{Physics problem phyx\_mini\_0382}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0382}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Assume that the fluid is gasoline with atmospheric pressure 101 kPa on the top surface.
+
+\#\# Question
+
+What is the pressure at the bottom of the 7.5-m-tall storage tank of fluid at \$25\textasciicircum{}\{\textbackslash{}circ\}C\$ shown in figure?
+
+\#\# Answer choices
+
+- A: A: 146.2 kPa
+
+- B: B: 156.2 kPa
+
+- C: C: 256.2 kPa
+
+- D: D: 166.2 kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a spherical structure supported by several vertical columns. These columns are evenly spaced around the structure and are connected by diagonal braces for additional support. The entire assembly sits on a horizontal base. A vertical line with double-headed arrow indicates the height of the structure, labeled as \textbackslash{}( H \textbackslash{}). The sphere and supporting framework are illustrated in a simplified, schematic style.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 156.2 kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/382.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0382.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0382:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0382.problem_phyx_mini_0382}
+\uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinkilopascals, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesprimaryfigure, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesproblemstatement, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-usesreferencegasolineandearthgravity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-hasphysicaltankparameters, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-satisfieshydrostaticpressurelaw, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesdisplayedbottompressure, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-isuniquematchingdisplayedpressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.LengthQuantity}
+  A nonnegative physical length, independent of the chosen readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.MassDensityQuantity}
+  A nonnegative physical mass density, with dimension M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.PressureQuantity}
+  Absolute pressure, represented by Physlib's dimensional pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.TemperatureQuantity}
+  Absolute thermodynamic temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.lengthReadout}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[pressure Readout]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.pressureReadout}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity}
+  Read pressure in the coherent unit induced by selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.densityReadout}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-massdensityquantity}
+  Read mass density in a selected mass unit per selected length unit cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.accelerationReadout}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationquantity}
+  Read acceleration in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.lengthInMeters}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.pressureInPascals}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurereadout}
+  Pascal readout of an absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinpascals}
+  Kilopascal readout of an absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-massdensityquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityreadout}
+  Kilogram-per-cubic-meter readout of a physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationreadout}
+  Meter-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperaturequantity}
+  Read a stored absolute temperature in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperaturequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperatureinkelvins}
+  Celsius readout, using the exact offset 0 °C = 273.15 K
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Tank Shape]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.TankShape}
+  Shape of the storage vessel visible in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Shape.
+\end{proof}
+\begin{definition}[Tank Liquid]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankliquid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.TankLiquid}
+  Liquid named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Liquid.
+\end{proof}
+\begin{definition}[Top Surface Boundary]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-topsurfaceboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.TopSurfaceBoundary}
+  Boundary condition at the upper gasoline surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Top Surface Boundary.
+\end{proof}
+\begin{definition}[Tank Thermal Condition]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankthermalcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.TankThermalCondition}
+  Thermal condition used for the tabulated gasoline density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Thermal Condition.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.FigureQuantityLabel}
+  The literal quantity label visible beside the height arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Figure Height Role]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figureheightrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.FigureHeightRole}
+  Physical role assigned to the figure's H marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Height Role.
+\end{proof}
+\begin{definition}[Figure Height Endpoint]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figureheightendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.FigureHeightEndpoint}
+  Endpoints of the vertical double-headed arrow in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Height Endpoint.
+\end{proof}
+\begin{definition}[Spherical Storage Tank Figure]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-sphericalstoragetankfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.SphericalStorageTankFigure}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankshape, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figurequantitylabel, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figureheightrole, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-figureheightendpoint}
+  Structured transcription of image 382.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Storage Tank Figure.
+\end{proof}
+\begin{definition}[Gasoline Storage Tank Setup]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.GasolineStorageTankSetup}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-massdensityquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationquantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperaturequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankliquid, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-topsurfaceboundary, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-tankthermalcondition, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-sphericalstoragetankfigure}
+  Independent physical quantities in the tank problem. In particular, bottomAbsolutePressure is an observable field rather than a definition made from the recorded answer or the hydrostatic formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gasoline Storage Tank Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  Qualitative and labelled geometry read directly from the primary bitmap. The figure itself supplies no numerical value for H
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthinmeters, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinkilopascals, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-temperatureindegreescelsius, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  Quantitative and qualitative information stated in the problem. The fluid is filled to its atmospheric top surface, so its hydrostatic depth is the stated 7.5 m tank height. No bottom-pressure value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Uses Reference Gasoline And Earth Gravity]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-usesreferencegasolineandearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.UsesReferenceGasolineAndEarthGravity}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityinkilogramspercubicmeter, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  Standard reference-property values implicit in the recorded multiple-choice answer: gasoline at 25 °C has density 750 kg/m³, and near-surface Earth gravity is 9.81 m/s². These calibrations do not mention bottom pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Reference Gasoline And Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Tank Parameters]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-hasphysicaltankparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.HasPhysicalTankParameters}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthinmeters, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinpascals, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityinkilogramspercubicmeter, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  Positivity of the physical parameters and absolute pressures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tank Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hydrostatic Pressure Law]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-satisfieshydrostaticpressurelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.SatisfiesHydrostaticPressureLaw}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-lengthreadout, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurereadout, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-densityreadout, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-accelerationreadout, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup}
+  For a stationary uniform-density liquid column, the absolute pressure gain from the free surface to the bottom is ρ g h. The equation is stated for every coherent choice of mass, length, and time units. It contains no numerical bottom-pressure answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrostatic Pressure Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure Kilopascals]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-displayedpressurekilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.displayedPressureKilopascals}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-answerchoice}
+  Kilopascal value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure Kilopascals.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-answerchoice}
+  Dataset answer metadata, deliberately not used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Kilopascal]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-roundstonearesttenthkilopascal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.RoundsToNearestTenthKilopascal}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressurequantity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinkilopascals}
+  A physical pressure rounds to a displayed tenth of a kilopascal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Kilopascal.
+\end{proof}
+\begin{definition}[Matches Displayed Bottom Pressure]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesdisplayedbottompressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.MatchesDisplayedBottomPressure}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-answerchoice, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-displayedpressurekilopascals, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-roundstonearesttenthkilopascal}
+  A displayed choice agrees with the modeled bottom pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Bottom Pressure.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Pressure]
+  \label{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-isuniquematchingdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.IsUniqueMatchingDisplayedPressure}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-answerchoice, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesdisplayedbottompressure}
+  Exactly one displayed answer agrees with the modeled bottom pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Pressure.
+\end{proof}
+\begin{lemma}[bottom pressure in kilopascals]
+  \label{lem:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-bottom-pressure-in-kilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0382.bottom_pressure_in_kilopascals}
+  \uses{def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-pressureinkilopascals, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-gasolinestoragetanksetup, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-matchesproblemstatement, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-usesreferencegasolineandearthgravity, def:physics:phyx-mini-0382:phyxminiproblems-problemphyxmini0382-satisfieshydrostaticpressurelaw}
+  The hydrostatic law and the calibrated data give the unrounded bottom pressure 156.18125 kPa = 124945 / 800 kPa. This derived value is not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bottom pressure in kilopascals.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,193 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0060.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0060.source.json
+
+\chapter{Physics problem phyx\_mini\_0060}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0060}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The mirror in figure deflects a horizontal laser beam by 60\textasciicircum{}\textbackslash{}circ.
+
+\#\# Question
+
+What is the angle \textbackslash{}phi?
+
+\#\# Answer choices
+
+- A: A: 30\textasciicircum{}\textbackslash{}circ
+
+- B: B: 90\textasciicircum{}\textbackslash{}circ
+
+- C: C: 60\textasciicircum{}\textbackslash{}circ
+
+- D: D: 120\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a geometric figure featuring angles and lines. There's a horizontal purple line intersected by another line at an angle, forming a right angle and a supplementary angle. The intersecting line is depicted with an arrow pointing upwards. The angle formed between the lines is labeled as \textbackslash{}(60\textasciicircum{}\textbackslash{}circ\textbackslash{}).
+
+Additionally, there is a shaded slanted surface beneath where the lines intersect, forming an angle labeled as \textbackslash{}(\textbackslash{}phi\textbackslash{}) with the horizontal line. This configuration typically represents a situation involving forces or vectors in physics, where \textbackslash{}(\textbackslash{}phi\textbackslash{}) might denote an angle of inclination or a related angle in a problem scenario.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 60\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/60.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0060.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0060:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0060.problem_phyx_mini_0060}
+\uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-degrees, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-mirrordeflectionsetup, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-hasgeometricanglereadouts, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-matchesfigurereadouts, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-obeysspecularreflectionlaw, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-matchesanswer}
+The pictured mirror turns a horizontal incident ray through \(60^\circ\).
+Specular reflection therefore places the mirror tangent at
+\(\phi=30^\circ\), answer A; this corrects the dataset's inconsistent recorded
+choice C.
+\end{theorem}
+\begin{proof}
+The figure gives incident direction angle \(0\) and reflected direction angle
+\(60^\circ\).  On the acute branch, the angle form of the reflection law says
+\[
+ 60^\circ=2\phi-0.
+\]
+Thus \(\phi=30^\circ\).  Expanding the answer map shows that choice A is
+exactly the same radian value.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Plane]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.Plane}
+  The Euclidean plane containing the mirror and both laser rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.degrees}
+  Convert a dimensionless angle readout in degrees to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Light Ray]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-lightray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.LightRay}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane}
+  An oriented laser ray. Its direction is normalized, so the scalar parameter of pointAt has the same length readout as the plane coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Light Ray.
+\end{proof}
+\begin{definition}[point At]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-lightray-pointat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.LightRay.pointAt}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-lightray}
+  The point at the given signed distance along a laser ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of point At.
+\end{proof}
+\begin{definition}[Plane Mirror]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-planemirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.PlaneMirror}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane}
+  An ideal plane mirror in the two-dimensional optical diagram. The named unit tangent points toward the right in the figure and fixes the acute representative of the mirror's otherwise unoriented surface line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Mirror.
+\end{proof}
+\begin{definition}[reflect Direction]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-planemirror-reflectdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.PlaneMirror.reflectDirection}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-planemirror}
+  Reflect a propagation direction in the affine mirror. Translating the direction to the impact point allows direct use of Mathlib's affine reflection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflect Direction.
+\end{proof}
+\begin{definition}[Mirror Deflection Setup]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-mirrordeflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.MirrorDeflectionSetup}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-plane, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-lightray, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-planemirror}
+  The physical objects and labeled angular readouts in the source figure. phiRadians is the angle labeled φ between the horizontal reference and the mirror surface. It is an angle readout, not a scalar replacement for the mirror or either laser ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Deflection Setup.
+\end{proof}
+\begin{definition}[Has Geometric Angle Readouts]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-hasgeometricanglereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.HasGeometricAngleReadouts}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-mirrordeflectionsetup}
+  The three scalar angle labels agree with Mathlib's undirected angles between the corresponding nonzero geometric directions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Geometric Angle Readouts.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-degrees, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-lightray-pointat, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-mirrordeflectionsetup}
+  Figure-derived data: the incoming beam is horizontal and reaches the mirror, the outgoing beam begins at the impact point, and the marked deflection is 60°. Only the acute range of φ is read from the drawing; its requested numerical value is intentionally absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Obeys Specular Reflection Law]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-obeysspecularreflectionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.ObeysSpecularReflectionLaw}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-planemirror-reflectdirection, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-mirrordeflectionsetup}
+  The governing law of specular reflection. The first conjunct is the geometric reflection of the propagation vector in the mirror. The second is its angle-readout form on the pictured branch: the mirror direction bisects the incident and reflected direction angles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Specular Reflection Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.AnswerChoice}
+  Labels of the four answers displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Radians]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerangleradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.answerAngleRadians}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-degrees, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerchoice}
+  The radian value printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Radians.
+\end{proof}
+\begin{definition}[Matches Answer]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-matchesanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.MatchesAnswer}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerchoice, def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerangleradians}
+  A mirror-angle readout agrees exactly with the selected answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0060.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0060:phyxminiproblems-problemphyxmini0060-answerchoice}
+  The answer label recorded in the supplied dataset metadata, contrary to the pictured physics
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

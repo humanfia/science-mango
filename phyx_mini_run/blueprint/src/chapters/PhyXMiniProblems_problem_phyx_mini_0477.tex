@@ -1,0 +1,319 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0477.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0477.source.json
+
+\chapter{Physics problem phyx\_mini\_0477}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0477}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a beam of parallel light rays from a laser is incident on a solid transparent sphere of index of refraction \$n\$.
+
+\#\# Question
+
+If a point image is produced at the back of the sphere, what is the index of refraction of the sphere?
+
+\#\# Answer choices
+
+- A: A: 1.7
+
+- B: B: 1.8
+
+- C: C: 1.9
+
+- D: D: 2.0
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 2.0
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/477.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0477.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0477:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0477.problem_phyx_mini_0477}
+\uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-recordsprovidedfiguremismatch, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-matchesnarratedopticsscenario, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-haspointimageatbacksurface, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-hasphysicalsphereparameters, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-satisfiesparallelraysphericalrefractionlaw, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.OpticalLength}
+  A signed physical length, represented coherently in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.lengthReadout}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticallength}
+  Read a physical optical length in a specified system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.lengthInMeters}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticallength, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout}
+  Read a physical optical length in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.OpticalMedium}
+  The two homogeneous media encountered by an incident ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Sphere Surface]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-spheresurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SphereSurface}
+  The two boundary points of the sphere on the directed optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Surface.
+\end{proof}
+\begin{definition}[Sphere Axis Point]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sphereaxispoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SphereAxisPoint}
+  Named axial points needed to interpret “the back of the sphere”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Axis Point.
+\end{proof}
+\begin{definition}[surface Vertex]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-surfacevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.surfaceVertex}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-spheresurface, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sphereaxispoint}
+  The axial vertex associated with each spherical boundary surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of surface Vertex.
+\end{proof}
+\begin{definition}[Sphere Body Kind]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-spherebodykind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SphereBodyKind}
+  Optical character of the body described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Body Kind.
+\end{proof}
+\begin{definition}[Light Source Kind]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lightsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.LightSourceKind}
+  The source named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Light Source Kind.
+\end{proof}
+\begin{definition}[Incident Ray Pattern]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-incidentraypattern}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.IncidentRayPattern}
+  Qualitative direction pattern of the incident geometrical-optics rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Incident Ray Pattern.
+\end{proof}
+\begin{definition}[Optical Approximation]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticalapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.OpticalApproximation}
+  Approximation under which the spherical-surface imaging equation is used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Approximation.
+\end{proof}
+\begin{definition}[Source Scene]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sourcescene}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SourceScene}
+  The scene narrated by the problem and the unrelated scene in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Scene.
+\end{proof}
+\begin{definition}[Evidence Policy]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-evidencepolicy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.EvidencePolicy}
+  Which source controls the optical theorem when prose and raster conflict
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Evidence Policy.
+\end{proof}
+\begin{definition}[Piston Panel]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-pistonpanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.PistonPanel}
+  The left and right fluid columns visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Panel.
+\end{proof}
+\begin{definition}[Pressure Symbol]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-pressuresymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.PressureSymbol}
+  Literal pressure symbols printed inside the two fluid columns
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Symbol.
+\end{proof}
+\begin{definition}[Height Symbol]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-heightsymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.HeightSymbol}
+  Literal height symbols printed beside the two fluid columns
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Height Symbol.
+\end{proof}
+\begin{definition}[Area Symbol]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-areasymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.AreaSymbol}
+  The common literal cross-sectional-area symbol in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Symbol.
+\end{proof}
+\begin{definition}[Supplied Raster Audit]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-suppliedrasteraudit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SuppliedRasterAudit}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sourcescene, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-pistonpanel, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-pressuresymbol, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-heightsymbol, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-areasymbol}
+  An audit record for the actually supplied piston raster. The real-valued fields are explicitly unit-named scalar readouts rather than replacements for physical mass or pressure types in the optical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Raster Audit.
+\end{proof}
+\begin{definition}[Records Provided Figure Mismatch]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-recordsprovidedfiguremismatch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.RecordsProvidedFigureMismatch}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-suppliedrasteraudit}
+  Literal content of the inconsistent raster: M = 20.0 kg on the left, an 80.0 kg person on the right, atmospheric pressure 1 atm, and labels P₁, P₂, h₁, h₂, and the same area symbol A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Records Provided Figure Mismatch.
+\end{proof}
+\begin{definition}[Transparent Sphere Imaging Setup]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.TransparentSphereImagingSetup}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticallength, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticalmedium, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sphereaxispoint, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-spherebodykind, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lightsourcekind, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-incidentraypattern, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticalapproximation, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sourcescene, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-evidencepolicy, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-suppliedrasteraudit}
+  The physical state for the narrated sphere-imaging experiment. The refractive index is a dimensionless readout indexed by the two physical media. Neither it nor the front-surface image distance is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transparent Sphere Imaging Setup.
+\end{proof}
+\begin{definition}[axial Separation Readout]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-axialseparationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.axialSeparationReadout}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sphereaxispoint, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup}
+  Directed axial separation between two named points, in selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Separation Readout.
+\end{proof}
+\begin{definition}[Matches Narrated Optics Scenario]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-matchesnarratedopticsscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.MatchesNarratedOpticsScenario}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup}
+  Qualitative facts in the narrated scenario. The air calibration is the standard dimensionless refractive-index readout implicit in the textbook phrase “a sphere in air”. No value is assigned to the sphere index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Narrated Optics Scenario.
+\end{proof}
+\begin{definition}[Has Point Image At Back Surface]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-haspointimageatbacksurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.HasPointImageAtBackSurface}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-axialseparationreadout}
+  Axial geometry and the given imaging condition. The center and back vertex are each one radius beyond the preceding point. The paraxial image made by the front surface coincides with the point at the back vertex. These are geometry/observation premises; they do not assert the requested refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Point Image At Back Surface.
+\end{proof}
+\begin{definition}[Has Physical Sphere Parameters]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-hasphysicalsphereparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.HasPhysicalSphereParameters}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthinmeters, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-opticalmedium, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup}
+  Positivity and optical-density conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Sphere Parameters.
+\end{proof}
+\begin{definition}[Satisfies Parallel Ray Spherical Refraction Law]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-satisfiesparallelraysphericalrefractionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.SatisfiesParallelRaySphericalRefractionLaw}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup}
+  Gaussian refraction of a parallel paraxial beam at the front spherical surface. For air index n₁, sphere index n₂, image distance v measured inside the sphere, and positive radius R, the law is v (n₂ - n₁) = n₂ R. It is required in every unit system and contains no numerical value of n₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Parallel Ray Spherical Refraction Law.
+\end{proof}
+\begin{lemma}[image Distance eq two mul radius]
+  \label{lem:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-imagedistance-eq-two-mul-radius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.imageDistance_eq_two_mul_radius}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-lengthreadout, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-haspointimageatbacksurface}
+  The back-surface imaging condition and the sphere geometry make the front surface image distance equal to the diameter. This is a derived geometric relation, not an assumption about the requested refractive index
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of image Distance eq two mul radius.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.AnswerChoice}
+  Labels of the four refractive-index choices printed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[refractive Index Readout]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-answerchoice-refractiveindexreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.AnswerChoice.refractiveIndexReadout}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-answerchoice}
+  Dimensionless refractive-index readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of refractive Index Readout.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-answerchoice}
+  Dataset metadata recording answer D; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-answerchoice}
+  The sphere's independent refractive index agrees with a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[sphere Refractive Index eq two]
+  \label{lem:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-sphererefractiveindex-eq-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0477.sphereRefractiveIndex_eq_two}
+  \uses{def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-transparentsphereimagingsetup, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-matchesnarratedopticsscenario, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-haspointimageatbacksurface, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-hasphysicalsphereparameters, def:physics:phyx-mini-0477:phyxminiproblems-problemphyxmini0477-satisfiesparallelraysphericalrefractionlaw}
+  The parallel-ray spherical-refraction law gives 2 R (n - 1) = n R. Since R > 0, the sphere index is exactly n = 2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sphere Refractive Index eq two.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

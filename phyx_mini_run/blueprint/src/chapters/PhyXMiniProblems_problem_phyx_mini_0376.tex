@@ -1,0 +1,307 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0376.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0376.source.json
+
+\chapter{Physics problem phyx\_mini\_0376}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0376}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Containers A and B in figure hold the same gas. The volume of B is four times the volume of A. The two containers are connected by a thin tube (negligible volume) and a valve that is closed. The gas in A is at 300\textbackslash{} \textbackslash{}text\{K\} and pressure of 1.0 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} \textbackslash{}text\{Pa\}. The gas in B is at 400\textbackslash{} \textbackslash{}text\{K\} and pressure of 5.0 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} \textbackslash{}text\{Pa\}. Heaters will maintain the temperatures of A and B even after the valve is opened. After the valve is opened, gas will flow one way or the other until A and B have equal pressure.
+
+\#\# Question
+
+What is this final pressure?
+
+\#\# Answer choices
+
+- A: A: 5.0 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} Pa
+
+- B: B: 5.5 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} Pa
+
+- C: C: 5.4 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} Pa
+
+- D: D: 5.9 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} Pa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram with two rectangular containers labeled "A" and "B". 
+
+- Container A is on the left, with a temperature of 300 K. 
+- Container B is on the right, with a temperature of 400 K. 
+
+Both containers are connected by a pipe that has a valve in the middle. The valve is labeled "Valve". The setup suggests a system where fluid or gas can move between the two containers when the valve is opened.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 5.0 \textbackslash{}times 10\textasciicircum{}5\textbackslash{} Pa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/376.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0376.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0376:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0376.finalPressureInPascals_eq_fourHundredThousand}
+\uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-matchesprimaryfigure, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-matchesproblemstatement, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-heatersmaintaintemperatures, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-hasphysicalparameters, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-obeysidealgasandamountconservation, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-reachespressureequilibrium}
+After the valve opens, conservation of gas amount and the maintained
+\(300\,\mathrm K\) and \(400\,\mathrm K\) temperatures give a common final
+pressure of \(400000\,\mathrm{Pa}\) in both containers.
+\end{theorem}
+\begin{proof}
+Write \(V_A=V\) and \(V_B=4V\).  The two initial ideal-gas equations give
+\[
+ n_{\rm initial}R
+ =\frac{100000V}{300}+\frac{500000(4V)}{400}.
+\]
+If \(P\) is the common final pressure, the maintained temperatures and final
+ideal-gas equations give
+\[
+ n_{\rm final}R=\frac{PV}{300}+\frac{P(4V)}{400}.
+\]
+Amount conservation equates these expressions.  Since \(V>0\), cancellation
+and rational normalization give \(P=400000\,\mathrm{Pa}\).  Pressure
+equilibrium transports this value to either container.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.GasVolume}
+  A physical gas volume, carrying the length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.MolarGasConstantQuantity}
+  The molar gas constant with its energy-per-temperature dimension. Physlib's current Dimension has no amount-of-substance coordinate, so the inverse-mole role is recorded by this name and is paired with explicit mole readouts in the ideal-gas law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasvolume}
+  Read a physical gas volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.temperatureInKelvins}
+  Read Physlib's absolute-temperature value on the calibrated kelvin scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Gas Constant In SI]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.molarGasConstantInSI}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantquantity}
+  Read the molar gas constant in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In SI.
+\end{proof}
+\begin{definition}[Container Label]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-containerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ContainerLabel}
+  The container labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Label.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ProcessStage}
+  The two thermodynamic stages relevant to the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Figure Side]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-figureside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.FigureSide}
+  Horizontal positions of the two containers in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Side.
+\end{proof}
+\begin{definition}[Container Shape]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-containershape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ContainerShape}
+  Shape used to draw each gas vessel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Shape.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ValvePosition}
+  Position of the valve at a modeled stage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Connection Model]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ConnectionModel}
+  The thin connecting tube and its negligible-volume idealization
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connection Model.
+\end{proof}
+\begin{definition}[Heater Mode]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-heatermode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.HeaterMode}
+  Operating mode of a heater attached to a container
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heater Mode.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.GasModel}
+  The ideal-gas model named by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.GasSpecies}
+  An abstract gas species. The problem does not identify the chemical species; it only states that both vessels contain the same one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Portion]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasportion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.GasPortion}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasspecies}
+  A physical portion of gas, with a species and an explicit amount readout in moles. This is not a scalar alias: it retains which gas the amount describes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Portion.
+\end{proof}
+\begin{definition}[Two Container Valve Figure]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-twocontainervalvefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.TwoContainerValveFigure}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-containerlabel, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-figureside}
+  Figure-only labels and geometry read directly from the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Container Valve Figure.
+\end{proof}
+\begin{definition}[Connected Gas Containers]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ConnectedGasContainers}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasvolume, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantquantity, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-containerlabel, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-processstage, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-containershape, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-valveposition, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectionmodel, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-heatermode, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasmodel, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasspecies, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-gasportion, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-twocontainervalvefigure}
+  The two rigid containers, their thermodynamic data before and after opening, and the physical equipment connecting them. The common final pressure is not stored as a separate scalar and is not assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connected Gas Containers.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-temperatureinkelvins, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  Primary-image readouts. The image shows A on the left, B on the right, the labels 300 K and 400 K, a connecting tube, and a labeled valve. It does not display either pressure or the volume ratio
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-volumeincubicmeters, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  Data stated in the prose. These fields specify the initial condition and the equipment, but do not state a numerical final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Heaters Maintain Temperatures]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-heatersmaintaintemperatures}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.HeatersMaintainTemperatures}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-temperatureinkelvins, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  The quantitative effect of the two operating heaters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heaters Maintain Temperatures.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-volumeincubicmeters, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-temperatureinkelvins, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantinsi, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  Positivity conditions selecting physical pressures, volumes, and amounts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Gas And Amount Conservation]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-obeysidealgasandamountconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ObeysIdealGasAndAmountConservation}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-volumeincubicmeters, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-temperatureinkelvins, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-molargasconstantinsi, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  Macroscopic ideal-gas and closed-system conservation laws. Because the tube has negligible volume, all gas amount is accounted for by the two container portions. Neither law supplies a numerical final pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Gas And Amount Conservation.
+\end{proof}
+\begin{definition}[Reaches Pressure Equilibrium]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-reachespressureequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.ReachesPressureEquilibrium}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-pressureinpascals, def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-connectedgascontainers}
+  Opening the valve allows flow until the two final pressures are equal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaches Pressure Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Pressure In Pascals]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-answerpressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.answerPressureInPascals}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-answerchoice}
+  Pascal value printed beside each answer label in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Pressure In Pascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0376.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0376:phyxminiproblems-problemphyxmini0376-answerchoice}
+  Answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

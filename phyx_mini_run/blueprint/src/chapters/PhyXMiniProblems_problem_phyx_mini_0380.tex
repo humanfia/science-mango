@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0380.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0380.source.json
+
+\chapter{Physics problem phyx\_mini\_0380}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0380}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 1-\textbackslash{}m\textasciicircum{}3\textbackslash{} container, shown in figure, is filled with 0.12 \textbackslash{}m\textasciicircum{}3\textbackslash{} of granite, 0.15 \textbackslash{}m\textasciicircum{}3\textbackslash{} of sand, and 0.2 \textbackslash{}m\textasciicircum{}3\textbackslash{} of liquid 25\textasciicircum{}\textbackslash{}circ C water; the rest of the volume, 0.53 \textbackslash{}m\textasciicircum{}3\textbackslash{}, is air with a density of 1.15\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3.
+
+\#\# Question
+
+Find the overall (average) specific density.
+
+\#\# Answer choices
+
+- A: A: 775\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3
+
+- B: B: 115\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3
+
+- C: C: 815\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3
+
+- D: D: 125\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is divided into two main sections.
+
+On the left, there's a diagram illustrating a cross-section of a container with a substance labeled "Air" on top of a granular material. The granular material has various small, circular particles embedded in it.
+
+On the right, there's an illustration of a worker wearing protective gear, including a blue helmet, blue shirt, gloves, and gray overalls. The worker is standing beside a metal bucket or container, which is suspended by a hook from a crane. The worker is raising one hand, possibly to guide or signal.
+
+The background of the image is a light blue gradient.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 775\textbackslash{} \textbackslash{}mathrm\{kg\}/\textbackslash{}mathrm\{m\}\textasciicircum{}3
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/380.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0380.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0380:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0380.overall_average_mass_density_from_supplied_data}
+\uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-densityinkilogramspercubicmeter, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-matchesproblemdata, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-matchesprimaryfigure, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-hasphysicalparameters, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-satisfiesaveragedensitylaws}
+The supplied data determine the container's average density as the
+volume-weighted sum of its four constituent densities, leaving the unreported
+granite, sand, and water densities symbolic.
+\end{theorem}
+\begin{proof}
+Expand total mass over the four constituents and apply
+\(m_j=\rho_jV_j\) to each term.  The total container volume is one cubic
+metre, so the denominator in average density disappears.  Substitute the
+reported volumes \(3/25,3/20,1/5,53/100\) and the air density \(23/20\).
+The resulting sum is exactly
+\[
+ \rho_g\frac3{25}+\rho_s\frac3{20}+\rho_w\frac15
+   +\frac{23}{20}\frac{53}{100}.
+\]
+The figure-only evidence and positivity assumptions are consistent but no
+additional density calibration is needed.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.VolumeQuantity}
+  A nonnegative physical volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.MassDensityQuantity}
+  A nonnegative physical mass density, carrying dimension M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.massInKilograms}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massquantity}
+  Read a physical mass in SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massdensityquantity}
+  Read a physical mass density in SI kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.temperatureInKelvin}
+  Read an absolute temperature in kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-temperatureinkelvin}
+  Read an absolute temperature in degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Constituent]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-constituent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.Constituent}
+  The four constituents named in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Constituent.
+\end{proof}
+\begin{definition}[Material Phase]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-materialphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.MaterialPhase}
+  Macroscopic phase or material form of a constituent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Material Phase.
+\end{proof}
+\begin{definition}[Container Figure Region]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-containerfigureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.ContainerFigureRegion}
+  Vertical regions distinguished in the left-hand container sketch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Container Figure Region.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.FigureObject}
+  Incidental objects visible in the right-hand portion of the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Filled Container Figure]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.FilledContainerFigure}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-containerfigureregion, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-figureobject}
+  Readout of the supplied raster. It records the literal Air label and the upper/lower geometry without pretending that the unlabeled lower texture separately identifies granite, sand, and water
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Filled Container Figure.
+\end{proof}
+\begin{definition}[Filled Container Setup]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.FilledContainerSetup}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumequantity, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massquantity, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massdensityquantity, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-constituent, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-materialphase, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainerfigure}
+  Independent physical quantities for the filled container. In particular, the total mass and average density are observables, not definitions containing the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Filled Container Setup.
+\end{proof}
+\begin{definition}[water Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-watertemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.waterTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-temperatureindegreescelsius, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup}
+  Celsius readout of the water temperature stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of water Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumeincubicmeters, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-densityinkilogramspercubicmeter, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-constituent, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-watertemperatureindegreescelsius}
+  Problem-text data. The exact fractions are the decimal volume and air-density readouts printed in the source. The source does not give the granite, sand, or water density, and no total mass or average-density answer occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-figureobject, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup}
+  Literal transcription of the primary image, kept separate from the numerical problem data. The lower texture is unlabeled, so this structure does not claim that the image distinguishes granite, sand, and water from one another
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumeincubicmeters, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-densityinkilogramspercubicmeter, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-temperatureinkelvin, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-constituent, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup}
+  Strict positivity conditions selecting a physically nondegenerate setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Average Density Laws]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-satisfiesaveragedensitylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.SatisfiesAverageDensityLaws}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-volumeincubicmeters, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-massinkilograms, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-densityinkilogramspercubicmeter, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-constituent, def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-filledcontainersetup}
+  Mass-density laws for a partitioned container. The first field is the general relation m = ρV for every constituent, the second is additivity of mass, and the third defines average density as total mass divided by total volume. The laws contain neither 775 nor any answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Average Density Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.AnswerChoice}
+  The four answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-displayeddensityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.displayedDensityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-answerchoice}
+  Printed density readout, in kilograms per cubic metre, for each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0380.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0380:phyxminiproblems-problemphyxmini0380-answerchoice}
+  The answer label recorded by the dataset. It is metadata only: neither this definition nor the displayed values occur in the governing laws or theorem conclusion, because the source omits three material densities needed to derive a numerical choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,361 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0391.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0391.source.json
+
+\chapter{Physics problem phyx\_mini\_0391}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0391}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A piece of experimental apparatus, figure, is located where \$g = 9.5\$ m/s\$\textasciicircum{}2\$ and the temperature is \$5\textasciicircum{}\{\textbackslash{}circ\}C\$. Air flow inside the apparatus is determined by measuring the pressure drop across an orifice with a mercury manometer showing a height difference of 200 mm.
+
+\#\# Question
+
+What is the pressure drop in kPa?
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 25.84kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram depicting a manometer setup for measuring pressure difference. It consists of the following components:
+
+1. **U-tube Manometer**: 
+   - The manometer is U-shaped and partially filled with a blue-colored fluid, likely indicating a liquid like mercury or water.
+   - The liquid is at different levels in the two arms of the U-tube.
+
+2. **Airflow**: 
+   - There is a horizontal channel at the top, indicating airflow from left to right, labeled with the word "Air."
+   - The arrows on either side of the air channel represent the direction of the airflow.
+
+3. **Probe or Tube**:
+   - A vertical tube extends from the U-tube into the airflow channel, indicating the point where pressure is measured.
+
+4. **Gravitational Force**:
+   - An arrow labeled “g” is pointing downward, indicating the direction of the gravitational force affecting the liquid in the manometer.
+
+The diagram likely illustrates how the pressure difference between the airflow and the atmospheric or another reference pressure causes the liquid to deflect, providing a measure of this pressure difference.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 25.84kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/391.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0391.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0391:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0391.problem_phyx_mini_0391}
+\uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinkilopascals, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesprimaryfigure, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesproblemdata, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-usesmercurypropertydataatfivedegrees, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-satisfiesorificemanometerlaws, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-isuniquematchingdisplayedpressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.LengthQuantity}
+  A nonnegative physical length, independent of the readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.TemperatureQuantity}
+  A nonnegative absolute temperature, independent of the readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensitydimension}
+  A nonnegative physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.lengthReadout}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.densityReadout}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensityquantity}
+  Read a mass density in a selected mass unit per selected length unit cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.accelerationReadout}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationquantity}
+  Read an acceleration in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.lengthInMeters}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthreadout}
+  Millimeter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperaturequantity}
+  Kelvin readout of an absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperaturequantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperatureinkelvins}
+  Celsius readout obtained from the coherent Kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensityquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-densityreadout}
+  Kilogram-per-cubic-meter readout of a mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationreadout}
+  Meter-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.pressureInPascals}
+  Pascal readout of a pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinpascals}
+  Kilopascal readout of a pressure difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Pressure Tap]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressuretap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.PressureTap}
+  The sides of the orifice at which air pressure is sampled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Tap.
+\end{proof}
+\begin{definition}[Manometer Arm]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-manometerarm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.ManometerArm}
+  The two arms visible in the U-tube drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Manometer Arm.
+\end{proof}
+\begin{definition}[Apparatus Fluid]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-apparatusfluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.ApparatusFluid}
+  Fluids relevant to the apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Apparatus Fluid.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.FigureTextLabel}
+  Literal text labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Airflow Direction]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-airflowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.AirflowDirection}
+  Direction of the arrows drawn in the air passage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Airflow Direction.
+\end{proof}
+\begin{definition}[Orifice Manometer Figure]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.OrificeManometerFigure}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-manometerarm, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-figuretextlabel, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-airflowdirection}
+  The geometric and qualitative evidence visible in the supplied bitmap. The height difference is a dimensionful quantity but receives its numerical 200 mm readout separately from the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orifice Manometer Figure.
+\end{proof}
+\begin{definition}[Orifice Manometer Setup]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.OrificeManometerSetup}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperaturequantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-massdensityquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationquantity, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressuretap, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-manometerarm, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-apparatusfluid, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometerfigure}
+  Independent physical quantities and apparatus roles. In particular, the pressure drop is an independent pressure quantity: it is not defined from the recorded answer or from the hydrostatic formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orifice Manometer Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup}
+  Evidence read directly from the primary bitmap phyx\_data/test\_image/391.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthinmillimeters, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup}
+  Textual apparatus roles and numerical readouts supplied in the problem. The two pressure taps lie on opposite sides of the orifice; the higher upstream pressure depresses the mercury in the left arm in the pictured orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Uses Mercury Property Data At Five Degrees]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-usesmercurypropertydataatfivedegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.UsesMercuryPropertyDataAtFiveDegrees}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-temperatureindegreescelsius, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-densityinkilogramspercubicmeter, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup}
+  Mercury property-table calibration at the stated operating temperature. The density value is a material-data readout, not the requested pressure answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Mercury Property Data At Five Degrees.
+\end{proof}
+\begin{definition}[Satisfies Orifice Manometer Laws]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-satisfiesorificemanometerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.SatisfiesOrificeManometerLaws}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-lengthinmeters, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-densityinkilogramspercubicmeter, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinpascals, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup}
+  The apparatus-specific governing laws, expressed in coherent SI readouts. The second field is the U-tube hydrostatic balance Δp = ρ g h under the stated heavy-manometer-liquid approximation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Orifice Manometer Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.AnswerChoice}
+  The four answer choices in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-displayedpressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.displayedPressureInKilopascals}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-answerchoice}
+  Displayed pressure-drop values, in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Kilopascals.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-answerchoice}
+  Dataset metadata; this declaration is not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Pressure]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.MatchesDisplayedPressure}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-pressureinkilopascals, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-answerchoice, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-displayedpressureinkilopascals}
+  A choice matches the pressure drop derived for the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Pressure.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Pressure]
+  \label{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-isuniquematchingdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0391.IsUniqueMatchingDisplayedPressure}
+  \uses{def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-orificemanometersetup, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-answerchoice, def:physics:phyx-mini-0391:phyxminiproblems-problemphyxmini0391-matchesdisplayedpressure}
+  A choice is the unique displayed value matching the derived pressure drop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Pressure.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

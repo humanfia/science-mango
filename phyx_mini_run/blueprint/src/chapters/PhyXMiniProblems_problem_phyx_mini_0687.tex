@@ -1,0 +1,365 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0687.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0687.source.json
+
+\chapter{Physics problem phyx\_mini\_0687}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0687}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The 20-g centrifuge at NASA's Ames Research Center in Mountain View, California, is a horizontal, cylindrical tube \textbackslash{}( 58.0 \textbackslash{}text\{ ft\} \textbackslash{}) long and is represented in figure. Assume an astronaut in training sits in a seat at one end, facing the axis of rotation \textbackslash{}( 29.0 \textbackslash{}text\{ ft\} \textbackslash{}) away.
+
+\#\# Question
+
+Determine the rotation rate, in revolutions per second, required to give the astronaut a centripetal acceleration of \textbackslash{}( 20.0g \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 64.3 \textbackslash{}text\{ rev/min\} \textbackslash{})
+
+- B: B: \textbackslash{}( 22.5 \textbackslash{}text\{ rev/min\} \textbackslash{})
+
+- C: C: \textbackslash{}( 45.0 \textbackslash{}text\{ rev/min\} \textbackslash{})
+
+- D: D: \textbackslash{}( 36.0 \textbackslash{}text\{ rev/min\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a large, horizontal structural beam with triangular truss designs along its length. The beam is supported at the center by a vertical shaft. There are two red clamps beneath the beam. Near the right end, a person is seated in a chair inside the structure. The width of the beam from the center to the right end is labeled as "29 ft."
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 45.0 \textbackslash{}text\{ rev/min\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/687.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0687.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0687:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0687.required_rotation_rate_is_choice_C}
+\uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionsperminute, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchesamescentrifugescenario, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchescentrifugeproblemreadouts, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchesprimarycentrifugefigure, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-usesroundedstandardgravity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-hasphysicalcentrifugeparameters, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-satisfiesstatedglevel, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-satisfiesuniformcircularmotion, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-answerchoice, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-answerchoice-raterevolutionsperminute}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.accelerationDimension}
+  The physical dimension of acceleration, length / time\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[inverse Time Dimension]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-inversetimedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.inverseTimeDimension}
+  The physical dimension of both angular speed and rotation frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inverse Time Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.LengthQuantity}
+  A nonnegative physical length, independent of the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AngularSpeedQuantity}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-inversetimedimension}
+  A nonnegative angular-speed magnitude, with radians dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Rotation Frequency Quantity]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.RotationFrequencyQuantity}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-inversetimedimension}
+  A nonnegative rotation frequency, with revolutions dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Frequency Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.lengthReadout}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.accelerationReadout}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationquantity}
+  Read an acceleration in coherent units induced by length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedquantity}
+  Read an angular speed in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[rotation Frequency Readout]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.rotationFrequencyReadout}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity}
+  Read a rotation frequency in revolutions per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Frequency Readout.
+\end{proof}
+\begin{definition}[length In Feet]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinfeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.lengthInFeet}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthreadout}
+  Foot readout used for the two stated apparatus lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Feet.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.lengthInMeters}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthreadout}
+  Coherent SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationreadout}
+  Coherent SI metre-per-second-squared acceleration readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedreadout}
+  Angular speed in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[rotation Frequency In Revolutions Per Second]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.rotationFrequencyInRevolutionsPerSecond}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyreadout}
+  Rotation frequency in revolutions per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Frequency In Revolutions Per Second.
+\end{proof}
+\begin{definition}[rotation Frequency In Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.rotationFrequencyInRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyreadout}
+  Rotation frequency in revolutions per minute
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Frequency In Revolutions Per Minute.
+\end{proof}
+\begin{lemma}[length In Meters eq feet mul conversion]
+  \label{lem:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters-eq-feet-mul-conversion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.lengthInMeters_eq_feet_mul_conversion}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinfeet, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters}
+  One foot is exactly 0.3048 m = 381/1250 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of length In Meters eq feet mul conversion.
+\end{proof}
+\begin{lemma}[rotation Frequency per Minute eq sixty mul per Second]
+  \label{lem:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequency-perminute-eq-sixty-mul-persecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.rotationFrequency_perMinute_eq_sixty_mul_perSecond}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionsperminute}
+  A per-minute frequency readout is sixty times its per-second readout
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotation Frequency per Minute eq sixty mul per Second.
+\end{proof}
+\begin{definition}[Tube Orientation]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-tubeorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.TubeOrientation}
+  Orientation of the long centrifuge tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Orientation.
+\end{proof}
+\begin{definition}[Rotation Axis Location]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationaxislocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.RotationAxisLocation}
+  Location of the rotation axis relative to the full tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis Location.
+\end{proof}
+\begin{definition}[Astronaut Orientation]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-astronautorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AstronautOrientation}
+  Direction in which the seated astronaut faces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Astronaut Orientation.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.FigureObject}
+  Distinct objects visibly present in the supplied centrifuge image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.FigureTextLabel}
+  The sole numerical distance label visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Ames Centrifuge Figure]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amescentrifugefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AmesCentrifugeFigure}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-figureobject, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-figuretextlabel}
+  Qualitative evidence transcribed from image 687.png. The dimension line runs from the central shaft to the right end containing the astronaut
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ames Centrifuge Figure.
+\end{proof}
+\begin{definition}[Ames Twenty GCentrifuge Setup]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AmesTwentyGCentrifugeSetup}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyquantity, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-tubeorientation, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationaxislocation, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-astronautorientation, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amescentrifugefigure}
+  The requested rotation frequency and its angular speed are independent physical fields. They are related to the supplied geometry and acceleration only through the governing-law structures below; neither is defined using a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ames Twenty GCentrifuge Setup.
+\end{proof}
+\begin{definition}[Matches Ames Centrifuge Scenario]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchesamescentrifugescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.MatchesAmesCentrifugeScenario}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Qualitative physical scenario stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ames Centrifuge Scenario.
+\end{proof}
+\begin{definition}[Matches Centrifuge Problem Readouts]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchescentrifugeproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.MatchesCentrifugeProblemReadouts}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinfeet, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Numerical quantities supplied by the problem. No rotation frequency or answer-choice value occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Centrifuge Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Centrifuge Figure]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-matchesprimarycentrifugefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.MatchesPrimaryCentrifugeFigure}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthreadout, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Direct evidence from the primary bitmap and its printed dimension line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Centrifuge Figure.
+\end{proof}
+\begin{definition}[Uses Rounded Standard Gravity]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-usesroundedstandardgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.UsesRoundedStandardGravity}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Rounded standard gravitational acceleration used for the classroom calculation. It calibrates g; it does not constrain the rotation rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Standard Gravity.
+\end{proof}
+\begin{definition}[Has Physical Centrifuge Parameters]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-hasphysicalcentrifugeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.HasPhysicalCentrifugeParameters}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedinradianspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Positivity assumptions selecting the nondegenerate physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Centrifuge Parameters.
+\end{proof}
+\begin{definition}[Satisfies Stated GLevel]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-satisfiesstatedglevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.SatisfiesStatedGLevel}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  The requested centripetal acceleration is the stated dimensionless multiple of local standard gravity. This is the meaning of 20 g, not an assumption about the requested rotation rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Stated GLevel.
+\end{proof}
+\begin{definition}[Satisfies Uniform Circular Motion]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-satisfiesuniformcircularmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.SatisfiesUniformCircularMotion}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-angularspeedinradianspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup}
+  Uniform circular-motion laws in coherent SI readouts. Radians and revolutions are dimensionless, with one revolution corresponding to 2*pi radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Circular Motion.
+\end{proof}
+\begin{lemma}[rotation Frequency sq eq acceleration div radius and four pi sq]
+  \label{lem:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequency-sq-eq-acceleration-div-radius-and-four-pi-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.rotationFrequency_sq_eq_acceleration_div_radius_and_four_pi_sq}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-lengthinmeters, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-rotationfrequencyinrevolutionspersecond, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-amestwentygcentrifugesetup, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-hasphysicalcentrifugeparameters, def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-satisfiesuniformcircularmotion}
+  An algebraic consequence of the two circular-motion laws. This leaves the positive square-root selection and all numerical evaluation to later proofs
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotation Frequency sq eq acceleration div radius and four pi sq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AnswerChoice}
+  Labels of the four rotation-rate choices printed by the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[rate Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-answerchoice-raterevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0687.AnswerChoice.rateRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0687:phyxminiproblems-problemphyxmini0687-answerchoice}
+  Revolution-per-minute value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rate Revolutions Per Minute.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

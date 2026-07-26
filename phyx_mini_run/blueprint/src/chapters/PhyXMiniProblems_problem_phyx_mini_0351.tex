@@ -1,0 +1,281 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0351.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0351.source.json
+
+\chapter{Physics problem phyx\_mini\_0351}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0351}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A heat engine operates using the cycle shown in figure. The working substance is 2.00 mol of helium gas, which reaches a maximum temperature of \$327\textasciicircum{}\{\textbackslash{}circ\}C\$. Assume the helium can be treated as an ideal gas. Process \$bc\$ is isothermal. The pressure in states \$a\$ and \$c\$ is \$1.00 \textbackslash{}times 10\textasciicircum{}5\$ Pa, and the pressure in state \$b\$ is \$3.00 \textbackslash{}times 10\textasciicircum{}5\$ Pa.
+
+\#\# Question
+
+What is its efficiency?
+
+\#\# Answer choices
+
+- A: A: 10\textbackslash{}\%
+
+- B: B: 8.7\textbackslash{}\%
+
+- C: C: 15.9\textbackslash{}\%
+
+- D: D: 12.3\textbackslash{}\%
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a graph with a set of labeled points and lines forming a closed loop. The axes are labeled with "O" on the vertical axis and "V" on the horizontal axis.
+
+- There are three labeled points: \textbackslash{}( a \textbackslash{}), \textbackslash{}( b \textbackslash{}), and \textbackslash{}( c \textbackslash{}).
+- The points are connected by blue arrows forming a triangular path:
+  - An arrow goes vertically upwards from \textbackslash{}( a \textbackslash{}) to \textbackslash{}( b \textbackslash{}).
+  - A curved arrow goes from \textbackslash{}( b \textbackslash{}) to \textbackslash{}( c \textbackslash{}).
+  - A horizontal arrow goes from \textbackslash{}( c \textbackslash{}) back to \textbackslash{}( a \textbackslash{}).
+
+Each arrow indicates direction, suggesting cyclical movement between the points. The style is clean, with black points and blue arrows forming the shape.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 8.7\textbackslash{}\%
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/351.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0351.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0351:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0351.problem_phyx_mini_0351}
+\uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchesheatenginescenario, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchesproblemreadouts, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-hasphysicalheatengineparameters, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchessuppliedpvcyclefigure, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-satisfiesidealmonatomicgascyclelaws, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerchoice, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-efficiencyroundstopercent, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-efficiencyroundstochoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.GasVolume}
+  A nonnegative physical volume, independent of the selected unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-gasvolume}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.energyInJoules}
+  Read a signed physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.temperatureInKelvins}
+  Read a Physlib absolute temperature in kelvins for this SI model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.ThermodynamicState}
+  The three labelled thermodynamic states in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.CycleLeg}
+  The three directed legs of the cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[leg Start]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.legStart}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicstate, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-cycleleg}
+  Initial state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Start.
+\end{proof}
+\begin{definition}[leg Finish]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legfinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.legFinish}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicstate, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-cycleleg}
+  Final state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Finish.
+\end{proof}
+\begin{definition}[Thermodynamic Process Kind]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicprocesskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.ThermodynamicProcessKind}
+  Thermodynamic process types used in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Process Kind.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.GasSpecies}
+  The working-gas species stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Figure State Position]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-figurestateposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.FigureStatePosition}
+  Qualitative locations of state markers in the raster diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure State Position.
+\end{proof}
+\begin{definition}[Figure Path Shape]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-figurepathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.FigurePathShape}
+  Shapes of the three blue directed paths in the raster diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Path Shape.
+\end{proof}
+\begin{definition}[Supplied PVCycle Figure]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-suppliedpvcyclefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.SuppliedPVCycleFigure}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicstate, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-cycleleg, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-figurestateposition, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-figurepathshape}
+  Literal labels, marker locations, and directed paths in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied PVCycle Figure.
+\end{proof}
+\begin{definition}[Helium Heat Engine Cycle]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.HeliumHeatEngineCycle}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-gasvolume, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicstate, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-cycleleg, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-thermodynamicprocesskind, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-gasspecies, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-suppliedpvcyclefigure}
+  The physical heat engine. Heat is positive into the gas and work is positive when done by the gas. Consequently both are signed DimEnergy quantities. molarGasConstantJoulesPerMoleKelvin is an explicit coherent-SI readout, and thermalEfficiency is dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Helium Heat Engine Cycle.
+\end{proof}
+\begin{definition}[Matches Heat Engine Scenario]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchesheatenginescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.MatchesHeatEngineScenario}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  The gas identity and the thermodynamic interpretation of the three legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Heat Engine Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-pressureinpascals, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-temperatureinkelvins, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  The numerical information printed in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Heat Engine Parameters]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-hasphysicalheatengineparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.HasPhysicalHeatEngineParameters}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-pressureinpascals, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-volumeincubicmeters, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-energyinjoules, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-temperatureinkelvins, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  Positivity assumptions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Heat Engine Parameters.
+\end{proof}
+\begin{definition}[Matches Supplied PVCycle Figure]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-matchessuppliedpvcyclefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.MatchesSuppliedPVCycleFigure}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legstart, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legfinish, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  Data transcribed directly from the primary p--V raster image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied PVCycle Figure.
+\end{proof}
+\begin{definition}[Satisfies Ideal Monatomic Gas Cycle Laws]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-satisfiesidealmonatomicgascyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.SatisfiesIdealMonatomicGasCycleLaws}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-pressureinpascals, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-volumeincubicmeters, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-energyinjoules, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-temperatureinkelvins, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legstart, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-legfinish, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  The governing laws are independent of the requested numerical efficiency: P V = n R T at every state, in coherent SI readouts; U = (3/2) n R T for monatomic helium; the first law Delta U = Q - W on every directed leg; zero isochoric work, logarithmic isothermal work, and P Delta V isobaric work; cycle work and positive-heat-input bookkeeping; and the definition eta = W\_net / Q\_in of heat-engine efficiency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Monatomic Gas Cycle Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.AnswerChoice}
+  The answer letters shown in the multiple-choice problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Efficiency Percent]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerefficiencypercent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.answerEfficiencyPercent}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerchoice}
+  Displayed efficiencies, read as percentages
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Efficiency Percent.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerchoice}
+  The answer label recorded by the source dataset; it is never a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Efficiency Rounds To Percent]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-efficiencyroundstopercent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.EfficiencyRoundsToPercent}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle}
+  Agreement after rounding an efficiency to the nearest tenth of a percent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Efficiency Rounds To Percent.
+\end{proof}
+\begin{definition}[Efficiency Rounds To Choice]
+  \label{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-efficiencyroundstochoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0351.EfficiencyRoundsToChoice}
+  \uses{def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-heliumheatenginecycle, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerchoice, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-answerefficiencypercent, def:physics:phyx-mini-0351:phyxminiproblems-problemphyxmini0351-efficiencyroundstopercent}
+  Agreement with the percentage printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Efficiency Rounds To Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,126 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0157.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0157.source.json
+
+\chapter{Physics problem phyx\_mini\_0157}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0157}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gas thermometer is constructed of two gas-containing bulbs, each in a water bath, as shown in figure. The pressure difference between the two bulbs is measured by a mercury manometer as shown. Appropriate reservoirs, not shown in the diagram, maintain constant gas volume in the two bulbs. There is no difference in pressure when both baths are at the triple point of water. The pressure difference is 120 \textbackslash{}text\{torr\} when one bath is at the triple point and the other is at the boiling point of water. It is 90.0 \textbackslash{}text\{ torr\} when one bath is at the triple point and the other is at an unknown temperature to be measured.
+
+\#\# Question
+
+What is the unknown temperature?
+
+\#\# Answer choices
+
+- A: A: 330 K
+
+- B: B: 336 K
+
+- C: C: 342 K
+
+- D: D: 348 K
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features three red arrows pointing towards the right. Each arrow starts on the left side of the image and intersects with a large, light orange circle located on the right. The arrows are equally spaced vertically. As they pass through the circle, each arrow changes direction at an angle, converging on a single point on the right edge of the circle. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 348 K
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/157.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0157.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0157:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0157.unknownTemperature_eq_348_kelvin}
+\uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-twobulbgasthermometer, def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-hasphysicalgasthermometerparameters, def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-satisfiesconstantvolumeidealgasthermometry, def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-hasgasthermometercalibrationdata}
+For the two-bulb constant-volume gas thermometer calibrated at \(273\,\mathrm K\)
+and \(373\,\mathrm K\), a \(120\,\mathrm{torr}\) pressure difference across
+the \(100\,\mathrm K\) calibration interval and a \(90\,\mathrm{torr}\)
+difference at the unknown bath determine \(T=348\,\mathrm K\), answer D.
+\end{theorem}
+\begin{proof}
+At fixed amount and volume each bulb pressure is proportional to absolute
+temperature.  The zero manometer difference when both bulbs are at \(273\,K\)
+shows that their pressures agree there.  Subtracting this common reference
+pressure, the manometer reading for a measuring-bath temperature \(T\) is
+therefore a fixed positive constant times \(T-273\).  Comparing the boiling
+and unknown runs gives
+\[
+ \frac{T-273}{373-273}=\frac{90}{120}=\frac34.
+\]
+The torr readout is nonzero and the physical hypotheses supply the required
+positive proportionality constants, so cancellation is valid.  Hence
+\(T=273+75=348\,K\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.GasVolume}
+  A physical volume, represented consistently across choices of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Constant Volume Gas Bulb]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-constantvolumegasbulb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.ConstantVolumeGasBulb}
+  \uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-gasvolume}
+  One gas bulb together with the quantities held fixed during all three runs. amountOfGasMoles is a scalar readout in moles, while fixedVolume retains its physical length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Constant Volume Gas Bulb.
+\end{proof}
+\begin{definition}[Two Bulb Gas Thermometer]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-twobulbgasthermometer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.TwoBulbGasThermometer}
+  \uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-constantvolumegasbulb}
+  The physical apparatus and its named temperatures. The order of arguments of manometerPressureDifference referenceBath measuringBath fixes the sign: the displayed pressure is measuring-bulb pressure minus reference-bulb pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Bulb Gas Thermometer.
+\end{proof}
+\begin{definition}[Has Physical Gas Thermometer Parameters]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-hasphysicalgasthermometerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.HasPhysicalGasThermometerParameters}
+  \uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-twobulbgasthermometer}
+  Positivity conditions selecting the physical branch of the apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Gas Thermometer Parameters.
+\end{proof}
+\begin{definition}[Satisfies Constant Volume Ideal Gas Thermometry]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-satisfiesconstantvolumeidealgasthermometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.SatisfiesConstantVolumeIdealGasThermometry}
+  \uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-twobulbgasthermometer}
+  The governing laws, kept separate from the numerical observations. At fixed gas amount and volume, the ideal-gas law P V = n R T says that pressure is proportional to absolute temperature. The two cross-multiplied relations state this without introducing a unit-dependent proportionality constant. The final field is the differential-pressure law implemented by the mercury manometer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Volume Ideal Gas Thermometry.
+\end{proof}
+\begin{definition}[Has Gas Thermometer Calibration Data]
+  \label{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-hasgasthermometercalibrationdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0157.HasGasThermometerCalibrationData}
+  \uses{def:physics:phyx-mini-0157:phyxminiproblems-problemphyxmini0157-twobulbgasthermometer}
+  The standard temperature calibration and the three manometer readouts from the problem. The first run places both baths at the triple point; the next two retain the reference bath at the triple point and put the measuring bath at the boiling point or at the unknown temperature, respectively
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Gas Thermometer Calibration Data.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

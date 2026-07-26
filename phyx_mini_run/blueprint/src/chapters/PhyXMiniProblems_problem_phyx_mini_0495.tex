@@ -1,0 +1,383 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0495.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0495.source.json
+
+\chapter{Physics problem phyx\_mini\_0495}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0495}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The \textbackslash{}(PV\textbackslash{}) diagram in figure shows two possible states of a system containing \textbackslash{}(1.75\textbackslash{}) moles of a monatomic ideal gas. \textbackslash{}((P\_1 = P\_2 = 425\textbackslash{},\textbackslash{}mathrm\{N/m\textasciicircum{}2\},\textbackslash{} V\_1 = 2.00\textbackslash{},\textbackslash{}mathrm\{m\textasciicircum{}3\},\textbackslash{} V\_2 = 8.00\textbackslash{},\textbackslash{}mathrm\{m\textasciicircum{}3\})\textbackslash{}).
+
+\#\# Question
+
+Find the change in internal energy of the gas for the two-step process B.
+
+\#\# Answer choices
+
+- A: A: 4130J
+
+- B: B: 3230J
+
+- C: C: 3530J
+
+- D: D: 3830J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with two main axes. The horizontal axis represents volume \textbackslash{}( V \textbackslash{}) in cubic meters (\textbackslash{}( \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{})), and it ranges from 0 to 10. The vertical axis represents pressure \textbackslash{}( P \textbackslash{}) in newtons per square meter (\textbackslash{}( \textbackslash{}text\{N/m\}\textasciicircum{}2 \textbackslash{})), ranging from 0 to 500.
+
+There are two data points marked on the graph:
+
+1. The first point is labeled "1" and is located at approximately \textbackslash{}( V = 2 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{}), \textbackslash{}( P = 450 \textbackslash{}, \textbackslash{}text\{N/m\}\textasciicircum{}2 \textbackslash{}).
+2. The second point is labeled "2" and is located at approximately \textbackslash{}( V = 7 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3 \textbackslash{}), \textbackslash{}( P = 400 \textbackslash{}, \textbackslash{}text\{N/m\}\textasciicircum{}2 \textbackslash{}).
+
+These data points are marked with red dots and corresponding numbers.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 3830J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/495.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0495.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0495:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0495.problem_phyx_mini_0495}
+\uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergychangeforprocessbinjoules, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesmonatomicidealgasscenario, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesproblemstatementreadouts, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchessuppliedpvdiagram, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-hasphysicalgasparameters, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-satisfiesmonatomicidealgaslaws, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-answerchoice, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-roundstonearesttenjoules, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesdisplayedinternalenergychange}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.VolumeQuantity}
+  A nonnegative physical volume carrying dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.AmountOfSubstanceScale}
+  An abstract amount-of-substance carrier with a mole readout. Physlib has no named dimensionful amount-of-substance type or mole unit suitable for this macroscopic gas sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[Molar Thermal Coefficient Scale]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.MolarThermalCoefficientScale}
+  An abstract carrier for the universal gas constant, equipped with its joule-per-mole-kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Thermal Coefficient Scale.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.pressureInPascals}
+  Read a physical pressure in coherent SI pascals (N/m\textasciicircum{}2)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.energyInJoules}
+  Read physical internal energy in coherent SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.temperatureInKelvins}
+  Read an absolute temperature in kelvins from its zero-preserving unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Process Point]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.ProcessPoint}
+  Nodes encountered along process B; only the endpoints are labelled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Point.
+\end{proof}
+\begin{definition}[Process BStep]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstep}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.ProcessBStep}
+  The two consecutive legs that constitute process B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process BStep.
+\end{proof}
+\begin{definition}[process BStep Start]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstepstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.processBStepStart}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstep}
+  Initial node of each step of process B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of process BStep Start.
+\end{proof}
+\begin{definition}[process BStep Finish]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstepfinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.processBStepFinish}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstep}
+  Final node of each step of process B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of process BStep Finish.
+\end{proof}
+\begin{definition}[Process Name]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processname}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.ProcessName}
+  The named process selected by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Name.
+\end{proof}
+\begin{definition}[Equilibrium Gas State]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-equilibriumgasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.EquilibriumGasState}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-volumequantity}
+  A pressure--volume--temperature equilibrium state of the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equilibrium Gas State.
+\end{proof}
+\begin{definition}[Diagram Axis]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-diagramaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.DiagramAxis}
+  The two coordinate axes in the pressure--volume raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.AxisQuantity}
+  The physical quantity plotted on a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.AxisUnit}
+  Units printed beside the two axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.FigurePoint}
+  The two red points labelled 1 and 2 in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[figure Point Process Point]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-figurepointprocesspoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.figurePointProcessPoint}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-figurepoint}
+  Process node represented by a labelled red point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Point Process Point.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-diagramaxis, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-axisquantity, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-axisunit, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-figurepoint}
+  Primary-image content. The source raster shows the two endpoint points but does not draw the two legs or the intermediate point of process B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.GasModel}
+  Constitutive model stipulated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Ideal Gas Process Setup]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.IdealGasProcessSetup}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processname, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-equilibriumgasstate, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-pressurevolumediagram, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-gasmodel}
+  Independent physical data. No internal-energy change, displayed answer, or answer-choice label is stored in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Process Setup.
+\end{proof}
+\begin{definition}[amount Of Gas In Moles]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofgasinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.amountOfGasInMoles}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Mole readout of the fixed gas sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of amount Of Gas In Moles.
+\end{proof}
+\begin{definition}[state Pressure In Pascals]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statepressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.statePressureInPascals}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-pressureinpascals, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Pascal readout of pressure at a process node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Pressure In Pascals.
+\end{proof}
+\begin{definition}[state Volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statevolumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.stateVolumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-volumeincubicmetres, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Cubic-metre readout of volume at a process node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Volume In Cubic Metres.
+\end{proof}
+\begin{definition}[state Temperature In Kelvins]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statetemperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.stateTemperatureInKelvins}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-temperatureinkelvins, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Kelvin readout of absolute temperature at a process node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature In Kelvins.
+\end{proof}
+\begin{definition}[internal Energy In Joules]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.internalEnergyInJoules}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-energyinjoules, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processpoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Joule readout of internal energy at a process node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy In Joules.
+\end{proof}
+\begin{definition}[internal Energy Change For Process BIn Joules]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergychangeforprocessbinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.internalEnergyChangeForProcessBInJoules}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstepstart, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-processbstepfinish, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergyinjoules}
+  Change in internal energy along process B. This is the endpoint difference because internal energy is a state function; the intermediate path geometry does not enter this definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy Change For Process BIn Joules.
+\end{proof}
+\begin{definition}[Matches Monatomic Ideal Gas Scenario]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesmonatomicidealgasscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.MatchesMonatomicIdealGasScenario}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup}
+  Qualitative scenario facts stated by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Monatomic Ideal Gas Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Statement Readouts]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesproblemstatementreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.MatchesProblemStatementReadouts}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofgasinmoles, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statepressureinpascals, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statevolumeincubicmetres}
+  Numerical readouts given in the prose. They contain no internal-energy change or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied PVDiagram]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchessuppliedpvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.MatchesSuppliedPVDiagram}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-figurepointprocesspoint, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statepressureinpascals, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statevolumeincubicmetres}
+  Facts read from the supplied raster, including its axis ticks and endpoint labels. The absent process-path drawing is recorded explicitly so no path geometry is inferred from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied PVDiagram.
+\end{proof}
+\begin{definition}[Has Physical Gas Parameters]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-hasphysicalgasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.HasPhysicalGasParameters}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofgasinmoles, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statepressureinpascals, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statevolumeincubicmetres, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statetemperatureinkelvins}
+  Positivity and nondegeneracy of the physical gas parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Monatomic Ideal Gas Laws]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-satisfiesmonatomicidealgaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.SatisfiesMonatomicIdealGasLaws}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofgasinmoles, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statepressureinpascals, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statevolumeincubicmetres, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-statetemperatureinkelvins, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergyinjoules}
+  Governing laws for a fixed monatomic ideal gas. They state PV = nRT and U = (3/2)nRT at every equilibrium process node and contain no numerical internal-energy change or displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Monatomic Ideal Gas Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Internal Energy Change In Joules]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-displayedinternalenergychangeinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.displayedInternalEnergyChangeInJoules}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-answerchoice}
+  Energy change in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Internal Energy Change In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-answerchoice}
+  The source dataset's recorded label, retained only as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Ten Joules]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-roundstonearesttenjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.RoundsToNearestTenJoules}
+  displayed is the nearest multiple-of-ten presentation of exact, using a left-closed, right-open ten-joule bin (the usual half-up convention)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Ten Joules.
+\end{proof}
+\begin{definition}[Matches Displayed Internal Energy Change]
+  \label{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-matchesdisplayedinternalenergychange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0495.MatchesDisplayedInternalEnergyChange}
+  \uses{def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-amountofsubstancescale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-molarthermalcoefficientscale, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-idealgasprocesssetup, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-internalenergychangeforprocessbinjoules, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-answerchoice, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-displayedinternalenergychangeinjoules, def:physics:phyx-mini-0495:phyxminiproblems-problemphyxmini0495-roundstonearesttenjoules}
+  A displayed choice agrees with the exact process-B energy change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Internal Energy Change.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

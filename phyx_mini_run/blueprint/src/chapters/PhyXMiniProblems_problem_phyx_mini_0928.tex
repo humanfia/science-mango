@@ -1,0 +1,348 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0928.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0928.source.json
+
+\chapter{Physics problem phyx\_mini\_0928}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0928}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What value of resistor \textbackslash{}( R \textbackslash{}) gives the circuit in figure a time constant of \textbackslash{}( 25 \textbackslash{}, \textbackslash{}mu\textbackslash{}text\{s\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 1000 \textbackslash{}
+
+- B: B: \textbackslash{}( 750 \textbackslash{}
+
+- C: C: \textbackslash{}( 500 \textbackslash{}
+
+- D: D: \textbackslash{}( 700 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit diagram containing the following components:
+
+1. **Resistors:**
+   - Two resistors are arranged in series.
+   - One resistor is labeled with a resistance of "500 Ω."
+   - The other resistor is labeled with "R," indicating an unspecified resistance.
+
+2. **Inductor:**
+   - An inductor is connected in series with the resistors.
+   - The inductor is labeled with an inductance of "7.5 mH."
+
+3. **Connections:**
+   - The components are arranged in a simple series circuit configuration.
+   - The resistors and inductor are connected in sequence to form a closed circuit loop.
+
+There is no additional text or symbols beyond the component labels.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( 750 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/928.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0928.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0928:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0928.problem_phyx_mini_0928}
+\uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchesidealsourcefreerlscenario, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchessuppliedparallelresistorinductorfigure, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchesrequestedtimeconstant, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-hasphysicalparallelrlparameters, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-satisfiesparallelresistanceandrltimeconstantlaws, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-recordeddatasetanswer, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.energyDimension}
+  Energy has dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-energydimension}
+  Electric potential difference has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electriccurrentdimension, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricpotentialdimension}
+  Electrical resistance has dimension potential difference per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[electrical Inductance Dimension]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.electricalInductanceDimension}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancedimension}
+  Electrical inductance has dimension resistance times time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Inductance Dimension.
+\end{proof}
+\begin{definition}[Electrical Resistance Quantity]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.ElectricalResistanceQuantity}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Resistance Quantity.
+\end{proof}
+\begin{definition}[Electrical Inductance Quantity]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.ElectricalInductanceQuantity}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancedimension}
+  A nonnegative, unit-independent electrical inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Inductance Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.DurationQuantity}
+  A nonnegative, unit-independent elapsed duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[coherent SIReadout]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-coherentsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.coherentSIReadout}
+  Coherent-SI scalar readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coherent SIReadout.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancequantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-coherentsireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancequantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-coherentsireadout}
+  Read an electrical inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancequantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinhenries}
+  Read an electrical inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.durationInSeconds}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationquantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-coherentsireadout}
+  Read an elapsed duration in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Microseconds]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinmicroseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.durationInMicroseconds}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationquantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinseconds}
+  Read an elapsed duration in microseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Microseconds.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.CircuitComponent}
+  The three lumped components visible in image 928.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.CircuitNode}
+  The two electrically distinct junctions in the displayed circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.ComponentModel}
+  Ideal lumped-element roles assigned to the three symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Circuit Regime]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.CircuitRegime}
+  Dynamical regime in which the passive circuit has a time constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Regime.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.FigureLabel}
+  The three textual labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Parallel Resistor Inductor Figure]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.ParallelResistorInductorFigure}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitcomponent, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-figurelabel}
+  Literal presentation data from the primary raster. These fields record only visible symbols, labels, and incidence cues. The scalar labels are calibrated to independent physical quantities below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Resistor Inductor Figure.
+\end{proof}
+\begin{definition}[Parallel Resistor Inductor Setup]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.ParallelResistorInductorSetup}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalresistancequantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-electricalinductancequantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationquantity, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitcomponent, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitnode, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-componentmodel, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-circuitregime, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorfigure}
+  Independent physical data for the ideal circuit. The equivalent resistance and time constant are observables constrained by circuit laws rather than definitions made from the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Resistor Inductor Setup.
+\end{proof}
+\begin{definition}[Matches Ideal Source Free RLScenario]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchesidealsourcefreerlscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.MatchesIdealSourceFreeRLScenario}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  The ideal passive-component interpretation required by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Source Free RLScenario.
+\end{proof}
+\begin{definition}[Matches Supplied Parallel Resistor Inductor Figure]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchessuppliedparallelresistorinductorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.MatchesSuppliedParallelResistorInductorFigure}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinmillihenries, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  Primary-image evidence and its calibration to the dimensionful circuit data. Both resistors and the inductor join the same pair of electrical nodes. The reversed terminal order for the inductor records its drawn orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Parallel Resistor Inductor Figure.
+\end{proof}
+\begin{definition}[Matches Requested Time Constant]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchesrequestedtimeconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.MatchesRequestedTimeConstant}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinmicroseconds, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  The requested time-constant value stated in the question text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Requested Time Constant.
+\end{proof}
+\begin{definition}[Has Physical Parallel RLParameters]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-hasphysicalparallelrlparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.HasPhysicalParallelRLParameters}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinhenries, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinseconds, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  Positivity and nondegeneracy of the passive circuit parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parallel RLParameters.
+\end{proof}
+\begin{definition}[Satisfies Parallel Resistance And RLTime Constant Laws]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-satisfiesparallelresistanceandrltimeconstantlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.SatisfiesParallelResistanceAndRLTimeConstantLaws}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-inductanceinhenries, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-durationinseconds, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup}
+  The governing ideal-circuit laws: the reciprocal rule for two parallel resistors and the source-free RL relation τ = L / R\_eq. Neither law embeds the requested value of the unknown resistor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Parallel Resistance And RLTime Constant Laws.
+\end{proof}
+\begin{lemma}[equivalent Resistance Seen By Inductor eq 300 ohms]
+  \label{lem:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-equivalentresistanceseenbyinductor-eq-300-ohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.equivalentResistanceSeenByInductor_eq_300_ohms}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchessuppliedparallelresistorinductorfigure, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-matchesrequestedtimeconstant, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-hasphysicalparallelrlparameters, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-satisfiesparallelresistanceandrltimeconstantlaws}
+  The 7.5 mH inductance and 25 μs time constant imply that the resistor network seen by the inductor has equivalent resistance 300 Ω
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equivalent Resistance Seen By Inductor eq 300 ohms.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.AnswerChoice}
+  Labels of the four resistance choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Resistance In Ohms]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice-displayedresistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.AnswerChoice.displayedResistanceInOhms}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice}
+  Resistance in ohms displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Resistance In Ohms.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice}
+  Dataset answer label retained as metadata and never used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Unknown Resistance]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answermatchesunknownresistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.AnswerMatchesUnknownResistance}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-resistanceinohms, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice}
+  A displayed choice equals the independently modeled unknown resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Unknown Resistance.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0928.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-parallelresistorinductorsetup, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answerchoice, def:physics:phyx-mini-0928:phyxminiproblems-problemphyxmini0928-answermatchesunknownresistance}
+  A choice is the unique exact match among the four displayed resistances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

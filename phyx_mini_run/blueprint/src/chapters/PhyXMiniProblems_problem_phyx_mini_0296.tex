@@ -1,0 +1,393 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0296.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0296.source.json
+
+\chapter{Physics problem phyx\_mini\_0296}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0296}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+For a particular transverse standing wave on a long string, one of the antinodes is at \$x = 0\$ and an adjacent node is at \$x = 0.10\$ m. The displacement \$y(t)\$ of the string particle at \$x = 0\$ is shown in figure, where the scale of the \$y\$ axis is set by \$y\_s = 4.0\$ cm.
+
+\#\# Question
+
+What is the transverse velocity of the string particle at \$x = 0.20\$ m at \$t = 1.0\$ s?
+
+\#\# Answer choices
+
+- A: A: 0.12 m/s
+
+- B: B: -0.05 m/s
+
+- C: C: -0.18 m/s
+
+- D: D: -0.13 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a sine wave plotted in a two-dimensional Cartesian coordinate system. 
+
+- **Axes:**
+  - The horizontal axis is labeled as "t (s)" which represents time in seconds.
+  - The vertical axis is labeled as "y (cm)" indicating the vertical displacement in centimeters.
+
+- **Scales and Labels:**
+  - The horizontal axis is marked with intervals at 0.5, 1.0, 1.5, and 2.0 seconds.
+  - The vertical axis is labeled with \textbackslash{}( y\_s \textbackslash{}) and \textbackslash{}(-y\_s \textbackslash{}), representing the maximum and minimum values of the wave.
+
+- **Sine Wave:**
+  - The wave starts at the origin (0,0) and oscillates between positive and negative values.
+  - The wave has smooth, periodic curves reaching its maximum at around 1.0 seconds and its minimum around 0.5 seconds before returning to zero.
+
+- **Grid:**
+  - The graph background includes a grid, aiding in the visualization of the wave's periodicity and amplitude.
+
+The overall theme illustrates the periodic nature of the sine function in relation to time, depicted in centimeters over a two-second interval.
+
+\#\# Dataset metadata
+
+Wave Properties; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -0.13 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/296.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0296.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0296:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0296.problem_phyx_mini_0296}
+\uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesprimarydisplacementgraph, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-hasphysicalstandingwaveparameters, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-answerchoice, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displayedvelocityinmeterspersecond, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-recordeddatasetanswer, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesdisplayedvelocity}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Amplitude Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-amplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.AmplitudeQuantity}
+  A nonnegative transverse-displacement amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amplitude Quantity.
+\end{proof}
+\begin{definition}[Wavelength Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavelengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.WavelengthQuantity}
+  A nonnegative standing wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavelength Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.SignedLengthQuantity}
+  A signed axial coordinate or transverse displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.TimeQuantity}
+  A signed time coordinate relative to the graph origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.DurationQuantity}
+  A nonnegative duration, used here for the oscillation period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.AngularFrequencyQuantity}
+  Angular frequency, with radians treated as dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.WaveNumberQuantity}
+  Wave number, with radians treated as dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[Transverse Velocity Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.TransverseVelocityQuantity}
+  A signed transverse-velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transverse Velocity Quantity.
+\end{proof}
+\begin{definition}[nonnegative Length Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-nonnegativelengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.nonnegativeLengthReadout}
+  Read a nonnegative length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Length Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthquantity}
+  Read a signed axial coordinate or displacement in the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.timeReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timequantity}
+  Read a signed time coordinate in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.durationReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationquantity}
+  Read a nonnegative duration in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[angular Frequency Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.angularFrequencyReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyquantity}
+  Read angular frequency in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Readout.
+\end{proof}
+\begin{definition}[wave Number Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.waveNumberReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberquantity}
+  Read wave number in radians per selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number Readout.
+\end{proof}
+\begin{definition}[transverse Velocity Readout]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.transverseVelocityReadout}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityquantity}
+  Read transverse velocity in coherent selected length/time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transverse Velocity Readout.
+\end{proof}
+\begin{definition}[String Wave Kind]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-stringwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.StringWaveKind}
+  The kind of disturbance described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Wave Kind.
+\end{proof}
+\begin{definition}[Spatial Landmark]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-spatiallandmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.SpatialLandmark}
+  Distinguished axial locations named in the statement or query
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Landmark.
+\end{proof}
+\begin{definition}[Standing Wave Role]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingwaverole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.StandingWaveRole}
+  Standing-wave displacement roles attached to axial landmarks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Wave Role.
+\end{proof}
+\begin{definition}[Graph Axis]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-graphaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.GraphAxis}
+  The two axes of the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.AxisQuantity}
+  Physical quantity printed beside each graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Displacement Graph Landmark]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displacementgraphlandmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.DisplacementGraphLandmark}
+  Distinguished points of the plotted temporal sinusoid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Graph Landmark.
+\end{proof}
+\begin{definition}[Displacement Time Graph]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displacementtimegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.DisplacementTimeGraph}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-amplitudequantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timequantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-graphaxis, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-axisquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displacementgraphlandmark}
+  Labels, units, and marked time coordinates supplied by the primary graph. The numerical readings are stated in MatchesPrimaryDisplacementGraph, not built into this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Time Graph.
+\end{proof}
+\begin{definition}[Standing String Wave Setup]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.StandingStringWaveSetup}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-amplitudequantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavelengthquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timequantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-stringwavekind, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-spatiallandmark, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingwaverole, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displacementtimegraph}
+  Independent physical quantities and observables for the standing wave. Displacement and transverse velocity remain separate dimensionful fields; the governing-law premise below relates them to the wave parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing String Wave Setup.
+\end{proof}
+\begin{definition}[Matches Standing Wave Problem Data]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.MatchesStandingWaveProblemData}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timereadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup}
+  Problem-statement geometry and query data. The graph observes the antinode at x = 0; its adjacent node is at 0.10 m; the requested event is x = 0.20 m, t = 1.0 s. No requested transverse-velocity value occurs in these premises
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Standing Wave Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Displacement Graph]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesprimarydisplacementgraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.MatchesPrimaryDisplacementGraph}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-nonnegativelengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timereadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup}
+  Calibrated evidence from the supplied bitmap. Four equal horizontal grid intervals run from 0 s to 2.0 s. The curve passes successively through zero, -y\_s, zero, +y\_s, and zero, where y\_s = 4.0 cm. The slope signs record the visible direction of motion without supplying the queried velocity at x = 0.20 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Displacement Graph.
+\end{proof}
+\begin{definition}[Has Physical Standing Wave Parameters]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-hasphysicalstandingwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.HasPhysicalStandingWaveParameters}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-nonnegativelengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup}
+  Positivity and a principal representative for phase. The phase range does not determine the phase; the graph and governing laws select it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Standing Wave Parameters.
+\end{proof}
+\begin{definition}[Satisfies Sinusoidal Standing Wave Laws]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.SatisfiesSinusoidalStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthquantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timequantity, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-nonnegativelengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-timereadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-durationreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup}
+  Generic laws for a sinusoidal standing wave with an antinode chosen as the spatial origin of phase: k lambda = 2 pi and omega T = 2 pi; the distance from an antinode to its adjacent node is lambda / 4; y(x,t) = y\_m cos(k (x-x\_A)) sin(omega t + phi); transverse particle velocity is the corresponding time derivative. All equations use coherent named-unit readouts. The velocity equation is the dimensionful observable form of Mathlib's scalar sine chain rule.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sinusoidal Standing Wave Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.AnswerChoice}
+  Labels of the four transverse-velocity choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displayedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.displayedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-answerchoice}
+  Displayed transverse velocity in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Velocity]
+  \label{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesdisplayedvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.MatchesDisplayedVelocity}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-answerchoice, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-displayedvelocityinmeterspersecond}
+  Agreement with a velocity displayed to the nearest 0.01 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Velocity.
+\end{proof}
+\begin{lemma}[wavelength In Meters eq two fifths]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavelengthinmeters-eq-two-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.wavelengthInMeters_eq_two_fifths}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-nonnegativelengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  The adjacent-node spacing gives a standing wavelength of 0.40 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wavelength In Meters eq two fifths.
+\end{proof}
+\begin{lemma}[wave Number In Radians Per Meter eq five pi]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberinradianspermeter-eq-five-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.waveNumberInRadiansPerMeter_eq_five_pi}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  The 0.40 m wavelength gives k = 5 pi rad/m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wave Number In Radians Per Meter eq five pi.
+\end{proof}
+\begin{lemma}[angular Frequency In Radians Per Second eq pi]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyinradianspersecond-eq-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.angularFrequencyInRadiansPerSecond_eq_pi}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-angularfrequencyreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesprimarydisplacementgraph, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  The graph period 2.0 s gives omega = pi rad/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of angular Frequency In Radians Per Second eq pi.
+\end{proof}
+\begin{lemma}[phase Offset Radians eq pi]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-phaseoffsetradians-eq-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.phaseOffsetRadians_eq_pi}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesprimarydisplacementgraph, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-hasphysicalstandingwaveparameters, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  At the graph origin the antinode displacement is zero and decreasing. With the principal sine-phase representative, this selects phi = pi
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of phase Offset Radians eq pi.
+\end{proof}
+\begin{lemma}[requested Point Spatial Phase eq pi]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-requestedpointspatialphase-eq-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.requestedPointSpatialPhase_eq_pi}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-signedlengthreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-wavenumberreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  The requested point is twice the antinode-to-adjacent-node distance, so its spatial standing-wave phase relative to the graph antinode is pi
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of requested Point Spatial Phase eq pi.
+\end{proof}
+\begin{lemma}[transverse Velocity At Requested Event exact]
+  \label{lem:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityatrequestedevent-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0296.transverseVelocityAtRequestedEvent_exact}
+  \uses{def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-transversevelocityreadout, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-standingstringwavesetup, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesstandingwaveproblemdata, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-matchesprimarydisplacementgraph, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-hasphysicalstandingwaveparameters, def:physics:phyx-mini-0296:phyxminiproblems-problemphyxmini0296-satisfiessinusoidalstandingwavelaws}
+  At x = 0.20 m, the standing-wave spatial factor is the negative of that at x = 0. At t = 1.0 s the exact model velocity is therefore -0.04 pi m/s = -pi/25 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of transverse Velocity At Requested Event exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

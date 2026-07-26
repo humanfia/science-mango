@@ -1,0 +1,446 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0156.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0156.source.json
+
+\chapter{Physics problem phyx\_mini\_0156}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0156}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In a certain experiment, a small radioactive source must move at selected, extremely slow speeds. This motion is accomplished by fastening the source to one end of an aluminum rod and heating the central section of the rod in a controlled way.
+
+\#\# Question
+
+If the effective heated section of the rod in figure has length \$d = 2.00 \textbackslash{}, \textbackslash{}mathrm\{cm\}\$, at what constant rate must the temperature of the rod be changed if the source is to move at a constant speed of 100 nm/s?
+
+\#\# Answer choices
+
+- A: A: 0.195 K/s
+
+- B: B: 0.204 K/s
+
+- C: C: 0.212 K/s
+
+- D: D: 0.217 K/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic diagram featuring a cylindrical object or pipe. 
+
+- On the left side, there is a label "Radioactive source" with an arrow pointing leftward, indicating the direction of some flow or focus.
+- Around the middle section of the cylinder, there is a coil labeled "Electric heater," suggesting it functions to heat the object.
+- Below the coil, there is a dimension marked with "d" with two arrows indicating spacing or length related to the coil positioning.
+- On the right side of the cylinder, there is a label "Clamp" with a screw-like structure, suggesting a mechanism to secure or attach the cylinder.
+- The cylinder and components are illustrated in shades of blue and black lines for clarity.
+
+This diagram likely illustrates a setup involving the interaction of radioactive material with a heating element and securing mechanism.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.217 K/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/156.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0156.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0156:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0156.problem_phyx_mini_0156}
+\uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturerateinkelvinspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesproblemdescription, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesnarratedroddiagram, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-recordsprovidedfiguremismatch, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-hasstatedlengthandspeed, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-usesaluminumexpansioncalibration, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-hasconstantreadoutrates, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-obeyslinearthermalexpansionratelaw, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesanswertonearestthousandthkelvinpersecond}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.SignedLengthQuantity}
+  A signed position along the clamp-to-source rod axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.TimeQuantity}
+  A unit-independent physical time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.TemperatureQuantity}
+  A signed thermodynamic temperature readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Temperature Rate Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.TemperatureRateQuantity}
+  Temperature change per time, with dimension temperature / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Rate Quantity.
+\end{proof}
+\begin{definition}[Linear Expansion Coefficient Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-linearexpansioncoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.LinearExpansionCoefficientQuantity}
+  A linear thermal-expansion coefficient, with inverse-temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Expansion Coefficient Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.SpeedQuantity}
+  The nonnegative physical speed type supplied by Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.lengthReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthquantity}
+  Read a nonnegative physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-signedlengthquantity}
+  Read a signed physical position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.speedReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[temperature Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.temperatureReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturequantity}
+  Read a temperature in a selected temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Readout.
+\end{proof}
+\begin{definition}[temperature Rate Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.temperatureRateReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratequantity}
+  Read a temperature rate in selected temperature and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Rate Readout.
+\end{proof}
+\begin{definition}[expansion Coefficient Readout]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-expansioncoefficientreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.expansionCoefficientReadout}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-linearexpansioncoefficientquantity}
+  Read a linear expansion coefficient in the inverse of a temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expansion Coefficient Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.lengthInMeters}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthreadout}
+  The metre readout used by the SI expansion law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthreadout}
+  The centimetre readout in which the effective heater length is stated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedreadout}
+  The SI speed readout in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Nanometers Per Second]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinnanometerspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.speedInNanometersPerSecond}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedreadout}
+  The source-speed readout in nanometres per second used in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Nanometers Per Second.
+\end{proof}
+\begin{definition}[temperature Rate In Kelvins Per Second]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturerateinkelvinspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.temperatureRateInKelvinsPerSecond}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratequantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratereadout}
+  The SI temperature-rate readout in kelvins per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Rate In Kelvins Per Second.
+\end{proof}
+\begin{definition}[expansion Coefficient Per Kelvin]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-expansioncoefficientperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.expansionCoefficientPerKelvin}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-linearexpansioncoefficientquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-expansioncoefficientreadout}
+  The aluminum expansion-coefficient readout in inverse kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expansion Coefficient Per Kelvin.
+\end{proof}
+\begin{definition}[time Of Seconds]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timeofseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.timeOfSeconds}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timequantity}
+  Embed a real number of seconds as a dimensionful time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Of Seconds.
+\end{proof}
+\begin{definition}[Rod Material]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.RodMaterial}
+  The material named for the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Material.
+\end{proof}
+\begin{definition}[Rod Component]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.RodComponent}
+  Labeled apparatus components in the narrated thermal-expansion diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Component.
+\end{proof}
+\begin{definition}[Rod Region]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.RodRegion}
+  Qualitative regions along the rod, ordered as narrated from left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Region.
+\end{proof}
+\begin{definition}[Clamp Condition]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-clampcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.ClampCondition}
+  The clamp condition used to turn expansion into source displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Clamp Condition.
+\end{proof}
+\begin{definition}[Heater Control]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-heatercontrol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.HeaterControl}
+  How the heater temperature is controlled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heater Control.
+\end{proof}
+\begin{definition}[Rod Axis Orientation]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodaxisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.RodAxisOrientation}
+  Positive axial direction, chosen to point outward from clamp to source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Axis Orientation.
+\end{proof}
+\begin{definition}[Figure Scene]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-figurescene}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.FigureScene}
+  The two incompatible scenes represented by the source materials
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Scene.
+\end{proof}
+\begin{definition}[Figure Evidence Policy]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-figureevidencepolicy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.FigureEvidencePolicy}
+  The chapter's explicit policy for resolving figure/caption evidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Evidence Policy.
+\end{proof}
+\begin{definition}[Primary Image Angle]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-primaryimageangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.PrimaryImageAngle}
+  Angle labels visible only in the supplied laser/prism image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Primary Image Angle.
+\end{proof}
+\begin{definition}[Thermal Expansion Setup]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.ThermalExpansionSetup}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-signedlengthquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timequantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturequantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratequantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-linearexpansioncoefficientquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedquantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodmaterial, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodcomponent, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodregion, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-clampcondition, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-heatercontrol, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodaxisorientation, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-figurescene, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-figureevidencepolicy, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-primaryimageangle}
+  The experiment state and its dimensionful histories. sourceOutwardPosition is measured along the positive axis from the fixed clamp toward the source, so heating an aluminum segment gives a positive position derivative. No numerical value is built into temperatureRate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Expansion Setup.
+\end{proof}
+\begin{definition}[source Position In Meters At Seconds]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-sourcepositioninmetersatseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.sourcePositionInMetersAtSeconds}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-signedlengthreadout, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timeofseconds, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  The source-position metre readout as a function of seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Position In Meters At Seconds.
+\end{proof}
+\begin{definition}[rod Temperature In Kelvins At Seconds]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodtemperatureinkelvinsatseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.rodTemperatureInKelvinsAtSeconds}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturereadout, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-timeofseconds, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  The rod-temperature kelvin readout as a function of seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rod Temperature In Kelvins At Seconds.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  Problem-text information: an aluminum rod is fixed at the clamp, and the heater is controlled at a constant temperature-change rate. These are setup facts, not a value for that rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Narrated Rod Diagram]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesnarratedroddiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.MatchesNarratedRodDiagram}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  Spatial labels from the narrated rod diagram and auxiliary caption. They are kept separate from the conflicting primary image readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Narrated Rod Diagram.
+\end{proof}
+\begin{definition}[Records Provided Figure Mismatch]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-recordsprovidedfiguremismatch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.RecordsProvidedFigureMismatch}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  Audit of the actual supplied image. The image shows a laser/prism scene rather than the narrated thermal apparatus. Its three printed angles are retained as dimensionless degree readouts but are not used in the expansion law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Records Provided Figure Mismatch.
+\end{proof}
+\begin{definition}[Has Stated Length And Speed]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-hasstatedlengthandspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.HasStatedLengthAndSpeed}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthincentimeters, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinnanometerspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  The two numerical data readouts in the question. The effective heated length is 2.00 cm; the source speed magnitude is 100 nm/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Length And Speed.
+\end{proof}
+\begin{definition}[Uses Aluminum Expansion Calibration]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-usesaluminumexpansioncalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.UsesAluminumExpansionCalibration}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-expansioncoefficientperkelvin, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  Standard linear-expansion calibration for aluminum used by the exercise: alpha = 23 * 10\textasciicircum{}-6 K\textasciicircum{}-1. This is a material property, not the requested temperature rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Aluminum Expansion Calibration.
+\end{proof}
+\begin{definition}[Has Constant Readout Rates]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-hasconstantreadoutrates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.HasConstantReadoutRates}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinmeterspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturerateinkelvinspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-sourcepositioninmetersatseconds, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-rodtemperatureinkelvinsatseconds}
+  The stated speed and requested temperature change are constant in time. The derivatives are taken after reading time in seconds, position in metres, and temperature in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Constant Readout Rates.
+\end{proof}
+\begin{definition}[Obeys Linear Thermal Expansion Rate Law]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-obeyslinearthermalexpansionratelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.ObeysLinearThermalExpansionRateLaw}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthinmeters, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinmeterspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturerateinkelvinspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-expansioncoefficientperkelvin, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup}
+  The governing one-dimensional linear thermal-expansion rate law v = alpha * d * dT/dt. It relates the unknown rate to independent material, geometry, and speed parameters; it does not state any numerical answer to the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Linear Thermal Expansion Rate Law.
+\end{proof}
+\begin{lemma}[stated length and speed in si]
+  \label{lem:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-stated-length-and-speed-in-si}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.stated_length_and_speed_in_si}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-lengthinmeters, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-speedinmeterspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-thermalexpansionsetup, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-hasstatedlengthandspeed}
+  Convert the two stated readouts to the SI values used in the rate law
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of stated length and speed in si.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Temperature Rate Kelvin Per Second]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answertemperatureratekelvinpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.answerTemperatureRateKelvinPerSecond}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answerchoice}
+  Temperature-rate readout in kelvins per second printed by each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Temperature Rate Kelvin Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answerchoice}
+  Dataset metadata recording answer D; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Thousandth Kelvin Per Second]
+  \label{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-matchesanswertonearestthousandthkelvinpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0156.MatchesAnswerToNearestThousandthKelvinPerSecond}
+  \uses{def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperatureratequantity, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-temperaturerateinkelvinspersecond, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answerchoice, def:physics:phyx-mini-0156:phyxminiproblems-problemphyxmini0156-answertemperatureratekelvinpersecond}
+  A physical rate matches a three-decimal-place answer when its SI readout is within half of 0.001 K/s of the displayed number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Thousandth Kelvin Per Second.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

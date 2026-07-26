@@ -1,0 +1,278 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0619.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0619.source.json
+
+\chapter{Physics problem phyx\_mini\_0619}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0619}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A\textbackslash{}(70\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) laboratory worker exposed to a \textbackslash{}(40\textbackslash{},\textbackslash{}mathrm\{mCi\}\textbackslash{}) \textbackslash{}(\{\}\textasciicircum{}\{60\}\_\{27\}\textbackslash{}mathrm\{Co\}\textbackslash{}) source, assuming the person's body has cross-sectional area \textbackslash{}(1.5\textbackslash{},\textbackslash{}mathrm\{m\textasciicircum{}2\}\textbackslash{}) and is normally about \textbackslash{}(4.0\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) from the source for \textbackslash{}(4.0\textbackslash{},\textbackslash{}mathrm\{h\}\textbackslash{}) per day. \textbackslash{}(\{\}\textasciicircum{}\{60\}\_\{27\}\textbackslash{}mathrm\{Co\}\textbackslash{}) emits \textbackslash{}(\textbackslash{}gamma\textbackslash{}) rays of energy \textbackslash{}(1.33\textbackslash{},\textbackslash{}mathrm\{MeV\}\textbackslash{}) and \textbackslash{}(1.17\textbackslash{},\textbackslash{}mathrm\{MeV\}\textbackslash{}) in quick succession. Approximately \textbackslash{}(50\textbackslash{}\%\textbackslash{}) of the \textbackslash{}(\textbackslash{}gamma\textbackslash{}) rays interact in the body and deposit all their energy. (The rest pass through.)
+
+\#\# Question
+
+What whole-body dose is received?
+
+\#\# Answer choices
+
+- A: A: 0.42mSv
+
+- B: B: 0.48mSv
+
+- C: C: 0.45mSv
+
+- D: D: 0.51mSv
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram involving a person and a central point. Here's a description of its content:
+
+1. **Person**: There is a simplified figure of a person standing on the right side of the image.
+
+2. **Central Point**: At the center, there is a square or rectangular object, depicted in light green.
+
+3. **Arrows**: Several magenta arrows emanate outward from the central point, indicating directionality or forces extending from the center.
+
+4. **Circle**: A dashed circle encompasses the central point, suggesting a boundary or area of influence.
+
+5. **Measurement**: A line connects the person to the central point, with a label "4.0 m" indicating the distance between the person and the central point.
+
+The diagram appears to represent a scenario involving distance and directionality, possibly for illustrative purposes in physics or another field.
+
+\#\# Dataset metadata
+
+Nuclear Physics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.45mSv
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/619.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0619.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0619:target}
+\lean{PhyXMini0619.dailyWholeBodyDose_is_choice_C}
+\uses{def:physics:phyx-mini-0619:phyxmini0619-cobalt60exposure, def:physics:phyx-mini-0619:phyxmini0619-dosecomputation, def:physics:phyx-mini-0619:phyxmini0619-matchesproblemdata, def:physics:phyx-mini-0619:phyxmini0619-validdosephysics, def:physics:phyx-mini-0619:phyxmini0619-doseinmillisieverts, def:physics:phyx-mini-0619:phyxmini0619-doseanswerchoice, def:physics:phyx-mini-0619:phyxmini0619-answervaluemillisievert}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dimlength}
+  \lean{PhyXMini0619.DimLength}
+  A physical length, used for the source-to-worker distance in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[Dim Time]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dimtime}
+  \lean{PhyXMini0619.DimTime}
+  A physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Time.
+\end{proof}
+\begin{definition}[Dim Mass]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dimmass}
+  \lean{PhyXMini0619.DimMass}
+  A physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Mass.
+\end{proof}
+\begin{definition}[Dim Activity]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dimactivity}
+  \lean{PhyXMini0619.DimActivity}
+  A radioactive activity, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Activity.
+\end{proof}
+\begin{definition}[Dim Specific Energy]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dimspecificenergy}
+  \lean{PhyXMini0619.DimSpecificEnergy}
+  Energy per unit mass, the common dimension of gray and sievert
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Specific Energy.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-lengthinmeters}
+  \lean{PhyXMini0619.lengthInMeters}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimlength}
+  SI readout of a length, in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-timeinseconds}
+  \lean{PhyXMini0619.timeInSeconds}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimtime}
+  SI readout of a duration, in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[time In Hours]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-timeinhours}
+  \lean{PhyXMini0619.timeInHours}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimtime, def:physics:phyx-mini-0619:phyxmini0619-timeinseconds}
+  Readout of a duration in hours
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Hours.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-massinkilograms}
+  \lean{PhyXMini0619.massInKilograms}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimmass}
+  SI readout of a mass, in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[activity In Becquerels]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-activityinbecquerels}
+  \lean{PhyXMini0619.activityInBecquerels}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimactivity}
+  SI readout of an activity, in becquerels (decays per second)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of activity In Becquerels.
+\end{proof}
+\begin{definition}[activity In Milli Curies]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-activityinmillicuries}
+  \lean{PhyXMini0619.activityInMilliCuries}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimactivity, def:physics:phyx-mini-0619:phyxmini0619-activityinbecquerels}
+  Activity readout in millicuries, using 1 mCi = 3.7 * 10\textasciicircum{}7 Bq
+\end{definition}
+\begin{proof}
+  This is the declared model definition of activity In Milli Curies.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-areainsquaremeters}
+  \lean{PhyXMini0619.areaInSquareMeters}
+  SI readout of an area, in square meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-energyinjoules}
+  \lean{PhyXMini0619.energyInJoules}
+  SI readout of an energy, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Mega Electron Volts]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-energyinmegaelectronvolts}
+  \lean{PhyXMini0619.energyInMegaElectronVolts}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-energyinjoules}
+  Energy readout in MeV, grounded by Physlib's electron-volt constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Mega Electron Volts.
+\end{proof}
+\begin{definition}[specific Energy In SI]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-specificenergyinsi}
+  \lean{PhyXMini0619.specificEnergyInSI}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimspecificenergy}
+  SI specific-energy readout. For absorbed dose, this is measured in gray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In SI.
+\end{proof}
+\begin{definition}[Nuclide]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-nuclide}
+  \lean{PhyXMini0619.Nuclide}
+  The radionuclide identity needed by this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nuclide.
+\end{proof}
+\begin{definition}[Cobalt60 Exposure]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-cobalt60exposure}
+  \lean{PhyXMini0619.Cobalt60Exposure}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimlength, def:physics:phyx-mini-0619:phyxmini0619-dimtime, def:physics:phyx-mini-0619:phyxmini0619-dimmass, def:physics:phyx-mini-0619:phyxmini0619-dimactivity, def:physics:phyx-mini-0619:phyxmini0619-nuclide}
+  The physical quantities describing the daily cobalt-60 exposure. The two gamma energies are separate because cobalt-60 emits both photons in quick succession in each decay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cobalt60 Exposure.
+\end{proof}
+\begin{definition}[Whole Body Dose]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-wholebodydose}
+  \lean{PhyXMini0619.WholeBodyDose}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-dimspecificenergy}
+  Absorbed and gamma-equivalent whole-body dose for the same exposure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Whole Body Dose.
+\end{proof}
+\begin{definition}[Dose Computation]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-dosecomputation}
+  \lean{PhyXMini0619.DoseComputation}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-cobalt60exposure, def:physics:phyx-mini-0619:phyxmini0619-wholebodydose}
+  Intermediate physical quantities produced by a dose calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dose Computation.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-matchesproblemdata}
+  \lean{PhyXMini0619.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-lengthinmeters, def:physics:phyx-mini-0619:phyxmini0619-timeinhours, def:physics:phyx-mini-0619:phyxmini0619-massinkilograms, def:physics:phyx-mini-0619:phyxmini0619-activityinmillicuries, def:physics:phyx-mini-0619:phyxmini0619-areainsquaremeters, def:physics:phyx-mini-0619:phyxmini0619-energyinmegaelectronvolts, def:physics:phyx-mini-0619:phyxmini0619-cobalt60exposure}
+  Problem-statement and figure readouts. The approximate values in the source are modeled by their stated central values; approximation is restored in the rounded target below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Valid Dose Physics]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-validdosephysics}
+  \lean{PhyXMini0619.ValidDosePhysics}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-lengthinmeters, def:physics:phyx-mini-0619:phyxmini0619-timeinseconds, def:physics:phyx-mini-0619:phyxmini0619-massinkilograms, def:physics:phyx-mini-0619:phyxmini0619-activityinbecquerels, def:physics:phyx-mini-0619:phyxmini0619-areainsquaremeters, def:physics:phyx-mini-0619:phyxmini0619-energyinjoules, def:physics:phyx-mini-0619:phyxmini0619-specificenergyinsi, def:physics:phyx-mini-0619:phyxmini0619-cobalt60exposure, def:physics:phyx-mini-0619:phyxmini0619-dosecomputation}
+  Governing physics for the calculation: interaction/transmission partition, activity integrated over time, inverse-square interception by the body, full-energy deposition for interacting photons, energy per unit mass, and the unit radiation weighting factor for gamma rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valid Dose Physics.
+\end{proof}
+\begin{definition}[dose In Milli Sieverts]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-doseinmillisieverts}
+  \lean{PhyXMini0619.doseInMilliSieverts}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-specificenergyinsi, def:physics:phyx-mini-0619:phyxmini0619-wholebodydose}
+  Equivalent whole-body dose readout in millisieverts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of dose In Milli Sieverts.
+\end{proof}
+\begin{definition}[Dose Answer Choice]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-doseanswerchoice}
+  \lean{PhyXMini0619.DoseAnswerChoice}
+  The four answer labels shown in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dose Answer Choice.
+\end{proof}
+\begin{definition}[answer Value Milli Sievert]
+  \label{def:physics:phyx-mini-0619:phyxmini0619-answervaluemillisievert}
+  \lean{PhyXMini0619.answerValueMilliSievert}
+  \uses{def:physics:phyx-mini-0619:phyxmini0619-doseanswerchoice}
+  Numerical answer-choice readouts, in millisieverts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Value Milli Sievert.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,354 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0801.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0801.source.json
+
+\chapter{Physics problem phyx\_mini\_0801}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0801}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An iceboat is at rest on a frictionless horizontal surface as shown in figure. Due to the blowing wind, 4.0 s after the iceboat is released, it is moving to the right at 6.0 m/s (about 22 km/h, or 13 mi/h).
+
+\#\# Question
+
+What constant horizontal force \textbackslash{}( F\_\{\textbackslash{}mathrm\{W\}\} \textbackslash{}) does the wind exert on the iceboat? The combined mass of iceboat and rider is 200 kg.
+
+\#\# Answer choices
+
+- A: A: 150N
+
+- B: B: 300N
+
+- C: C: 450N
+
+- D: D: 600N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a person sitting on a land yacht, which is a type of vehicle with a sail that is used to travel over land. The person is wearing protective gear or clothing suitable for sailing. The yacht has a triangular sail with the text "B1" on it. In the background, there are two leafless trees, indicating a wintry or early spring setting. The overall scene suggests movement, as there is a faint depiction of motion lines. The land yacht is positioned on a smooth surface, possibly a road or flat ground.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 300N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/801.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0801.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0801:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0801.wind_force_exerted_on_iceboat}
+\uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forceinnewtons, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchesproblemstatement, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchessuppliedfigure, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-hasphysicalparameters, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesconstantwinddynamics, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-recordedanswerchoice, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-isuniquematchingdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.MassQuantity}
+  The combined physical mass of the iceboat and rider
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.DurationQuantity}
+  A physical elapsed duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Velocity Quantity]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.VelocityQuantity}
+  A signed one-dimensional horizontal velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.AccelerationQuantity}
+  A signed one-dimensional horizontal acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.ForceQuantity}
+  A signed one-dimensional horizontal force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.massReadout}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massquantity}
+  Read a mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.durationReadout}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationquantity}
+  Read a duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.velocityReadout}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityquantity}
+  Read signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.accelerationReadout}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity}
+  Read signed acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[force Readout]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.forceReadout}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity}
+  Read signed force in coherent selected mass, length, and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.massInKilograms}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massreadout}
+  SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.durationInSeconds}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationreadout}
+  SI second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityreadout}
+  SI metre-per-second readout of a signed horizontal velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationreadout}
+  SI metre-per-second-squared readout of a signed horizontal acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.forceInNewtons}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcereadout}
+  SI newton readout of a signed horizontal force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.HorizontalDirection}
+  The two possible senses of the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.SurfaceCondition}
+  Idealization of the horizontal support surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Wind Force Profile]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-windforceprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.WindForceProfile}
+  Whether the wind's horizontal force is constant during the observation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wind Force Profile.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.FigureObject}
+  Physical objects and cues visible in image 801.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.FigureLabel}
+  Literal text labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Iceboat Figure]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.IceboatFigure}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-horizontaldirection, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-figureobject, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-figurelabel}
+  A literal transcription of the primary image. In particular, hasCalibratedMetricScale distinguishes qualitative raster evidence from the numerical mass, time, and velocity data stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Iceboat Figure.
+\end{proof}
+\begin{definition}[Iceboat Wind Setup]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.IceboatWindSetup}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-horizontaldirection, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-surfacecondition, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-windforceprofile, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatfigure}
+  Independent quantities in the physical setup. Neither windHorizontalForce nor constantHorizontalAcceleration is defined from an answer choice or from the requested numerical result; the governing relations are stated below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Iceboat Wind Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massinkilograms, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationinseconds, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityinmeterspersecond, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup}
+  Numerical and qualitative information stated in the exercise prose. The signed values use rightward as positive. This structure contains no force value and does not identify a correct answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup}
+  Literal and qualitative facts read from the supplied image. The raster's arrow fixes the displayed direction, while the numerical velocity still comes from the prose rather than a pixel measurement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massinkilograms, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationinseconds, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup}
+  Positivity and nondegeneracy of the two scalar physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Constant Acceleration Velocity Law]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesconstantaccelerationvelocitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.SatisfiesConstantAccelerationVelocityLaw}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-durationreadout, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-velocityreadout, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationreadout}
+  The constant-acceleration velocity law, stated in every coherent choice of length and time units. This is the generic relation v\_f = v\_i + a Δt, not the evaluated acceleration requested by the calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Acceleration Velocity Law.
+\end{proof}
+\begin{definition}[Satisfies Newtons Second Law]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesnewtonssecondlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.SatisfiesNewtonsSecondLaw}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationquantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-massreadout, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationreadout, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcereadout}
+  Newton's second law for signed one-dimensional components, stated in every coherent choice of mass, length, and time units. This local predicate mirrors the dimensionally correct F = m a relation without fixing any numerical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Newtons Second Law.
+\end{proof}
+\begin{definition}[Satisfies Constant Wind Dynamics]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesconstantwinddynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.SatisfiesConstantWindDynamics}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesconstantaccelerationvelocitylaw, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesnewtonssecondlaw}
+  The governing horizontal dynamics. Frictionlessness and the absence of any other stated horizontal force make the wind force equal to the net horizontal force. Constant-force motion then obeys the constant-acceleration kinematic law and Newton's second law. No field states the requested 300 N result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Wind Dynamics.
+\end{proof}
+\begin{lemma}[constant Horizontal Acceleration si]
+  \label{lem:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-constanthorizontalacceleration-si}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.constantHorizontalAcceleration_si}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-iceboatwindsetup, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchesproblemstatement, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-hasphysicalparameters, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-satisfiesconstantwinddynamics}
+  The prose readouts and the constant-acceleration velocity law imply the rightward acceleration a = (6 - 0) / 4 = 3/2 m/s². This is an intermediate derived result, not a source or governing-law assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of constant Horizontal Acceleration si.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.AnswerChoice}
+  Labels of the four force choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.AnswerChoice.forceInNewtons}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forceinnewtons, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice}
+  Force in newtons printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Force]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchesdisplayedforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.MatchesDisplayedForce}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forceinnewtons, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice}
+  Exact agreement of a physical signed force with a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Force.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Choice]
+  \label{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-isuniquematchingdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0801.IsUniqueMatchingDisplayedChoice}
+  \uses{def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-forcequantity, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-answerchoice, def:physics:phyx-mini-0801:phyxminiproblems-problemphyxmini0801-matchesdisplayedforce}
+  A displayed choice is the unique exact match for a physical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

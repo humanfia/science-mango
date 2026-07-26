@@ -1,0 +1,451 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0958.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0958.source.json
+
+\chapter{Physics problem phyx\_mini\_0958}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0958}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A particle with mass \textbackslash{}( m \textbackslash{}) and positive charge \textbackslash{}( q \textbackslash{}) starts from rest at the origin. There is a uniform electric field \textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{}) in the \textbackslash{}( +y \textbackslash{})-direction and a uniform magnetic field \textbackslash{}( \textbackslash{}vec\{B\} \textbackslash{}) directed out of the page. It is shown in more advanced books that the path is a cycloid whose radius of curvature at the top points is twice the \textbackslash{}( y \textbackslash{})-coordinate at that level.
+
+\#\# Question
+
+Applying Newton's second law at the top point and taking as given that the radius of curvature here equals \textbackslash{}( 2y \textbackslash{}), prove that the speed at this point is \textbackslash{}( \textbackslash{}frac\{2E\}\{B\} \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}sqrt\{\textbackslash{}frac\{2qE\}\{m\}\}
+
+- B: B: \textbackslash{}frac\{2E\}\{B\}
+
+- C: C: \textbackslash{}frac\{E\}\{2B\}
+
+- D: D: \textbackslash{}frac\{E\}\{B\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram with a coordinate system and illustrates electromagnetic fields. 
+
+- **Coordinate Axes**: The horizontal axis is labeled as \textbackslash{}(x\textbackslash{}) and the vertical axis as \textbackslash{}(y\textbackslash{}).
+
+- **Magnetic Field (\textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}))**: Represented by a grid of uniformly spaced blue dots, indicating the field direction is perpendicular to the page.
+
+- **Electric Field (\textbackslash{}(\textbackslash{}vec\{E\}\textbackslash{}))**: Illustrated with a pink upward arrow, labeled as \textbackslash{}(\textbackslash{}vec\{E\}\textbackslash{}), showing the direction of the electric field along the positive \textbackslash{}(y\textbackslash{})-axis.
+
+- **Charged Particle**: A red circle with a plus sign, positioned near the origin on the \textbackslash{}(x\textbackslash{})-axis, indicates a positive charge.
+
+- **Particle Path**: The path of the particle is shown with a dashed blue line, which starts from the charged particle and curves upward and rightward, indicating the influence of the magnetic and electric fields. The path shows an initial curve upward and then a more pronounced curve, suggesting the effects of the fields on the positively charged particle.
+
+Overall, the diagram demonstrates the motion of a charged particle in the presence of perpendicular electric and magnetic fields.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}frac\{2E\}\{B\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/958.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0958.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0958:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0958.speed_at_cycloid_top}
+\uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityinteslas, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-matchesprimarycrossedfieldsfigure, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-matchescrossedfieldsscenario, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-nondegeneratecrossedfieldsdata, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-givencycloidtopgeometry, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-satisfiestoppointdynamics}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.velocityDimension}
+  Velocity and speed have physical dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.accelerationDimension}
+  Acceleration has physical dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.forceDimension}
+  Force has physical dimension M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.electricFieldStrengthDimension}
+  Electric-field strength has physical dimension M L T⁻² C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.magneticFluxDensityDimension}
+  Magnetic flux density has physical dimension M T⁻¹ C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Charge Magnitude Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.ChargeMagnitudeQuantity}
+  A nonnegative, unit-independent positive-charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.LengthQuantity}
+  A nonnegative, unit-independent length magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Spatial Position Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpatialPositionQuantity}
+  A unit-independent position vector in the three-dimensional scene
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Position Quantity.
+\end{proof}
+\begin{definition}[Spatial Velocity Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpatialVelocityQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocitydimension}
+  A unit-independent velocity vector in the three-dimensional scene
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Velocity Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpeedQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocitydimension}
+  A nonnegative, unit-independent speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcedimension}
+  A nonnegative, unit-independent force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Spatial Electric Field Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialelectricfieldquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpatialElectricFieldQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthdimension}
+  A unit-independent electric-field vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Electric Field Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Spatial Magnetic Field Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialmagneticfieldquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpatialMagneticFieldQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensitydimension}
+  A unit-independent magnetic-flux-density vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Magnetic Field Quantity.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Quantity]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.MagneticFluxDensityQuantity}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensitydimension}
+  A nonnegative, unit-independent magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Quantity.
+\end{proof}
+\begin{definition}[x Axis]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-xaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.xAxis}
+  Coordinate 0, horizontal and positive to the right in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Axis.
+\end{proof}
+\begin{definition}[y Axis]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-yaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.yAxis}
+  Coordinate 1, vertical and positive upward in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Axis.
+\end{proof}
+\begin{definition}[z Axis]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-zaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.zAxis}
+  Coordinate 2, positive out of the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of z Axis.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.massInKilograms}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massquantity}
+  Read a mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[charge Magnitude In Coulombs]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.chargeMagnitudeInCoulombs}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudequantity}
+  Read a positive-charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Coulombs.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.lengthInMeters}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthquantity}
+  Read a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[position Vector In Meters]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-positionvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.positionVectorInMeters}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialpositionquantity}
+  Read a position vector in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector In Meters.
+\end{proof}
+\begin{definition}[velocity Vector In Meters Per Second]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocityvectorinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.velocityVectorInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialvelocityquantity}
+  Read a velocity vector in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Vector In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedquantity}
+  Read a speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationmagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.accelerationMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationmagnitudequantity}
+  Read an acceleration magnitude in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcemagnitudequantity}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[electric Field Vector In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldvectorinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.electricFieldVectorInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialelectricfieldquantity}
+  Read an electric-field vector in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Vector In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.electricFieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthquantity}
+  Read an electric-field strength in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[magnetic Field Vector In Teslas]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfieldvectorinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.magneticFieldVectorInTeslas}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialmagneticfieldquantity}
+  Read a magnetic-flux-density vector in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Field Vector In Teslas.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityquantity}
+  Read a magnetic-flux-density magnitude in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[Motion State]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-motionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.MotionState}
+  The two particle states used by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion State.
+\end{proof}
+\begin{definition}[Spatial Direction]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SpatialDirection}
+  Qualitative directions explicitly visible or implied by the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Direction.
+\end{proof}
+\begin{definition}[Charge Sign]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.ChargeSign}
+  The sign printed inside the particle marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Sign.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.FigureObject}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-xaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-yaxis}
+  Objects whose presence is physically relevant in image 958.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.FigureLabel}
+  Literal labels visible in image 958.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Crossed Fields Figure]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.CrossedFieldsFigure}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialdirection, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargesign, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-figureobject, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-figurelabel}
+  Primary-raster data, kept separate from the physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crossed Fields Figure.
+\end{proof}
+\begin{definition}[Crossed Fields Particle Setup]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.CrossedFieldsParticleSetup}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudequantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialpositionquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialvelocityquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationmagnitudequantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcemagnitudequantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialelectricfieldquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-spatialmagneticfieldquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityquantity, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-motionstate, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsfigure}
+  Independent physical data for the particle, uniform fields, and selected top point. The field maps retain their spatial physical role even though their uniformity will make their values independent of position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crossed Fields Particle Setup.
+\end{proof}
+\begin{definition}[Matches Primary Crossed Fields Figure]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-matchesprimarycrossedfieldsfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.MatchesPrimaryCrossedFieldsFigure}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-xaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-yaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  Literal and qualitative facts read from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Crossed Fields Figure.
+\end{proof}
+\begin{definition}[Matches Crossed Fields Scenario]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-matchescrossedfieldsscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.MatchesCrossedFieldsScenario}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-xaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-yaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-zaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-positionvectorinmeters, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocityvectorinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfieldvectorinteslas, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityinteslas, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  The prose model: static spatially uniform crossed fields, a positive particle, and rest at the coordinate origin. Component equalities tie the vector fields to the independent nonnegative field-strength quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Crossed Fields Scenario.
+\end{proof}
+\begin{definition}[Nondegenerate Crossed Fields Data]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-nondegeneratecrossedfieldsdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.NondegenerateCrossedFieldsData}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massinkilograms, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudeincoulombs, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthinmeters, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityinteslas, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  Positivity assumptions for the nondegenerate physical situation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nondegenerate Crossed Fields Data.
+\end{proof}
+\begin{definition}[Given Cycloid Top Geometry]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-givencycloidtopgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.GivenCycloidTopGeometry}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-xaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-yaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-zaxis, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthinmeters, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-positionvectorinmeters, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-velocityvectorinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  The given cycloid geometry and top-point kinematics. In particular, the radius equality is an allowed supplied result, not the requested speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Given Cycloid Top Geometry.
+\end{proof}
+\begin{definition}[Satisfies Top Point Dynamics]
+  \label{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-satisfiestoppointdynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0958.SatisfiesTopPointDynamics}
+  \uses{def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-massinkilograms, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-chargemagnitudeincoulombs, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-lengthinmeters, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-speedinmeterspersecond, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-forcemagnitudeinnewtons, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-magneticfluxdensityinteslas, def:physics:phyx-mini-0958:phyxminiproblems-problemphyxmini0958-crossedfieldsparticlesetup}
+  Governing scalar-magnitude laws at the selected top point. The work-energy equation uses the initial rest state and the fact that a magnetic force does no work. The Lorentz equation records that, at a rightward top tangent with B out of the page, the magnetic contribution is downward and the electric contribution is upward. Newton's equation then relates the independent net force and acceleration quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Top Point Dynamics.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,247 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0761.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0761.source.json
+
+\chapter{Physics problem phyx\_mini\_0761}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0761}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a chain consisting of five links, each of mass \$0.100\textbackslash{} kg\$, is lifted vertically with constant acceleration of magnitude \$a = 2.50\textbackslash{} m/s\textasciicircum{}2\$.
+
+\#\# Question
+
+Find the magnitude of the force on link 4 from link 5.
+
+\#\# Answer choices
+
+- A: A: 3.38 N
+
+- B: B: 3.69 N
+
+- C: C: 4.92 N
+
+- D: D: 5.21 N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a vertical chain made up of five interlinked oval links. Each link is numbered from 1 at the bottom to 5 at the top.
+
+- A blue upward arrow is attached to the top link (numbered 5), labeled with the vector \textbackslash{}(\textbackslash{}vec\{F\}\textbackslash{}), indicating an upward force applied to the chain.
+
+- An orange upward arrow is positioned to the right of the chain, labeled with the vector \textbackslash{}(\textbackslash{}vec\{a\}\textbackslash{}), representing acceleration in the same direction. 
+
+The background of the image is plain and neutral.
+
+\#\# Dataset metadata
+
+Dynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.92 N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/761.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0761.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0761:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0761.force_on_link_four_from_link_five}
+\uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forceinnewtons, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-matchesproblemdata, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-matchessuppliedchainfigure, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-usesstandardearthgravity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-satisfieslowerfourlinknewtonlaw}
+The force exerted by link five on link four is $4.92$ newtons upward.
+\end{theorem}
+\begin{proof}
+The lower subsystem contains four links of mass $0.100$ kilograms, so its total mass is $0.400$ kilograms.  With upward positive, Newton's law is $F-Mg=Ma$.  Substitute $g=9.80$ and $a=2.50$ metres per second squared, then solve: $F=0.400(9.80+2.50)=4.92$ newtons.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.AccelerationQuantity}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.ForceQuantity}
+  A nonnegative physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.massReadout}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.accelerationReadout}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationquantity}
+  Read an acceleration magnitude in coherent length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[force Readout]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.forceReadout}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcequantity}
+  Read a force magnitude in coherent mass, length, and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.massInKilograms}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massquantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massreadout}
+  Kilogram readout of a mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationquantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationreadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.forceInNewtons}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcequantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcereadout}
+  Newton readout of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Chain Link]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainlink}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.ChainLink}
+  The five literal link numbers, ordered from the bottom of the chain
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chain Link.
+\end{proof}
+\begin{definition}[link Number]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-linknumber}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.linkNumber}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainlink}
+  The number printed beside a link in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of link Number.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.VerticalDirection}
+  Vertical directions used by the force and acceleration arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.FigureLabel}
+  Literal symbolic labels attached to arrows in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Chain Motion Regime]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainmotionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.ChainMotionRegime}
+  The stated acceleration regime of the chain
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chain Motion Regime.
+\end{proof}
+\begin{definition}[Supplied Chain Figure]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-suppliedchainfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.SuppliedChainFigure}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationquantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcequantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainlink, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-verticaldirection, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-figurelabel}
+  Figure-derived structure from image 761.png. The arrow magnitudes are symbolic denotations: the image itself supplies no numerical force readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Chain Figure.
+\end{proof}
+\begin{definition}[Accelerating Chain Setup]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.AcceleratingChainSetup}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massquantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationquantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcequantity, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainlink, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-verticaldirection, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-chainmotionregime, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-suppliedchainfigure}
+  Independent physical quantities of the experiment. forceMagnitudeOnFrom i j means the magnitude of the force on link i exerted by link j; its direction is recorded separately. Thus the requested quantity is forceMagnitudeOnFrom .four .five
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Accelerating Chain Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massinkilograms, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup}
+  Numerical and qualitative information supplied by the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Supplied Chain Figure]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-matchessuppliedchainfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.MatchesSuppliedChainFigure}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-linknumber, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup}
+  Objects, numbering, order, arrows, and denotations transcribed from the primary bitmap. No value for the requested interaction force is included
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Chain Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup}
+  The near-Earth gravitational calibration used by the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[lower Four Links Mass Readout]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-lowerfourlinksmassreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.lowerFourLinksMassReadout}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-massreadout, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup}
+  The total mass readout of links 1 through 4, the subsystem accelerated by the upward contact force exerted by link 5 on link 4
+\end{definition}
+\begin{proof}
+  This is the declared model definition of lower Four Links Mass Readout.
+\end{proof}
+\begin{definition}[Satisfies Lower Four Link Newton Law]
+  \label{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-satisfieslowerfourlinknewtonlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0761.SatisfiesLowerFourLinkNewtonLaw}
+  \uses{def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-accelerationreadout, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-forcereadout, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-acceleratingchainsetup, def:physics:phyx-mini-0761:phyxminiproblems-problemphyxmini0761-lowerfourlinksmassreadout}
+  Newton's second law for the lower four-link subsystem, with upward positive: F\_(5→4) - M\_lower g = M\_lower a. This is a governing mechanics law stated in every coherent choice of mass, length, and time units. It does not prescribe the solved value of F\_(5→4)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Lower Four Link Newton Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

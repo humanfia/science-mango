@@ -1,0 +1,244 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0101.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0101.source.json
+
+\chapter{Physics problem phyx\_mini\_0101}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0101}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+When the sun is either rising or setting and appears to be just on the horizon, it is in fact below the horizon. The explanation for this seeming paradox is that light from the sun bends slightly when entering the earth's atmosphere, as shown in figure. Since our perception is based on the idea that light travels in straight lines, we perceive the light to be coming from an apparent position that is an angle \$\textbackslash{}delta\$ above the sun's true position.using \$n = 1.0003\$ and \$h = 20 \textbackslash{}, \textbackslash{}text\{km\}\$.
+
+\#\# Question
+
+Calculate \$\textbackslash{}delta\$.
+
+\#\# Answer choices
+
+- A: A: 0.23°
+
+- B: B: 0.30°
+
+- C: C: 0.20°
+
+- D: D: 0.25°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating the concept of atmospheric refraction. 
+
+- **Components:**
+  - A section of the Earth is shown as a circle with a labeled radius "R."
+  - Above the Earth's surface, there is a layer labeled "Atmosphere."
+  - The height above the Earth's surface is marked as "h," and the total radius including the atmosphere is labeled "R + h."
+
+- **Lines and Arrows:**
+  - A purple arrow labeled "From the sun" enters the atmosphere at an angle.
+  - A dashed black line extends horizontally from the Earth's surface and is labeled "Apparent position of the sun."
+  - A smaller arrow marked "δ" indicates the angle of deviation due to refraction.
+
+- **Relationships:**
+  - The Earth and its atmospheric layer form concentric circles, showing the interaction between the Earth's surface and the atmosphere.
+  - The light from the sun bends as it passes through the atmosphere, changing the apparent position of the sun as seen from the Earth.
+
+- **Labels and Text:**
+  - Important elements like the Earth's radius, the atmosphere, the apparent position of the sun, and the deviation angle are clearly labeled.
+
+This diagram helps explain how the Earth's atmosphere affects the perceived position of the sun due to the refraction of light.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 0.23°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/101.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0101.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0101:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0101.atmosphericRefractionMakesAnswerAClosest}
+\uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-matchesstatedatmospheredata, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-usesmeanearthradiuscalibration, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-hasphysicalatmosphericparameters, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiesconcentrichorizongeometry, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiessnellslawatatmosphere, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-predicteddeviationradians, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-matcheswithinhundredthdegree, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.DimLength}
+  A signed physical length, represented independently of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.lengthValueIn}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-dimlength}
+  Read a physical length as a real scalar in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-dimlength, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthvaluein}
+  The kilometre readout used for the labelled radii R, h, and R + h
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.radiansToDegrees}
+  Convert the radian scalar used by Real.sin to a degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Optical Region]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-opticalregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.OpticalRegion}
+  The homogeneous optical regions on the two sides of the atmosphere's top
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Region.
+\end{proof}
+\begin{definition}[Solar Position]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-solarposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.SolarPosition}
+  The two solar positions distinguished by the horizon-refraction diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solar Position.
+\end{proof}
+\begin{definition}[Atmospheric Horizon Setup]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.AtmosphericHorizonSetup}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-dimlength, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-opticalregion, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-solarposition}
+  Physical objects and scalar angle readouts in the primary figure. Angles of incidence and refraction are measured from the inward radial normal at the point where the solar ray enters the atmosphere. The deviation angle is the labelled δ between the incoming ray and the horizontal apparent ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atmospheric Horizon Setup.
+\end{proof}
+\begin{definition}[Matches Stated Atmosphere Data]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-matchesstatedatmospheredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.MatchesStatedAtmosphereData}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  The numerical data explicitly stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Atmosphere Data.
+\end{proof}
+\begin{definition}[Uses Mean Earth Radius Calibration]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-usesmeanearthradiuscalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.UsesMeanEarthRadiusCalibration}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  The numerical calibration for the figure label R. It is separated from MatchesStatedAtmosphereData because the source itself does not print a value for R; 6371 km is the standard mean-Earth-radius approximation used here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Mean Earth Radius Calibration.
+\end{proof}
+\begin{definition}[Has Physical Atmospheric Parameters]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-hasphysicalatmosphericparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.HasPhysicalAtmosphericParameters}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  Positivity and principal-branch conditions of the geometrical-optics model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Atmospheric Parameters.
+\end{proof}
+\begin{definition}[Satisfies Concentric Horizon Geometry]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiesconcentrichorizongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.SatisfiesConcentricHorizonGeometry}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  Relations read from the concentric-circle figure. The ray seen on the local horizon is tangent to the Earth at the observer. The resulting right triangle has hypotenuse R + h and side opposite the refraction angle equal to R. The remaining fields identify the labelled bending angle with the difference between ray angles and with the separation of apparent and true solar altitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Concentric Horizon Geometry.
+\end{proof}
+\begin{definition}[Satisfies Snells Law At Atmosphere]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiessnellslawatatmosphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.SatisfiesSnellsLawAtAtmosphere}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  Snell's law at the outer-space--atmosphere boundary, n\_space sin i = n\_atmosphere sin r
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snells Law At Atmosphere.
+\end{proof}
+\begin{definition}[predicted Deviation Radians]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-predicteddeviationradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.predictedDeviationRadians}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-lengthinkilometers, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup}
+  The inverse-sine expression obtained from tangent-ray geometry and Snell's law. This is a derived conclusion, not a premise of the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of predicted Deviation Radians.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.AnswerChoice}
+  The four displayed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[angle Degrees]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice-angledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.AnswerChoice.angleDegrees}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice}
+  The angular displacement in degrees printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice}
+  Dataset metadata: the recorded answer label, never used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Within Hundredth Degree]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-matcheswithinhundredthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.MatchesWithinHundredthDegree}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-radianstodegrees, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice}
+  The predicted angle is within one hundredth of a degree of a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Within Hundredth Degree.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-radianstodegrees, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-answerchoice}
+  A choice is at least as close to the predicted degree readout as every option
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{lemma}[deviation eq predicted Deviation Radians]
+  \label{lem:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-deviation-eq-predicteddeviationradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0101.deviation_eq_predictedDeviationRadians}
+  \uses{def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-atmospherichorizonsetup, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-hasphysicalatmosphericparameters, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiesconcentrichorizongeometry, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-satisfiessnellslawatatmosphere, def:physics:phyx-mini-0101:phyxminiproblems-problemphyxmini0101-predicteddeviationradians}
+  Tangent-ray geometry, Snell's law, and the principal angle branches give the inverse-sine expression for the deviation angle
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of deviation eq predicted Deviation Radians.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

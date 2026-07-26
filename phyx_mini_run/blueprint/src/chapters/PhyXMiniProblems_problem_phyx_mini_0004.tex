@@ -1,0 +1,227 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0004.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0004.source.json
+
+\chapter{Physics problem phyx\_mini\_0004}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0004}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A narrow beam of ultrasonic waves reflects off the liver tumor illustrated in figure. The speed of the wave is \textbackslash{}( 10.0\textbackslash{}\% \textbackslash{}) less in the liver than in the surrounding medium.
+
+\#\# Question
+
+Determine the depth of the tumor.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 8.50 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- B: B: \textbackslash{}( 4.90 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- C: C: \textbackslash{}( 6.30 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- D: D: \textbackslash{}( 10.80 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating the reflection of a beam through a section of a liver with a tumor below it. The elements of the diagram include:
+
+1. **Dashed Lines**: Two vertical dashed lines are drawn parallel, 12.0 cm apart.
+
+2. **Angles and Directions**: 
+   - A blue arrow enters the liver from the left at an angle of 50.0° from the vertical dashed line on the left.
+   - The arrow then reflects off a surface towards the right within the liver section.
+
+3. **Labeling**:
+   - The region labeled "Liver" is above the region labeled "Tumor".
+   - The angle of 50.0° is measured between the incident beam and the left vertical dashed line.
+   
+The figure shows the path of a beam interacting with a surface between the liver and tumor, likely indicating a conceptual representation of a medical imaging or treatment scenario.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 6.30 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/4.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0004.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0004:target}
+\lean{PhyXMiniProblems.PhyxMini0004.tumorDepth_matches_choice_C}
+\uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-lengthincentimeters, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-matchesfigurereadouts, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-liverspeedistenpercentlower, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-haspositivepropagationspeeds, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeyssnellrefraction, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeysspecularreflection, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeysfiguregeometry, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-hasacuterayangles, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-answerdepthincentimeters}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-dimlength}
+  \lean{PhyXMiniProblems.PhyxMini0004.DimLength}
+  A physical length, independent of the choice of length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-centimeterunitchoices}
+  \lean{PhyXMiniProblems.PhyxMini0004.centimeterUnitChoices}
+  Unit choices in which length readouts are expressed in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-lengthincentimeters}
+  \lean{PhyXMiniProblems.PhyxMini0004.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-dimlength, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-centimeterunitchoices}
+  The scalar centimeter readout of a dimensionful length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.PhyxMini0004.speedInMetersPerSecond}
+  The scalar SI readout, in meters per second, of a dimensionful speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-degrees}
+  \lean{PhyXMiniProblems.PhyxMini0004.degrees}
+  Convert the degree measure printed in the figure to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Beam Angles]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-beamangles}
+  \lean{PhyXMiniProblems.PhyxMini0004.BeamAngles}
+  The four ray angles, all measured from the local vertical normal: before entry, along the downward and upward liver paths, and after exit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Angles.
+\end{proof}
+\begin{definition}[Ultrasound Tumor Setup]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  \lean{PhyXMiniProblems.PhyxMini0004.UltrasoundTumorSetup}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-dimlength, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-beamangles}
+  The physical quantities in the ultrasound/liver/tumor setup. tumorDepth is the vertical distance from the upper liver interface to the reflecting liver--tumor interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ultrasound Tumor Setup.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.PhyxMini0004.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-lengthincentimeters, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-degrees, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  The two numerical readouts printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Liver Speed Is Ten Percent Lower]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-liverspeedistenpercentlower}
+  \lean{PhyXMiniProblems.PhyxMini0004.LiverSpeedIsTenPercentLower}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  The stated fact that sound propagates ten percent more slowly in liver
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Liver Speed Is Ten Percent Lower.
+\end{proof}
+\begin{definition}[Has Positive Propagation Speeds]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-haspositivepropagationspeeds}
+  \lean{PhyXMiniProblems.PhyxMini0004.HasPositivePropagationSpeeds}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-speedinmeterspersecond, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  Both propagation speeds used by Snell's law are nonzero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Propagation Speeds.
+\end{proof}
+\begin{definition}[Obeys Snell Refraction]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeyssnellrefraction}
+  \lean{PhyXMiniProblems.PhyxMini0004.ObeysSnellRefraction}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-speedinmeterspersecond, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  Snell's law at entry into and exit from the liver, written in the equivalent form sin θ₁ * v₂ = sin θ₂ * v₁
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Snell Refraction.
+\end{proof}
+\begin{definition}[Obeys Specular Reflection]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeysspecularreflection}
+  \lean{PhyXMiniProblems.PhyxMini0004.ObeysSpecularReflection}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  Specular reflection at the approximately horizontal tumor boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Specular Reflection.
+\end{proof}
+\begin{definition}[Obeys Figure Geometry]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeysfiguregeometry}
+  \lean{PhyXMiniProblems.PhyxMini0004.ObeysFigureGeometry}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-lengthincentimeters, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  The 12 cm horizontal separation is the sum of the two right-triangle offsets inside the liver
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Figure Geometry.
+\end{proof}
+\begin{definition}[Has Acute Ray Angles]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-hasacuterayangles}
+  \lean{PhyXMiniProblems.PhyxMini0004.HasAcuteRayAngles}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup}
+  The pictured rays make acute angles with the vertical normals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Acute Ray Angles.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-answerchoice}
+  \lean{PhyXMiniProblems.PhyxMini0004.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Depth In Centimeters]
+  \label{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-answerdepthincentimeters}
+  \lean{PhyXMiniProblems.PhyxMini0004.answerDepthInCentimeters}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-answerchoice}
+  The four candidate depths, in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Depth In Centimeters.
+\end{proof}
+\begin{theorem}[liver Downward Sin eq nine Tenths Incident Sin]
+  \label{thm:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-liverdownwardsin-eq-ninetenthsincidentsin}
+  \lean{PhyXMiniProblems.PhyxMini0004.liverDownwardSin_eq_nineTenthsIncidentSin}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-liverspeedistenpercentlower, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-haspositivepropagationspeeds, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeyssnellrefraction}
+  The ten-percent speed reduction and entry Snell law determine the sine of the downward angle inside the liver
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of liver Downward Sin eq nine Tenths Incident Sin.
+\end{proof}
+\begin{theorem}[tumor Depth eq geometry Quotient]
+  \label{thm:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-tumordepth-eq-geometryquotient}
+  \lean{PhyXMiniProblems.PhyxMini0004.tumorDepth_eq_geometryQuotient}
+  \uses{def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-lengthincentimeters, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-ultrasoundtumorsetup, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-obeysfiguregeometry, def:physics:phyx-mini-0004:phyxminiproblems-phyxmini0004-hasacuterayangles}
+  The two triangular horizontal offsets determine the tumor depth
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tumor Depth eq geometry Quotient.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

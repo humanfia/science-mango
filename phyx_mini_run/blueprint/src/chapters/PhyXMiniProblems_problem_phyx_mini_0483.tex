@@ -1,0 +1,267 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0483.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0483.source.json
+
+\chapter{Physics problem phyx\_mini\_0483}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0483}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The Eiffel Tower (figure) is built of wrought iron approximately \textbackslash{}(300\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) tall.The average temperature in January is \textbackslash{}(2\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}\textbackslash{})) and in July is \textbackslash{}(25\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}\textbackslash{})).Ignore the angles of the iron beams and treat the tower as a vertical beam.
+
+\#\# Question
+
+Estimate how much its height changes between January and July.
+
+\#\# Answer choices
+
+- A: A: 0.12m
+
+- B: B: 0.06m
+
+- C: C: 0.10m
+
+- D: D: 0.08m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts the Eiffel Tower, a prominent structure in Paris, France. The tower dominates the center of the frame, set against a clear blue sky. Surrounding the base of the tower are well-manicured gardens with green grass and paths, bordered by trees and flowerbeds. These elements create a symmetrical and harmonious scene, leading the viewer's eye towards the tower. In the distance, a building is visible through the arch formed by the tower's legs. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.08m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/483.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0483.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0483:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0483.problem_phyx_mini_0483}
+\uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matcheseiffeltowerscenario, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matchesprimarytowerfigure, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matchestowerreadouts, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-usesstandardwroughtironcalibration, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-hasphysicaltowerparameters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-obeyslinearthermalexpansion, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-seasonalheightchangemeters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-isuniqueclosestdisplayedheightchange}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Absolute Temperature Quantity]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-absolutetemperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.AbsoluteTemperatureQuantity}
+  A nonnegative absolute temperature with physical dimension Θ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Absolute Temperature Quantity.
+\end{proof}
+\begin{definition}[Linear Expansion Coefficient Quantity]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-linearexpansioncoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.LinearExpansionCoefficientQuantity}
+  A nonnegative coefficient of linear expansion with dimension Θ⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Expansion Coefficient Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.lengthReadout}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthquantity}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.lengthInMeters}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthquantity, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthreadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-absolutetemperaturequantity}
+  Read an absolute temperature in kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-absolutetemperaturequantity, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-temperatureinkelvins}
+  Read an absolute temperature in degrees Celsius. The affine offset 273.15 K is represented exactly as 5463 / 20
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[expansion Coefficient Per Kelvin]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-expansioncoefficientperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.expansionCoefficientPerKelvin}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-linearexpansioncoefficientquantity}
+  Read a linear expansion coefficient in inverse kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expansion Coefficient Per Kelvin.
+\end{proof}
+\begin{definition}[Season]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-season}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.Season}
+  The two seasons whose average temperatures are compared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Season.
+\end{proof}
+\begin{definition}[Structural Material]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-structuralmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.StructuralMaterial}
+  Structural materials relevant to the vertical-beam idealization
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Structural Material.
+\end{proof}
+\begin{definition}[Structural Idealization]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-structuralidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.StructuralIdealization}
+  The structural idealization explicitly requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Structural Idealization.
+\end{proof}
+\begin{definition}[Eiffel Tower Figure]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.EiffelTowerFigure}
+  Qualitative evidence visible in the primary bitmap 483.png. The photograph contains no quantitative dimension or temperature labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Eiffel Tower Figure.
+\end{proof}
+\begin{definition}[Eiffel Tower Setup]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.EiffelTowerSetup}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthquantity, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-absolutetemperaturequantity, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-linearexpansioncoefficientquantity, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-season, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-structuralmaterial, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-structuralidealization, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowerfigure}
+  Independent physical data for the seasonal-expansion model. In particular, neither July's height nor the requested height change is defined using a displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Eiffel Tower Setup.
+\end{proof}
+\begin{definition}[Matches Eiffel Tower Scenario]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matcheseiffeltowerscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.MatchesEiffelTowerScenario}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  The material and one-dimensional structural assumptions stated in prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Eiffel Tower Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Tower Figure]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matchesprimarytowerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.MatchesPrimaryTowerFigure}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  Exact transcription of the qualitative primary image evidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Tower Figure.
+\end{proof}
+\begin{definition}[Matches Tower Readouts]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-matchestowerreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.MatchesTowerReadouts}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthinmeters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-temperatureindegreescelsius, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  The numerical height and seasonal average temperatures supplied by the text. The nominal 300 m height is taken as January's reference height in the one-dimensional estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Tower Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Wrought Iron Calibration]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-usesstandardwroughtironcalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.UsesStandardWroughtIronCalibration}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-expansioncoefficientperkelvin, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  Standard room-temperature material data used for the estimate: wrought iron has linear expansion coefficient 12 × 10⁻⁶ K⁻¹. This calibration is independent of the requested change in height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Wrought Iron Calibration.
+\end{proof}
+\begin{definition}[Has Physical Tower Parameters]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-hasphysicaltowerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.HasPhysicalTowerParameters}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthinmeters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-temperatureinkelvins, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-expansioncoefficientperkelvin, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  Positivity assumptions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tower Parameters.
+\end{proof}
+\begin{definition}[Obeys Linear Thermal Expansion]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-obeyslinearthermalexpansion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.ObeysLinearThermalExpansion}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-season, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  The governing one-dimensional linear thermal-expansion law L(T) = L(T\_january) * (1 + α * (T - T\_january)). It is stated for every season and every coherent choice of units. The law does not assign a numerical July height, height change, or answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Linear Thermal Expansion.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Height Change Meters]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-displayedheightchangemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.displayedHeightChangeMeters}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-answerchoice}
+  Metre readouts printed beside the four answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Height Change Meters.
+\end{proof}
+\begin{definition}[seasonal Height Change Meters]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-seasonalheightchangemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.seasonalHeightChangeMeters}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-lengthinmeters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup}
+  The July-minus-January height change, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seasonal Height Change Meters.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Height Change]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-isuniqueclosestdisplayedheightchange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.IsUniqueClosestDisplayedHeightChange}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-eiffeltowersetup, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-answerchoice, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-displayedheightchangemeters, def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-seasonalheightchangemeters}
+  A displayed value is strictly closer to the modeled change than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Height Change.
+\end{proof}
+\begin{definition}[Recorded answer choice]
+  \label{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0483.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0483:phyxminiproblems-problemphyxmini0483-answerchoice}
+  The dataset records choice D as metadata, independently of the symbolic thermal-expansion conclusion.
+\end{definition}
+\begin{proof}
+  This is the literal metadata assignment.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

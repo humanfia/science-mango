@@ -1,0 +1,209 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0036.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0036.source.json
+
+\chapter{Physics problem phyx\_mini\_0036}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0036}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, material \textbackslash{}( a \textbackslash{}) is water and material \textbackslash{}( b \textbackslash{}) is glass with index of refraction 1.52. The incident ray makes an angle of 60.0\textasciicircum{}\textbackslash{}circ with the normal;
+
+\#\# Question
+
+find the directions of the reflected and refracted rays.
+
+\#\# Answer choices
+
+- A: A: 60.0\textasciicircum{}\textbackslash{}circ
+
+- B: B: 49.3\textasciicircum{}\textbackslash{}circ
+
+- C: C: 68.0\textasciicircum{}\textbackslash{}circ
+
+- D: D: 67.4\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates the refraction of light as it passes from one medium to another. The scene shows two layers: water (medium \textbackslash{}( a \textbackslash{})) on top of glass (medium \textbackslash{}( b \textbackslash{})).
+
+- A container holds two different media: water at the top, labeled \textbackslash{}( a \textbackslash{}), and glass at the bottom, labeled \textbackslash{}( b \textbackslash{}).
+- The light ray, represented by a purple arrow, enters the water-air boundary at an angle \textbackslash{}( \textbackslash{}theta\_a = 60\textasciicircum{}\textbackslash{}circ \textbackslash{}).
+- Upon entering the glass, the light ray refracts at an angle \textbackslash{}( \textbackslash{}theta\_b \textbackslash{}).
+- There is a vertical dashed line labeled "Normal" indicating the perpendicular to the surface at the point of incidence.
+- The angles are marked with curved arrows at their respective boundaries: \textbackslash{}( \textbackslash{}theta\_r \textbackslash{}) is the angle of refraction in the water, and \textbackslash{}( \textbackslash{}theta\_b \textbackslash{}) in the glass.
+- Refractive indices are provided for the media: \textbackslash{}( n\_a (\textbackslash{}text\{water\}) = 1.33 \textbackslash{}) and \textbackslash{}( n\_b (\textbackslash{}text\{glass\}) = 1.52 \textbackslash{}).
+- The water is represented with wavy lines to indicate the surface, and both layers are colored for differentiation.
+
+This diagram illustrates the concept of light refraction according to Snell's Law.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 49.3\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/36.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0036.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0036:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0036.reflectedAndRefractedDirections}
+\uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-degreestoradians, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetar, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetab, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-matcheswaterglassfigure, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-hasphysicalopticalparameters, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-satisfieslawofreflection, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-satisfiessnelllaw, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.OpticalMedium}
+  The two homogeneous optical media labelled a and b in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Interface Ray]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-interfaceray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.InterfaceRay}
+  The three directed ray segments meeting at the water--glass interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Interface Ray.
+\end{proof}
+\begin{definition}[medium]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-interfaceray-medium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.InterfaceRay.medium}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-opticalmedium, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-interfaceray}
+  The medium traversed by each labelled ray segment in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of medium.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.degreesToRadians}
+  Convert a scalar degree readout to a real-valued radian readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Water Glass Interface Diagram]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.WaterGlassInterfaceDiagram}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-opticalmedium, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-interfaceray}
+  The water--glass interface and the directed propagation vectors depicted in the plane of incidence. normalTowardWater points upward in the figure and tangentTowardRight points to the right along the interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Glass Interface Diagram.
+\end{proof}
+\begin{definition}[theta A]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.thetaA}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram}
+  The figure label θ\_a, measured between the incoming ray and the normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta A.
+\end{proof}
+\begin{definition}[theta R]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetar}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.thetaR}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram}
+  The figure label θ\_r, measured between the reflected ray and the normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta R.
+\end{proof}
+\begin{definition}[theta B]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetab}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.thetaB}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram}
+  The figure label θ\_b, measured from the normal directed into the glass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of theta B.
+\end{proof}
+\begin{definition}[Matches Water Glass Figure]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-matcheswaterglassfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.MatchesWaterGlassFigure}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-interfaceray, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-degreestoradians, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa}
+  Primary-image and problem-statement readouts. The unit and inner-product conditions make the displayed normal and tangent a perpendicular frame. The sign conditions place the incident/reflected rays in water and the refracted ray in glass, while all three propagate toward the right as drawn. Only the incident angle and material indices are numerically specified here; neither requested outgoing angle occurs as a figure readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Water Glass Figure.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-opticalmedium, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetar, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetab}
+  Positivity and principal optical-branch conditions for the ray model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Law Of Reflection]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-satisfieslawofreflection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.SatisfiesLawOfReflection}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetar}
+  The law of reflection: the reflected and incident normal angles agree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Law Of Reflection.
+\end{proof}
+\begin{definition}[Satisfies Snell Law]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-satisfiessnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.SatisfiesSnellLaw}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-waterglassinterfacediagram, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetaa, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-thetab}
+  Snell's law at the labelled water--glass interface. The .val projections are scalar readouts of dimensionless Physlib quantities, so both sides are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.AnswerChoice}
+  Labels of the four numerical answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[angle Degrees]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-answerchoice-angledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.AnswerChoice.angleDegrees}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-answerchoice}
+  The degree readout printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-answerchoice}
+  Dataset metadata: the recorded multiple-choice answer is B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0036.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-degreestoradians, def:physics:phyx-mini-0036:phyxminiproblems-problemphyxmini0036-answerchoice}
+  A radian angle matches a one-decimal display to the nearest tenth degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

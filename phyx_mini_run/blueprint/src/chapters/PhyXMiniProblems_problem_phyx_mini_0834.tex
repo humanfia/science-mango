@@ -1,0 +1,406 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0834.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0834.source.json
+
+\chapter{Physics problem phyx\_mini\_0834}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0834}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the magnitude of the strength of the electric field at the position indicated by the dot?
+
+\#\# Answer choices
+
+- A: A: 1.3 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+- B: B: 5.3 \textbackslash{}times 10\textasciicircum{}\{4\}N/C
+
+- C: C: 1.0 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+- D: D: 8.6 \textbackslash{}times 10\textasciicircum{}\{4\}N/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a rectangular setup with three electrical charges and one point:
+
+1. **Top Left**: A light teal circle with a "-" symbol and labeled “-10 nC.”
+2. **Top Right**: A light red circle with a "+" symbol and labeled “10 nC.”
+3. **Bottom Right**: A light teal circle with a "-" symbol and labeled “-5.0 nC.”
+4. **Bottom Left**: A black dot representing a point with no charge label.
+
+**Text and Measurements:**
+- The top side of the rectangle is labeled as “5.0 cm.”
+- The left side of the rectangle is labeled as “3.0 cm.”
+
+The charges and points are connected with dashed lines indicating the sides of the rectangle. The colors and symbols indicate the charge polarity: negative for teal circles and positive for the red circle.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 8.6 \textbackslash{}times 10\textasciicircum{}\{4\}N/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/834.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0834.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0834:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0834.problem_phyx_mini_0834}
+\uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-fieldmagnitudeinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-matchessuppliedchargerectanglefigure, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-usesvacuumcoulombconstant, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-hasphysicalrectangleparameters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfiespointchargecoulombfieldlaw, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfieselectricfieldsuperposition, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantmagnituderepresentsfieldatdot, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-recordeddatasetanswer, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-roundstonearestthousand, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-isuniquenearestdisplayedfieldmagnitude}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.SignedChargeQuantity}
+  A signed, unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.electricFieldStrengthDimension}
+  The physical dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[Electric Field Magnitude Quantity]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-electricfieldmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.ElectricFieldMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-electricfieldstrengthdimension}
+  A nonnegative physical electric-field magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Magnitude Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.lengthInMeters}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthquantity}
+  Coherent-SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthquantity, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthinmeters}
+  Centimetre readout used by the two dimension labels in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-signedchargequantity}
+  Coherent-SI coulomb readout of a signed physical charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-signedchargequantity, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeincoulombs}
+  Nanocoulomb readout used by the three printed charge labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[field Magnitude In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-fieldmagnitudeinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.fieldMagnitudeInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-electricfieldmagnitudequantity}
+  Coherent-SI readout of a field magnitude in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Magnitude In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[Rectangle Corner]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectanglecorner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.RectangleCorner}
+  The four corners of the dashed rectangle in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangle Corner.
+\end{proof}
+\begin{definition}[Source Charge]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.SourceCharge}
+  The three point charges, distinguished by their image locations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Charge.
+\end{proof}
+\begin{definition}[expected Source Corner]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcecorner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.expectedSourceCorner}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectanglecorner, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge}
+  The corner at which each named source appears in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Source Corner.
+\end{proof}
+\begin{definition}[Figure Charge Color]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.FigureChargeColor}
+  The teal and red fill colours used to distinguish charge signs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Color.
+\end{proof}
+\begin{definition}[Figure Charge Sign]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.FigureChargeSign}
+  The sign glyph drawn inside a charge circle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Sign.
+\end{proof}
+\begin{definition}[expected Source Color]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.expectedSourceColor}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargecolor}
+  Colour of each source circle in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Source Color.
+\end{proof}
+\begin{definition}[expected Source Sign]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.expectedSourceSign}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargesign}
+  Sign glyph of each source circle in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Source Sign.
+\end{proof}
+\begin{definition}[expected Charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedchargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.expectedChargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge}
+  Signed nanocoulomb value printed beside each source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[Figure Dimension Side]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figuredimensionside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.FigureDimensionSide}
+  The two sides carrying numerical dimension labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Dimension Side.
+\end{proof}
+\begin{definition}[Rectangular Charge Figure]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularchargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.RectangularChargeFigure}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectanglecorner, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargecolor, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figurechargesign, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-figuredimensionside}
+  Literal presentation data transcribed from image 834.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Charge Figure.
+\end{proof}
+\begin{definition}[position Vector In Meters]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-positionvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.positionVectorInMeters}
+  Turn a planar Space 2 point into its explicitly metre-valued vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector In Meters.
+\end{proof}
+\begin{definition}[Rectangular Point Charge Setup]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.RectangularPointChargeSetup}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthquantity, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-signedchargequantity, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-electricfieldmagnitudequantity, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectanglecorner, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularchargefigure}
+  Independent physical quantities and fields in the electrostatic setup. The resultant magnitude is an unknown physical observable. It is not defined from a displayed answer; a separate premise below relates it to the norm of the independently modeled resultant vector field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Point Charge Setup.
+\end{proof}
+\begin{definition}[source Position]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourceposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.sourcePosition}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  Spatial position of a named source charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source Position.
+\end{proof}
+\begin{definition}[observation Position]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-observationposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.observationPosition}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  Spatial position marked by the black observation dot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of observation Position.
+\end{proof}
+\begin{definition}[displacement From Source In Meters]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-displacementfromsourceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.displacementFromSourceInMeters}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-positionvectorinmeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourceposition}
+  Displacement from a named charge to an arbitrary field point, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From Source In Meters.
+\end{proof}
+\begin{definition}[resultant Field At Dot In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldatdotinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.resultantFieldAtDotInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-observationposition}
+  Resultant field vector at the black dot, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resultant Field At Dot In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[resultant Field Norm At Dot In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldnormatdotinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.resultantFieldNormAtDotInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldatdotinnewtonspercoulomb}
+  Norm of the resultant vector field at the dot, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resultant Field Norm At Dot In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[Matches Supplied Charge Rectangle Figure]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-matchessuppliedchargerectanglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.MatchesSuppliedChargeRectangleFigure}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthinmeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthincentimeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeinnanocoulombs, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcecorner, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcecolor, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedsourcesign, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-expectedchargeinnanocoulombs, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-positionvectorinmeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  Literal image evidence, numerical labels, and their association with the physical charges and rectangle dimensions. No resultant field value appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Charge Rectangle Figure.
+\end{proof}
+\begin{definition}[Uses Vacuum Coulomb Constant]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-usesvacuumcoulombconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.UsesVacuumCoulombConstant}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  Independent free-space calibration of Physlib's electromagnetic system. The scalar has coherent-SI units N m²/C² in the Coulomb formula below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Vacuum Coulomb Constant.
+\end{proof}
+\begin{definition}[Has Physical Rectangle Parameters]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-hasphysicalrectangleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.HasPhysicalRectangleParameters}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-lengthinmeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-observationposition, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-displacementfromsourceinmeters}
+  Positivity and separation conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Rectangle Parameters.
+\end{proof}
+\begin{definition}[Satisfies Point Charge Coulomb Field Law]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfiespointchargecoulombfieldlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.SatisfiesPointChargeCoulombFieldLaw}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeincoulombs, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourceposition, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-displacementfromsourceinmeters}
+  For a source charge q and displacement vector r from the source to the field point, the electric field is k q r / ‖r‖³. This all-points law is stated only away from the point source and contains no requested result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Point Charge Coulomb Field Law.
+\end{proof}
+\begin{definition}[Satisfies Electric Field Superposition]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfieselectricfieldsuperposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.SatisfiesElectricFieldSuperposition}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup}
+  The total electric field is the vector sum of all three source fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electric Field Superposition.
+\end{proof}
+\begin{definition}[Resultant Magnitude Represents Field At Dot]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantmagnituderepresentsfieldatdot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.ResultantMagnitudeRepresentsFieldAtDot}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-fieldmagnitudeinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldnormatdotinnewtonspercoulomb}
+  The dimensionful scalar observable is the Euclidean magnitude of the modeled resultant vector at the black dot. This states a measurement relation, not a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resultant Magnitude Represents Field At Dot.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.AnswerChoice}
+  Labels attached to the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[field Magnitude In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-answerchoice-fieldmagnitudeinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.AnswerChoice.fieldMagnitudeInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-fieldmagnitudeinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-answerchoice}
+  Electric-field magnitude in newtons per coulomb printed by each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Magnitude In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Thousand]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-roundstonearestthousand}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.RoundsToNearestThousand}
+  A value rounds to a displayed reading at the nearest 10³ N/C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Thousand.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Field Magnitude]
+  \label{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-isuniquenearestdisplayedfieldmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.IsUniqueNearestDisplayedFieldMagnitude}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-fieldmagnitudeinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-answerchoice}
+  A displayed choice is strictly nearer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Field Magnitude.
+\end{proof}
+\begin{lemma}[resultant Field At Dot eq coulomb Sum]
+  \label{lem:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldatdot-eq-coulombsum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.resultantFieldAtDot_eq_coulombSum}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-chargeincoulombs, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-sourcecharge, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-observationposition, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-displacementfromsourceinmeters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldatdotinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-hasphysicalrectangleparameters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfiespointchargecoulombfieldlaw, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfieselectricfieldsuperposition}
+  Coulomb's vector law and superposition give the source-by-source expression for the field at the observation dot. The expression contains only the independent source data and governing constant
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resultant Field At Dot eq coulomb Sum.
+\end{proof}
+\begin{lemma}[resultant Field Norm At Dot numerical Bounds]
+  \label{lem:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldnormatdot-numericalbounds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0834.resultantFieldNormAtDot_numericalBounds}
+  \uses{def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-rectangularpointchargesetup, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-resultantfieldnormatdotinnewtonspercoulomb, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-matchessuppliedchargerectanglefigure, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-usesvacuumcoulombconstant, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-hasphysicalrectangleparameters, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfiespointchargecoulombfieldlaw, def:physics:phyx-mini-0834:phyxminiproblems-problemphyxmini0834-satisfieselectricfieldsuperposition}
+  With the three image charges and rectangle dimensions, the resultant magnitude lies between 85.5 kN/C and 86.5 kN/C. In particular it rounds to the displayed 8.6 * 10\textasciicircum{}4 N/C value
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resultant Field Norm At Dot numerical Bounds.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

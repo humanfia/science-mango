@@ -1,0 +1,548 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0906.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0906.source.json
+
+\chapter{Physics problem phyx\_mini\_0906}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0906}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The identical small spheres shown in figure are charged to \textbackslash{}( +100\textbackslash{},\textbackslash{}mathrm\{nC\} \textbackslash{}) and \textbackslash{}( -100\textbackslash{},\textbackslash{}mathrm\{nC\} \textbackslash{}). They hang as shown in a \textbackslash{}( 100\{,\}000\textbackslash{},\textbackslash{}mathrm\{N/C\} \textbackslash{}) electric field.
+
+\#\# Question
+
+What is the mass of each sphere?
+
+\#\# Answer choices
+
+- A: A: 3g
+
+- B: B: 4.4g
+
+- C: C: 4.1g
+
+- D: D: 5.2g
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram involving two charges suspended from a point. Key elements include:
+
+- Two charges: One positive (100 nC) and one negative (-100 nC), represented by a red circle with a "+" sign and a blue circle with a "–" sign, respectively.
+- The charges are suspended by wires that are each 50 cm long, and form an angle of 10° with the vertical dashed line, indicating symmetry.
+- Several arrows pointing left symbolize the electric field (\textbackslash{}(\textbackslash{}vec\{E\}\textbackslash{})), acting on the charges.
+- Arrows are uniformly distributed, suggesting a uniform electric field direction and strength.
+- The entire setup is suspended from a fixed point at the top.
+
+The diagram illustrates the equilibrium of charges in a uniform electric field and the forces acting on them.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.1g
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/906.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0906.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0906:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0906.problem_phyx_mini_0906}
+\uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massingrams, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-matchesidenticalsmallspherescenario, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-matchesproblemandfigurereadouts, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hassymmetricsuspensiongeometry, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hasphysicalsuspensionparameters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-usesschoolreferencevalues, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-isuniformleftwardelectricfield, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfieselectricforcelaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiescoulombinteractionlaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesweightlaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesstaticforcebalance, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-recordeddatasetanswer, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-roundstonearesttenthgram, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-isuniquenearestdisplayedmass}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.electricFieldStrengthDimension}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcedimension}
+  The physical dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.accelerationDimension}
+  The physical dimension L T⁻² of acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SignedChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-electricfieldstrengthdimension}
+  A nonnegative electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcedimension}
+  A nonnegative physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Axial Force Component Quantity]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-axialforcecomponentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.AxialForceComponentQuantity}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcedimension}
+  A signed horizontal component of a physical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Force Component Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.massReadout}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.massInKilograms}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massreadout}
+  Kilogram readout used by the force laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.massInGrams}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massreadout}
+  Gram readout used by the displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.lengthReadout}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.lengthInMeters}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthreadout}
+  Coherent-SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthreadout}
+  Centimetre readout used by the two string labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-signedchargequantity}
+  Coherent-SI coulomb readout of a signed charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-signedchargequantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeincoulombs}
+  Nanocoulomb readout used by the two charge labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-fieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.fieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-electricfieldstrengthquantity}
+  Coherent-SI readout of electric-field strength in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationmagnitudequantity}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudequantity}
+  Newton readout of a nonnegative force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[force Component In Newtons]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcecomponentinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.forceComponentInNewtons}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-axialforcecomponentquantity}
+  Newton readout of a signed horizontal force component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Component In Newtons.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.degreesToRadians}
+  Convert the dimensionless degree readout in the image to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Sphere Label]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SphereLabel}
+  The two spheres, named by their positions and charge signs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Label.
+\end{proof}
+\begin{definition}[other]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel-other}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SphereLabel.other}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel}
+  The sphere opposite a given sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of other.
+\end{proof}
+\begin{definition}[Charge Sign Glyph]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargesignglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.ChargeSignGlyph}
+  Charge-sign glyph drawn inside a sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Sign Glyph.
+\end{proof}
+\begin{definition}[Sphere Fill Color]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherefillcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SphereFillColor}
+  Fill colors visibly distinguishing the two charged spheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Fill Color.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.HorizontalDirection}
+  Horizontal directions needed to interpret the field arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[outward Horizontal Sign]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-outwardhorizontalsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.outwardHorizontalSign}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel}
+  Sign of the horizontal direction away from the central vertical line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of outward Horizontal Sign.
+\end{proof}
+\begin{definition}[inward Horizontal Sign]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-inwardhorizontalsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.inwardHorizontalSign}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel}
+  Sign of the horizontal direction toward the common suspension point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inward Horizontal Sign.
+\end{proof}
+\begin{definition}[expected Charge Sign Glyph]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedchargesignglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.expectedChargeSignGlyph}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargesignglyph}
+  Charge glyph expected on each sphere in image 906.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Sign Glyph.
+\end{proof}
+\begin{definition}[expected Sphere Fill Color]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedspherefillcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.expectedSphereFillColor}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherefillcolor}
+  Fill color expected for each sphere in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Sphere Fill Color.
+\end{proof}
+\begin{definition}[expected Charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedchargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.expectedChargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel}
+  Signed nanocoulomb label printed beside each sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[Suspended Spheres Figure]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedspheresfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SuspendedSpheresFigure}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargesignglyph, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherefillcolor, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-horizontaldirection}
+  Literal presentation data transcribed from the supplied raster. Numerical labels remain separate from the dimensionful physical quantities to which they are calibrated below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suspended Spheres Figure.
+\end{proof}
+\begin{definition}[Suspended Charged Spheres Setup]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SuspendedChargedSpheresSetup}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-signedchargequantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-electricfieldstrengthquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationmagnitudequantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudequantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-axialforcecomponentquantity, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedspheresfigure}
+  Independent physical objects and observables for the equilibrium experiment. Physlib's electric field retains its spacetime-dependent vector-field role; the dimensionful scalar electricFieldStrength records its uniform magnitude. The sphere masses are not defined from a force balance or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suspended Charged Spheres Setup.
+\end{proof}
+\begin{definition}[x Coordinate In Meters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-xcoordinateinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.xCoordinateInMeters}
+  Horizontal coordinate, interpreted in metres, of a planar point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Coordinate In Meters.
+\end{proof}
+\begin{definition}[y Coordinate In Meters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-ycoordinateinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.yCoordinateInMeters}
+  Vertical coordinate, interpreted in metres, of a planar point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Coordinate In Meters.
+\end{proof}
+\begin{definition}[displacement From Other In Meters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-displacementfromotherinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.displacementFromOtherInMeters}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-xcoordinateinmeters}
+  Horizontal displacement from the other sphere to the specified sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From Other In Meters.
+\end{proof}
+\begin{definition}[Matches Identical Small Sphere Scenario]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-matchesidenticalsmallspherescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.MatchesIdenticalSmallSphereScenario}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  The prose's assertion that the pictured objects are identical small spheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Identical Small Sphere Scenario.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthincentimeters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeinnanocoulombs, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-degreestoradians, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedchargesignglyph, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedspherefillcolor, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-expectedchargeinnanocoulombs, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  Problem-statement and primary-image readouts, calibrated to the independent physical quantities. The image contains nine uniformly spaced arrows, all pointing left. No mass or force value occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Symmetric Suspension Geometry]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hassymmetricsuspensiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.HasSymmetricSuspensionGeometry}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthinmeters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-outwardhorizontalsign, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-xcoordinateinmeters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-ycoordinateinmeters}
+  The two strings meet at the common support, and their horizontal and vertical projections are determined by their lengths and angles. The last clause calibrates the independent physical separation to the position coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Symmetric Suspension Geometry.
+\end{proof}
+\begin{definition}[Has Physical Suspension Parameters]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hasphysicalsuspensionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.HasPhysicalSuspensionParameters}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massinkilograms, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthinmeters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeincoulombs, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudeinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  Positivity and nondegeneracy conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Suspension Parameters.
+\end{proof}
+\begin{definition}[Uses School Reference Values]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-usesschoolreferencevalues}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.UsesSchoolReferenceValues}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  The rounded reference values conventionally used in the multiple-choice calculation. They calibrate governing constants and do not constrain a mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses School Reference Values.
+\end{proof}
+\begin{definition}[Is Uniform Leftward Electric Field]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-isuniformleftwardelectricfield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.IsUniformLeftwardElectricField}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  The arrows represent a spatially and temporally uniform field whose vector has negative horizontal component and zero vertical component. Components of Physlib's field are interpreted here as coherent-SI N/C readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Uniform Leftward Electric Field.
+\end{proof}
+\begin{definition}[Satisfies Electric Force Law]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfieselectricforcelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SatisfiesElectricForceLaw}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeincoulombs, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcecomponentinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  Electric force law F = qE, stated for the signed horizontal component at each sphere's position. The opposite charge signs therefore produce outward forces in the common leftward field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electric Force Law.
+\end{proof}
+\begin{definition}[Satisfies Coulomb Interaction Law]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiescoulombinteractionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SatisfiesCoulombInteractionLaw}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-chargeincoulombs, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcecomponentinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-displacementfromotherinmeters}
+  Signed one-dimensional Coulomb force between the two spheres. For sphere i, with displacement d = xᵢ - xⱼ, the law is Fᵢ = k qᵢ qⱼ d / |d|³; this retains both the inverse-square magnitude and the attraction direction for opposite charges
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Coulomb Interaction Law.
+\end{proof}
+\begin{definition}[Satisfies Weight Law]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesweightlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SatisfiesWeightLaw}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massinkilograms, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudeinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  Weight magnitude obeys W = mg for each independently stored mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Weight Law.
+\end{proof}
+\begin{definition}[Satisfies Static Force Balance]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesstaticforcebalance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.SatisfiesStaticForceBalance}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcemagnitudeinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcecomponentinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-inwardhorizontalsign, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup}
+  Static equilibrium in horizontal and vertical components. Tension points toward the common support, electric and Coulomb forces are horizontal, and weight points downward. These are general balance equations rather than a numerical mass conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Static Force Balance.
+\end{proof}
+\begin{lemma}[sphere Separation eq sum horizontal projections]
+  \label{lem:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-sphereseparation-eq-sum-horizontal-projections}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.sphereSeparation_eq_sum_horizontal_projections}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-lengthinmeters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hassymmetricsuspensiongeometry}
+  The common-pivot geometry gives the horizontal separation as the sum of the two horizontal string projections. This is a useful intermediate statement for the later Coulomb calculation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sphere Separation eq sum horizontal projections.
+\end{proof}
+\begin{lemma}[mass In Kilograms eq force balance expression]
+  \label{lem:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massinkilograms-eq-force-balance-expression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.massInKilograms_eq_force_balance_expression}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massinkilograms, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-forcecomponentinnewtons, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-spherelabel, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-suspendedchargedspheressetup, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-matchesproblemandfigurereadouts, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hassymmetricsuspensiongeometry, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-hasphysicalsuspensionparameters, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-isuniformleftwardelectricfield, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfieselectricforcelaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiescoulombinteractionlaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesweightlaw, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-satisfiesstaticforcebalance}
+  Eliminating tension from horizontal and vertical equilibrium yields the mass in terms of the outward electric force, inward Coulomb attraction, gravity, and the string angle. All quantities on the right are independent observables constrained by governing laws
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mass In Kilograms eq force balance expression.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.AnswerChoice}
+  Labels attached to the four displayed mass choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-answerchoice-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.AnswerChoice.massInGrams}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massingrams, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-answerchoice}
+  Mass in grams printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-answerchoice}
+  Answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Gram]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-roundstonearesttenthgram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.RoundsToNearestTenthGram}
+  The actual mass rounds to a displayed value at the nearest 0.1 g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Gram.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Mass]
+  \label{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-isuniquenearestdisplayedmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0906.IsUniqueNearestDisplayedMass}
+  \uses{def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-massingrams, def:physics:phyx-mini-0906:phyxminiproblems-problemphyxmini0906-answerchoice}
+  A choice is strictly nearer to the actual mass than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Mass.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

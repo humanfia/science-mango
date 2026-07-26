@@ -1,0 +1,465 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0926.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0926.source.json
+
+\chapter{Physics problem phyx\_mini\_0926}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0926}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a 10-cm-diameter loop in magnetic fields. The loop's resistance is \textbackslash{}( 0.20 \textbackslash{}, \textbackslash{}Omega \textbackslash{}).
+
+\#\# Question
+
+What are the size of the induced current?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(16 \textbackslash{}text\{ mA\}\textbackslash{})
+
+- B: B: \textbackslash{}( 20 \textbackslash{}text\{ mA\}\textbackslash{})
+
+- C: C: \textbackslash{}(39\textbackslash{}text\{ mA\}\textbackslash{})
+
+- D: D: \textbackslash{}(15 \textbackslash{}text\{ mA\}\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a circular loop with a brown outline and several blue dots both inside and outside the loop. These dots are uniformly distributed and likely represent magnetic field lines or particles. Above the loop is the text "B decreasing at 0.50 T/s," indicating that the magnetic field strength is decreasing at a rate of 0.50 teslas per second. The overall depiction suggests a scenario related to electromagnetic fields and changes over time.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( 20 \textbackslash{}text\{ mA\}\textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/926.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0926.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0926:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0926.problem_phyx_mini_0926}
+\uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinamperes, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinmilliamperes, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesinductionloopdescription, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesprimaryinductionloopfigure, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-hasphysicalinductionloopparameters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopgeometry, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopinductionlaws, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-recordeddatasetanswer, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answermatchesinducedcurrent}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[area Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.areaDimension}
+  Area has physical dimension L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.electricCurrentDimension}
+  Electric current has physical dimension C T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.electricalResistanceDimension}
+  Electrical resistance has physical dimension M L² T⁻¹ C⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxDensityDimension}
+  Magnetic flux density (tesla) has physical dimension M T⁻¹ C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Rate Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityratedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxDensityRateDimension}
+  A magnetic-flux-density change rate has dimension M T⁻² C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Rate Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxDimension}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areadimension, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensitydimension}
+  Magnetic flux has the dimension of flux density times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Rate Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxratedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxRateDimension}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdimension}
+  Magnetic-flux change rate has the volt dimension M L² T⁻² C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Rate Dimension.
+\end{proof}
+\begin{definition}[emf Dimension]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.emfDimension}
+  Electromotive force has physical dimension M L² T⁻² C⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of emf Dimension.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Area Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areamagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.AreaMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areadimension}
+  A nonnegative, unit-independent physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Magnitude.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Rate Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityratemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.MagneticFluxDensityRateMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityratedimension}
+  A nonnegative, unit-independent magnetic-flux-density decrease rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Rate Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Rate Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxratemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.MagneticFluxRateMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxratedimension}
+  A nonnegative, unit-independent magnetic-flux decrease rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Rate Magnitude.
+\end{proof}
+\begin{definition}[Emf Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.EmfMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfdimension}
+  A nonnegative, unit-independent induced-emf magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emf Magnitude.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.lengthInMeters}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthinmeters}
+  Read the loop diameter in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areamagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistancemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[magnetic Flux Density Rate In Teslas Per Second]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityrateinteslaspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxDensityRateInTeslasPerSecond}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityratemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read a magnetic-flux-density decrease rate in teslas per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Rate In Teslas Per Second.
+\end{proof}
+\begin{definition}[magnetic Flux Rate In Webers Per Second]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxrateinweberspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.magneticFluxRateInWebersPerSecond}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxratemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read a magnetic-flux decrease rate in webers per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Rate In Webers Per Second.
+\end{proof}
+\begin{definition}[emf Magnitude In Volts]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitudeinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.emfMagnitudeInVolts}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read an induced-emf magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of emf Magnitude In Volts.
+\end{proof}
+\begin{definition}[current Magnitude In Amperes]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.currentMagnitudeInAmperes}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-nonnegativesireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Magnitude In Amperes.
+\end{proof}
+\begin{definition}[current Magnitude In Milliamperes]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.currentMagnitudeInMilliamperes}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinamperes}
+  Read an electric-current magnitude in milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Magnitude In Milliamperes.
+\end{proof}
+\begin{definition}[Loop Conductor Model]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-loopconductormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.LoopConductorModel}
+  Idealized topology and construction of the conducting loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Loop Conductor Model.
+\end{proof}
+\begin{definition}[Loop Outline Shape]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-loopoutlineshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.LoopOutlineShape}
+  Shape of the loop outline visible in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Loop Outline Shape.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.FigureColor}
+  Colors needed to transcribe the two visual components of image 926.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Field Marker Kind]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fieldmarkerkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.FieldMarkerKind}
+  Conventional marker used for a field normal to the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Marker Kind.
+\end{proof}
+\begin{definition}[Page Normal Direction]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-pagenormaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.PageNormalDirection}
+  Page-normal direction encoded by a conventional field marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Page Normal Direction.
+\end{proof}
+\begin{definition}[Magnetic Field Trend]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfieldtrend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.MagneticFieldTrend}
+  Temporal trend stated for the magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Field Trend.
+\end{proof}
+\begin{definition}[Field Uniformity]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fielduniformity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.FieldUniformity}
+  Spatial uniformity idealization of the applied field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Uniformity.
+\end{proof}
+\begin{definition}[Field Loop Orientation]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fieldlooporientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.FieldLoopOrientation}
+  Orientation of the applied field relative to the loop plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Field Loop Orientation.
+\end{proof}
+\begin{definition}[Induction Loop Figure]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-inductionloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.InductionLoopFigure}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-loopoutlineshape, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-figurecolor, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fieldmarkerkind, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-pagenormaldirection}
+  Presentation facts transcribed from the primary raster. The scalar rate is a printed tesla-per-second readout and is calibrated to an independent physical rate in MatchesPrimaryInductionLoopFigure below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Induction Loop Figure.
+\end{proof}
+\begin{definition}[Circular Induction Loop Setup]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.CircularInductionLoopSetup}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areamagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistancemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityratemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxratemagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-electriccurrentmagnitude, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-loopconductormodel, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-pagenormaldirection, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfieldtrend, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fielduniformity, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-fieldlooporientation, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-inductionloopfigure}
+  Independent physical quantities and observables of the induction experiment. In particular, the area, flux-change rate, induced emf, and induced current are not defined from their desired numerical values or from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circular Induction Loop Setup.
+\end{proof}
+\begin{definition}[Matches Induction Loop Description]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesinductionloopdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.MatchesInductionLoopDescription}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthincentimeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistanceinohms, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  Prose data for the circular 10 cm, 0.20 Ω, single-turn loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Induction Loop Description.
+\end{proof}
+\begin{definition}[Matches Primary Induction Loop Figure]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesprimaryinductionloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.MatchesPrimaryInductionLoopFigure}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityrateinteslaspersecond, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  Facts supplied by image 926.png. Dot markers conventionally encode a field out of the page. Their regular placement both inside and outside the loop is the figure-derived evidence for a spatially uniform field perpendicular to the loop plane. This structure contains no induced-current value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Induction Loop Figure.
+\end{proof}
+\begin{definition}[Has Physical Induction Loop Parameters]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-hasphysicalinductionloopparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.HasPhysicalInductionLoopParameters}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthinmeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areainsquaremeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistanceinohms, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityrateinteslaspersecond, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  Positivity and nondegeneracy conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Induction Loop Parameters.
+\end{proof}
+\begin{definition}[Satisfies Circular Loop Geometry]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.SatisfiesCircularLoopGeometry}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-lengthinmeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areainsquaremeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  The area of a circle is π r², with radius one half of the independently modeled loop diameter. This is a geometric law, not a definition of the area from the 10 cm data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Loop Geometry.
+\end{proof}
+\begin{definition}[Satisfies Circular Loop Induction Laws]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopinductionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.SatisfiesCircularLoopInductionLaws}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areainsquaremeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-resistanceinohms, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxdensityrateinteslaspersecond, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-magneticfluxrateinweberspersecond, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitudeinvolts, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinamperes, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup}
+  Governing magnitude relations for the fixed loop: in a uniform field perpendicular to a fixed area, the magnetic-flux decrease rate is area times the flux-density decrease rate; Faraday's law gives emf magnitude as turn count times flux-change rate; and Ohm's law gives emf magnitude as current magnitude times resistance. These general relations contain neither 25π/4 mA nor answer choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Loop Induction Laws.
+\end{proof}
+\begin{lemma}[loop Area eq pi div four hundred]
+  \label{lem:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-looparea-eq-pi-div-four-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.loopArea_eq_pi_div_four_hundred}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-areainsquaremeters, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesinductionloopdescription, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopgeometry}
+  The stated diameter and circular geometry give area π/400 m²
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of loop Area eq pi div four hundred.
+\end{proof}
+\begin{lemma}[induced Emf eq pi div eight hundred]
+  \label{lem:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-inducedemf-eq-pi-div-eight-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.inducedEmf_eq_pi_div_eight_hundred}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-emfmagnitudeinvolts, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesinductionloopdescription, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-matchesprimaryinductionloopfigure, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopgeometry, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-satisfiescircularloopinductionlaws}
+  Faraday's law then gives the single-turn emf magnitude π/800 V
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of induced Emf eq pi div eight hundred.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.AnswerChoice}
+  Labels of the four answer choices displayed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[current In Milliamperes]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice-currentinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.AnswerChoice.currentInMilliamperes}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice}
+  Current magnitude in milliamperes printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Milliamperes.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Current Choice]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-isuniquenearestdisplayedcurrentchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.IsUniqueNearestDisplayedCurrentChoice}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice}
+  A displayed choice is the unique nearest choice to a computed milliampere readout when every differently labelled choice has strictly larger absolute error. This generic definition neither selects B nor prescribes a current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Current Choice.
+\end{proof}
+\begin{definition}[Answer Matches Induced Current]
+  \label{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answermatchesinducedcurrent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0926.AnswerMatchesInducedCurrent}
+  \uses{def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-currentmagnitudeinmilliamperes, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-circularinductionloopsetup, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-answerchoice, def:physics:phyx-mini-0926:phyxminiproblems-problemphyxmini0926-isuniquenearestdisplayedcurrentchoice}
+  A displayed answer agrees with the modeled induced-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Induced Current.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

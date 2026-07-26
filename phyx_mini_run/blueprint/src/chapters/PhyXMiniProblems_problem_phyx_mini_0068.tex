@@ -1,0 +1,254 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0068.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0068.source.json
+
+\chapter{Physics problem phyx\_mini\_0068}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0068}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A red ball is at point A.
+
+\#\# Question
+
+How many images are seen by an observer at point O
+
+\#\# Answer choices
+
+- A: A: 4
+
+- B: B: 5
+
+- C: C: 3
+
+- D: D: 1
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a coordinate system with points and labeled measurements. Here's a detailed description:
+
+1. **Coordinate Axes**: 
+   - The x-axis is horizontal.
+   - The y-axis is vertical.
+
+2. **Dimensions**:
+   - A horizontal blue beam extends 3.0 meters along the x-axis.
+   - A vertical blue beam extends 3.0 meters along the y-axis.
+   - These beams intersect at the origin of the coordinate axes.
+
+3. **Point A**:
+   - Indicated by a red dot.
+   - Positioned 2.0 meters below the horizontal beam and 1.0 meter to the right of the vertical beam. 
+
+4. **Labels and Text**:
+   - The point, labeled as "A," is specifically marked.
+   - There are horizontal and vertical distance indicators showing the distance from the beams to point A: 2.0 meters down (vertical) from the horizontal beam and 1.0 meter right (horizontal) from the vertical beam.
+   - There is a point "O" represented by a black dot, located at the bottom left, likely meant to indicate the origin.
+
+This setup is often used in physics or engineering problems to illustrate positions and measure distances within a defined space.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 3
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/68.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0068.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0068:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0068.observer_at_O_sees_three_images}
+\uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-seenvirtualimagepositions, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-matchesperpendicularmirrorfigure, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-obeysplanemirrorimagelaw}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Plane]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.OpticalPlane}
+  Positions in the two-dimensional optical diagram, read in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Plane.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.LengthQuantity}
+  A physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length In Metres]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-lengthinmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.lengthInMetres}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-lengthquantity}
+  The scalar readout of a physical length when the SI metre is selected
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Metres.
+\end{proof}
+\begin{definition}[Mirror Label]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-mirrorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.MirrorLabel}
+  Labels of the two blue plane-mirror segments in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Label.
+\end{proof}
+\begin{definition}[Ball Color]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-ballcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.BallColor}
+  The color information attached to the object at A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball Color.
+\end{proof}
+\begin{definition}[Finite Plane Mirror]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-finiteplanemirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.FinitePlaneMirror}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-lengthquantity}
+  A finite plane mirror: carrier is the complete affine line used by the method of images, while reflectingSegment is the physical, finite mirror. length is a unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Finite Plane Mirror.
+\end{proof}
+\begin{definition}[reflect In Mirror]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-reflectinmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.reflectInMirror}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-finiteplanemirror}
+  Reflection of a point in the complete carrier line of a plane mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflect In Mirror.
+\end{proof}
+\begin{definition}[Perpendicular Mirror Scene]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.PerpendicularMirrorScene}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-mirrorlabel, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-ballcolor, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-finiteplanemirror}
+  The physical scene: the corner and labels from the figure, the red ball at A, the observer at O, and the physical relation saying that O sees a virtual image at a specified apparent position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Perpendicular Mirror Scene.
+\end{proof}
+\begin{definition}[apply Reflection Sequence]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-applyreflectionsequence}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.applyReflectionSequence}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-mirrorlabel, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-reflectinmirror, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene}
+  Apply a list of mirror reflections to the ball's position, in list order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of apply Reflection Sequence.
+\end{proof}
+\begin{definition}[Is Visible Single Reflection Image]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisiblesinglereflectionimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.IsVisibleSingleReflectionImage}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-mirrorlabel, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-applyreflectionsequence}
+  A single-reflection image is visible when the ray from O toward its apparent position meets the physical reflecting segment at an interior ray parameter. The straight line to the reflected point is the unfolded form of the usual equal-angle specular path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Visible Single Reflection Image.
+\end{proof}
+\begin{definition}[Is Visible Double Reflection Image]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisibledoublereflectionimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.IsVisibleDoubleReflectionImage}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-mirrorlabel, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-reflectinmirror, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-applyreflectionsequence}
+  A two-reflection image is visible when the unfolded observer ray first meets one physical mirror segment and then the other segment after the first mirror has reflected it. Ordering the two open-segment parameters retains which mirror is encountered first. This is the method-of-images construction for a finite two-mirror ray path; it asserts no image count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Visible Double Reflection Image.
+\end{proof}
+\begin{definition}[Is Visible Reflection Image Position]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisiblereflectionimageposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.IsVisibleReflectionImagePosition}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisiblesinglereflectionimage, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisibledoublereflectionimage}
+  An apparent point with a finite specular route through one or both mirrors. For the pictured perpendicular pair, these are precisely the possible non-original virtual-image positions, but that fact remains to be proved
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Visible Reflection Image Position.
+\end{proof}
+\begin{definition}[seen Virtual Image Positions]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-seenvirtualimagepositions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.seenVirtualImagePositions}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene}
+  The set of distinct apparent image positions seen by the observer at O
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seen Virtual Image Positions.
+\end{proof}
+\begin{definition}[Matches Perpendicular Mirror Figure]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-matchesperpendicularmirrorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.MatchesPerpendicularMirrorFigure}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-lengthinmetres, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene}
+  Primary-image readouts and spatial relations. The two mirror segments each have length 3 m; their common endpoint is the coordinate origin; and the red ball is 1 m left of the vertical mirror and 2 m below the horizontal mirror. The unlabelled point O is aligned below the left end of the horizontal mirror and lies vertically between A and the lower mirror end. No image position or image count is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Perpendicular Mirror Figure.
+\end{proof}
+\begin{definition}[Obeys Plane Mirror Image Law]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-obeysplanemirrorimagelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.ObeysPlaneMirrorImageLaw}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisiblereflectionimageposition}
+  The geometrical-optics method-of-images law for this finite two-mirror view: an apparent point is seen exactly when it admits one of the unfolded specular routes above. This is a local physics interface because Mathlib supplies affine reflection and Physlib supplies physical units, but neither library supplies observer-visible virtual images for finite plane mirrors. The law does not state or enumerate any image positions or image count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Plane Mirror Image Law.
+\end{proof}
+\begin{lemma}[visible Reflection Image Positions from figure]
+  \label{lem:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-visiblereflectionimagepositions-from-figure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.visibleReflectionImagePositions_from_figure}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-isvisiblereflectionimageposition, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-matchesperpendicularmirrorfigure}
+  For the finite perpendicular mirrors, displayed positions of A and O, and the unfolded finite-segment tests, the visible specular routes end at the three usual single- and double-reflection positions
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of visible Reflection Image Positions from figure.
+\end{proof}
+\begin{lemma}[seen Virtual Image Positions from figure]
+  \label{lem:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-seenvirtualimagepositions-from-figure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.seenVirtualImagePositions_from_figure}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-opticalplane, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-perpendicularmirrorscene, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-seenvirtualimagepositions, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-matchesperpendicularmirrorfigure, def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-obeysplanemirrorimagelaw}
+  The method-of-images law transfers the geometrically computed reflection orbit to the distinct virtual-image positions visible from O
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of seen Virtual Image Positions from figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.AnswerChoice}
+  Labels of the four answer choices displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[image Count]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-answerchoice-imagecount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.AnswerChoice.imageCount}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-answerchoice}
+  Image count printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of image Count.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0068.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0068:phyxminiproblems-problemphyxmini0068-answerchoice}
+  Dataset metadata: the recorded answer label, not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

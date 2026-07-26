@@ -1,0 +1,302 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0191.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0191.source.json
+
+\chapter{Physics problem phyx\_mini\_0191}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0191}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider an idealized bird (treated as a point source) that emits constant sound power, with intensity obeying the inverse-square law (figure).You move twice the distance from the bird.
+
+\#\# Question
+
+How many decibels does the sound intensity level drop?
+
+\#\# Answer choices
+
+- A: A: 6.0dB
+
+- B: B: 8.2dB
+
+- C: C: 7.5dB
+
+- D: D: 9.1dB
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a scene with two human figures labeled as \textbackslash{}( P\_1 \textbackslash{}) and \textbackslash{}( P\_2 \textbackslash{}), a bird, and a series of concentric blue circles. The bird is depicted as the "Point source" of sound waves, represented by the circles emanating from it. The bird is perched on a rock and shown singing with musical notes above its head.
+
+The human figure labeled \textbackslash{}( P\_1 \textbackslash{}) is closer to the bird, while \textbackslash{}( P\_2 \textbackslash{}) is further away. The circles indicate sound waves spreading outwards from the bird. The background features a simple landscape with trees or shrubs. The overall scene visually represents the concept of sound waves radiating from a point source.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 6.0dB
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/191.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0191.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0191:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0191.problem_phyx_mini_0191}
+\uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchespointsourcescenario, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchessuppliedfigure, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-movedtotwicethedistance, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-hasphysicalacousticparameters, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-satisfiesisotropicinversesquarelaw, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-soundleveldropindecibels, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchesanswertonearesttenthdecibel}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.LengthMagnitude}
+  A nonnegative physical distance from the point source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Acoustic Power Quantity]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.AcousticPowerQuantity}
+  Acoustic power has SI unit watt and dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Power Quantity.
+\end{proof}
+\begin{definition}[Acoustic Intensity Quantity]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.AcousticIntensityQuantity}
+  Acoustic intensity is power per area, with SI unit watt per square metre and dimension mass / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Intensity Quantity.
+\end{proof}
+\begin{definition}[distance Readout]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.distanceReadout}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-lengthmagnitude}
+  Read a physical distance in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Readout.
+\end{proof}
+\begin{definition}[acoustic Power Readout]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.acousticPowerReadout}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerquantity}
+  Read an acoustic power in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power Readout.
+\end{proof}
+\begin{definition}[acoustic Intensity Readout]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.acousticIntensityReadout}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityquantity}
+  Read an acoustic intensity in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity Readout.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.distanceInMeters}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-lengthmagnitude, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distancereadout}
+  SI metre readout of a source-to-listener distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[acoustic Power In Watts]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.acousticPowerInWatts}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerquantity, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerreadout}
+  SI watt readout of the emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power In Watts.
+\end{proof}
+\begin{definition}[acoustic Intensity In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.acousticIntensityInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityquantity, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityreadout}
+  SI watt-per-square-metre readout of an acoustic intensity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Listener Label]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-listenerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.ListenerLabel}
+  The two listener positions labeled in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Listener Label.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.FigureLabel}
+  All labeled physical objects visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Role]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-figurerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.FigureRole}
+  Physical roles assigned to the three figure labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Role.
+\end{proof}
+\begin{definition}[Wavefront Geometry]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-wavefrontgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.WavefrontGeometry}
+  Qualitative geometry of the blue sound-wave fronts in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavefront Geometry.
+\end{proof}
+\begin{definition}[Acoustic Source Kind]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.AcousticSourceKind}
+  Type of acoustic source used in the idealized model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Source Kind.
+\end{proof}
+\begin{definition}[Emission Regime]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-emissionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.EmissionRegime}
+  Time dependence of the sound power emitted by the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emission Regime.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.AcousticMedium}
+  The propagation medium shown in the outdoor scene
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Bird Sound Figure]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdsoundfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.BirdSoundFigure}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-figurelabel, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-figurerole, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-wavefrontgeometry}
+  Figure-specific qualitative labels and wavefront geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Sound Figure.
+\end{proof}
+\begin{definition}[Bird Point Source Sound Setup]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.BirdPointSourceSoundSetup}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-lengthmagnitude, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerquantity, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityquantity, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-listenerlabel, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticsourcekind, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-emissionregime, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticmedium, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdsoundfigure}
+  Physical quantities and observations for the two listener positions. There is one emitted-power field, expressing that the same source power is used at both positions. The two intensities remain independent until related by the inverse-square law; neither their ratio nor the requested decibel drop is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bird Point Source Sound Setup.
+\end{proof}
+\begin{definition}[Matches Point Source Scenario]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchespointsourcescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.MatchesPointSourceScenario}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  Textual physical model: an idealized bird is a point source with constant sound power, and sound propagates through ambient air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Point Source Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distanceinmeters, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  Primary-image evidence. P₁ is the nearer listener, P₂ is the farther listener, and the blue curves represent concentric wavefronts centered on the bird. No numerical intensity ratio or decibel answer is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Moved To Twice The Distance]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-movedtotwicethedistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.MovedToTwiceTheDistance}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distancereadout, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  The stated move: the distance at P₂ is twice the distance at P₁ in every coherent choice of units. This premise contains no intensity or decibel conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moved To Twice The Distance.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distanceinmeters, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerinwatts, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-listenerlabel, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  Positivity and nondegeneracy of the physical quantities in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Isotropic Inverse Square Law]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-satisfiesisotropicinversesquarelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.SatisfiesIsotropicInverseSquareLaw}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-distancereadout, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticpowerreadout, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityreadout, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-listenerlabel, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  The inverse-square intensity law for an isotropic point source. In every coherent unit system, the acoustic power through the sphere of radius r is 4 * pi * r\textasciicircum{}2 * I. This general law does not state the quarter-intensity or decibel conclusion for the doubled distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isotropic Inverse Square Law.
+\end{proof}
+\begin{definition}[sound Level Drop In Decibels]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-soundleveldropindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.soundLevelDropInDecibels}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup}
+  The drop in sound intensity level, in decibels, when moving from P₁ to P₂. This is the standard general conversion 10 log10 (I\_before / I\_after) applied to same-unit SI readouts; it contains no built-in value for the doubled-distance case
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Level Drop In Decibels.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.AnswerChoice}
+  Labels of the four decibel choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Drop In Decibels]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-displayeddropindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.displayedDropInDecibels}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-answerchoice}
+  The decibel drop printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Drop In Decibels.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth Decibel]
+  \label{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-matchesanswertonearesttenthdecibel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.MatchesAnswerToNearestTenthDecibel}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-soundleveldropindecibels, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-answerchoice, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-displayeddropindecibels}
+  Agreement with a displayed decibel value rounded to the nearest tenth. The half-tenth tolerance does not make choice A true by definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth Decibel.
+\end{proof}
+\begin{lemma}[intensity At P₂ eq one Quarter intensity At P₁]
+  \label{lem:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-intensityatp-eq-onequarter-intensityatp}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0191.intensityAtP₂_eq_oneQuarter_intensityAtP₁}
+  \uses{def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-birdpointsourcesoundsetup, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-movedtotwicethedistance, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-hasphysicalacousticparameters, def:physics:phyx-mini-0191:phyxminiproblems-problemphyxmini0191-satisfiesisotropicinversesquarelaw}
+  Doubling the source distance makes the acoustic intensity one quarter as large. This is a derived intermediate result, not a model assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of intensity At P₂ eq one Quarter intensity At P₁.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

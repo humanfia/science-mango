@@ -1,0 +1,119 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0776.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0776.source.json
+
+\chapter{Physics problem phyx\_mini\_0776}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0776}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The cone has mass \textbackslash{}(M\textbackslash{}) and altitude \textbackslash{}(h\textbackslash{}). The radius of its circular base is \textbackslash{}(R\textbackslash{}).
+
+\#\# Question
+
+Calculate the moment of inertia of a uniform solid cone about an axis through its center as shown in figure.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(\textbackslash{}frac\{3\}\{8\} MR\textasciicircum{}2\textbackslash{})
+
+- B: B: \textbackslash{}(\textbackslash{}frac\{3\}\{10\} MR\textasciicircum{}2\textbackslash{})
+
+- C: C: \textbackslash{}(\textbackslash{}frac\{7\}\{10\} MR\textasciicircum{}2\textbackslash{})
+
+- D: D: \textbackslash{}(\textbackslash{}frac\{5\}\{8\} MR\textasciicircum{}2\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a three-dimensional cone. 
+
+1. **Objects and Structures**:
+   - The cone is oriented with the point facing downwards and the circular base at the top.
+   - A vertical black line represents the "Axis" of the cone, extending from the center of the base vertically through the tip.
+
+2. **Text and Labels**:
+   - The base radius is labeled as \textbackslash{}( R \textbackslash{}) with a pink arrow extending from the center to the edge of the base.
+   - The height of the cone is labeled as \textbackslash{}( h \textbackslash{}), marked with a vertical black line extending from the center of the base to the tip.
+
+3. **Colors and Styles**:
+   - The cone is shaded in a gradient of orange.
+   - The radius arrow is pink, providing contrast against the cone’s color.
+
+4. **Geometry and Dimensions**:
+   - The relationships between the base, height, and axis are clearly illustrated with perpendicular lines and labels, indicating the standard geometric properties of a cone.
+
+Overall, the image effectively illustrates the basic dimensions and structure of a right circular cone.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}(\textbackslash{}frac\{3\}\{10\} MR\textasciicircum{}2\textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/776.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0776.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0776:target}
+\lean{PhyXMini0776.uniformSolidCone_momentOfInertia_about_symmetryAxis}
+\uses{def:physics:phyx-mini-0776:phyxmini0776-momentofinertiaaboutsymmetryaxis, def:physics:phyx-mini-0776:phyxmini0776-isuniformsolidrightcircularcone}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[symmetry Axis Index]
+  \label{def:physics:phyx-mini-0776:phyxmini0776-symmetryaxisindex}
+  \lean{PhyXMini0776.symmetryAxisIndex}
+  The coordinate direction of the cone's axis in the body-fixed frame from the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of symmetry Axis Index.
+\end{proof}
+\begin{definition}[symmetry Axis Line]
+  \label{def:physics:phyx-mini-0776:phyxmini0776-symmetryaxisline}
+  \lean{PhyXMini0776.symmetryAxisLine}
+  The line labelled Axis in the figure: the third coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of symmetry Axis Line.
+\end{proof}
+\begin{definition}[solid Right Circular Cone Region]
+  \label{def:physics:phyx-mini-0776:phyxmini0776-solidrightcircularconeregion}
+  \lean{PhyXMini0776.solidRightCircularConeRegion}
+  \uses{def:physics:phyx-mini-0776:phyxmini0776-symmetryaxisindex}
+  The solid right circular cone shown in the figure, with its apex at the origin, its base in the plane x₂ = altitude, and its radius there equal to radius. Coordinates and the values of altitude and radius are measured in the same length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of solid Right Circular Cone Region.
+\end{proof}
+\begin{definition}[moment Of Inertia About Symmetry Axis]
+  \label{def:physics:phyx-mini-0776:phyxmini0776-momentofinertiaaboutsymmetryaxis}
+  \lean{PhyXMini0776.momentOfInertiaAboutSymmetryAxis}
+  \uses{def:physics:phyx-mini-0776:phyxmini0776-symmetryaxisindex}
+  The physical moment of inertia about the line labelled Axis in the figure. The dimension tag records the dimension mass * length * length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia About Symmetry Axis.
+\end{proof}
+\begin{definition}[Is Uniform Solid Right Circular Cone]
+  \label{def:physics:phyx-mini-0776:phyxmini0776-isuniformsolidrightcircularcone}
+  \lean{PhyXMini0776.IsUniformSolidRightCircularCone}
+  \uses{def:physics:phyx-mini-0776:phyxmini0776-solidrightcircularconeregion}
+  The governing model for a uniform solid cone. The rigid body's mass distribution is constant on solidRightCircularConeRegion and zero outside it. The coefficient is the uniform density obtained from the cone volume π R² h / 3. This predicate contains the setup and governing law only; it does not assume a formula for the moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Uniform Solid Right Circular Cone.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

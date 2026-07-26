@@ -1,0 +1,197 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0114.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0114.source.json
+
+\chapter{Physics problem phyx\_mini\_0114}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0114}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In a spherical mirror, rays parallel to but relatively distant from the optic axis do not reflect precisely to the focal point, and this causes spherical aberration of images. In parabolic mirrors, by contrast, all paraxial rays that enter the mirror, arbitrarily distant from the optic axis, converge to a focal point on the optic axis without any approximation whatsoever. We can prove this and determine the location of the focal point by considering figure. The mirror is a parabola defined by \$y = ax\textasciicircum{}2\$, with \$a\$ in units of (distance)\$\textasciicircum{}\{-1\}\$, rotated around the \$y\$-axis. Consider the ray that enters the mirror a distance \$r\$ from the axis.
+
+\#\# Question
+
+Find the distance \$f\$ in terms of \$a\$.
+
+\#\# Answer choices
+
+- A: A: f = 1/4a
+
+- B: B: f = 1/6a
+
+- C: C: f = 1/8a
+
+- D: D: f = 1/2a
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram involving a parabolic curve with a vertex at the origin on an x-y coordinate plane. Key elements include:
+
+1. **Parabola:** The curve opens upward, centered on the y-axis.
+
+2. **Axes:** The x-axis and y-axis are shown; the x-axis is horizontal, and the y-axis is vertical.
+
+3. **Focus (F):** A point labeled "F" is marked on the parabola with an arrow pointing away from it.
+
+4. **Lines and Arrows:** 
+   - A purple arrow extends from the focus in an outward direction.
+   - Two dashed lines form a right triangle with the vertex at the point where the arrow terminates outside the parabola.
+   - Another upward purple line indicates some measure outside the parabola.
+
+5. **Angles:** Two angles are marked within the triangle:
+   - \textbackslash{}(\textbackslash{}phi\textbackslash{}): This is marked between the horizontal dashed line and the hypotenuse.
+   - \textbackslash{}(\textbackslash{}Delta \textbackslash{}alpha\textbackslash{}): This angle is marked between the horizontal and the purple directional arrow emanating from the focus.
+
+6. **Measurements:** 
+   - "b": The vertical segment between two horizontal dashed lines.
+   - "f": The segment from the lower dashed line to the x-axis.
+   - "r": The horizontal segment from the parabola to the vertical line along the y-axis.
+
+7. **Shaded Region:** A light blue shading fills the area beneath the parabola, enhancing the visual distinction of the curve's path.
+
+Overall, the diagram is a detailed representation of the geometric and analytic properties related to parabolas.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: f = 1/4a
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/114.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0114.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0114:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0114.parabolicMirrorFocalDistance}
+\uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-parabolicmirrorfigure, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-hasphysicalparabolicmirrorparameters, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-matchesparabolicmirrorfigure, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-satisfiesidealparabolicmirroroptics}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.DiagramPlane}
+  The two-dimensional meridional plane containing the optic axis and the ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.OpticalLength}
+  A signed physical length, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[Inverse Length]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-inverselength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.InverseLength}
+  The dimension carried by the parabola coefficient a: inverse length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverse Length.
+\end{proof}
+\begin{definition}[incident Direction]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-incidentdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.incidentDirection}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  The incoming ray is parallel to the optic axis and propagates downward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Direction.
+\end{proof}
+\begin{definition}[leftward Direction]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-leftwarddirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.leftwardDirection}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  The horizontal direction from the point of incidence toward the optic axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leftward Direction.
+\end{proof}
+\begin{definition}[tangent Direction]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-tangentdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.tangentDirection}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  The tangent direction to y = a x² at radial coordinate r. The product a r is dimensionless, so the vector is independent of the length unit used for the two scalar readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tangent Direction.
+\end{proof}
+\begin{definition}[outward Normal Direction]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-outwardnormaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.outwardNormalDirection}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  The normal pointing into the open side of the parabolic mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of outward Normal Direction.
+\end{proof}
+\begin{definition}[specularly Reflected Direction]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-specularlyreflecteddirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.specularlyReflectedDirection}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-incidentdirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-tangentdirection}
+  Specular reflection of the axial incident direction across the local tangent line. This is the vector form of equality of incidence and reflection angles, implemented using Mathlib's reflection in a Euclidean subspace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specularly Reflected Direction.
+\end{proof}
+\begin{definition}[angle Between Directions]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-anglebetweendirections}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.angleBetweenDirections}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-diagramplane}
+  The undirected radian angle between two directions in the diagram plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Between Directions.
+\end{proof}
+\begin{definition}[Parabolic Mirror Figure]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-parabolicmirrorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.ParabolicMirrorFigure}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-opticallength, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-inverselength}
+  Physical quantities and labels in the parabolic-mirror figure. The mirror hit is at radius r and at height f + b: f is the focus's height above the vertex, while b is the vertical rise from the focus level to the hit. pathLengthToFocus is an auxiliary propagation distance, not the requested focal distance. The angle fields are radian readouts of the labels φ and Δα
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parabolic Mirror Figure.
+\end{proof}
+\begin{definition}[Has Physical Parabolic Mirror Parameters]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-hasphysicalparabolicmirrorparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.HasPhysicalParabolicMirrorParameters}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-parabolicmirrorfigure}
+  Positivity and principal-angle conditions for the depicted physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parabolic Mirror Parameters.
+\end{proof}
+\begin{definition}[Matches Parabolic Mirror Figure]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-matchesparabolicmirrorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.MatchesParabolicMirrorFigure}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-incidentdirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-leftwarddirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-outwardnormaldirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-specularlyreflecteddirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-anglebetweendirections, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-parabolicmirrorfigure}
+  Geometry read directly from the meridional figure. The first relation places the hit (r, f + b) on the parabola. The remaining relations attach the displayed angle labels to the incident ray, local normal, reflected ray, and leftward horizontal. They do not determine the requested value of f by themselves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Parabolic Mirror Figure.
+\end{proof}
+\begin{definition}[Satisfies Ideal Parabolic Mirror Optics]
+  \label{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-satisfiesidealparabolicmirroroptics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0114.SatisfiesIdealParabolicMirrorOptics}
+  \uses{def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-specularlyreflecteddirection, def:physics:phyx-mini-0114:phyxminiproblems-problemphyxmini0114-parabolicmirrorfigure}
+  Ideal straight-line propagation after specular reflection: starting from the mirror hit, the reflected ray reaches the axial focus. The displacement to the focus is (-r, -b) in every consistent length-unit readout. Specular reflection is supplied by specularlyReflectedDirection, independently of the unknown focal-distance formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Parabolic Mirror Optics.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

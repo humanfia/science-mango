@@ -1,0 +1,364 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0720.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0720.source.json
+
+\chapter{Physics problem phyx\_mini\_0720}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0720}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(10.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-diameter suction cup is pushed against a smooth ceiling. The object can be suspended from the suction cup without pulling it off the ceiling? The mass of the suction cup is negligible.
+
+\#\# Question
+
+What is the maximum mass of an object?
+
+\#\# Answer choices
+
+- A: A: 77kg
+
+- B: B: 79kg
+
+- C: C: 81kg
+
+- D: D: 83kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two parts: a diagram on the left and a force diagram on the right.
+
+Left Diagram:
+- It shows an object hanging from a ceiling by a rod or string.
+- The ceiling and object are represented in simplified forms, with the object labeled as "Object."
+
+Right Force Diagram:
+- It depicts a force diagram in the xy-plane with vectors:
+  - \textbackslash{}( \textbackslash{}vec\{F\}\_\{\textbackslash{}text\{air\}\} \textbackslash{}) pointing upwards along the y-axis.
+  - \textbackslash{}( \textbackslash{}vec\{F\}\_\{G\} \textbackslash{}) (Gravitational force) pointing downwards along the y-axis.
+  - \textbackslash{}( \textbackslash{}vec\{F\}\_\{\textbackslash{}text\{net\}\} = \textbackslash{}vec\{0\} \textbackslash{}), indicating net force is zero, suggesting equilibrium.
+  - A force labeled \textbackslash{}( \textbackslash{}vec\{n\} \textbackslash{}) (Normal force of ceiling) also pointing downwards.
+
+Text labels indicate:
+- "Normal force of ceiling" next to \textbackslash{}( \textbackslash{}vec\{n\} \textbackslash{}).
+- "Gravitational force" next to \textbackslash{}( \textbackslash{}vec\{F\}\_\{G\} \textbackslash{}).
+
+The combination of these elements visualizes forces acting on the object in equilibrium.
+
+\#\# Dataset metadata
+
+Statics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 81kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/720.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0720.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0720:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0720.problem_phyx_mini_0720}
+\uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchessuctioncupscenario, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchessuppliedfigure, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchesproblemreadouts, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-usesstandardenvironment, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-usesidealvacuumlimit, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-satisfiescircularcupgeometry, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-satisfiessuctioncupstatics, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-atdetachmentthreshold, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-ismaximumsustainableobjectmass, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.accelerationDimension}
+  The physical dimension of an acceleration magnitude, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.forceDimension}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationdimension}
+  The physical dimension of a force magnitude, M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.LengthQuantity}
+  A nonnegative unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.MassQuantity}
+  A nonnegative unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationdimension}
+  A nonnegative unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.ForceMagnitude}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forcedimension}
+  A nonnegative unit-independent force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.lengthInMeters}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthquantity}
+  Coherent-SI metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthinmeters}
+  Centimetre readout used for the stated cup diameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.areaInSquareMeters}
+  Coherent-SI square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.pressureInPascals}
+  Coherent-SI pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.massInKilograms}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity}
+  Coherent-SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationquantity}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.forceInNewtons}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forcemagnitude}
+  Coherent-SI newton readout of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[pressure Difference Force In Newtons]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressuredifferenceforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.pressureDifferenceForceInNewtons}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-areainsquaremeters, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressureinpascals}
+  The upward force in newtons supplied by a uniform pressure difference across the sealed circular area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Difference Force In Newtons.
+\end{proof}
+\begin{definition}[weight In Newtons]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-weightinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.weightInNewtons}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationinmeterspersecondsquared}
+  The weight magnitude in newtons of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of weight In Newtons.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.VerticalDirection}
+  Vertical directions of the three nonzero arrows in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Figure Force Label]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-figureforcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.FigureForceLabel}
+  Force labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Force Label.
+\end{proof}
+\begin{definition}[Suction Cup Figure]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.SuctionCupFigure}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-verticaldirection, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-figureforcelabel}
+  Qualitative and textual evidence from the two-part supplied figure. This record contains no pressure, mass, or force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suction Cup Figure.
+\end{proof}
+\begin{definition}[Attachment State]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-attachmentstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.AttachmentState}
+  Mechanical state of the suction cup and its suspended load
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Attachment State.
+\end{proof}
+\begin{definition}[Suction Cup Setup]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.SuctionCupSetup}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forcemagnitude, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupfigure, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-attachmentstate}
+  Independent physical quantities of the setup. The suspended mass and the three force magnitudes are observables constrained only by the hypotheses below; they are not defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suction Cup Setup.
+\end{proof}
+\begin{definition}[Matches Suction Cup Scenario]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchessuctioncupscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.MatchesSuctionCupScenario}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  The qualitative apparatus assumptions stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Suction Cup Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  Primary-image evidence: F\_air points upward, F\_G and n point downward, the net force is shown as zero, and the object hangs beneath the ceiling cup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthincentimeters, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  Numerical and idealizing data stated or implied by the problem. The suction cup diameter is 10.0 cm, and its negligible mass is modeled as zero. This record contains no suspended-object mass or answer-choice selection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Environment]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-usesstandardenvironment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.UsesStandardEnvironment}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressureinpascals, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  Standard environmental calibration used by the recorded numerical answer: one standard atmosphere is 101325 Pa and near-Earth gravity is 9.8 m/s²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Environment.
+\end{proof}
+\begin{definition}[Uses Ideal Vacuum Limit]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-usesidealvacuumlimit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.UsesIdealVacuumLimit}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressureinpascals, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  The maximum ideal suction is attained when the pressure beneath the sealed cup is vacuum. This is a pressure calibration, not a mass conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Ideal Vacuum Limit.
+\end{proof}
+\begin{definition}[Satisfies Circular Cup Geometry]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-satisfiescircularcupgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.SatisfiesCircularCupGeometry}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-lengthinmeters, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-areainsquaremeters, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  The sealed face is the disk determined by the stated cup diameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Cup Geometry.
+\end{proof}
+\begin{definition}[Satisfies Suction Cup Statics]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-satisfiessuctioncupstatics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.SatisfiesSuctionCupStatics}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forceinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressuredifferenceforceinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-weightinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  Governing pressure-force and weight laws, together with vertical static equilibrium. The diagram's upward air force balances the downward ceiling normal and gravitational forces. No numerical mass occurs in these laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Suction Cup Statics.
+\end{proof}
+\begin{definition}[At Detachment Threshold]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-atdetachmentthreshold}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.AtDetachmentThreshold}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-forceinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  At incipient detachment the ceiling can no longer exert a downward normal force on the cup, so that force has fallen to zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of At Detachment Threshold.
+\end{proof}
+\begin{definition}[Can Be Suspended]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-canbesuspended}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.CanBeSuspended}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-pressuredifferenceforceinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-weightinnewtons, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup}
+  A candidate object mass is sustainable when its weight plus the negligible cup weight does not exceed the available pressure-difference force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Be Suspended.
+\end{proof}
+\begin{definition}[Is Maximum Sustainable Object Mass]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-ismaximumsustainableobjectmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.IsMaximumSustainableObjectMass}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massquantity, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-canbesuspended}
+  A mass is maximal among all object masses sustainable by this setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Maximum Sustainable Object Mass.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.AnswerChoice}
+  Labels of the four mass choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Mass In Kilograms]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-displayedmassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.displayedMassInKilograms}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-answerchoice}
+  Kilogram values printed beside the answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Mass In Kilograms.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0720.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-massinkilograms, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-suctioncupsetup, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-answerchoice, def:physics:phyx-mini-0720:phyxminiproblems-problemphyxmini0720-displayedmassinkilograms}
+  A displayed choice is uniquely closest to the derived limiting mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,458 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0988.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0988.source.json
+
+\chapter{Physics problem phyx\_mini\_0988}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0988}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+During a summer internship as an electronics technician, you are asked to measure the self-inductance \textbackslash{}( L \textbackslash{}) of a solenoid. You connect the solenoid in series with a 10.0 \textbackslash{}( \textbackslash{}Omega \textbackslash{}) resistor, a battery that has negligible internal resistance, and a switch. Using an ideal voltmeter, you measure and digitally record the voltage \textbackslash{}( v\_L \textbackslash{}) across the solenoid as a function of the time \textbackslash{}( t \textbackslash{}) that has elapsed since the switch is closed. Your measured values are shown, where \textbackslash{}( v\_L \textbackslash{}) is plotted versus \textbackslash{}( t \textbackslash{}). In addition, you measure that \textbackslash{}( v\_L = 50.0\textbackslash{} \textbackslash{}text\{V\} \textbackslash{}) just after the switch is closed and \textbackslash{}( v\_L = 20.0\textbackslash{} \textbackslash{}text\{V\} \textbackslash{}) a long time after it is closed.
+
+\#\# Question
+
+What is the resistance \textbackslash{}( R\_L \textbackslash{}) of the solenoid?
+
+\#\# Answer choices
+
+- A: A: 10.0Ω
+
+- B: B: 6.67Ω
+
+- C: C: 3.33Ω
+
+- D: D: 13.3Ω
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph plotting data points on a grid. 
+
+- **Axes**: 
+  - The horizontal axis represents time, labeled as \textbackslash{}( t \textbackslash{}) in milliseconds (ms), and it ranges from 0.0 to 4.5 ms.
+  - The vertical axis represents voltage, labeled as \textbackslash{}( v\_L \textbackslash{}) in volts (V), ranging from 20.0 to 45.0 V.
+
+- **Data**: 
+  - The data points are represented by black dots, forming a descending curve.
+  - The voltage decreases as time increases.
+
+- **Grid**: 
+  - The background has a grid to assist in reading the values.
+
+The graph visually represents an exponential decay trend of voltage over time.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.67Ω
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/988.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0988.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0988:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0988.solenoid_winding_resistance_eq_twenty_div_three_ohms}
+\uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-matchessolenoidseriescircuitscenario, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-matchesprimarysolenoidvoltageplot, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasstatedsolenoidcircuitmeasurements, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasphysicalsolenoidcircuitparameters, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasclosingandlongtimeregimes, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-satisfiesseriesrlsolenoidlaws, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-recordeddatasetanswer, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-isuniqueclosestsolenoidresistancechoice}
+In the switched series circuit, the solenoid winding resistance is exactly
+$20/3\,\Omega$.  The displayed value $6.67\,\Omega$, recorded choice B, is
+strictly closer to this exact resistance than every other displayed choice.
+\end{theorem}
+\begin{proof}
+Immediately after closing, the current is zero.  Ohm's law therefore makes
+the external-resistor drop zero, and Kirchhoff's law identifies the battery
+voltage with the measured $50\,\mathrm{V}$ solenoid terminal voltage.  Long
+after closing, the current derivative is zero, so the inductive drop is zero
+and the measured $20\,\mathrm{V}$ terminal voltage is precisely the winding
+drop.  Kirchhoff's law then leaves $50-20=30\,\mathrm{V}$ across the
+$10\,\Omega$ external resistor, giving a series current of $3\,\mathrm{A}$.
+The winding Ohm law yields $20=3R_L$, hence $R_L=20/3\,\Omega$.
+
+The absolute error of choice B is
+$|20/3-6.67|=1/300\,\Omega$.  The errors of choices A, C, and D are
+$10/3\,\Omega$, $1001/300\,\Omega$, and $199/30\,\Omega$, respectively.
+Thus choice B is uniquely closest.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.electricCurrentDimension}
+  Electric current has physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.electricPotentialDimension}
+  Electric potential difference has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentdimension, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricpotentialdimension}
+  Electrical resistance has physical dimension voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.inductanceDimension}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentdimension, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricpotentialdimension}
+  Inductance has physical dimension voltage times time per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[electric Current Rate Dimension]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentratedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.electricCurrentRateDimension}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentdimension}
+  Current change rate has physical dimension current per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Rate Dimension.
+\end{proof}
+\begin{definition}[Potential Difference Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferencequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.PotentialDifferenceQuantity}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricpotentialdimension}
+  A signed, unit-independent electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Difference Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentdimension}
+  A signed, unit-independent electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Electric Current Rate Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.ElectricCurrentRateQuantity}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentratedimension}
+  A signed, unit-independent current change rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Rate Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductancedimension}
+  A nonnegative, unit-independent self-inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.signedSIReadout}
+  Coherent-SI readout of a signed dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[potential Difference In Volts]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.potentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferencequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-signedsireadout}
+  Read an oriented potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference In Volts.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.currentInAmperes}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentquantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-signedsireadout}
+  Read an oriented current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[current Rate In Amperes Per Second]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentrateinamperespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.currentRateInAmperesPerSecond}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentratequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-signedsireadout}
+  Read an oriented current change rate in amperes per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Rate In Amperes Per Second.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistancequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-nonnegativesireadout}
+  Read resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductancequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-nonnegativesireadout}
+  Read self-inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.CircuitComponent}
+  Components explicitly named in the measurement setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.ComponentModel}
+  Idealized physical roles assigned to the named components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Circuit Topology]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-circuittopology}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.CircuitTopology}
+  The topology stated in the prose, including the voltmeter connection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Topology.
+\end{proof}
+\begin{definition}[Switch Position]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-switchposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.SwitchPosition}
+  The two switch states needed for the closing experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch Position.
+\end{proof}
+\begin{definition}[Transient Regime]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-transientregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.TransientRegime}
+  Named limiting regimes used by the two additional voltage measurements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transient Regime.
+\end{proof}
+\begin{definition}[Plot Quantity]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-plotquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.PlotQuantity}
+  Physical quantity attached to a graph axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Quantity.
+\end{proof}
+\begin{definition}[Plot Unit]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-plotunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.PlotUnit}
+  Units explicitly printed beside the axes of the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Unit.
+\end{proof}
+\begin{definition}[Marker Color]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-markercolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.MarkerColor}
+  Visual rendering of each experimental sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Marker Color.
+\end{proof}
+\begin{definition}[Marker Shape]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-markershape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.MarkerShape}
+  Marker shape visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Marker Shape.
+\end{proof}
+\begin{definition}[Curve Appearance]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-curveappearance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.CurveAppearance}
+  Qualitative shape read from the plotted experimental samples
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Appearance.
+\end{proof}
+\begin{definition}[Solenoid Voltage Plot]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltageplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.SolenoidVoltagePlot}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-plotquantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-plotunit, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-markercolor, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-markershape, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-curveappearance}
+  Literal content of image 988.png. The sample-time set and voltage readout retain the plotted data separately from the continuous physical waveform
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solenoid Voltage Plot.
+\end{proof}
+\begin{definition}[Solenoid Series Circuit Setup]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.SolenoidSeriesCircuitSetup}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferencequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentquantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-electriccurrentratequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistancequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductancequantity, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-circuitcomponent, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-componentmodel, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-circuittopology, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-switchposition, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-transientregime, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltageplot}
+  Independent physical observables of the switched circuit. The solenoid winding resistance is a field, not a definition of the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solenoid Series Circuit Setup.
+\end{proof}
+\begin{definition}[current Waveform In Amperes]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentwaveforminamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.currentWaveformInAmperes}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentinamperes, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  The circuit-current readout as a function of time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Waveform In Amperes.
+\end{proof}
+\begin{definition}[current Derivative In Amperes Per Second]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentderivativeinamperespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.currentDerivativeInAmperesPerSecond}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentwaveforminamperes}
+  Time derivative of the current readout, in amperes per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Derivative In Amperes Per Second.
+\end{proof}
+\begin{definition}[solenoid Voltage Waveform In Volts]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltagewaveforminvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.solenoidVoltageWaveformInVolts}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  The solenoid terminal-voltage readout as a function of time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of solenoid Voltage Waveform In Volts.
+\end{proof}
+\begin{definition}[solenoid Voltage At Milliseconds In Volts]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltageatmillisecondsinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.solenoidVoltageAtMillisecondsInVolts}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltagewaveforminvolts}
+  Evaluate the continuous voltage waveform at a plot coordinate in milliseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of solenoid Voltage At Milliseconds In Volts.
+\end{proof}
+\begin{definition}[Matches Solenoid Series Circuit Scenario]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-matchessolenoidseriescircuitscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.MatchesSolenoidSeriesCircuitScenario}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  The idealized apparatus and series connection stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Solenoid Series Circuit Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Solenoid Voltage Plot]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-matchesprimarysolenoidvoltageplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.MatchesPrimarySolenoidVoltagePlot}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltageatmillisecondsinvolts}
+  Primary-raster evidence: the axis labels and scales, grid, black dots, their decreasing order, and calibration against the measured voltage waveform. The image itself contains no resistance value or answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Solenoid Voltage Plot.
+\end{proof}
+\begin{definition}[Has Stated Solenoid Circuit Measurements]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasstatedsolenoidcircuitmeasurements}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.HasStatedSolenoidCircuitMeasurements}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  The three numerical measurements stated in the prose. They calibrate an external component and two independently stored voltage observables; no solenoid winding resistance is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Solenoid Circuit Measurements.
+\end{proof}
+\begin{definition}[Has Physical Solenoid Circuit Parameters]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasphysicalsolenoidcircuitparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.HasPhysicalSolenoidCircuitParameters}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductanceinhenries, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  Positivity and nondegeneracy of the physical circuit parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Solenoid Circuit Parameters.
+\end{proof}
+\begin{definition}[Has Closing And Long Time Regimes]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-hasclosingandlongtimeregimes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.HasClosingAndLongTimeRegimes}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentinamperes, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentrateinamperespersecond, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentwaveforminamperes, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentderivativeinamperespersecond, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidvoltagewaveforminvolts}
+  The initial and limiting meanings of the two named regimes. The initially uncharged inductor current is continuous and hence zero at closure. At long times current has settled, so its derivative tends to the stored zero rate. These are previous-state/steady-state facts, not the requested resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Closing And Long Time Regimes.
+\end{proof}
+\begin{definition}[Satisfies Series RLSolenoid Laws]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-satisfiesseriesrlsolenoidlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.SatisfiesSeriesRLSolenoidLaws}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-potentialdifferenceinvolts, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentinamperes, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-currentrateinamperespersecond, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-inductanceinhenries, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup}
+  Lumped-element laws in each named regime. The measured solenoid terminal voltage is the sum of winding and self-inductive drops. All equalities relate independent observables and none fixes the winding resistance numerically
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Series RLSolenoid Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.AnswerChoice}
+  Labels of the four resistance choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Resistance In Ohms]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-answerchoice-displayedresistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.AnswerChoice.displayedResistanceInOhms}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-answerchoice}
+  Displayed resistance values, interpreted in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Resistance In Ohms.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Solenoid Resistance Choice]
+  \label{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-isuniqueclosestsolenoidresistancechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0988.IsUniqueClosestSolenoidResistanceChoice}
+  \uses{def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-resistanceinohms, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-solenoidseriescircuitsetup, def:physics:phyx-mini-0988:phyxminiproblems-problemphyxmini0988-answerchoice}
+  A displayed decimal choice is correct when it is strictly closer to the exact winding resistance than every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Solenoid Resistance Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

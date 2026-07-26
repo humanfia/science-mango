@@ -1,0 +1,341 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0185.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0185.source.json
+
+\chapter{Physics problem phyx\_mini\_0185}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0185}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A longitudinal standing wave can be created in a long, thin aluminum rod by stroking the rod with very dry fingers. This is often done as a physics demonstration, creating a high-pitched, very annoying whine. From a wave perspective, the standing wave is equivalent to a sound standing wave in an open-open tube. As figure shows, both ends of the rod are anti-nodes.
+
+\#\# Question
+
+What is the fundamental frequency of a \$2.0 \textbackslash{}, \textbackslash{}text\{m\}\$-long aluminum rod?
+
+\#\# Answer choices
+
+- A: A: 3.21 kHz
+
+- B: B: 0.805 kHz
+
+- C: C: 0.343 kHz
+
+- D: D: 1.6 kHz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a labeled diagram of an "Aluminum rod." The aluminum rod is represented as a long, rectangular gray shape. The label "Aluminum rod" is placed above the rod with a line pointing to it. Inside the rod, there are alternating blue arrows facing left and right, representing some form of movement or force within the rod. There are black dots interspersed between the arrows, indicating distinct points or positions along the rod.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.6 kHz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/185.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0185.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0185:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0185.problem_phyx_mini_0185}
+\uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinhertz, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesproblemandfigurereadouts, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-hasphysicalstandingwaveparameters, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesstandardaluminumlongitudinalspeed, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-satisfieslongitudinalstandingwavelaws, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-recordeddatasetanswer, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.SpeedQuantity}
+  A nonnegative physical propagation speed, carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.lengthReadout}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.frequencyReadout}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.speedReadout}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedquantity}
+  Read a physical speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.lengthInMeters}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinhertz}
+  Kilohertz readout, obtained from the hertz readout by scalar conversion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedreadout}
+  Meter-per-second readout of the longitudinal wave speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Rod Material]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodMaterial}
+  Material named by the problem and by the label above the pictured rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Material.
+\end{proof}
+\begin{definition}[Rod Geometry]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodGeometry}
+  Geometric idealization of the rod used by the longitudinal-wave model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Geometry.
+\end{proof}
+\begin{definition}[Excitation Method]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-excitationmethod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.ExcitationMethod}
+  How the demonstration excites the longitudinal oscillation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Excitation Method.
+\end{proof}
+\begin{definition}[Rod Wave Kind]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodWaveKind}
+  Type of disturbance represented by the opposed arrows in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Wave Kind.
+\end{proof}
+\begin{definition}[Acoustic Boundary Analogy]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-acousticboundaryanalogy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.AcousticBoundaryAnalogy}
+  Acoustic boundary model stated to be equivalent to the rod mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Analogy.
+\end{proof}
+\begin{definition}[Rod Boundary Condition]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodBoundaryCondition}
+  Mechanical boundary condition at either end of the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Boundary Condition.
+\end{proof}
+\begin{definition}[Rod Endpoint]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodEndpoint}
+  The two mechanical endpoints of the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Endpoint.
+\end{proof}
+\begin{definition}[Rod Figure Point]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodfigurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodFigurePoint}
+  Distinguished axial locations visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Figure Point.
+\end{proof}
+\begin{definition}[Displacement Feature]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displacementfeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.DisplacementFeature}
+  Displacement behavior of the standing wave at a distinguished point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Feature.
+\end{proof}
+\begin{definition}[Rod Figure Label]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.RodFigureLabel}
+  The text label printed above the rod in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Figure Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.AxialDirection}
+  The two axial directions indicated by the blue figure arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Aluminum Rod Standing Wave Setup]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.AluminumRodStandingWaveSetup}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedquantity, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodmaterial, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodgeometry, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-excitationmethod, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodwavekind, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-acousticboundaryanalogy, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodboundarycondition, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodendpoint, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodfigurepoint, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displacementfeature, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-rodfigurelabel, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-axialdirection}
+  Independent physical quantities and qualitative labels in the setup. modeNumber = 1 denotes the requested fundamental open--open mode. Neither the wavelength nor the frequency is assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aluminum Rod Standing Wave Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthinmeters, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup}
+  Problem-statement and primary-figure data. The two ends are free mechanical boundaries and displacement antinodes, while the center is a displacement node. The five black markers and left/right arrows record the remaining visible figure features. No wavelength or frequency answer occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Standing Wave Parameters]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-hasphysicalstandingwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.HasPhysicalStandingWaveParameters}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthinmeters, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinhertz, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedinmeterspersecond, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup}
+  Positivity and nondegeneracy conditions for the physical rod mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Standing Wave Parameters.
+\end{proof}
+\begin{definition}[Matches Standard Aluminum Longitudinal Speed]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesstandardaluminumlongitudinalspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.MatchesStandardAluminumLongitudinalSpeed}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedinmeterspersecond, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup}
+  The standard calibrated longitudinal-wave speed used for aluminum in this problem, expressed as an SI readout. This is material data, kept separate from both the figure readouts and the governing wave laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Standard Aluminum Longitudinal Speed.
+\end{proof}
+\begin{definition}[Satisfies Longitudinal Standing Wave Laws]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-satisfieslongitudinalstandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.SatisfiesLongitudinalStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthreadout, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyreadout, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-speedreadout, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup}
+  Governing relations for a longitudinal open--open standing-wave mode. The first field states 2 L = n λ for mode number n; the second is the propagation relation v = f λ. They are required in every compatible unit system and do not state the requested wavelength or frequency numerically
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Longitudinal Standing Wave Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displayedanswerfrequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.displayedAnswerFrequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-answerchoice}
+  Frequency printed beside each answer label, in kilohertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency In Kilohertz.
+\end{proof}
+\begin{definition}[displayed Precision In Kilohertz]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displayedprecisioninkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.displayedPrecisionInKilohertz}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-answerchoice}
+  Place value of the final digit displayed by each kilohertz answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Precision In Kilohertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinkilohertz, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-answerchoice, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displayedanswerfrequencyinkilohertz, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-displayedprecisioninkilohertz}
+  Agreement with a displayed answer to half of its final printed place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[fundamental Wavelength In Meters eq four]
+  \label{lem:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-fundamentalwavelengthinmeters-eq-four}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.fundamentalWavelengthInMeters_eq_four}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-lengthinmeters, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesproblemandfigurereadouts, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-satisfieslongitudinalstandingwavelaws}
+  The open--open fundamental geometry and the stated 2.0 m rod length imply the intermediate wavelength λ₁ = 4 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fundamental Wavelength In Meters eq four.
+\end{proof}
+\begin{lemma}[fundamental Frequency In Hertz eq 1605]
+  \label{lem:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-fundamentalfrequencyinhertz-eq-1605}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0185.fundamentalFrequencyInHertz_eq_1605}
+  \uses{def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-frequencyinhertz, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-aluminumrodstandingwavesetup, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesproblemandfigurereadouts, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-matchesstandardaluminumlongitudinalspeed, def:physics:phyx-mini-0185:phyxminiproblems-problemphyxmini0185-satisfieslongitudinalstandingwavelaws}
+  Combining λ₁ = 4 m with the calibrated aluminum speed 6420 m/s gives the exact model frequency f₁ = 1605 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fundamental Frequency In Hertz eq 1605.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,379 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0451.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0451.source.json
+
+\chapter{Physics problem phyx\_mini\_0451}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0451}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two kilograms of water at \$120 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ with a quality of \$25\textbackslash{}\%\$ has its temperature raised \$20 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ in a constant-volume process as in figure.
+
+\#\# Question
+
+What is the heat transfer in the process?
+
+\#\# Answer choices
+
+- A: A: 1224.38 kJ
+
+- B: B: 1009.92 kJ
+
+- C: C: 503.48 kJ
+
+- D: D: 877.8 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image appears to be a diagram illustrating a heating mechanism, likely for a boiler or a similar device. Here's a detailed description:
+
+1. **Container/Boiler**: A rectangular container is depicted. Inside the container, there is a body of liquid, represented by horizontal blue lines at the bottom.
+
+2. **Heat Source**: Beneath the container, there are four flames, indicating a heat source. Each flame is centralized over a rectangular base, evenly spaced along the bottom.
+
+3. **Pipe and Valve**: On top of the container, a pipe leads upward and then bends to the right. Just above where the pipe emerges from the container, there is a circular symbol with a cross inside, likely representing a valve controlling the flow through the pipe.
+
+Overall, the setup suggests a typical heating and steam generation configuration, often used in boilers or similar systems.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 877.8 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/451.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0451.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0451:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0451.heat_transfer_to_rigid_water_vessel}
+\uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinkilojoules, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesrigidwatervesselscenario, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchessuppliedfigure, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesproblemreadouts, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesreferencesaturatedwaterdata, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-satisfiesrigidvesselwaterlaws, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-answerchoice, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-isreportedheatchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[specific Volume Dimension]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.specificVolumeDimension}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumedimension}
+  The physical dimension of specific volume, L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Dimension.
+\end{proof}
+\begin{definition}[specific Internal Energy Dimension]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.specificInternalEnergyDimension}
+  The physical dimension of specific internal energy, L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumedimension}
+  A nonnegative, unit-independent physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.SpecificVolumeQuantity}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumedimension}
+  A nonnegative, unit-independent thermodynamic specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[Specific Internal Energy Quantity]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.SpecificInternalEnergyQuantity}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergydimension}
+  A signed, unit-independent specific internal energy. Signed values permit an arbitrary thermodynamic reference datum; the tabulated states in this problem have positive readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Internal Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.massInKilograms}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Metres Per Kilogram]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumeincubicmetresperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.specificVolumeInCubicMetresPerKilogram}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumequantity}
+  Read a specific volume in cubic metres per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Metres Per Kilogram.
+\end{proof}
+\begin{definition}[specific Internal Energy In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.specificInternalEnergyInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyquantity}
+  Read a specific internal energy in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Internal Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.specificInternalEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyquantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyinjoulesperkilogram}
+  Read a specific internal energy in kilojoules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.energyInJoules}
+  Read heat, work, or total internal energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinjoules}
+  Read heat, work, or total internal energy in kilojoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[Measured Temperature]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-measuredtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MeasuredTemperature}
+  An absolute temperature together with the zero-preserving unit in which its magnitude is stored. The affine Celsius offset is introduced only in the scalar readout below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Measured Temperature.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-measuredtemperature}
+  Kelvin readout of an absolute physical temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-measuredtemperature, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-temperatureinkelvins}
+  Celsius readout, using the exact offset 273.15 K = 5463 / 20 K
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Working Fluid]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-workingfluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.WorkingFluid}
+  The working substance in the depicted vessel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Fluid.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.ProcessStage}
+  The two endpoint states of the heating process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Water Phase Region]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-waterphaseregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.WaterPhaseRegion}
+  Thermodynamic phase region of an equilibrium water state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Phase Region.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.ProcessKind}
+  Idealized type of the process specified in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Valve Status]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-valvestatus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.ValveStatus}
+  Status of the valve on the top outlet during heating
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Status.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.FigureObject}
+  Distinct objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Rigid Vessel Figure]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidvesselfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.RigidVesselFigure}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-figureobject}
+  Qualitative geometry transcribed from the primary image. The record contains no thermodynamic property value and no heat-transfer answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Vessel Figure.
+\end{proof}
+\begin{definition}[Water State]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-waterstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.WaterState}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumequantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyquantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-measuredtemperature, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-waterphaseregion}
+  An equilibrium state of the fixed water inventory. vaporQuality is a dimensionless mass fraction whose thermodynamic meaning is imposed only when phaseRegion is the saturated liquid-vapor mixture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water State.
+\end{proof}
+\begin{definition}[Saturated Water Table]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-saturatedwatertable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.SaturatedWaterTable}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumequantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyquantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-measuredtemperature}
+  External saturated-water property data. The vaporization internal energy is u\_fg = u\_g - u\_f; all outputs remain dimensionful physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Saturated Water Table.
+\end{proof}
+\begin{definition}[Rigid Water Vessel Setup]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.RigidWaterVesselSetup}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massquantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumequantity, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-workingfluid, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-processstage, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-processkind, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-valvestatus, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidvesselfigure, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-waterstate, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-saturatedwatertable}
+  The closed rigid-vessel experiment. Heat is positive into the water and boundary work is positive when done by the water. Endpoint observables are independent fields until related by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Water Vessel Setup.
+\end{proof}
+\begin{definition}[Matches Rigid Water Vessel Scenario]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesrigidwatervesselscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MatchesRigidWaterVesselScenario}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  Qualitative physical idealizations supplied by the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Rigid Water Vessel Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-figureobject, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  Facts visible in image 451.png: the vessel and inventory, four flames below it, and the top pipe with a crossed circular valve symbol. Closed-valve operation is kept in the scenario predicate rather than inferred solely from the symbol
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massinkilograms, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-temperatureindegreescelsius, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  Numerical measurements stated in the problem. The final temperature is recorded as a 20 °C rise rather than inserted directly as a table index. No heat value or answer label occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Reference Saturated Water Data]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-matchesreferencesaturatedwaterdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.MatchesReferenceSaturatedWaterData}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  Saturated-water table entries at the independently specified endpoint temperatures. Specific volumes are in m³/kg; specific internal energies are in kJ/kg. These reference data determine the final phase and quality but do not mention heat transfer or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference Saturated Water Data.
+\end{proof}
+\begin{definition}[Satisfies Rigid Vessel Water Laws]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-satisfiesrigidvesselwaterlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.SatisfiesRigidVesselWaterLaws}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-massinkilograms, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-volumeincubicmetres, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificvolumeincubicmetresperkilogram, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-specificinternalenergyinkilojoulesperkilogram, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinkilojoules, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-processstage, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup}
+  Governing laws for the closed rigid water system: mass is conserved and the occupied volume is unchanged; V = m v at each endpoint; a state whose specific volume lies between saturated liquid and vapor values at its temperature is a saturated mixture; mixture specific volume and internal energy interpolate by vapor quality; the closed-system first law is ΔU = Q - W\_by; a rigid boundary performs no boundary work. None of these laws includes the requested numerical heat or selects a multiple-choice answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Vessel Water Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.AnswerChoice}
+  Labels printed beside the four candidate heat transfers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Kilojoules]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-displayedheatinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.displayedHeatInKilojoules}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-answerchoice}
+  Heat-transfer value in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-answerchoice}
+  Dataset answer metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Reported Heat Choice]
+  \label{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-isreportedheatchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0451.IsReportedHeatChoice}
+  \uses{def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-energyinkilojoules, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-rigidwatervesselsetup, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-answerchoice, def:physics:phyx-mini-0451:phyxminiproblems-problemphyxmini0451-displayedheatinkilojoules}
+  A choice reports the modeled heat to the one-decimal precision of choice D. This remains a nontrivial relation between an independently modeled heat and the displayed table
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Reported Heat Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

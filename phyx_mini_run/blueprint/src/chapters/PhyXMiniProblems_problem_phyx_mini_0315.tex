@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0315.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0315.source.json
+
+\chapter{Physics problem phyx\_mini\_0315}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0315}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, sound with a \$40.0\$ cm wavelength travels rightward from a source and through a tube that consists of a straight portion and a half-circle. Part of the sound wave travels through the half-circle and then rejoins the rest of the wave, which goes directly through the straight portion. This rejoining results in interference.
+
+\#\# Question
+
+What is the smallest radius \$r\$ that results in an intensity minimum at the detector?
+
+\#\# Answer choices
+
+- A: A: 10 cm
+
+- B: B: 12.5 cm
+
+- C: C: 15 cm
+
+- D: D: 17.5 cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram featuring a semi-circular arc positioned above a horizontal cylindrical object. 
+
+- The horizontal cylinder is oriented from left to right with labels "Source" on the left and "Detector" on the right.
+- A semi-circular arc is situated on top of the cylinder, appearing to be part of a larger circle.
+- There is a line extending from the center of the circle to a point on the arc, labeled "r" to represent the radius.
+- The diagram illustrates a structural representation, possibly related to physics or engineering concepts, depicting the relationship between a source and detector through a semi-circular path.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 17.5 cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/315.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0315.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0315:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0315.smallestRadius_selects_answerD}
+\uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-matchessuppliedfigure, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-matchesproblemreadout, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-emitscoherentlyfromsinglesource, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-hasphysicalacousticparameters, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiessemicirculartubegeometry, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiespathdifferencelaw, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiestwopathdestructiveinterferencelaw, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-issmallestpositiveminimumradius, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-displayedradiuscentimeters, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-recordedanswerchoice, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-roundstonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.AcousticLength}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.lengthReadout}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength}
+  Read a physical acoustic length in a chosen length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.centimetersValue}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout}
+  Read a physical acoustic length in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.FigurePoint}
+  Named points in the supplied source--tube--detector figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Tube Branch]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-tubebranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.TubeBranch}
+  The two competing routes between the junctions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Branch.
+\end{proof}
+\begin{definition}[Tube Path Kind]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-tubepathkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.TubePathKind}
+  The geometric kind of a depicted route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Path Kind.
+\end{proof}
+\begin{definition}[Depicted Tube Path]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-depictedtubepath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.DepictedTubePath}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-figurepoint, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-tubepathkind}
+  A route drawn between two labelled points of the tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Depicted Tube Path.
+\end{proof}
+\begin{definition}[Semicircular Tube Figure]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-semicirculartubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.SemicircularTubeFigure}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-figurepoint, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-tubebranch, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-depictedtubepath}
+  Qualitative information read from the primary image. The radius segment is drawn from the circle center to the semicircular branch and carries the label r; the scalar value of that radius is deliberately not figure data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Semicircular Tube Figure.
+\end{proof}
+\begin{definition}[Two Path Sound Tube Setup]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.TwoPathSoundTubeSetup}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-tubebranch, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-semicirculartubefigure}
+  The independent physical quantities and observables in the experiment. Amplitude remains abstract because the source amplitude and its unit are not specified. Path lengths and the detector-minimum observation depend on the candidate physical radius used to build the semicircular bypass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Path Sound Tube Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  The points and paths shown in the image. Both competing routes begin and end at the same junctions; one is a straight diameter and the other a semicircle. This contains no radius value and no interference conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readout]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-matchesproblemreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.MatchesProblemReadout}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  The wavelength readout supplied in the prose is 40.0 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readout.
+\end{proof}
+\begin{definition}[Emits Coherently From Single Source]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-emitscoherentlyfromsinglesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.EmitsCoherentlyFromSingleSource}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  Both parts originate by splitting one wave, so the model assumes equal amplitudes at recombination and a common phase at the split. This is source data, not a claim about the phase accumulated along either route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Emits Coherently From Single Source.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  The supplied wavelength is a strictly positive physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Semicircular Tube Geometry]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiessemicirculartubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.SatisfiesSemicircularTubeGeometry}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  For every candidate radius, the direct route is a diameter of length 2 r and the bypass is a semicircular arc of length π r. These are general geometric laws, stated in every supported length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Semicircular Tube Geometry.
+\end{proof}
+\begin{definition}[Satisfies Path Difference Law]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiespathdifferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.SatisfiesPathDifferenceLaw}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  The path difference is the magnitude of the two branch-length difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Path Difference Law.
+\end{proof}
+\begin{definition}[Satisfies Two Path Destructive Interference Law]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiestwopathdestructiveinterferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.SatisfiesTwoPathDestructiveInterferenceLaw}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-lengthreadout, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-emitscoherentlyfromsinglesource}
+  The general destructive-interference law for two coherent equal-amplitude parts of one monochromatic wave: a positive-radius tube gives an intensity minimum exactly when its path difference is an odd half-integer multiple of the wavelength. The same integer order witnesses the equality in every unit. No radius value or least-radius claim occurs in this law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Path Destructive Interference Law.
+\end{proof}
+\begin{definition}[Is Smallest Positive Minimum Radius]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-issmallestpositiveminimumradius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.IsSmallestPositiveMinimumRadius}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-acousticlength, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup}
+  A proposed radius is the answer to the word "smallest" when it is positive, produces an intensity minimum, and is no larger (in centimeter readout) than any other positive radius that produces a minimum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Smallest Positive Minimum Radius.
+\end{proof}
+\begin{lemma}[path Difference eq pi sub two mul radius]
+  \label{lem:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-pathdifference-eq-pi-sub-two-mul-radius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.pathDifference_eq_pi_sub_two_mul_radius}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-centimetersvalue, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-twopathsoundtubesetup, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiessemicirculartubegeometry, def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-satisfiespathdifferencelaw}
+  The geometry and path-difference law imply the general formula ΔL = (π - 2) r for every positive candidate radius
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of path Difference eq pi sub two mul radius.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.AnswerChoice}
+  The four answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Radius Centimeters]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-displayedradiuscentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.displayedRadiusCentimeters}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-answerchoice}
+  The radius in centimeters printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Radius Centimeters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth]
+  \label{def:physics:phyx-mini-0315:phyxminiproblems-problemphyxmini0315-roundstonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0315.RoundsToNearestTenth}
+  A real value rounds to the displayed value at the nearest tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

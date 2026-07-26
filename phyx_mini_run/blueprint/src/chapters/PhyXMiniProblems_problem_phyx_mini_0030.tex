@@ -1,0 +1,175 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0030.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0030.source.json
+
+\chapter{Physics problem phyx\_mini\_0030}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0030}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The lens and mirror in figure are separated by \textbackslash{}( d = 1.00 \textbackslash{}text\{ m\} \textbackslash{}) and have focal lengths of \textbackslash{}( +80.0 \textbackslash{}text\{ cm\} \textbackslash{}) and \textbackslash{}( -50.0 \textbackslash{}text\{ cm\} \textbackslash{}), respectively. An object is placed \textbackslash{}( p = 1.00 \textbackslash{}text\{ m\} \textbackslash{}) to the left of the lens as shown.
+
+\#\# Question
+
+Determine the overall magnification of the image.
+
+\#\# Answer choices
+
+- A: A: +0.500
+
+- B: B: +0.800
+
+- C: C: -0.500
+
+- D: D: -0.800
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a simple optical setup on a horizontal line featuring three main components: an object, a lens, and a mirror.
+
+- **Object**: Positioned on the left, it is represented as an upward-pointing arrow labeled "Object."
+
+- **Lens**: Located in the middle, it is concave and vertically oriented. It is labeled "Lens."
+
+- **Mirror**: On the right side, there is a curved mirror labeled "Mirror."
+
+- **Distances**: The object is 1.00 meter to the left of the lens, and the lens is 1.00 meter to the left of the mirror. These distances are marked with arrows and labeled as "1.00 m."
+
+The setup suggests an experiment involving optics, where light rays from the object pass through the lens and are reflected by the mirror.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -0.800
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/30.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0030.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0030:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0030.problem_phyx_mini_0030}
+\uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-metersvalue, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-lensmirrorsetup, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-axialseparationmeters, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-matchesfigurereadout, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-gaussianimaginglaw, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-transversemagnificationlaw, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-threestagemagnificationlaw}
+For an object \(1.00\,\mathrm m\) left of a \(+0.80\,\mathrm m\) thin lens
+and a \(-0.50\,\mathrm m\) convex mirror \(1.00\,\mathrm m\) beyond the lens,
+successive Gaussian imaging by the outbound lens, mirror, and return lens has
+overall signed transverse magnification \(-0.800\), answer D.
+\end{theorem}
+\begin{proof}
+Work in metre readouts.  Apply the division-free Gaussian equation
+\(f(p+q)=pq\) to the first lens with \(p=1\), \(f=4/5\), then use the
+propagation relation to obtain the mirror's signed object distance.  Apply the
+same equation with mirror focal length \(-1/2\), propagate its image back to
+the return-pass lens, and apply the lens equation once more.  At each stage
+the signed magnification law gives \(m=-q/p\).  None of the solved object
+distances is zero, as follows directly from the rational solutions.  Substitute
+the three ratios into the composition law and normalize their product to
+\(-4/5=-0.800\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.OpticalLength}
+  A signed physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length In]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-lengthin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.lengthIn}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength}
+  The physical length having the given scalar readout in unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.metersValue}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength}
+  The signed scalar readout of a physical length in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[Thin Lens Kind]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-thinlenskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.ThinLensKind}
+  The two paraxial thin-lens types, distinguished by the sign of focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thin Lens Kind.
+\end{proof}
+\begin{definition}[Spherical Mirror Kind]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-sphericalmirrorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.SphericalMirrorKind}
+  The two spherical-mirror types viewed from the incident-light side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Mirror Kind.
+\end{proof}
+\begin{definition}[Lens Mirror Setup]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-lensmirrorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.LensMirrorSetup}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-thinlenskind, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-sphericalmirrorkind}
+  The physical objects and labeled axial positions in the figure. The focal lengths are signed physical lengths; the axial positions are signed coordinates on the common horizontal optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Mirror Setup.
+\end{proof}
+\begin{definition}[axial Separation Meters]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-axialseparationmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.axialSeparationMeters}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-metersvalue}
+  The meter readout of the directed separation from left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Separation Meters.
+\end{proof}
+\begin{definition}[Matches Figure Readout]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-matchesfigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.MatchesFigureReadout}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-lengthin, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-lensmirrorsetup, def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-axialseparationmeters}
+  The element types and numerical data read from the problem and its figure: the biconvex lens is converging, the pictured mirror is convex, the object is 1.00 m left of the lens, the mirror is 1.00 m right of it, and the signed focal lengths are +80.0 cm and -50.0 cm, respectively
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readout.
+\end{proof}
+\begin{definition}[Gaussian Imaging Law]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-gaussianimaginglaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.GaussianImagingLaw}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength}
+  The paraxial Gaussian imaging law 1/f = 1/p + 1/q, written in the division-free, dimensionally homogeneous form f * (p + q) = p * q. It is required in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gaussian Imaging Law.
+\end{proof}
+\begin{definition}[Transverse Magnification Law]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-transversemagnificationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.TransverseMagnificationLaw}
+  \uses{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-opticallength}
+  The signed transverse-magnification law m = -q/p. The ratio is dimensionless and therefore has the same value in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transverse Magnification Law.
+\end{proof}
+\begin{definition}[Three Stage Magnification Law]
+  \label{def:physics:phyx-mini-0030:phyxminiproblems-problemphyxmini0030-threestagemagnificationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0030.ThreeStageMagnificationLaw}
+  The overall magnification of three successive imaging encounters is their product
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Stage Magnification Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

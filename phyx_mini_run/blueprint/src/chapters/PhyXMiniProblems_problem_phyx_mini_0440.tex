@@ -1,0 +1,336 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0440.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0440.source.json
+
+\chapter{Physics problem phyx\_mini\_0440}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0440}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A pressure cooker has the lid screwed on tight. A small opening with \$A = 5 \textbackslash{}, \textbackslash{}text\{mm\}\textasciicircum{}2\$ is covered with a petcock that can be lifted to let steam escape.
+
+\#\# Question
+
+How much mass should the petcock have to allow boiling at \$120 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ with an outside atmosphere at \$101.3 \textbackslash{}, \textbackslash{}text\{kPa\}\$?
+
+\#\# Answer choices
+
+- A: A: 10 g
+
+- B: B: 198.5 g
+
+- C: C: 100 g
+
+- D: D: 50 g
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic diagram of a closed container with a liquid and its vapor. 
+
+- The container has a lid with a valve on top. Steam is shown exiting through the valve as indicated by wavy lines emerging from it.
+- Inside the container, there are two main regions:
+  - The lower region is labeled "Liquid," depicted with horizontal lines to represent the liquid phase.
+  - The upper region is labeled "Steam or vapor," with dotted patterns to represent the gaseous phase filling the space above the liquid.
+- The word "Steam" is labeled outside the container near the steam lines.
+
+Overall, the image illustrates the phase equilibrium between a liquid and its vapor within a closed system.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 50 g
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/440.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0440.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0440:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0440.problem_phyx_mini_0440}
+\uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massinkilograms, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massingrams, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchespressurecookerscenario, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchessuppliedpressurecookerfigure, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchesproblemreadouts, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-usesstandardnearearthgravity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-useswatersaturationtableat120c, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-satisfiesboilingandpetcockbalancelaws, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-answerchoice, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-isnearestdisplayedmass}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.AccelerationQuantity}
+  A nonnegative acceleration magnitude with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Measured Temperature]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-measuredtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.MeasuredTemperature}
+  An absolute temperature and the zero-preserving unit in which its magnitude is stored. The affine Celsius offset is applied only by the scalar readout below, rather than treating Celsius as an absolute-temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Measured Temperature.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.areaReadout}
+  Read an area in the square of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areareadout}
+  Square-metre readout used in the pressure-force law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[area In Square Millimeters]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areainsquaremillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.areaInSquareMillimeters}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areareadout}
+  Square-millimetre readout used for the cooker opening
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Millimeters.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.massReadout}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.massInKilograms}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massreadout}
+  Kilogram readout used in the weight law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.massInGrams}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massreadout}
+  Gram readout used by the displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationquantity}
+  Metre-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.pressureInPascals}
+  Pascal readout of an absolute physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinpascals}
+  Kilopascal readout used by the atmospheric and steam-table data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.temperatureInKelvin}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-measuredtemperature}
+  Kelvin readout of a measured absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-measuredtemperature, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-temperatureinkelvin}
+  Celsius readout, with 273.15 K represented exactly as 5463 / 20
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[pressure Force In Newtons]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.pressureForceInNewtons}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areainsquaremeters, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinpascals}
+  Normal force in newtons exerted by a uniform pressure on the opening
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Force In Newtons.
+\end{proof}
+\begin{definition}[weight In Newtons]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-weightinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.weightInNewtons}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massinkilograms, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationinmeterspersecondsquared}
+  Downward petcock weight in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of weight In Newtons.
+\end{proof}
+\begin{definition}[Working Fluid]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-workingfluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.WorkingFluid}
+  The working liquid whose saturated vapor fills the cooker headspace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Fluid.
+\end{proof}
+\begin{definition}[Petcock State]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-petcockstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.PetcockState}
+  Mechanical state of the weighted vent at the specified boiling point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Petcock State.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.FigureLabel}
+  Literal labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.FigureRegion}
+  Vertically ordered regions distinguished by the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Pressure Cooker Figure]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.PressureCookerFigure}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-figurelabel, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-figureregion}
+  Qualitative and geometric information read from the primary image. This record contains no numerical mass, pressure, area, or temperature datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Cooker Figure.
+\end{proof}
+\begin{definition}[Pressure Cooker Setup]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.PressureCookerSetup}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationquantity, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-measuredtemperature, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-workingfluid, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-petcockstate, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookerfigure}
+  Independent physical quantities at the requested operating point. In particular, petcockMass is not defined using a displayed answer, and the saturation-pressure function represents a steam table independently of the actual cooker pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Cooker Setup.
+\end{proof}
+\begin{definition}[Matches Pressure Cooker Scenario]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchespressurecookerscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.MatchesPressureCookerScenario}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  Qualitative apparatus assumptions stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pressure Cooker Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Pressure Cooker Figure]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchessuppliedpressurecookerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.MatchesSuppliedPressureCookerFigure}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  Primary-image evidence: liquid occupies the lower region, steam or vapor the upper region, and escaping steam is drawn above the lid-mounted petcock
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Pressure Cooker Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-areainsquaremillimeters, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinkilopascals, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-temperatureindegreescelsius, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  Numerical data stated in the prose. No petcock-mass value or answer label occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Near Earth Gravity]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-usesstandardnearearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.UsesStandardNearEarthGravity}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  Standard near-Earth gravity used by the recorded numerical choice. It is an independent environmental calibration rather than the requested mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Near Earth Gravity.
+\end{proof}
+\begin{definition}[Uses Water Saturation Table At120 C]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-useswatersaturationtableat120c}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.UsesWaterSaturationTableAt120C}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureinkilopascals, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  The saturated-water steam-table readout at the independently specified 120 °C operating temperature is 198.5 kPa. This thermodynamic datum does not constrain the petcock mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Water Saturation Table At120 C.
+\end{proof}
+\begin{definition}[Satisfies Boiling And Petcock Balance Laws]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-satisfiesboilingandpetcockbalancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.SatisfiesBoilingAndPetcockBalanceLaws}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressureforceinnewtons, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-weightinnewtons, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup}
+  The governing laws are separate from their numerical calibrations: water boils when the headspace steam pressure equals its saturation pressure at the water temperature; at incipient lift, upward steam-pressure force balances downward atmospheric-pressure force and petcock weight. Neither law asserts a numerical petcock mass or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Boiling And Petcock Balance Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Mass In Grams]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-displayedmassingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.displayedMassInGrams}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-answerchoice}
+  Gram values printed beside the four labels. This records the candidate list without asserting which candidate follows from the physical laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Mass In Grams.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Mass]
+  \label{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-isnearestdisplayedmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0440.IsNearestDisplayedMass}
+  \uses{def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-massingrams, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-pressurecookersetup, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-answerchoice, def:physics:phyx-mini-0440:phyxminiproblems-problemphyxmini0440-displayedmassingrams}
+  A displayed mass choice is at least as close as every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Mass.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

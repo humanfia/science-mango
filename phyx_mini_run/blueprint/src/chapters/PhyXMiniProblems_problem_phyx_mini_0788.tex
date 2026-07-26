@@ -1,0 +1,415 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0788.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0788.source.json
+
+\chapter{Physics problem phyx\_mini\_0788}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0788}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A solid uniform ball rolls without slipping up a hill as shown in figure. At the top of the hill, it is moving horizontally, and then it goes over the vertical cliff. Neglect rolling friction and assume the system’s total mechanical energy is conserved.
+
+\#\# Question
+
+How fast is it moving just before it lands?
+
+\#\# Answer choices
+
+- A: A: 21.0m/s
+
+- B: B: 28.0m/s
+
+- C: C: 15.3m/s
+
+- D: D: 13.6m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics scenario with a smooth, curved ramp and an orange ball. The ball is at the bottom left of the ramp, with an arrow indicating its velocity moving rightward along the horizontal surface. The velocity is labeled as "25.0 m/s" in green text. 
+
+The ramp has a smooth incline leading up to a peak, after which it drops vertically. An arrow pointing vertically down from the peak of the ramp is labeled "28.0 m," indicating the vertical height of the fall. The ramp and the drop create a visible path for the ball's potential travel.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 28.0m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/788.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0788.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0788:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0788.landing_speed_selects_choice_B}
+\uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-usesstandardearthgravity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiestorquefreeprojectilelaws, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-answerchoice, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-displayedanswerspeedmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-roundstonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[speed Dimension]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.speedDimension}
+  Speed has physical dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.accelerationDimension}
+  Linear acceleration has physical dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[angular Speed Dimension]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.angularSpeedDimension}
+  Angular speed has inverse-time dimension; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.LengthQuantity}
+  A nonnegative, unit-independent physical length or height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.SpeedQuantity}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speeddimension}
+  A nonnegative, unit-independent center-of-mass speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.AngularSpeedQuantity}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeeddimension}
+  A nonnegative spin angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.EnergyQuantity}
+  Mechanical energy, with physical dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.massInKilograms}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massquantity}
+  Read a physical mass in coherent-SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Kilograms NNReal]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massinkilogramsnnreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.massInKilogramsNNReal}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massquantity}
+  The nonnegative SI mass used to instantiate Physlib's solid sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms NNReal.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.lengthInMeters}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthquantity}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Meters NNReal]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmetersnnreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.lengthInMetersNNReal}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthquantity}
+  The nonnegative SI radius used to instantiate Physlib's solid sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters NNReal.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedquantity}
+  Read a physical speed in coherent-SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationquantity}
+  Read acceleration in coherent-SI metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedquantity}
+  Read angular speed in radians per coherent-SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.energyInJoules}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-energyquantity}
+  Read a physical energy in joules, calibrated by Physlib's joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Motion Stage]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motionstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.MotionStage}
+  The three instants needed by the energy and projectile calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Stage.
+\end{proof}
+\begin{definition}[Motion Direction]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motiondirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.MotionDirection}
+  Coarse center-of-mass velocity directions stated or implied by the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Direction.
+\end{proof}
+\begin{definition}[Contact Regime]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-contactregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.ContactRegime}
+  Contact status of the ball at a modeled instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Contact Regime.
+\end{proof}
+\begin{definition}[Ball Mass Distribution]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-ballmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.BallMassDistribution}
+  The mass distribution stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball Mass Distribution.
+\end{proof}
+\begin{definition}[Rolling Resistance Model]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingresistancemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.RollingResistanceModel}
+  Treatment of dissipative rolling resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Resistance Model.
+\end{proof}
+\begin{definition}[Airborne Motion Model]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-airbornemotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.AirborneMotionModel}
+  The post-edge center-of-mass motion model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Airborne Motion Model.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.FigureFeature}
+  Distinct visible features of primary image 788.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Rolling Ball Cliff Figure]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballclifffigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.RollingBallCliffFigure}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-figurefeature}
+  Literal and qualitative information transcribed from the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Ball Cliff Figure.
+\end{proof}
+\begin{definition}[Rolling Ball Cliff Setup]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.RollingBallCliffSetup}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-energyquantity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motionstage, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motiondirection, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-contactregime, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-ballmassdistribution, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingresistancemodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-airbornemotionmodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballclifffigure}
+  The unknown speed at beforeLanding is an independent physical observable. All energies are likewise independent quantities related to the motion only by the governing-law predicates below. Nothing is defined from choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Ball Cliff Setup.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  Qualitative content stated in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-figurefeature, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  Figure evidence and its connection to physical readouts. Heights use the common initial/landing level as zero, so the center-of-mass height change from the edge to either aligned surface is the labeled cliff drop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  The standard near-Earth gravitational acceleration used numerically
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massinkilograms, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  Positivity needed to select the physical branches and use the sphere law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Solid Sphere Model]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.SatisfiesUniformSolidSphereModel}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massinkilogramsnnreal, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmetersnnreal, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedinradianspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motionstage, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  The abstract physical ball is identified with Physlib's actual solid-sphere rigid body in SI coordinates. Its spin vector lies along one fixed axis, so RigidBody.rotationalKineticEnergy uses the library's 2/5 m R² inertia tensor rather than an ad hoc scalar alias
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Solid Sphere Model.
+\end{proof}
+\begin{definition}[Satisfies Rolling Without Slip Kinematics]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.SatisfiesRollingWithoutSlipKinematics}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedinradianspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  No-slip coupling holds only while the ball is still touching the hill
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rolling Without Slip Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Mechanical Energy Laws]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.SatisfiesMechanicalEnergyLaws}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-massinkilograms, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-energyinjoules, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-motionstage, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  The standard energy formulae and the stated conservation law. These equations are uniform in the motion stage and contain no specialized landing speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mechanical Energy Laws.
+\end{proof}
+\begin{definition}[Satisfies Torque Free Projectile Laws]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiestorquefreeprojectilelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.SatisfiesTorqueFreeProjectileLaws}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-angularspeedinradianspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup}
+  After the center of mass leaves horizontally, uniform gravity changes its translational speed while exerting no torque about the ball's center. The speed-squared relation is the standard constant-gravity projectile law for a vertical drop. It is stated generically in the physical parameters, not with the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Torque Free Projectile Laws.
+\end{proof}
+\begin{lemma}[cliff Edge speed squared from rolling energy]
+  \label{lem:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-cliffedge-speed-squared-from-rolling-energy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.cliffEdge_speed_squared_from_rolling_energy}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws}
+  Energy conservation while rolling gives the edge-speed relation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cliff Edge speed squared from rolling energy.
+\end{proof}
+\begin{lemma}[cliff Edge speed squared eq 233]
+  \label{lem:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-cliffedge-speed-squared-eq-233}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.cliffEdge_speed_squared_eq_233}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-usesstandardearthgravity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws}
+  With v₀ = 25 m/s, h = 28 m, and g = 9.8 m/s², the edge speed has squared SI readout 233; its positive square root is about 15.3 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cliff Edge speed squared eq 233.
+\end{proof}
+\begin{lemma}[landing speed squared from initial data]
+  \label{lem:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-landing-speed-squared-from-initial-data}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.landing_speed_squared_from_initial_data}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-lengthinmeters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiestorquefreeprojectilelaws}
+  Combining rolling energy with the vertical-drop law eliminates the intermediate edge speed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of landing speed squared from initial data.
+\end{proof}
+\begin{theorem}[landing speed squared eq 3909 over 5]
+  \label{thm:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-landing-speed-squared-eq-3909-over-5}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.landing_speed_squared_eq_3909_over_5}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-speedinmeterspersecond, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-rollingballcliffsetup, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesproblemscenario, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-matchesprimaryfigure, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-usesstandardearthgravity, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-hasphysicalparameters, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesuniformsolidspheremodel, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesrollingwithoutslipkinematics, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiesmechanicalenergylaws, def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-satisfiestorquefreeprojectilelaws}
+  Exact squared landing speed in coherent SI units: 781.8 = 3909/5
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of landing speed squared eq 3909 over 5.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.AnswerChoice}
+  The four multiple-choice labels in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed Meters Per Second]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-displayedanswerspeedmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.displayedAnswerSpeedMetersPerSecond}
+  \uses{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-answerchoice}
+  Displayed speed, in metres per second, attached to each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed Meters Per Second.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth]
+  \label{def:physics:phyx-mini-0788:phyxminiproblems-problemphyxmini0788-roundstonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0788.RoundsToNearestTenth}
+  A generic numerical readout rounds to the displayed nearest tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,343 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0806.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0806.source.json
+
+\chapter{Physics problem phyx\_mini\_0806}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0806}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A sled with a mass of \textbackslash{}( 25.0 \textbackslash{}mathrm\{kg\} \textbackslash{}) rests on a horizontal sheet of essentially frictionless ice. It is attached by a \textbackslash{}( 5.00 \textbackslash{}mathrm\{m\} \textbackslash{}) rope to a post set in the ice. Once given a push, the sled revolves uniformly in a circle around the post as shown in figure
+
+\#\# Question
+
+If the sled makes five complete revolutions every minute, find the force \textbackslash{}( F \textbackslash{}) exerted on it by the rope.
+
+\#\# Answer choices
+
+- A: A: 35.6N
+
+- B: B: 34.3N
+
+- C: C: 32.4N
+
+- D: D: 39.9N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic diagram on a flat, reflective surface. There is a blue dashed circular path with arrows indicating a clockwise direction. At the center of the circle, a vertical pole extends upward. An orange sled is placed on the circle's perimeter, connected to the pole by a black line, which appears to denote a radius labeled "R" with an arrow pointing outward from the pole.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 34.3N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/806.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0806.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0806:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0806.sledRopeForce_is_34_point_3_newtons}
+\uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forceinnewtons, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchessledscenario, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchesproblemreadouts, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchesprimaryfigure, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiestautropegeometry, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiesangularrateconversion, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiesuniformcircularkinematics, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfieshorizontalnewtoniandynamics, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-displayedforceinnewtons, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-isclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.forceDimension}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationdimension}
+  The physical dimension of force, M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.LengthQuantity}
+  A nonnegative physical length, used for the rope length and orbit radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Revolution Rate Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.RevolutionRateQuantity}
+  A nonnegative revolution rate, with physical dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Revolution Rate Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationdimension}
+  A nonnegative centripetal-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.ForceQuantity}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forcedimension}
+  A nonnegative force magnitude, whose coherent SI unit is the newton
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.nonnegativeSIReadout}
+  Read any nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.massInKilograms}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.lengthInMeters}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[revolution Rate In Hertz]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionrateinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.revolutionRateInHertz}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionratequantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Cycle-per-second readout of a physical revolution rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of revolution Rate In Hertz.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Radian-per-second readout of a physical angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.forceInNewtons}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forcequantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-nonnegativesireadout}
+  Newton readout of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Trajectory Shape]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-trajectoryshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.TrajectoryShape}
+  Shape of the sled's trajectory about the post
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trajectory Shape.
+\end{proof}
+\begin{definition}[Surface Orientation]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-surfaceorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SurfaceOrientation}
+  Orientation of the ice sheet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Orientation.
+\end{proof}
+\begin{definition}[Friction Regime]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-frictionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.FrictionRegime}
+  Tangential resistance regime of the ice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Friction Regime.
+\end{proof}
+\begin{definition}[Radial Direction]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-radialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.RadialDirection}
+  Radial direction of the force exerted by the rope on the sled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radial Direction.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.RotationSense}
+  Sense of the motion indicated by the blue arrowheads in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Horizontal Force Source]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-horizontalforcesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.HorizontalForceSource}
+  Possible sources of the net horizontal force on the sled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Force Source.
+\end{proof}
+\begin{definition}[Sled Orbit Figure]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SledOrbitFigure}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-rotationsense}
+  Literal and qualitative evidence transcribed from primary image 806.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sled Orbit Figure.
+\end{proof}
+\begin{definition}[Sled Orbit Setup]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SledOrbitSetup}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionratequantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationquantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forcequantity, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-trajectoryshape, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-surfaceorientation, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-frictionregime, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-radialdirection, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-horizontalforcesource, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitfigure}
+  Independent physical quantities of the experiment. In particular, ropeForce is neither defined from nor initialized with the displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sled Orbit Setup.
+\end{proof}
+\begin{definition}[Matches Sled Scenario]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchessledscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.MatchesSledScenario}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  Qualitative conditions stated in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Sled Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massinkilograms, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthinmeters, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionrateinhertz, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  Numerical data from the prose. Five revolutions per minute is recorded as 5 / 60 cycles per coherent-SI second. No force value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  Primary-image evidence. The bitmap's lower arrow points to the right and its upper arrow points to the left, so its displayed sense is counterclockwise; this follows the required primary evidence rather than the auxiliary caption's incompatible word "clockwise"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Taut Rope Geometry]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiestautropegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SatisfiesTautRopeGeometry}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  A taut radial rope identifies its physical length with orbit radius R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Taut Rope Geometry.
+\end{proof}
+\begin{definition}[Satisfies Angular Rate Conversion]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiesangularrateconversion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SatisfiesAngularRateConversion}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-revolutionrateinhertz, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedinradianspersecond, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  One complete revolution is 2π radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Angular Rate Conversion.
+\end{proof}
+\begin{definition}[Satisfies Uniform Circular Kinematics]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfiesuniformcircularkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SatisfiesUniformCircularKinematics}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-lengthinmeters, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-angularspeedinradianspersecond, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  Uniform circular kinematics gives centripetal acceleration a = ω² R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Circular Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Horizontal Newtonian Dynamics]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-satisfieshorizontalnewtoniandynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.SatisfiesHorizontalNewtonianDynamics}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-massinkilograms, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-forceinnewtons, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-sledorbitsetup}
+  On frictionless horizontal ice, rope tension is the only horizontal force and Newton's second law in the inward radial direction is F = m a. This is a general governing relation and contains no requested numerical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Horizontal Newtonian Dynamics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.AnswerChoice}
+  Labels of the four force values displayed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Force In Newtons]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-displayedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.displayedForceInNewtons}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-answerchoice}
+  Displayed answer values, read in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Force In Newtons.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0806.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-answerchoice, def:physics:phyx-mini-0806:phyxminiproblems-problemphyxmini0806-displayedforceinnewtons}
+  A displayed choice is closest to a computed force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

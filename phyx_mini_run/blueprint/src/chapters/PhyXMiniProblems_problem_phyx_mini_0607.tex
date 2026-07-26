@@ -1,0 +1,306 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0607.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0607.source.json
+
+\chapter{Physics problem phyx\_mini\_0607}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0607}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An enemy spaceship is moving toward your starfighter with a speed, as measured in your frame, of \$0.400c\$. The enemy ship fires a missile toward you at a speed of \$0.700c\$ relative to the enemy ship (Fig). You measure that the enemy ship is \$8.00 \textbackslash{}times 10\textasciicircum{}6\$ km away from you when the missile is fired.
+
+\#\# Question
+
+How much time, measured in your frame, will it take the missile to reach you?
+
+\#\# Answer choices
+
+- A: A: 31.0s
+
+- B: B: 30.4s
+
+- C: C: 33.1s
+
+- D: D: 32.8s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two jet aircraft facing each other with a missile between them. 
+
+- On the left, there is a gray jet labeled "Enemy."
+- On the right, there is an orange jet labeled "Starfighter."
+- A missile is shown in the middle, pointing towards the Starfighter. 
+- A green arrow is depicted behind the missile, indicating its trajectory from the Enemy jet towards the Starfighter.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 31.0s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/607.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0607.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0607:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0607.problem_phyx_mini_0607}
+\uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationinseconds, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesnamedrestframes, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesproblemstatement, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchessuppliedfigure, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-hasphysicalrelativisticparameters, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-satisfiescollinearrelativisticinterceptlaws, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-missilevelocityfractionoflightinstarfighterframe, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-isuniqueclosestanswerchoice, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.LengthQuantity}
+  A nonnegative, unit-independent physical separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.DurationQuantity}
+  A nonnegative, unit-independent elapsed physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Axial Velocity]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.AxialVelocity}
+  A signed one-dimensional physical velocity. Physlib's DimSpeed is nonnegative, whereas the common flight axis here needs an orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Velocity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.lengthReadout}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthquantity}
+  Read a physical length in a named length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.durationReadout}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationquantity}
+  Read an elapsed physical time in a named time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[axial Velocity Readout]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.axialVelocityReadout}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocity}
+  Read a signed axial velocity in compatible length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.vacuumSpeedOfLightReadout}
+  Read Physlib's exact dimensionful vacuum speed of light in named units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthquantity, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthreadout}
+  Kilometer readout of the separation at the firing event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.durationInSeconds}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationquantity, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationreadout}
+  Second readout of the elapsed time requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[Inertial Frame]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-inertialframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.InertialFrame}
+  The two inertial rest frames named in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame.
+\end{proof}
+\begin{definition}[Body Label]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-bodylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.BodyLabel}
+  The three physical bodies visible from left to right in image 607
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Body Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.AxialDirection}
+  towardStarfighter is the positive direction on the common flight axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Printed Figure Label]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-printedfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.PrintedFigureLabel}
+  The two text labels printed under the spacecraft
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Printed Figure Label.
+\end{proof}
+\begin{definition}[Connector Style]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-connectorstyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.ConnectorStyle}
+  The pale segment and green trajectory arrow visible in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connector Style.
+\end{proof}
+\begin{definition}[Spaceship Missile Figure]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-spaceshipmissilefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.SpaceshipMissileFigure}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-bodylabel, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-printedfigurelabel, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-connectorstyle}
+  Qualitative evidence extracted from the supplied image. Natural-number ranks represent only left-to-right drawing order, not physical coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spaceship Missile Figure.
+\end{proof}
+\begin{definition}[Relativistic Missile Setup]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.RelativisticMissileSetup}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthquantity, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationquantity, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocity, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-inertialframe, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-bodylabel, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialdirection, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-spaceshipmissilefigure}
+  Independent physical observables for the scenario. The missile velocity in the starfighter frame and its flight time are unknown physical quantities; neither is defined from a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relativistic Missile Setup.
+\end{proof}
+\begin{definition}[Matches Named Rest Frames]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesnamedrestframes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.MatchesNamedRestFrames}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  The frame labels denote the rest frames of their defining spacecraft
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Named Rest Frames.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthinkilometers, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  Numerical and directional information stated in the prose. This gives no starfighter-frame missile velocity and no flight-time result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-spaceshipmissilefigure}
+  Facts visible in image 607: enemy, missile, and starfighter appear from left to right; only the spacecraft have text labels; the pale segment joins the enemy to the missile; and the green arrow points from missile to starfighter. The image supplies no quantitative spatial scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Relativistic Parameters]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-hasphysicalrelativisticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.HasPhysicalRelativisticParameters}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthinkilometers, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationinseconds, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  Positivity and subluminality exclude degenerate models without assigning a numerical answer to either unknown observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Relativistic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Collinear Relativistic Intercept Laws]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-satisfiescollinearrelativisticinterceptlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.SatisfiesCollinearRelativisticInterceptLaws}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  The collinear Einstein velocity-addition law and the constant-velocity travel law. If the enemy has velocity v in the starfighter frame and the missile has velocity u' in the enemy frame, the missile velocity in the starfighter frame is (v + u') / (1 + v*u'/c\textasciicircum{}2). Neither law contains 55/64, 31.0 s, or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Collinear Relativistic Intercept Laws.
+\end{proof}
+\begin{definition}[missile Velocity Fraction Of Light In Starfighter Frame]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-missilevelocityfractionoflightinstarfighterframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.missileVelocityFractionOfLightInStarfighterFrame}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-axialvelocityreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup}
+  Missile velocity in the starfighter frame as a dimensionless ratio to c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of missile Velocity Fraction Of Light In Starfighter Frame.
+\end{proof}
+\begin{lemma}[missile Velocity Fraction Of Light eq fifty Five Over Sixty Four]
+  \label{lem:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-missilevelocityfractionoflight-eq-fiftyfiveoversixtyfour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.missileVelocityFractionOfLight_eq_fiftyFiveOverSixtyFour}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesproblemstatement, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-hasphysicalrelativisticparameters, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-satisfiescollinearrelativisticinterceptlaws, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-missilevelocityfractionoflightinstarfighterframe}
+  Einstein addition of 2/5 c and 7/10 c gives 55/64 c
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of missile Velocity Fraction Of Light eq fifty Five Over Sixty Four.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-answerchoice}
+  Seconds printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer Choice]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-isuniqueclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.IsUniqueClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-answerchoice}
+  A displayed choice matches when it is strictly closer than every alternative. This states the multiple-choice interpretation without asserting the rounded 31.0 s display as an exact equality to the physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-answerchoice}
+  Choice A is the answer label recorded by the dataset, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[missile Flight Time In Seconds exact]
+  \label{lem:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-missileflighttimeinseconds-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0607.missileFlightTimeInSeconds_exact}
+  \uses{def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-vacuumspeedoflightreadout, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-lengthinkilometers, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-durationinseconds, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-relativisticmissilesetup, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-matchesproblemstatement, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-hasphysicalrelativisticparameters, def:physics:phyx-mini-0607:phyxminiproblems-problemphyxmini0607-satisfiescollinearrelativisticinterceptlaws}
+  The given separation and derived missile velocity determine the exact Physlib-calibrated elapsed-time expression. This is derived, not assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of missile Flight Time In Seconds exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

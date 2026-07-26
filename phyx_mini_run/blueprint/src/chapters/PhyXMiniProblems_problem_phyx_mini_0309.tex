@@ -1,0 +1,412 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0309.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0309.source.json
+
+\chapter{Physics problem phyx\_mini\_0309}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0309}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the output from a pressure monitor mounted at a point along the path taken by a sound wave of a single frequency traveling at \$343\$ m/s through air with a uniform density of \$1.21\$ kg/m\$\textasciicircum{}3\$. The vertical axis scale is set by \$\textbackslash{}Delta p\_s = 4.0\$ mPa.
+
+\#\# Question
+
+If the displacement function of the wave is \$s(x, t) = s\_m \textbackslash{}cos(kx - \textbackslash{}omega t)\$, what is \$k\$?
+
+\#\# Answer choices
+
+- A: A: 8.0 rad/m
+
+- B: B: 8.4 rad/m
+
+- C: C: 8.8 rad/m
+
+- D: D: 9.2 rad/m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a line graph depicting a sinusoidal wave. Below is a detailed description of the graph components:
+
+- **Axes**: 
+  - The horizontal axis is labeled \textbackslash{}( t \textbackslash{}) (ms), representing time in milliseconds.
+  - The vertical axis is labeled \textbackslash{}(\textbackslash{}Delta p\textbackslash{}) (mPa), representing pressure change in milliPascals.
+
+- **Wave Characteristics**:
+  - The wave appears to be a standard sine wave starting from the origin.
+  - It completes one full cycle from 0 to 2 on the horizontal axis.
+  - The maximum and minimum peaks of the wave touch the values 1 and -1 on the vertical axis, respectively.
+  - The points labeled \textbackslash{}(\textbackslash{}Delta p\_s\textbackslash{}) indicate the amplitude from the horizontal axis to the peaks.
+
+- **Grid**:
+  - A grid is present to provide a reference for the wave’s position and values.
+
+- **Thickness**:
+  - The wave is drawn with a thick line, making it prominent against the grid.
+
+This graph illustrates the relationship between time and pressure change, showing the periodic nature of the pressure variation.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 9.2 rad/m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/309.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0309.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0309:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0309.problem_phyx_mini_0309}
+\uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-hasphysicalacousticparameters, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-satisfiessinglefrequencyplanesoundwavelaws, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-recordedanswerchoice, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesnearesttenthdisplay}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.TimeQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Signed Time Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedtimequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.SignedTimeQuantity}
+  A signed time coordinate, as needed for the negative times in the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Time Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.LengthQuantity}
+  A nonnegative physical length or displacement amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.SignedLengthQuantity}
+  A signed position coordinate along the sound-wave path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.SpeedQuantity}
+  Propagation speed of the sound wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.PressureQuantity}
+  Signed acoustic pressure change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.MassDensityQuantity}
+  Uniform mass density, with dimension mass per volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.FrequencyQuantity}
+  Cyclic frequency, whose SI readout is in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.AngularFrequencyQuantity}
+  Angular frequency, with radians treated as dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.WaveNumberQuantity}
+  Wave number, with radians treated as dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.timeReadout}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timequantity}
+  Read a nonnegative duration in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[signed Time Readout]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedtimereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.signedTimeReadout}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedtimequantity}
+  Read a signed time coordinate in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Time Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.lengthReadout}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthquantity}
+  Read a nonnegative length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthquantity}
+  Read a signed position in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.speedReadout}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedquantity}
+  Read a speed in the selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.pressureInPascals}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressurequantity}
+  SI readout of a pressure change, in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Millipascals]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinmillipascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.pressureInMillipascals}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressurequantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinpascals}
+  Pressure readout in millipascals, the vertical unit in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Millipascals.
+\end{proof}
+\begin{definition}[mass Density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.massDensityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityquantity}
+  SI readout of mass density, in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyquantity}
+  Hertz readout of the physical cyclic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyquantity}
+  Radian-per-second readout of angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[wave Number In Radians Per Meter]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.waveNumberInRadiansPerMeter}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberquantity}
+  Radian-per-metre readout of wave number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number In Radians Per Meter.
+\end{proof}
+\begin{definition}[Figure Label Role]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figurelabelrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.FigureLabelRole}
+  Roles of the three mathematical labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label Role.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.FigureLabel}
+  Mathematical symbols printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Pressure Display Unit]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressuredisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.PressureDisplayUnit}
+  Unit displayed on the pressure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Display Unit.
+\end{proof}
+\begin{definition}[Figure Time Mark]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figuretimemark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.FigureTimeMark}
+  Distinguished times visible on the plotted sinusoid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Time Mark.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.AcousticMedium}
+  The propagation medium explicitly specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Pressure Time Figure]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressuretimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.PressureTimeFigure}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedtimequantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressurequantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figurelabelrole, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figurelabel, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressuredisplayunit, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figuretimemark}
+  The pressure-versus-time monitor figure and its dimensionful readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Time Figure.
+\end{proof}
+\begin{definition}[Acoustic Pressure Monitor Setup]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.AcousticPressureMonitorSetup}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timequantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressurequantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberquantity, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticmedium, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressuretimefigure}
+  The independent physical quantities and fields in the acoustic experiment. displacementInMeters x t is the signed longitudinal displacement component in metres at an SI position x and SI time t. The pressure field returns a physical DimPressure; its argument is an SI time coordinate in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Pressure Monitor Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Figure]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.MatchesProblemStatementAndFigure}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timereadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedtimereadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinmillipascals, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-figuretimemark, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup}
+  Data transcribed from the statement and the primary image. The graph has zeros at -1, 0, 1, 2 ms, positive peaks at -0.5, 1.5 ms, and a trough at 0.5 ms. The Δp\_s marks lie halfway between zero and the extrema, so the peak magnitude is twice the stated 4.0 mPa scale. The period field is tied to the separation of equal positive peaks. No field mentions the requested wave number or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Figure.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timereadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinpascals, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyinhertz, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyinradianspersecond, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup}
+  Positivity and nondegeneracy conditions for the physical sound wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Single Frequency Plane Sound Wave Laws]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-satisfiessinglefrequencyplanesoundwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.SatisfiesSingleFrequencyPlaneSoundWaveLaws}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timereadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-lengthreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-signedlengthreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-speedreadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-pressureinpascals, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyinhertz, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyinradianspersecond, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup}
+  The governing laws of the idealized nondispersive plane sound wave: s(x,t) = s\_m cos(kx - ωt), exactly as stated in the question; the monitor pressure has the corresponding quadrature sinusoid; cyclic frequency and period obey f T = 1; angular frequency obeys ω = 2πf; nondispersive phase speed obeys ω = kv; the pressure amplitude obeys Δp\_m = ρ v ω s\_m. These are general physical relations. They contain neither the requested closed form 1000π/343 nor the displayed value 9.2 rad/m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Single Frequency Plane Sound Wave Laws.
+\end{proof}
+\begin{lemma}[wave Period In Milliseconds eq two]
+  \label{lem:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-waveperiodinmilliseconds-eq-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.wavePeriodInMilliseconds_eq_two}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-timereadout, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure}
+  The peak-to-peak separation in the graph gives a period of 2 ms
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wave Period In Milliseconds eq two.
+\end{proof}
+\begin{lemma}[cyclic Frequency In Hertz eq five Hundred]
+  \label{lem:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-cyclicfrequencyinhertz-eq-fivehundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.cyclicFrequencyInHertz_eq_fiveHundred}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-frequencyinhertz, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-hasphysicalacousticparameters, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-satisfiessinglefrequencyplanesoundwavelaws}
+  A 2 ms period corresponds to a cyclic frequency of 500 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cyclic Frequency In Hertz eq five Hundred.
+\end{proof}
+\begin{lemma}[angular Frequency In Radians Per Second eq one Thousand pi]
+  \label{lem:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyinradianspersecond-eq-onethousand-pi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.angularFrequencyInRadiansPerSecond_eq_oneThousand_pi}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-angularfrequencyinradianspersecond, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-hasphysicalacousticparameters, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-satisfiessinglefrequencyplanesoundwavelaws}
+  The graph period gives angular frequency 1000π rad/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of angular Frequency In Radians Per Second eq one Thousand pi.
+\end{proof}
+\begin{lemma}[wave Number In Radians Per Meter eq one Thousand pi div 343]
+  \label{lem:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter-eq-onethousand-pi-div-343}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.waveNumberInRadiansPerMeter_eq_oneThousand_pi_div_343}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-wavenumberinradianspermeter, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-acousticpressuremonitorsetup, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesproblemstatementandfigure, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-hasphysicalacousticparameters, def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-satisfiessinglefrequencyplanesoundwavelaws}
+  Using ω = kv and the stated speed 343 m/s, the exact wave number is 1000π/343 rad/m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wave Number In Radians Per Meter eq one Thousand pi div 343.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.AnswerChoice}
+  Labels printed beside the four candidate wave numbers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians Per Meter]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-answerchoice-radianspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.AnswerChoice.radiansPerMeter}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-answerchoice}
+  Radian-per-metre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Per Meter.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Nearest Tenth Display]
+  \label{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-matchesnearesttenthdisplay}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0309.MatchesNearestTenthDisplay}
+  \uses{def:physics:phyx-mini-0309:phyxminiproblems-problemphyxmini0309-answerchoice}
+  Agreement with a value displayed to the nearest tenth of a radian per metre. The strict half-width excludes a midpoint tie
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Nearest Tenth Display.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,284 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0486.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0486.source.json
+
+\chapter{Physics problem phyx\_mini\_0486}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0486}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The \textbackslash{}(1.20\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) head of a hammer has a speed of \textbackslash{}(7.5\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}) just before it strikes a nail (figure) and is brought to rest. A\textbackslash{}(14\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) iron nail is struck by eight such hammer blows done in quick succession. Assume the nail absorbs all the energy.
+
+\#\# Question
+
+Estimate how much the temperature rises.
+
+\#\# Answer choices
+
+- A: A: 28°C
+
+- B: B: 52°C
+
+- C: C: 34°C
+
+- D: D: 43°C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene in which a hammer is about to strike a nail into a piece of wood. The hammer has a metallic head and a wooden handle, with lines indicating motion as it swings towards the nail. The nail is shown partially inserted into the wood, which has a visible wood grain pattern. There are no additional objects or text present in the image.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 43°C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/486.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0486.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0486:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0486.problem_phyx_mini_0486}
+\uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-matchesproblemandprimaryfigure, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-usesroundedironspecificheat, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hasphysicalimpactparameters, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-obeysimpactenergyandcalorimetrylaws, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-recordedanswerchoice, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-roundstodisplayedwholedegree, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-isuniqueclosestdisplayedtemperaturerise}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.MassQuantity}
+  A nonnegative physical mass carrying dimension M
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.SpeedQuantity}
+  A nonnegative physical speed carrying dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.EnergyQuantity}
+  A signed physical energy carrying dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[Specific Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.SpecificHeatCapacityQuantity}
+  A nonnegative specific heat capacity carrying dimension L² T⁻² Θ⁻¹. Its coherent-SI readout is in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[Temperature Difference Quantity]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferencequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.TemperatureDifferenceQuantity}
+  A nonnegative physical temperature difference carrying dimension Θ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Difference Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.massInKilograms}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massquantity}
+  Read a physical mass in coherent-SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedquantity}
+  Read a physical speed in coherent-SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.energyInJoules}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-energyquantity}
+  Read a physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[specific Heat In Joules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatinjoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.specificHeatInJoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatcapacityquantity}
+  Read a specific heat capacity in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Heat In Joules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[temperature Difference In Kelvins]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferenceinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.temperatureDifferenceInKelvins}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferencequantity}
+  Read a temperature difference in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Difference In Kelvins.
+\end{proof}
+\begin{definition}[temperature Rise In Degrees Celsius]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperatureriseindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.temperatureRiseInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferencequantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferenceinkelvins}
+  The numerical size of a temperature interval is the same in kelvins and degrees Celsius. This readout names that fact for the requested temperature rise, without treating an absolute Celsius temperature as a vector quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Rise In Degrees Celsius.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.FigureObject}
+  Physical objects distinguishable in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Material Kind]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-materialkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.MaterialKind}
+  Material roles stated in the prose or visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Material Kind.
+\end{proof}
+\begin{definition}[Impact Timing]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-impacttiming}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.ImpactTiming}
+  Timing of the repeated hammer impacts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Impact Timing.
+\end{proof}
+\begin{definition}[Hammer Nail Figure]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.HammerNailFigure}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-figureobject}
+  Qualitative data transcribed from primary image 486.png. The image shows no numeric annotation, so all numerical data remain in the prose-data predicate below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hammer Nail Figure.
+\end{proof}
+\begin{definition}[Hammer Nail Heating Setup]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.HammerNailHeatingSetup}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massquantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedquantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-energyquantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatcapacityquantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferencequantity, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-figureobject, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-materialkind, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-impacttiming, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailfigure}
+  Independent quantities of the impact-heating experiment. In particular, the nail's temperature rise and the three energy observables are not defined from an answer choice; the governing laws below constrain them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hammer Nail Heating Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massinkilograms, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedinmeterspersecond, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup}
+  Numerical and qualitative information supplied directly by the problem and primary image. The nail-mass readout uses kilograms, so 14 g = 14/1000 kg. This predicate contains neither a specific-heat calibration nor a requested temperature-rise value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Rounded Iron Specific Heat]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-usesroundedironspecificheat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.UsesRoundedIronSpecificHeat}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup}
+  The rounded classroom value 450 J/(kg K) for the specific heat capacity of iron. The source does not print a property table, so this independent material calibration is explicit rather than hidden in a definition or in the target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Iron Specific Heat.
+\end{proof}
+\begin{definition}[Has Physical Impact Parameters]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hasphysicalimpactparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.HasPhysicalImpactParameters}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massinkilograms, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedinmeterspersecond, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup}
+  Positivity and ordering conditions selecting the physical impact branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Impact Parameters.
+\end{proof}
+\begin{definition}[Obeys Impact Energy And Calorimetry Laws]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-obeysimpactenergyandcalorimetrylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.ObeysImpactEnergyAndCalorimetryLaws}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-massinkilograms, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-speedinmeterspersecond, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-energyinjoules, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferenceinkelvins, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup}
+  Governing impact and calorimetry laws: each blow loses the hammer head's change in translational kinetic energy, ΔK = (1/2) m (v\_before² - v\_after²); the energy losses of the identical blows add; the nail absorbs all of that energy; and constant-specific-heat calorimetry gives Q = m c ΔT. These relations are generic in the setup quantities. They contain no numerical temperature rise and no displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Impact Energy And Calorimetry Laws.
+\end{proof}
+\begin{lemma}[nail Temperature Rise exact]
+  \label{lem:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-nailtemperaturerise-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.nailTemperatureRise_exact}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperaturedifferenceinkelvins, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-matchesproblemandprimaryfigure, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-usesroundedironspecificheat, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hasphysicalimpactparameters, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-obeysimpactenergyandcalorimetrylaws}
+  The impact and calorimetry model predicts the exact unrounded temperature rise 300/7 K, approximately 42.857 K. This is a derived result, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of nail Temperature Rise exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Temperature Rise Degrees Celsius]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-displayedtemperaturerisedegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.displayedTemperatureRiseDegreesCelsius}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-answerchoice}
+  Whole-degree Celsius temperature-rise value printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Temperature Rise Degrees Celsius.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-answerchoice}
+  Dataset metadata records answer choice D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Whole Degree]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-roundstodisplayedwholedegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.RoundsToDisplayedWholeDegree}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperatureriseindegreescelsius, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-answerchoice, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-displayedtemperaturerisedegreescelsius}
+  The modeled rise rounds to the whole-degree value shown by a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Whole Degree.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Temperature Rise]
+  \label{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-isuniqueclosestdisplayedtemperaturerise}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0486.IsUniqueClosestDisplayedTemperatureRise}
+  \uses{def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-temperatureriseindegreescelsius, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-hammernailheatingsetup, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-answerchoice, def:physics:phyx-mini-0486:phyxminiproblems-problemphyxmini0486-displayedtemperaturerisedegreescelsius}
+  The selected displayed rise is closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Temperature Rise.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

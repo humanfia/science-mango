@@ -1,0 +1,293 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0249.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0249.source.json
+
+\chapter{Physics problem phyx\_mini\_0249}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0249}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Light from a helium-neon laser (\$\textbackslash{}lambda = 633\textbackslash{};nm\$) passes through a narrow slit and is seen on a screen \$2.0\textbackslash{};m\$ behind the slit. The first minimum in the diffraction pattern is \$1.2\textbackslash{};cm\$ from the central maximum.
+
+\#\# Question
+
+How wide is the slit?
+
+\#\# Answer choices
+
+- A: A: 0.11mm
+
+- B: B: 0.13mm
+
+- C: C: 0.10mm
+
+- D: D: 0.12mm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a single-slit diffraction experiment. 
+
+- On the left, there is a vertical bar labeled "Single slit," with a width indicated as \textbackslash{}( a \textbackslash{}).
+- A wave pattern representing light intensity is shown spreading out from the slit toward the right where it meets a "Screen."
+- The central maximum is labeled; it is the brightest part of the pattern on the screen.
+- Dashed lines show angles \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}) extending from the center of the slit to the screen.
+- The light intensity is depicted as a curve from the slit to the screen.
+- Peaks and troughs on the graph are marked as \textbackslash{}( p = 1 \textbackslash{}) and \textbackslash{}( p = 2 \textbackslash{}) away from the central maximum.
+- The distance between points marked \textbackslash{}( p = 1 \textbackslash{}) and \textbackslash{}( p = 1 \textbackslash{}) on either side of the central maximum is labeled as "Width \textbackslash{}( w \textbackslash{})."
+- A note states that the distance \textbackslash{}( L \textbackslash{}gg a \textbackslash{}), indicating that the screen is far from the slit.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 0.11mm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/249.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0249.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0249:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0249.problem_phyx_mini_0249}
+\uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-matchesproblemandfigurereadouts, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-hasphysicalparameters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-smallpositivescale, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-connectsexperimenttoscaledfamily, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-satisfiesexactscreenraygeometry, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-satisfiesfraunhoferparaxialasymptotics, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-widthestimateprofileinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-inferredslitwidthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-recordeddatasetanswer, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-isuniquematchingdisplayedwidth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.OpticalLength}
+  A signed, unit-independent physical quantity carrying length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.lengthReadout}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength}
+  Read a physical length as a real number in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.lengthInMeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout}
+  Centimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout}
+  Millimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout}
+  Nanometre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[Laser Kind]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-laserkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.LaserKind}
+  The laser source named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Laser Kind.
+\end{proof}
+\begin{definition}[Slit Geometry]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-slitgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.SlitGeometry}
+  The aperture geometry shown on the left of the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Slit Geometry.
+\end{proof}
+\begin{definition}[Optical Regime]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.OpticalRegime}
+  The controlled limiting model used for the diffraction calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Regime.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.FigureFeature}
+  Text labels and qualitative features visible in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Single Slit Diffraction Setup]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.SingleSlitDiffractionSetup}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticallength, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-laserkind, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-slitgeometry, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-opticalregime, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-figurefeature}
+  This structure records the Single Slit Diffraction Setup component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Single Slit Diffraction Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthincentimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinnanometers, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  Source values and primary-figure readouts. The full central-maximum width is the distance between the two symmetric first minima, hence w = 2 y₁. This predicate contains no value of the unknown slit width or of a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  Positive, nondegenerate parameters of the source experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Is Positive Acute Angle]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-ispositiveacuteangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.IsPositiveAcuteAngle}
+  An angle lies on the positive acute branch when it has a representative strictly between 0 and π/2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Positive Acute Angle.
+\end{proof}
+\begin{definition}[small Positive Scale]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-smallpositivescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.smallPositiveScale}
+  Approach zero through positive values of the approximation parameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of small Positive Scale.
+\end{proof}
+\begin{definition}[Connects Experiment To Scaled Family]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-connectsexperimenttoscaledfamily}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.ConnectsExperimentToScaledFamily}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthreadout, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  This interface connects the actual experiment to a scaled family. The family keeps the physical slit width fixed and uses λ(ε) = ε a; thus ε has the physical role of the dimensionless ratio λ / a. It also identifies the measured first-minimum ratio at the selected experimental scale. These are parameterization and observation relations, not the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connects Experiment To Scaled Family.
+\end{proof}
+\begin{definition}[Satisfies Exact Screen Ray Geometry]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-satisfiesexactscreenraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.SatisfiesExactScreenRayGeometry}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-ispositiveacuteangle}
+  Exact planar-screen ray geometry uses yₚ / L = tan θₚ. This equality is geometrical and is not the paraxial approximation tan θ ≈ sin θ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Screen Ray Geometry.
+\end{proof}
+\begin{definition}[Satisfies Fraunhofer Paraxial Asymptotics]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-satisfiesfraunhoferparaxialasymptotics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.SatisfiesFraunhoferParaxialAsymptotics}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-smallpositivescale}
+  A controlled asymptotic form of the two approximations used by the textbook calculation. The single-slit residual a sin θₚ(ε) - p λ(ε) is little-o of λ(ε). The paraxial projection residual yₚ(ε)/L - sin θₚ(ε) is little-o of sin θₚ(ε). Consequently neither approximation is asserted as a global exact identity at the finite source experiment. The exact screen relation remains the tangent law above
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fraunhofer Paraxial Asymptotics.
+\end{proof}
+\begin{definition}[width Estimate Profile In Millimeters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-widthestimateprofileinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.widthEstimateProfileInMillimeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  The order-one Fraunhofer-paraxial width estimator along the scaled family. Both numerator and result are millimetre scalar readouts, while the denominator is the dimensionless ratio y₁ / L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of width Estimate Profile In Millimeters.
+\end{proof}
+\begin{definition}[inferred Slit Width In Millimeters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-inferredslitwidthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.inferredSlitWidthInMillimeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-lengthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-singleslitdiffractionsetup}
+  The leading-order estimator evaluated directly from the three source measurements: a\_est = λ L / y₁. This is a general measurement formula, not a definition of the requested numerical answer or of the physical slit width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inferred Slit Width In Millimeters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.AnswerChoice}
+  Labels of the four slit-width choices printed with the dataset item
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Width In Millimeters]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-displayedwidthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.displayedWidthInMillimeters}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-answerchoice}
+  Millimetre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Width In Millimeters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[rounded To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-roundedtonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.roundedToNearestHundredth}
+  Round a millimetre readout to the nearest hundredth of a millimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rounded To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Displayed Width]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-matchesdisplayedwidth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.MatchesDisplayedWidth}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-answerchoice, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-displayedwidthinmillimeters, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-roundedtonearesthundredth}
+  A displayed choice agrees with an inferred width at the shown precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Width.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Width]
+  \label{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-isuniquematchingdisplayedwidth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0249.IsUniqueMatchingDisplayedWidth}
+  \uses{def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-answerchoice, def:physics:phyx-mini-0249:phyxminiproblems-problemphyxmini0249-matchesdisplayedwidth}
+  The selected label is the unique displayed choice matching the estimate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Width.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,368 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0202.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0202.source.json
+
+\chapter{Physics problem phyx\_mini\_0202}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0202}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Agent Arlene devised the following method of measuring the muzzle velocity of a rifle (figure). She fires a bullet into a 4.148\textbackslash{},\textbackslash{}mathrm\{kg\} wooden block resting on a smooth surface, and attached to a spring of spring constant \textbackslash{}( k = 162.7\textbackslash{},\textbackslash{}mathrm\{N/m\} \textbackslash{}). The bullet, whose mass is 7.870\textbackslash{},\textbackslash{}mathrm\{g\}, remains embedded in the wooden block. She measures the maximum distance that the block compresses the spring to be 9.460\textbackslash{},\textbackslash{}mathrm\{cm\}.
+
+\#\# Question
+
+What is the speed \textbackslash{}( v \textbackslash{}) of the bullet?
+
+\#\# Answer choices
+
+- A: A: 302.6m/s
+
+- B: B: 332.6m/s
+
+- C: C: 322.6m/s
+
+- D: D: 312.6m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two diagrams illustrating a physical scenario involving a spring and colliding masses.
+
+1. **Top Diagram:**
+   - A bullet or small object with mass \textbackslash{}( m \textbackslash{}) is depicted on the left, moving towards the right.
+   - It has a velocity vector \textbackslash{}( \textbackslash{}vec\{v\} \textbackslash{}) pointing towards a larger block.
+   - The larger block, labeled with mass \textbackslash{}( M \textbackslash{}), is positioned horizontally on a surface.
+   - Attached to the block is a spring with a spring constant \textbackslash{}( k \textbackslash{}), fixed to a wall on the right.
+
+2. **Bottom Diagram:**
+   - After the collision, the bullet is embedded in the block. The combined mass is labeled \textbackslash{}( M + m \textbackslash{}).
+   - This configuration is on the same horizontal surface.
+   - The spring is compressed.
+   - The compression distance is labeled as 9.460 cm.
+
+The setup likely demonstrates a collision and subsequent compression of the spring, illustrating principles of momentum conservation and energy transfer.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 312.6m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/202.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0202.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0202:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0202.problem_phyx_mini_0202}
+\uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesproblemreadouts, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesscenarioandsuppliedfigure, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-hasphysicalballisticspringparameters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiescollisionmomentumconservation, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiesenergyconservationduringcompression, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-roundstonearesttenthmeterpersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.MassQuantity}
+  A nonnegative physical mass, independent of its readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.LengthQuantity}
+  A nonnegative physical length, independent of its readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.SpeedQuantity}
+  A nonnegative speed, with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.SpringStiffnessQuantity}
+  Spring stiffness, with dimension mass per time squared (N/m)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.massReadout}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.lengthReadout}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.speedReadout}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedquantity}
+  Read a speed in the coherent length-per-time unit selected below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[stiffness Readout]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.stiffnessReadout}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-springstiffnessquantity}
+  Read spring stiffness in the coherent mass-per-time-squared unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.massInKilograms}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massreadout}
+  Kilogram readout used for the two masses and the governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.massInGrams}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massreadout}
+  Gram readout used for the bullet mass stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.lengthInMeters}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthreadout}
+  Meter readout used for spring displacements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthreadout}
+  Centimeter readout used for the measured maximum compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedreadout}
+  Speed readout in meters per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-springstiffnessquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessreadout}
+  Spring-stiffness readout in kilograms per second squared, i.e. newtons per meter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Figure Panel]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figurepanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.FigurePanel}
+  The two moments depicted by the upper and lower panels of the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Panel.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.FigureObject}
+  Objects distinguished in the supplied two-panel figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.FigureLabel}
+  Mathematical labels printed in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.HorizontalDirection}
+  Horizontal direction of the bullet's velocity arrow in the upper panel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.CollisionOutcome}
+  Qualitative collision outcome represented in the lower panel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.SurfaceCondition}
+  Surface idealization stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Ballistic Spring Figure]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.BallisticSpringFigure}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figurepanel, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figureobject, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-figurelabel, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-horizontaldirection}
+  Qualitative evidence transcribed from the primary image. The numerical compression datum remains a readout of the physical displacement in the setup; showsLabel only records that its label appears in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ballistic Spring Figure.
+\end{proof}
+\begin{definition}[Ballistic Spring Setup]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.BallisticSpringSetup}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-springstiffnessquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-collisionoutcome, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-surfacecondition, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringfigure}
+  All independent quantities used in the experiment. In particular, initialBulletSpeed is an unconstrained physical speed until the data and governing laws are supplied; no field assigns it an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ballistic Spring Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massinkilograms, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massingrams, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthinmeters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthincentimeters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessinnewtonspermeter, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  Numerical readouts stated in the problem, together with the initial and final boundary conditions implicit in "resting" and "maximum compression". The requested muzzle speed does not occur here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Scenario And Supplied Figure]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesscenarioandsuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.MatchesScenarioAndSuppliedFigure}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  Qualitative scenario and primary-image facts. The upper panel places the right-moving bullet to the left of the block and the block to the left of the wall-mounted spring. The lower panel shows the embedded composite and the compression annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Ballistic Spring Parameters]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-hasphysicalballisticspringparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.HasPhysicalBallisticSpringParameters}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massinkilograms, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthinmeters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessinnewtonspermeter, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  Positivity and nondegeneracy conditions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ballistic Spring Parameters.
+\end{proof}
+\begin{definition}[Satisfies Collision Momentum Conservation]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiescollisionmomentumconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.SatisfiesCollisionMomentumConservation}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  One-dimensional momentum conservation during the short perfectly inelastic collision. It is stated in every coherent selection of mass, length, and time units and retains the initially stationary block term explicitly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Collision Momentum Conservation.
+\end{proof}
+\begin{definition}[Satisfies Energy Conservation During Compression]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiesenergyconservationduringcompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.SatisfiesEnergyConservationDuringCompression}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessreadout, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup}
+  Mechanical-energy conservation from immediately after impact until maximum compression. Multiplying the usual kinetic-plus-spring-potential equation by two gives the displayed relation. Collision energy is deliberately not conserved: this law applies only after the embedded composite has formed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Energy Conservation During Compression.
+\end{proof}
+\begin{lemma}[initial Bullet Speed squared relation]
+  \label{lem:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-initialbulletspeed-squared-relation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.initialBulletSpeed_squared_relation}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-massinkilograms, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-lengthinmeters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-stiffnessinnewtonspermeter, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesproblemreadouts, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-hasphysicalballisticspringparameters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiescollisionmomentumconservation, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiesenergyconservationduringcompression}
+  Eliminating the intermediate composite speed yields the exact squared-speed relation. This is a derived conclusion, not a premise of the main theorem
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Bullet Speed squared relation.
+\end{proof}
+\begin{lemma}[initial Bullet Speed exact readout]
+  \label{lem:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-initialbulletspeed-exact-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.initialBulletSpeed_exact_readout}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesproblemreadouts, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-hasphysicalballisticspringparameters, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiescollisionmomentumconservation, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-satisfiesenergyconservationduringcompression}
+  The positive solution of the squared relation, with all source measurements converted to SI units. The decimal answer is obtained only after rounding this exact radical expression
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Bullet Speed exact readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.AnswerChoice}
+  Labels attached to the four speeds printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-displayedanswerspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.displayedAnswerSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-answerchoice}
+  Displayed answer speeds, read in meters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-answerchoice}
+  The dataset's recorded answer label; this metadata is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth Meter Per Second]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-roundstonearesttenthmeterpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.RoundsToNearestTenthMeterPerSecond}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedquantity, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-speedinmeterspersecond}
+  Agreement with a displayed speed after rounding to the nearest 0.1 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth Meter Per Second.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0202.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-ballisticspringsetup, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-answerchoice, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-displayedanswerspeedinmeterspersecond, def:physics:phyx-mini-0202:phyxminiproblems-problemphyxmini0202-roundstonearesttenthmeterpersecond}
+  The physical muzzle speed rounds to the number printed beside a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

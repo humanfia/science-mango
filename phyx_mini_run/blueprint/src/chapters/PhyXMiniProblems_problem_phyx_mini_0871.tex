@@ -1,0 +1,304 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0871.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0871.source.json
+
+\chapter{Physics problem phyx\_mini\_0871}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0871}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the magnitude of the electric field at the dot?
+
+\#\# Answer choices
+
+- A: A: 10kV/m
+
+- B: B: 15kV/m
+
+- C: C: 25kV/m
+
+- D: D: 20kV/m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a 2D coordinate plane with axes labeled \textbackslash{}(x\textbackslash{}) and \textbackslash{}(y\textbackslash{}). There is a right triangle formed along these axes with each leg measuring 1 cm, and an angle of 45° at the intersection. Dashed green lines run diagonally, parallel to the hypotenuse of the triangle.
+
+The diagonal lines represent equipotential lines, labeled with electric potentials:
+
+- One line is labeled \textbackslash{}(200 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+- One line is labeled \textbackslash{}(0 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+- One line is labeled \textbackslash{}(-200 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+
+There is a black dot located centrally among these lines, indicating a specific point in the coordinate system.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 20kV/m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/871.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0871.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0871:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldMagnitudeAtDot_matches_answer_D}
+\uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-matchesprimaryequipotentialfigure, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-hasphysicalequipotentialgeometry, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-satisfiesuniformequipotentialelectrostatics, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinkilovoltspermeter, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-displayedfieldmagnitudeinkilovoltspermeter, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-isuniqueexactdisplayedmatch}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricPotentialDimension}
+  Electric potential has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Field Dimension]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfielddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldDimension}
+  Electric field has dimension potential per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.LengthQuantity}
+  A nonnegative unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialdimension}
+  A signed unit-independent electrostatic potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.PlanarPositionQuantity}
+  A unit-independent position in the pictured two-dimensional plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Electric Field Vector Quantity]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.ElectricFieldVectorQuantity}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfielddimension}
+  A unit-independent planar electric-field vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Vector Quantity.
+\end{proof}
+\begin{definition}[x Coordinate]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-xcoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.xCoordinate}
+  Coordinate 0, the horizontal x direction in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Coordinate.
+\end{proof}
+\begin{definition}[y Coordinate]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-ycoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.yCoordinate}
+  Coordinate 1, the vertical y direction in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Coordinate.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.lengthInMeters}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthquantity}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialquantity}
+  Read an electrostatic potential in coherent-SI volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[position Vector In Meters]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positionvectorinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.positionVectorInMeters}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-planarpositionquantity}
+  Read a planar physical position as a vector of metre coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector In Meters.
+\end{proof}
+\begin{definition}[position In Physlib Space]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positioninphyslibspace}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.positionInPhyslibSpace}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-planarpositionquantity, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positionvectorinmeters}
+  Regard the coherent-SI coordinates as a point of Physlib's planar space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Physlib Space.
+\end{proof}
+\begin{definition}[electric Field Vector In Volts Per Meter]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldVectorInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorquantity}
+  Read an electric-field vector in coherent-SI volts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Vector In Volts Per Meter.
+\end{proof}
+\begin{definition}[Potential Line]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-potentialline}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.PotentialLine}
+  The three dashed equipotential lines, ordered by increasing potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Line.
+\end{proof}
+\begin{definition}[Adjacent Line Gap]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-adjacentlinegap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.AdjacentLineGap}
+  The two adjacent perpendicular gaps measured in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Adjacent Line Gap.
+\end{proof}
+\begin{definition}[Coordinate Axis]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-coordinateaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.CoordinateAxis}
+  The two coordinate axes printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.FigureColor}
+  Colors needed to transcribe the dashed-line styling
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Equipotential Line Figure]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentiallinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.EquipotentialLineFigure}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-potentialline, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-adjacentlinegap, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-coordinateaxis, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-figurecolor}
+  Literal qualitative and textual information visible in image 871.png. Numerical physical readouts are connected to the independent quantities in MatchesPrimaryEquipotentialFigure below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Line Figure.
+\end{proof}
+\begin{definition}[Equipotential Field Setup]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.EquipotentialFieldSetup}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthquantity, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialquantity, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-planarpositionquantity, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorquantity, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-potentialline, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentiallinefigure}
+  Independent physical observables and geometry. The potential and field are not defined from the answer table; the electrostatic laws constrain them separately
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Field Setup.
+\end{proof}
+\begin{definition}[Matches Primary Equipotential Figure]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-matchesprimaryequipotentialfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.MatchesPrimaryEquipotentialFigure}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-xcoordinate, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-ycoordinate, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthinmeters, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialinvolts, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positionvectorinmeters, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup}
+  All quantitative and qualitative evidence extracted from the primary image. The chosen representative points lie on a common normal through the marked dot; parallelism makes their adjacent separations equal to the displayed perpendicular spacing. No electric-field magnitude occurs in this premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Equipotential Figure.
+\end{proof}
+\begin{definition}[Has Physical Equipotential Geometry]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-hasphysicalequipotentialgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.HasPhysicalEquipotentialGeometry}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthinmeters, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup}
+  Positivity and normalization conditions for the physical geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Equipotential Geometry.
+\end{proof}
+\begin{definition}[Satisfies Uniform Equipotential Electrostatics]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-satisfiesuniformequipotentialelectrostatics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.SatisfiesUniformEquipotentialElectrostatics}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialinvolts, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positionvectorinmeters, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-positioninphyslibspace, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorinvoltspermeter, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup}
+  The standard local model for equally spaced parallel equipotentials in a uniform electrostatic field: potential is constant along each shown line; the electric field is normal to those lines; potential differences are minus the field line integral, which reduces to ΔV = -E · Δr for this uniform field; and the dimensionful field readout at the dot agrees with Physlib's Electromagnetism.ElectricField at the same time and position.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Equipotential Electrostatics.
+\end{proof}
+\begin{definition}[electric Field Magnitude At Dot In Volts Per Meter]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldMagnitudeAtDotInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldvectorinvoltspermeter, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup}
+  Electric-field magnitude at the dot in coherent-SI volts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Magnitude At Dot In Volts Per Meter.
+\end{proof}
+\begin{definition}[electric Field Magnitude At Dot In Kilovolts Per Meter]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinkilovoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldMagnitudeAtDotInKilovoltsPerMeter}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinvoltspermeter}
+  Electric-field magnitude at the dot in kilovolts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Magnitude At Dot In Kilovolts Per Meter.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.AnswerChoice}
+  Labels attached to the four displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Field Magnitude In Kilovolts Per Meter]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-displayedfieldmagnitudeinkilovoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.displayedFieldMagnitudeInKilovoltsPerMeter}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-answerchoice}
+  Printed field magnitude beside each answer, in kilovolts per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Field Magnitude In Kilovolts Per Meter.
+\end{proof}
+\begin{definition}[Is Unique Exact Displayed Match]
+  \label{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-isuniqueexactdisplayedmatch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.IsUniqueExactDisplayedMatch}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinkilovoltspermeter, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-answerchoice, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-displayedfieldmagnitudeinkilovoltspermeter}
+  A choice is the unique exact match when its displayed value equals the independently modeled field magnitude and no other displayed value does
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Exact Displayed Match.
+\end{proof}
+\begin{lemma}[electric Field Magnitude At Dot from adjacent Equipotentials]
+  \label{lem:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdot-from-adjacentequipotentials}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0871.electricFieldMagnitudeAtDot_from_adjacentEquipotentials}
+  \uses{def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-lengthinmeters, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricpotentialinvolts, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-equipotentialfieldsetup, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-matchesprimaryequipotentialfigure, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-hasphysicalequipotentialgeometry, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-satisfiesuniformequipotentialelectrostatics, def:physics:phyx-mini-0871:phyxminiproblems-problemphyxmini0871-electricfieldmagnitudeatdotinvoltspermeter}
+  The potential change between either adjacent pair, divided by its normal spacing, determines the electric-field magnitude. This is a derived relation, not a premise of the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Field Magnitude At Dot from adjacent Equipotentials.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

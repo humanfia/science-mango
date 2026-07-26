@@ -1,0 +1,286 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0210.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0210.source.json
+
+\chapter{Physics problem phyx\_mini\_0210}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0210}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A highway overpass was observed to resonate as one full loop \textbackslash{}( \textbackslash{}left( \textbackslash{}frac\{1\}\{2\}\textbackslash{}lambda \textbackslash{}right) \textbackslash{}) when a small earthquake shook the ground vertically at \textbackslash{}( 3.0\textbackslash{},\textbackslash{}mathrm\{Hz\} \textbackslash{}). The highway department put a support at the center of the overpass, anchoring it to the ground as shown in figure.
+
+\#\# Question
+
+What resonant frequency would you now expect for the overpass?
+
+\#\# Answer choices
+
+- A: A: 4.0Hz
+
+- B: B: 10.0Hz
+
+- C: C: 8.0Hz
+
+- D: D: 6.0Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two diagrams labeled "Before modification" and "After modification," showing a side view of a bridge. 
+
+In the "Before modification" diagram:
+
+- The bridge has a flat deck with railings and supports at both ends.
+- There is no central support beneath the bridge.
+- The background includes clouds and a wavy horizon line.
+
+In the "After modification" diagram:
+
+- A central support has been added under the middle of the bridge marked as "Added support."
+- The overall structure of the bridge remains unchanged except for the new support.
+- The background is similar, featuring clouds and a wavy horizon.
+
+The main difference between the two diagrams is the added central support in the "After modification" image.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 6.0Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/210.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0210.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0210:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0210.problem_phyx_mini_0210}
+\uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesproblemdescription, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesprimaryfigure, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-hasphysicaloverpassparameters, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-satisfiesoverpassstandingwavelaws, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-iscorrectfrequencyanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.LengthQuantity}
+  A physical longitudinal length or position along the overpass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.FrequencyQuantity}
+  An ordinary physical frequency, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.SpeedQuantity}
+  A physical wave-propagation speed in the overpass deck
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.lengthReadout}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthquantity}
+  Scalar readout of a physical length in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.frequencyReadout}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyquantity}
+  Scalar readout of an ordinary frequency in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.speedReadout}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedquantity}
+  Scalar readout of Physlib's nonnegative speed quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[Overpass Configuration]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.OverpassConfiguration}
+  The two panels explicitly labeled in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Overpass Configuration.
+\end{proof}
+\begin{definition}[Support Site]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-supportsite}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.SupportSite}
+  Longitudinal sites at which the figure may show a support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Support Site.
+\end{proof}
+\begin{definition}[Support Kind]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-supportkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.SupportKind}
+  Mechanical support visible at a site in a given panel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Support Kind.
+\end{proof}
+\begin{definition}[Transverse Boundary Condition]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-transverseboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.TransverseBoundaryCondition}
+  Transverse-displacement condition of a standing mode at a marked site
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transverse Boundary Condition.
+\end{proof}
+\begin{definition}[Ground Motion Direction]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-groundmotiondirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.GroundMotionDirection}
+  Direction of the earthquake's ground displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ground Motion Direction.
+\end{proof}
+\begin{definition}[Excitation Source]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-excitationsource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.ExcitationSource}
+  Qualitative source of the external drive in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Excitation Source.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.FigureLabel}
+  Text labels printed on the two panels and the new support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.FigureElement}
+  Figure elements to which the printed labels point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Overpass Resonance Setup]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.OverpassResonanceSetup}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthquantity, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyquantity, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedquantity, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassconfiguration, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-supportsite, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-supportkind, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-transverseboundarycondition, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-groundmotiondirection, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-excitationsource, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-figurelabel, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-figureelement}
+  Physical quantities and figure-indexed data for the overpass. halfWavelengthLoopCount counts node-to-node loops across the entire deck. The resonant frequency fields are unconstrained here: in particular, the post-modification frequency is not built into the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Overpass Resonance Setup.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup}
+  Data stated in the prose: the drive is a small earthquake with vertical ground motion, the observed initial mode is one half-wavelength loop at 3.0 Hz, and the requested resonance is the one after modification
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup}
+  Readouts from the supplied image. Both panels show the same deck and its two end supports. The center site is empty before modification and is a grounded support afterward. Its longitudinal coordinate is exactly the midpoint, so the support divides the deck into two intervals. The three printed labels are also recorded explicitly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Overpass Parameters]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-hasphysicaloverpassparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.HasPhysicalOverpassParameters}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup}
+  Positivity conditions selecting nondegenerate overpass modes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Overpass Parameters.
+\end{proof}
+\begin{definition}[Satisfies Overpass Standing Wave Laws]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-satisfiesoverpassstandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.SatisfiesOverpassStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-speedreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup}
+  Standing-wave laws for the lowest mode compatible with the supports: every mechanical support anchors a transverse-displacement node; the lowest mode has one half-wavelength loop on each support interval; n λ = 2 L for n loops across a deck of length L; wave kinematics gives v = f λ; adding the ideal support does not change the deck's propagation speed. These are generic physical/modeling relations. None states the requested post-modification frequency or names an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Overpass Standing Wave Laws.
+\end{proof}
+\begin{lemma}[post Modification Loop Count eq two]
+  \label{lem:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-postmodificationloopcount-eq-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.postModificationLoopCount_eq_two}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesprimaryfigure, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-satisfiesoverpassstandingwavelaws}
+  The added midpoint node makes the lowest compatible mode contain two loops, one on each half of the overpass
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of post Modification Loop Count eq two.
+\end{proof}
+\begin{lemma}[twice post Modification Wavelength eq before Modification Wavelength]
+  \label{lem:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-twice-postmodificationwavelength-eq-beforemodificationwavelength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.twice_postModificationWavelength_eq_beforeModificationWavelength}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-lengthreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesproblemdescription, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesprimaryfigure, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-hasphysicaloverpassparameters, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-satisfiesoverpassstandingwavelaws}
+  The wavelength of the new lowest mode is half the wavelength of the observed one-loop mode before modification
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of twice post Modification Wavelength eq before Modification Wavelength.
+\end{proof}
+\begin{lemma}[post Modification Frequency eq twice before Modification Frequency]
+  \label{lem:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-postmodificationfrequency-eq-twice-beforemodificationfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.postModificationFrequency_eq_twice_beforeModificationFrequency}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesproblemdescription, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-matchesprimaryfigure, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-hasphysicaloverpassparameters, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-satisfiesoverpassstandingwavelaws}
+  With unchanged wave speed and v = f λ, halving the wavelength doubles the ordinary resonant frequency
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of post Modification Frequency eq twice before Modification Frequency.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.AnswerChoice}
+  Labels of the four answer choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[frequency Hz]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-answerchoice-frequencyhz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.AnswerChoice.frequencyHz}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-answerchoice}
+  Frequency in hertz printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Hz.
+\end{proof}
+\begin{definition}[Is Correct Frequency Answer]
+  \label{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-iscorrectfrequencyanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0210.IsCorrectFrequencyAnswer}
+  \uses{def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-frequencyreadout, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-overpassresonancesetup, def:physics:phyx-mini-0210:phyxminiproblems-problemphyxmini0210-answerchoice}
+  An answer choice matches the requested post-modification SI frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Frequency Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

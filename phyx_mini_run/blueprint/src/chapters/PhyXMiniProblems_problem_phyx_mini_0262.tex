@@ -1,0 +1,316 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0262.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0262.source.json
+
+\chapter{Physics problem phyx\_mini\_0262}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0262}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, the pendulum consists of a uniform disk with radius \$r = 10.0\textbackslash{} cm\$ and mass \$500\textbackslash{} g\$ attached to a uniform rod with length \$L = 500\textbackslash{} mm\$ and mass \$270\textbackslash{} g\$.
+
+\#\# Question
+
+Calculate the period of oscillation.
+
+\#\# Answer choices
+
+- A: A: 1.0 s
+
+- B: B: 1.2 s
+
+- C: C: 1.5 s
+
+- D: D: 1.8 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a mechanical setup involving a pendulum-like structure. Key components include:
+
+1. **Pivot Point**: At the top, attached to a fixed support (in beige), the pendulum is connected, allowing for rotational movement.
+
+2. **Rod (Pendulum Arm)**: A blue, cylindrical rod extends downward from the pivot. The length of this rod is marked as \textbackslash{}( L \textbackslash{}), which is labeled to indicate its measurement from the pivot to another point further down.
+
+3. **Wheel or Disc**: Attached at the lower end of the rod is a red wheel or disc, shaded to imply depth or a three-dimensional appearance. It's depicted with a central axis of rotation.
+
+4. **Distance \textbackslash{}( r \textbackslash{})**: A labeled line \textbackslash{}( r \textbackslash{}) extends from the center of the wheel to a specific point on its circumference. This indicates the radius of the wheel.
+
+The figure seems to illustrate a pendulum or wheel system, possibly for educational or analytical purposes involving rotational dynamics or mechanics.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.5 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/262.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0262.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0262:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0262.rodDiskLinearizedPeriod_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massinkilograms, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthinmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timeinseconds, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskpendulumsetup, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-matchesprimaryroddiskfigure, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-hasroddiskpendulumproblemdata, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-satisfiesroddiskcompoundpendulumlaws, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-recordedanswerchoice, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-matchesdisplayedperiod}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.TimeQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.AccelerationMagnitudeQuantity}
+  A nonnegative acceleration magnitude, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.MomentOfInertiaQuantity}
+  A moment of inertia about an axis, with dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Restoring Torque Coefficient Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-restoringtorquecoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.RestoringTorqueCoefficientQuantity}
+  The nonnegative coefficient κ in the exact gravitational restoring torque τ(θ) = -κ sin θ. Radian measure is dimensionless, so κ has dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Restoring Torque Coefficient Quantity.
+\end{proof}
+\begin{definition}[Torque Quantity]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-torquequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.TorqueQuantity}
+  A signed torque, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torque Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.massInKilograms}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.lengthInMeters}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthquantity}
+  Read a physical length in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.timeInSeconds}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timequantity}
+  Read a physical duration in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationmagnitudequantity}
+  Read an acceleration magnitude in meters per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-momentofinertiaquantity}
+  Read a moment of inertia in kilogram meter squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[restoring Coefficient In Newton Meters]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-restoringcoefficientinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.restoringCoefficientInNewtonMeters}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-restoringtorquecoefficientquantity}
+  Read a restoring-torque coefficient in newton meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of restoring Coefficient In Newton Meters.
+\end{proof}
+\begin{definition}[torque In Newton Meters]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-torqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.torqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-torquequantity}
+  Read a signed torque in newton meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque In Newton Meters.
+\end{proof}
+\begin{definition}[Pendulum Component]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-pendulumcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.PendulumComponent}
+  The two massive components of the compound pendulum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pendulum Component.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.FigurePoint}
+  Distinguished locations used by the dimension arrows in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.FigureLabel}
+  The two mathematical labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Rod Mass Distribution]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-rodmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.RodMassDistribution}
+  Idealized mass distribution of the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Mass Distribution.
+\end{proof}
+\begin{definition}[Disk Mass Distribution]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-diskmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.DiskMassDistribution}
+  Idealized mass distribution of the wheel-like body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Mass Distribution.
+\end{proof}
+\begin{definition}[Rod Disk Attachment]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.RodDiskAttachment}
+  How the lower end of the rod is joined to the disk
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Disk Attachment.
+\end{proof}
+\begin{definition}[Compound Pendulum Figure]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-compoundpendulumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.CompoundPendulumFigure}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-figurepoint, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-figurelabel}
+  Qualitative evidence and dimension endpoints visible in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compound Pendulum Figure.
+\end{proof}
+\begin{definition}[Rod Disk Pendulum Setup]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskpendulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.RodDiskPendulumSetup}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massquantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthquantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timequantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationmagnitudequantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-momentofinertiaquantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-restoringtorquecoefficientquantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-torquequantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-pendulumcomponent, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-rodmassdistribution, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-diskmassdistribution, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskattachment, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-compoundpendulumfigure}
+  Physical quantities for the rod--disk compound pendulum. The nonlinear period function and its tangent-linearized zero-amplitude limit are distinct fields. Neither is defined using a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Disk Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Primary Rod Disk Figure]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-matchesprimaryroddiskfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.MatchesPrimaryRodDiskFigure}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthinmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskpendulumsetup}
+  Primary-image readout. The L arrow runs from the fixed pivot to the rod--disk rim attachment, while the r arrow continues from that rim point to the disk center. The resulting lever arm L + r is geometry, not the requested period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Rod Disk Figure.
+\end{proof}
+\begin{definition}[Has Rod Disk Pendulum Problem Data]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-hasroddiskpendulumproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.HasRodDiskPendulumProblemData}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massinkilograms, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthinmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskpendulumsetup}
+  Numerical and qualitative data supplied by the problem. Centimeters, millimeters, and grams are converted to coherent SI readouts. The standard value 9.81 m/s² is the environmental datum used to compare the displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Rod Disk Pendulum Problem Data.
+\end{proof}
+\begin{definition}[Satisfies Rod Disk Compound Pendulum Laws]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-satisfiesroddiskcompoundpendulumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.SatisfiesRodDiskCompoundPendulumLaws}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-massinkilograms, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-lengthinmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timeinseconds, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-restoringcoefficientinnewtonmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-torqueinnewtonmeters, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-roddiskpendulumsetup}
+  Rigid-body, gravitational, and local small-oscillation relations. The rod has pivot inertia m L² / 3. The disk has central inertia m r² / 2, and the parallel-axis theorem translates it through d = L + r. The exact signed gravitational torque is -κ sin θ. The HasDerivAt and little-o fields make the replacement of that torque by -κ θ explicitly local at the stable equilibrium. The frequency and period laws refer only to the tangent-linearized oscillator.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rod Disk Compound Pendulum Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.AnswerChoice}
+  Labels of the four displayed period choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice}
+  The period in seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Period]
+  \label{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-matchesdisplayedperiod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0262.MatchesDisplayedPeriod}
+  \uses{def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timequantity, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-timeinseconds, def:physics:phyx-mini-0262:phyxminiproblems-problemphyxmini0262-answerchoice}
+  Agreement with an answer displayed to the nearest tenth of a second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Period.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

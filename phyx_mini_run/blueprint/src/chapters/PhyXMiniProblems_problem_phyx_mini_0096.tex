@@ -1,0 +1,321 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0096.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0096.source.json
+
+\chapter{Physics problem phyx\_mini\_0096}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0096}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A ray of light is incident in air on a block of a transparent solid whose index of refraction is \$n\$. If \$n = 1.38\$(point A shown in figure).
+
+\#\# Question
+
+What is the largest angle of incidence \$\textbackslash{}theta\_a\$ for which total internal reflection will occur at the vertical face.
+
+\#\# Answer choices
+
+- A: A: 72.1°
+
+- B: B: 73.2°
+
+- C: C: 70.8°
+
+- D: D: 71.9°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram related to optics. It features a rectangle with a blue shaded area, representing a medium with a boundary. A purple arrow, labeled as \textbackslash{}(A\textbackslash{}), enters the rectangle at an angle and bends as it crosses the boundary, indicating refraction. 
+
+Above the boundary, a dotted line is drawn perpendicular to it, representing the normal line. The angle between the refracted arrow and the normal line is labeled as \textbackslash{}(\textbackslash{}theta\_a\textbackslash{}), showing the angle of refraction.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 72.1°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/96.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0096.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0096:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0096.problem_phyx_mini_0096}
+\uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasdepictedblocklayout, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesproblemreadouts, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalopticalparameters, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiescriticalanglesnelllaw, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-tirpermittingincidenceradians, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximumairincidenceangle, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-recordedanswerchoice, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesdisplayedanglewithinsourcetolerance}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.OpticalMedium}
+  The two homogeneous optical media crossed by the depicted ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Block Face]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.BlockFace}
+  The two perpendicular faces encountered by the ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Face.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.FigurePoint}
+  The only point explicitly labeled in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Face Orientation]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-faceorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.FaceOrientation}
+  The block-face orientations visible in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Face Orientation.
+\end{proof}
+\begin{definition}[Ray Travel Sense]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-raytravelsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.RayTravelSense}
+  The propagation sense of the arrow after it enters the block
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Travel Sense.
+\end{proof}
+\begin{definition}[face]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-figurepoint-face}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.FigurePoint.face}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockface, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-figurepoint}
+  The face on which each labeled figure point lies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of face.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.degrees}
+  Convert a scalar degree readout into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.degreeReadout}
+  The canonical degree readout of a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Transparent Block Setup]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.TransparentBlockSetup}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-opticalmedium, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockface, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-faceorientation}
+  Material data and the geometry of the transparent block. criticalAngleSolidToAir is measured inside the solid from the normal to the vertical face. criticalTransmissionAngleInAir is the air-side angle of the limiting transmitted ray at that face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transparent Block Setup.
+\end{proof}
+\begin{definition}[Block Ray Path]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.BlockRayPath}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockface, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-figurepoint, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-raytravelsense}
+  One ray following the route shown in the figure. All three angles are unsigned normal-relative optical angles. In particular, incidenceAngleThetaA is the requested figure quantity θₐ in ambient air
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Ray Path.
+\end{proof}
+\begin{definition}[Has Depicted Block Layout]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasdepictedblocklayout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.HasDepictedBlockLayout}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup}
+  The two encountered faces have the horizontal/vertical layout in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Depicted Block Layout.
+\end{proof}
+\begin{definition}[Follows Depicted Route]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-followsdepictedroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.FollowsDepictedRoute}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath}
+  The ray enters through the top and reaches the vertical face at point A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Follows Depicted Route.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup}
+  The dimensionless scalar readouts supplied by the problem. Air is modeled by index one and the transparent solid by index 1.38. No value of θₐ occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Is Physical Normal Angle]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-isphysicalnormalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.IsPhysicalNormalAngle}
+  A normal-relative optical angle on the physical branch from 0 to 90°
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Normal Angle.
+\end{proof}
+\begin{definition}[Is Strictly Acute Normal Angle]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-isstrictlyacutenormalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.IsStrictlyAcuteNormalAngle}
+  The critical angle is strictly between normal and grazing incidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Strictly Acute Normal Angle.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-isphysicalnormalangle, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-isstrictlyacutenormalangle}
+  Positivity, optical density ordering, and the physical branch for the limiting solid--air ray. These conditions do not assign the requested entry angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Has Physical Ray Angles]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalrayangles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.HasPhysicalRayAngles}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-isphysicalnormalangle}
+  All normal-relative angles of a depicted candidate ray use the acute branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ray Angles.
+\end{proof}
+\begin{definition}[Satisfies Entry Snell Law]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiesentrysnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.SatisfiesEntrySnellLaw}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath}
+  Snell's law at the horizontal entry face: index times the sine of the angle from the local normal is conserved across transmission from air into solid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Entry Snell Law.
+\end{proof}
+\begin{definition}[Satisfies Perpendicular Face Geometry]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiesperpendicularfacegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.SatisfiesPerpendicularFaceGeometry}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath}
+  The entry and vertical faces are perpendicular. Hence the solid-ray angle from the top-face normal and its incidence angle from the vertical-face normal are complementary on the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Perpendicular Face Geometry.
+\end{proof}
+\begin{definition}[Satisfies Critical Angle Snell Law]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiescriticalanglesnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.SatisfiesCriticalAngleSnellLaw}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-degrees, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup}
+  Snell's law for the limiting solid--air ray at the vertical face, together with the physical statement that its transmitted ray grazes that face at 90° from the normal. This determines the critical angle, not the requested largest air-side entry angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Critical Angle Snell Law.
+\end{proof}
+\begin{definition}[Undergoes Total Internal Reflection At A]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-undergoestotalinternalreflectionata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.UndergoesTotalInternalReflectionAtA}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath}
+  A ray is on the total-internal-reflection side of the critical boundary when its incidence at the vertical face is at least the solid--air critical angle. The equality case is retained as the limiting onset used by the multiple- choice problem's phrase "largest angle"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Undergoes Total Internal Reflection At A.
+\end{proof}
+\begin{definition}[Admissible TIRIncidence Radians]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-admissibletirincidenceradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.AdmissibleTIRIncidenceRadians}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-blockraypath, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-followsdepictedroute, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalrayangles, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiesentrysnelllaw, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiesperpendicularfacegeometry, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-undergoestotalinternalreflectionata}
+  An air-side incidence readout is admissible when some physical ray with that canonical radian readout follows the depicted route, obeys Snell's law and the perpendicular-face geometry, and reaches the vertical face on the TIR side of the critical boundary. No maximality assertion occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Admissible TIRIncidence Radians.
+\end{proof}
+\begin{definition}[tir Permitting Incidence Radians]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-tirpermittingincidenceradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.tirPermittingIncidenceRadians}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-admissibletirincidenceradians}
+  The ordered set of all air-side incidence-angle radian readouts giving TIR
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tir Permitting Incidence Radians.
+\end{proof}
+\begin{definition}[predicted Maximum Air Incidence Angle]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximumairincidenceangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.predictedMaximumAirIncidenceAngle}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup}
+  At the limiting ray the internal refraction angle from the top normal is the complement of the vertical-face critical angle. Entry-face Snell refraction therefore predicts arcsin ((n\_solid / n\_air) * cos criticalAngle). This is a candidate derived from the governing laws, not an assumed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of predicted Maximum Air Incidence Angle.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerchoice}
+  The angle in degrees displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Angle Within Source Tolerance]
+  \label{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesdisplayedanglewithinsourcetolerance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.MatchesDisplayedAngleWithinSourceTolerance}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-degreereadout, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerchoice, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-answerangledegrees}
+  Compatibility with a displayed angle using a 0.15° source tolerance. The tolerance is explicit because the exact calculation from the rounded index 1.38 is about 71.989°, whereas the dataset records 72.1°
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Angle Within Source Tolerance.
+\end{proof}
+\begin{lemma}[predicted Maximum is Greatest TIRIncidence]
+  \label{lem:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximum-isgreatesttirincidence}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.predictedMaximum_isGreatestTIRIncidence}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasdepictedblocklayout, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesproblemreadouts, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalopticalparameters, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiescriticalanglesnelllaw, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-tirpermittingincidenceradians, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximumairincidenceangle}
+  The critical ray gives the greatest air-side incidence angle whose refracted solid ray still reaches the vertical face at or above its critical angle. This is the maximality part of
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of predicted Maximum is Greatest TIRIncidence.
+\end{proof}
+\begin{lemma}[predicted Maximum matches recorded choice]
+  \label{lem:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximum-matches-recorded-choice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0096.predictedMaximum_matches_recorded_choice}
+  \uses{def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-transparentblocksetup, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesproblemreadouts, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-hasphysicalopticalparameters, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-satisfiescriticalanglesnelllaw, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-predictedmaximumairincidenceangle, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-recordedanswerchoice, def:physics:phyx-mini-0096:phyxminiproblems-problemphyxmini0096-matchesdisplayedanglewithinsourcetolerance}
+  For the supplied index 1.38, the exact critical-ray expression is compatible with the dataset's recorded option A under the stated source tolerance. This is the recorded-answer part of
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of predicted Maximum matches recorded choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,326 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0348.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0348.source.json
+
+\chapter{Physics problem phyx\_mini\_0348}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0348}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A heat engine takes 0.350 mol of a diatomic ideal gas around the cycle shown in the \$pV\$-diagram of figure. Process \$1 \textbackslash{}rightarrow 2\$ is at constant volume, process \$2 \textbackslash{}rightarrow 3\$ is adiabatic, and process \$3 \textbackslash{}rightarrow 1\$ is at a constant pressure of 1.00 atm. The value of \$\textbackslash{}gamma\$ for this gas is 1.40.
+
+\#\# Question
+
+Find the net work done by the gas in the cycle.
+
+\#\# Answer choices
+
+- A: A: 150J
+
+- B: B: 220J
+
+- C: C: 505J
+
+- D: D: 320J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram depicting a thermodynamic cycle with three points labeled 1, 2, and 3. The vertical axis represents pressure (p), and the horizontal axis represents volume (V). Both axes are marked from the origin point labeled "O."
+
+1. **Points and Connections:**
+   - Point 1: Located at the bottom left, with the condition \textbackslash{}( T\_1 = 300 \textbackslash{}, \textbackslash{}text\{K\} \textbackslash{}).
+   - Point 2: Directly above point 1, with the condition \textbackslash{}( T\_2 = 600 \textbackslash{}, \textbackslash{}text\{K\} \textbackslash{}).
+   - Point 3: To the right of point 1 along the horizontal axis, with the condition \textbackslash{}( T\_3 = 492 \textbackslash{}, \textbackslash{}text\{K\} \textbackslash{}).
+
+2. **Process:**
+   - The cycle starts at point 1, then moves vertically up to point 2. 
+   - From point 2, the path curves downward to point 3. 
+   - Finally, it moves horizontally back to point 1.
+
+3. **Additional Details:**
+   - The pressure at the origin is marked as 1.00 atm.
+   - The path connecting points is indicated by blue arrows, showing the direction of the cycle.
+
+This diagram represents a thermodynamic cycle with specified temperatures at each point.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 220J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/348.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0348.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0348:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0348.problem_phyx_mini_0348}
+\uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyinjoules, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-matchesproblemdescription, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-hasphysicalidealgascycleparameters, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-satisfiesidealgascyclelaws, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-usesstandardmolargasconstant, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-isuniquenearestdisplayedwork}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.VolumeQuantity}
+  A nonnegative physical volume with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.EnergyQuantity}
+  A signed physical energy, used for work done by the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinpascals}
+  Read a physical pressure in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.energyInJoules}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyquantity}
+  Read a physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Cycle State]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.CycleState}
+  The three equilibrium states labelled in the pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle State.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.CycleLeg}
+  The three directed legs of the engine cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[leg Source]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-legsource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.legSource}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cycleleg}
+  Initial state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Source.
+\end{proof}
+\begin{definition}[leg Target]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-legtarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.legTarget}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cycleleg}
+  Final state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Target.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.ProcessKind}
+  Thermodynamic constraint assigned to a cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Gas Molecular Structure]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasmolecularstructure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.GasMolecularStructure}
+  Molecular model of the gas named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Molecular Structure.
+\end{proof}
+\begin{definition}[Diagram Axis Quantity]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-diagramaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.DiagramAxisQuantity}
+  Physical quantities represented by the two diagram axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis Quantity.
+\end{proof}
+\begin{definition}[Diagram Path Shape]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-diagrampathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.DiagramPathShape}
+  Qualitative shapes of the three blue paths in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Path Shape.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cycleleg, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-diagramaxisquantity, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-diagrampathshape}
+  Data read from the primary raster. The coordinates are dimensionless drawing coordinates used only to record the relative placement of the black points. Physical pressures, volumes, and temperatures are stored separately in IdealGasEngineCycleSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Ideal Gas Engine Cycle Setup]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.IdealGasEngineCycleSetup}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumequantity, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyquantity, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cycleleg, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-processkind, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasmolecularstructure, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressurevolumediagram}
+  Independent physical quantities and observables of the heat-engine cycle. The net work is an independent EnergyQuantity; it is not defined from an answer choice or from a segment-work formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Engine Cycle Setup.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.temperatureInKelvin}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-cyclestate, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup}
+  Convert a stored absolute temperature to a kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[gas Amount In Moles]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasamountinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.gasAmountInMoles}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup}
+  Mole readout of the physical amount of gas carried around the cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gas Amount In Moles.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-matchesprimarypressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.MatchesPrimaryPressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinatmospheres, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-temperatureinkelvin}
+  Qualitative and numerical information read from the primary pressure--volume diagram. It records the axes, labels, arrows, point geometry, temperature labels, and the 1.00 atm reference line. It contains no work value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasamountinmoles}
+  Problem-statement data not supplied solely by the raster: the gas is diatomic, its amount is 0.350 mol, its heat-capacity ratio is 1.40, and the three directed legs have the stated process types. No work value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Has Physical Ideal Gas Cycle Parameters]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-hasphysicalidealgascycleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.HasPhysicalIdealGasCycleParameters}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumeincubicmeters, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinpascals, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-temperatureinkelvin, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasamountinmoles}
+  Positive and nondegenerate parameters of the physical gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ideal Gas Cycle Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Cycle Laws]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-satisfiesidealgascyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.SatisfiesIdealGasCycleLaws}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-volumeincubicmeters, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-pressureinpascals, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyinjoules, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-legsource, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-legtarget, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-temperatureinkelvin, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasamountinmoles}
+  Governing relations for the ideal-gas cycle, written in coherent SI readouts: every state satisfies pV = nRT; an isochoric leg keeps volume fixed and does no boundary work; an adiabatic leg obeys the Poisson temperature--volume relation and W = nR(Tᵢ - T\_f)/(γ - 1); an isobaric leg keeps pressure fixed and has work W = p(V\_f - Vᵢ); cycle work is the sum of the work on the three directed legs. These laws are generic over states and legs and contain no requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Cycle Laws.
+\end{proof}
+\begin{definition}[Uses Standard Molar Gas Constant]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-usesstandardmolargasconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.UsesStandardMolarGasConstant}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup}
+  The conventional molar gas constant, represented to the precision used in the multiple-choice computation: R = 8.314 J mol⁻¹ K⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Molar Gas Constant.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.AnswerChoice}
+  Labels of the four work choices printed by the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Work In Joules]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-displayedworkinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.displayedWorkInJoules}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-answerchoice}
+  Joule value displayed beside each multiple-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Work In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer Choice]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-recordeddatasetanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.recordedDatasetAnswerChoice}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-answerchoice}
+  The source dataset records answer label B; this is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer Choice.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Work]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-isnearestdisplayedwork}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.IsNearestDisplayedWork}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyinjoules, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-answerchoice, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-displayedworkinjoules}
+  A choice is at least as close to the calculated work as every choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Work.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Work]
+  \label{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-isuniquenearestdisplayedwork}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.IsUniqueNearestDisplayedWork}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-answerchoice, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-isnearestdisplayedwork}
+  A choice is the unique nearest displayed work value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Work.
+\end{proof}
+\begin{lemma}[net Work In Joules eq temperature formula]
+  \label{lem:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-networkinjoules-eq-temperature-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0348.netWorkInJoules_eq_temperature_formula}
+  \uses{def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-energyinjoules, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-idealgasenginecyclesetup, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-temperatureinkelvin, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-gasamountinmoles, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-matchesproblemdescription, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-hasphysicalidealgascycleparameters, def:physics:phyx-mini-0348:phyxminiproblems-problemphyxmini0348-satisfiesidealgascyclelaws}
+  The generic process-work laws reduce the cycle work to an expression in the amount, gas constant, heat-capacity ratio, and endpoint temperatures. This derived formula still contains no answer-choice value
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net Work In Joules eq temperature formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

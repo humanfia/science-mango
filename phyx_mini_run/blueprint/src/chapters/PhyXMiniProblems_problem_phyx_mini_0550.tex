@@ -1,0 +1,231 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0550.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0550.source.json
+
+\chapter{Physics problem phyx\_mini\_0550}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0550}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A particle is confined between two impenetrable walls separated by a distance \$l\$, as shown in the figure. The wave function describing the particle's state is \$\textbackslash{}psi = cx(l-x)\$, where \$c\$ is an undetermined constant.
+
+\#\# Question
+
+Calculate the probability of finding the particle in the interval from \$0\$ to \$\textbackslash{}frac\{1\}\{3\}l\$.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}[ \textbackslash{}frac\{11\}\{72\} \textbackslash{}]
+
+- B: B: \textbackslash{}[ \textbackslash{}frac\{35\}\{72\} \textbackslash{}]
+
+- C: C: \textbackslash{}[ \textbackslash{}frac\{37\}\{81\} \textbackslash{}]
+
+- D: D: \textbackslash{}[ \textbackslash{}frac\{17\}\{81\} \textbackslash{}]
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram featuring a horizontal line with an arrow pointing to the right, labeled with an "x" at the end, indicating the positive x-direction. Along this horizontal line, there are two vertical, hatched lines.
+
+- The left vertical line is at the origin, labeled "O."
+- The right vertical line is at a distance "l" from the origin along the horizontal line.
+- Approximately one-third of the way from the origin "O" to the point labeled "l," there is a mark with the label "1/3 l."
+
+The diagram appears to be representing a spatial relationship between two points on a line, possibly for geometric or physical analysis.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}[ \textbackslash{}frac\{17\}\{81\} \textbackslash{}]
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/550.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0550.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0550:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0550.probability_from_origin_to_one_third}
+\uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-matchessuppliedparticleinboxfigure, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-hasquadraticwaveprofile, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-satisfiesimpenetrablewallboundarycondition, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-issquareintegrablepositionstate, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-isnormalizedinsidebox, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-satisfiespositionbornrule}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.PositionQuantity}
+  A signed physical position on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.LengthQuantity}
+  A nonnegative physical length, used for the wall separation l
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Wave Amplitude Quantity]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.WaveAmplitudeQuantity}
+  A one-dimensional position-wavefunction amplitude, of dimension L⁻¹ᐟ²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Amplitude Quantity.
+\end{proof}
+\begin{definition}[Quadratic Coefficient Quantity]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-quadraticcoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.QuadraticCoefficientQuantity}
+  The coefficient in ψ(x) = c x (l-x), of dimension L⁻⁵ᐟ²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Quadratic Coefficient Quantity.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.positionReadout}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity}
+  Numerical position coordinate in a selected physical length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.lengthReadout}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-lengthquantity}
+  Numerical nonnegative length in a selected physical length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[position From Readout]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.positionFromReadout}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity}
+  Construct a physical position from its coordinate in a selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position From Readout.
+\end{proof}
+\begin{definition}[wave Amplitude Readout]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.waveAmplitudeReadout}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudequantity}
+  Numerical wave-amplitude readout in inverse square-root selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Amplitude Readout.
+\end{proof}
+\begin{definition}[coefficient Readout]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-coefficientreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.coefficientReadout}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-quadraticcoefficientquantity}
+  Numerical readout of c in inverse five-halves powers of the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coefficient Readout.
+\end{proof}
+\begin{definition}[Wall Rendering]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-wallrendering}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.WallRendering}
+  The visual style used for each vertical wall in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wall Rendering.
+\end{proof}
+\begin{definition}[One Dimensional Position State]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-onedimensionalpositionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.OneDimensionalPositionState}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudequantity}
+  A pointwise one-dimensional quantum state together with its dimensionless position-probability observable. Born's rule is imposed separately, so the observable is not defined using the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of One Dimensional Position State.
+\end{proof}
+\begin{definition}[Particle In Box Figure]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.ParticleInBoxFigure}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-lengthquantity, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-wallrendering}
+  Geometry, labels, and landmarks shown in the supplied primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle In Box Figure.
+\end{proof}
+\begin{definition}[Particle In Box Setup]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.ParticleInBoxSetup}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-quadraticcoefficientquantity, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-onedimensionalpositionstate, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxfigure}
+  The particle state and the undetermined coefficient appearing in its profile
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle In Box Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Particle In Box Figure]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-matchessuppliedparticleinboxfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.MatchesSuppliedParticleInBoxFigure}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-lengthreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxfigure}
+  Exact labels, wall styles, orientation, and relative positions read from the primary image. These are figure facts; no probability value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Particle In Box Figure.
+\end{proof}
+\begin{definition}[Has Quadratic Wave Profile]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-hasquadraticwaveprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.HasQuadraticWaveProfile}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-coefficientreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  Inside the walls, the amplitude has the stated profile ψ(x) = c (x-O) (l-(x-O)), equivalently c (x-O) (x\_right-x)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Quadratic Wave Profile.
+\end{proof}
+\begin{definition}[Satisfies Impenetrable Wall Boundary Condition]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-satisfiesimpenetrablewallboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.SatisfiesImpenetrableWallBoundaryCondition}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  Impenetrable-wall confinement: the position amplitude vanishes outside the box
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Impenetrable Wall Boundary Condition.
+\end{proof}
+\begin{definition}[Is Square Integrable Position State]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-issquareintegrablepositionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.IsSquareIntegrablePositionState}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  The pointwise representative of the state is square-integrable in every unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Square Integrable Position State.
+\end{proof}
+\begin{definition}[Is Normalized Inside Box]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-isnormalizedinsidebox}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.IsNormalizedInsideBox}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  The confined wavefunction has total probability one inside the two walls
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Normalized Inside Box.
+\end{proof}
+\begin{definition}[Satisfies Position Born Rule]
+  \label{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-satisfiespositionbornrule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0550.SatisfiesPositionBornRule}
+  \uses{def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionquantity, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-positionfromreadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-waveamplitudereadout, def:physics:phyx-mini-0550:phyxminiproblems-problemphyxmini0550-particleinboxsetup}
+  The position-space Born rule: probability between any ordered pair of physical positions is the integral of the squared complex amplitude over that interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Position Born Rule.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

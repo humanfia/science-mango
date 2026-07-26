@@ -1,0 +1,381 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0272.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0272.source.json
+
+\chapter{Physics problem phyx\_mini\_0272}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0272}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A wheel is free to rotate about its fixed axle. A spring is attached to one of its spokes a distance \$r\$ from the axle, as shown in figure.
+
+\#\# Question
+
+Assuming that the wheel is a hoop of mass \$m\$ and radius \$R\$, What is \$\textbackslash{}omega\$ if \$r = R\$?
+
+\#\# Answer choices
+
+- A: A: \$\textbackslash{}sqrt\{k/2m\}. \$
+
+- B: B: \$\textbackslash{}sqrt\{2k/m\}. \$
+
+- C: C: \$\textbackslash{}sqrt\{k/m\}. \$
+
+- D: D: 0
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a wheel attached to a wall by a spring. 
+
+- **Objects**: 
+  - A wheel, depicted with spokes and a hub.
+  - A spring labeled "k," which is connected from the wall to the top of the wheel.
+  - A wall on the left side.
+
+- **Text and Labels**:
+  - "k" labels the spring constant.
+  - "R" indicates the outer radius of the wheel.
+  - "r" shows the distance from the point where the spring is attached on the wheel to its center.
+
+- **Additional Elements**:
+  - Arrows beneath the wheel indicate rotational motion.
+  - The wheel is slightly raised to suggest it is in a state of equilibrium or oscillation.
+
+The spring is horizontally attached, causing a horizontal force on the wheel, suggesting a setup for analyzing rotational motion or oscillations.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$\textbackslash{}sqrt\{k/m\}. \$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/272.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0272.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0272:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0272.hoopSpringAngularFrequency_when_attachmentAtRim}
+\uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-matchesproblemandsuppliedfigure, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hasphysicalhoopspringparameters, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-satisfieslinearizedhoopspringlaws, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-recordeddatasetanswerchoice, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.LengthQuantity}
+  A nonnegative physical length, used for both labelled radii r and R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.SpringConstantQuantity}
+  A linear spring constant, with dimension force per length, equivalently M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.MomentOfInertiaQuantity}
+  A scalar moment of inertia about the fixed axle, with dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Restoring Torque Coefficient Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringtorquecoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.RestoringTorqueCoefficientQuantity}
+  The positive coefficient κ in the linearized restoring torque τ = -κ θ. Radians are dimensionless, so its dimension is M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Restoring Torque Coefficient Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.AngularFrequencyQuantity}
+  A nonnegative angular frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.SignedLengthQuantity}
+  A signed spring extension in the tangent direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Signed Force Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.SignedForceQuantity}
+  A signed horizontal force, with dimension M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Force Quantity.
+\end{proof}
+\begin{definition}[Signed Torque Quantity]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedtorquequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.SignedTorqueQuantity}
+  A signed torque about the axle, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Torque Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.massReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massquantity}
+  Read a physical mass in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.lengthReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthquantity}
+  Read a physical length in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[spring Constant Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.springConstantReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantquantity}
+  Read a spring constant in coherent force-per-length units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiaquantity}
+  Read a moment of inertia in coherent mass-times-length-squared units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[restoring Coefficient Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringcoefficientreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.restoringCoefficientReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringtorquecoefficientquantity}
+  Read a restoring-torque coefficient in coherent torque units per radian
+\end{definition}
+\begin{proof}
+  This is the declared model definition of restoring Coefficient Readout.
+\end{proof}
+\begin{definition}[angular Frequency Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.angularFrequencyReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyquantity}
+  Read an angular frequency in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedlengthquantity}
+  Read a signed tangential spring extension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[signed Force Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedforcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.signedForceReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedforcequantity}
+  Read a signed horizontal spring force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Force Readout.
+\end{proof}
+\begin{definition}[signed Torque Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedtorquereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.signedTorqueReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedtorquequantity}
+  Read a signed torque about the fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Torque Readout.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.FigureFeature}
+  Physical features visible in the supplied wheel-and-spring diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.FigureLabel}
+  Mathematical labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Side]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-horizontalside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.HorizontalSide}
+  Horizontal placement relative to the wheel center
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Side.
+\end{proof}
+\begin{definition}[Figure Orientation]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figureorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.FigureOrientation}
+  Orientation of a component or labelled segment in the equilibrium drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Orientation.
+\end{proof}
+\begin{definition}[Wheel Mass Distribution]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-wheelmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.WheelMassDistribution}
+  Idealized distribution of the wheel's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel Mass Distribution.
+\end{proof}
+\begin{definition}[Axle Constraint]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-axleconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.AxleConstraint}
+  Mechanical constraint imposed at the central hub
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Constraint.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.OscillationRegime}
+  Approximation used for the amplitude-independent angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Rotation Arrow]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-rotationarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.RotationArrow}
+  Direction information conveyed by the curved arrow below the wheel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Arrow.
+\end{proof}
+\begin{definition}[Wheel Spring Figure]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-wheelspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.WheelSpringFigure}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figurefeature, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figurelabel, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-horizontalside, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-figureorientation, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-rotationarrow}
+  Qualitative and labelled information transcribed from the supplied bitmap. The image provides no numerical mass, radius, or spring-stiffness scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel Spring Figure.
+\end{proof}
+\begin{definition}[Hoop Spring Setup]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.HoopSpringSetup}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiaquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringtorquecoefficientquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedlengthquantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedforcequantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedtorquequantity, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-wheelmassdistribution, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-axleconstraint, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-oscillationregime, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-wheelspringfigure}
+  The independent physical quantities and linearized observables of the wheel--spring system. The frequency angularFrequency\_omega, inertia, and restoring coefficient are independent fields; none is defined to equal the recorded answer formula. For the signed functions, a positive angular coordinate is chosen so that the spoke attachment moves in the positive spring-extension direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hoop Spring Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Supplied Figure]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-matchesproblemandsuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.MatchesProblemAndSuppliedFigure}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup}
+  Problem data and primary-image evidence. The equation r = R is the special case explicitly asked for; it constrains geometry but says nothing about the unknown angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Hoop Spring Parameters]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hasphysicalhoopspringparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.HasPhysicalHoopSpringParameters}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiareadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringcoefficientreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup}
+  Strict positivity and nondegeneracy of the physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Hoop Spring Parameters.
+\end{proof}
+\begin{definition}[Satisfies Linearized Hoop Spring Laws]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-satisfieslinearizedhoopspringlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.SatisfiesLinearizedHoopSpringLaws}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-lengthreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-momentofinertiareadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-restoringcoefficientreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedlengthreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedforcereadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-signedtorquereadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup}
+  Governing mechanics in any coherent choice of units: a thin hoop has axial moment of inertia I = m R²; a small rotation θ moves the attachment tangentially by x = r θ; Hooke's law gives F = -k x, and the tangential lever arm gives τ = r F; hence the linear restoring coefficient is κ = k r²; a rotational normal mode obeys the unsimplified balance I ω² = κ. The last equation is the general rotational-oscillator law. It does not specialize r to R and does not state the requested sqrt (k / m) answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linearized Hoop Spring Laws.
+\end{proof}
+\begin{lemma}[angular Frequency Squared eq spring Constant div mass]
+  \label{lem:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencysquared-eq-springconstant-div-mass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.angularFrequencySquared_eq_springConstant_div_mass}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-matchesproblemandsuppliedfigure, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hasphysicalhoopspringparameters, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-satisfieslinearizedhoopspringlaws}
+  After imposing r = R, the radius factors cancel between κ = k r² and I = m R². This intermediate squared-frequency relation is derived, not assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of angular Frequency Squared eq spring Constant div mass.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.AnswerChoice}
+  Labels attached to the four answer choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angular Frequency Readout]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-displayedangularfrequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.displayedAngularFrequencyReadout}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-massreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-springconstantreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-answerchoice}
+  The four displayed angular-frequency formulas, interpreted in a coherent choice of units. This answer-list metadata does not constrain the independent frequency stored in HoopSpringSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angular Frequency Readout.
+\end{proof}
+\begin{definition}[recorded Dataset Answer Choice]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-recordeddatasetanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.recordedDatasetAnswerChoice}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-answerchoice}
+  The answer label recorded by the dataset; it is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0272.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-angularfrequencyreadout, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-hoopspringsetup, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-answerchoice, def:physics:phyx-mini-0272:phyxminiproblems-problemphyxmini0272-displayedangularfrequencyreadout}
+  The modeled angular frequency agrees with one displayed symbolic choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,162 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0093.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0093.source.json
+
+\chapter{Physics problem phyx\_mini\_0093}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0093}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A beam of unpolarized light of intensity \$I\_0\$ passes through a series of ideal polarizing filters with their polarizing axes turned to various angles as shown in figure.
+
+\#\# Question
+
+If we remove the middle filter, what will be the light intensity at point C?
+
+\#\# Answer choices
+
+- A: A: I = 0
+
+- B: B: I = I0
+
+- C: C: I = I0/2
+
+- D: D: I=I0 cos²(90°)
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of a sequence of three polarizing filter diagrams, labeled A, B, and C, from left to right. 
+
+1. **Scene A:**
+   - An unpolarized light beam labeled \textbackslash{}( I\_0 \textbackslash{}) is shown entering a vertical polarizing filter with its axis vertically aligned.
+   - The light is marked as "Unpolarized" before hitting the filter.
+   - There are no additional angles or labels within the polarizer.
+
+2. **Scene B:**
+   - The second polarizer is also vertically aligned, with an angle labeled \textbackslash{}( 60\textasciicircum{}\textbackslash{}circ \textbackslash{}) shown in blue, indicating the angle of the polarizing axis relative to some reference.
+   - This scene is labeled with a dot and the letter \textbackslash{}( B \textbackslash{}).
+
+3. **Scene C:**
+   - The third polarizer is similar but is labeled with an angle of \textbackslash{}( 90\textasciicircum{}\textbackslash{}circ \textbackslash{}).
+   - Again, a dot and the letter \textbackslash{}( C \textbackslash{}) provide a label for this scene.
+
+Each polarizer in the diagrams appears as an oval shape with a line through the center representing the polarizing axis. The progression suggests a sequential passing of light through each polarizer, each with a different orientation angle.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: I = 0
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/93.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0093.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0093:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0093.intensity_at_C_after_removing_middle_filter}
+\uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizersetup, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizerfigurereadouts, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizeropticslaws}
+In the modified arrangement with the middle \(60^\circ\) polarizer removed,
+unpolarized light passes first through the vertical polarizer A and then
+through the \(90^\circ\) polarizer C.  Their crossed axes make the intensity
+at C zero, answer A.
+\end{theorem}
+\begin{proof}
+The ideal-polarizer law at A makes its outgoing beam linearly polarized along
+axis angle \(0\), with half the incident intensity.  In the modified path the
+next transition is directly through C, whose axis angle is \(\pi/2\).
+Malus's law therefore multiplies the A intensity by
+\(\cos^2(\pi/2-0)=0\).  Thus the scalar readout of the dimensioned output
+intensity is zero.  Extensionality for the dimension-tagged quantity, together
+with its common-unit representation, identifies the physical intensity itself
+with zero.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[optical Intensity Dimension]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-opticalintensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.opticalIntensityDimension}
+  The physical dimension of optical intensity (power per unit area), namely M T⁻³ in the mass--length--time basis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of optical Intensity Dimension.
+\end{proof}
+\begin{definition}[Optical Intensity]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-opticalintensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.OpticalIntensity}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-opticalintensitydimension}
+  Optical intensity measured in one fixed common unit. The Physlib WithDim tag prevents this physical quantity from being identified with a bare real number, while .val is its scalar readout in that common unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Intensity.
+\end{proof}
+\begin{definition}[Polarization State]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-polarizationstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.PolarizationState}
+  The polarization information carried by a beam in this problem. A linear polarization axis is represented by its real-valued radian angle from the vertical reference line in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Polarization State.
+\end{proof}
+\begin{definition}[Light Beam]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-lightbeam}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.LightBeam}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-opticalintensity, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-polarizationstate}
+  A light beam together with its measured optical-intensity readout and polarization state. All intensity readouts use one fixed common physical unit, so the real scalar records a measurement rather than identifying intensity as an untyped scalar primitive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Light Beam.
+\end{proof}
+\begin{definition}[Ideal Linear Polarizer]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-ideallinearpolarizer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.IdealLinearPolarizer}
+  An ideal linear polarizing filter and the orientation of its transmission axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Linear Polarizer.
+\end{proof}
+\begin{definition}[Passes Through Ideal Linear Polarizer]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-passesthroughideallinearpolarizer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.PassesThroughIdealLinearPolarizer}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-lightbeam, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-ideallinearpolarizer}
+  The ideal-filter transition law. Unpolarized incident light loses half its intensity. Linearly polarized incident light obeys Malus's cosine-squared law. In either case, the outgoing polarization is aligned with the filter axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Passes Through Ideal Linear Polarizer.
+\end{proof}
+\begin{definition}[Three Polarizer Setup]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.ThreePolarizerSetup}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-opticalintensity, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-lightbeam, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-ideallinearpolarizer}
+  Physical objects and labeled beam locations in the three-polarizer figure. beamAtCWithoutB belongs to the modified experiment in which the middle filter is removed; its intensity is deliberately not fixed by this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Polarizer Setup.
+\end{proof}
+\begin{definition}[Three Polarizer Figure Readouts]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizerfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.ThreePolarizerFigureReadouts}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizersetup}
+  Direct readouts from the source label and the displayed filter-axis geometry. The three angles are respectively 0°, 60°, and 90° from vertical
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Polarizer Figure Readouts.
+\end{proof}
+\begin{definition}[Three Polarizer Optics Laws]
+  \label{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizeropticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0093.ThreePolarizerOpticsLaws}
+  \uses{def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-passesthroughideallinearpolarizer, def:physics:phyx-mini-0093:phyxminiproblems-problemphyxmini0093-threepolarizersetup}
+  Applications of the ideal-polarizer law to the original A--B--C arrangement and to the modified arrangement with B removed. These transition assumptions do not state the requested intensity at C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Polarizer Optics Laws.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

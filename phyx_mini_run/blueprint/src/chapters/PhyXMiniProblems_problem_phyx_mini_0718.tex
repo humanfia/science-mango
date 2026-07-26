@@ -1,0 +1,360 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0718.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0718.source.json
+
+\chapter{Physics problem phyx\_mini\_0718}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0718}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An \textbackslash{}(83\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) student hangs from a bungee cord with spring constant \textbackslash{}(270\textbackslash{},\textbackslash{}mathrm\{N/m\}\textbackslash{}). The student is pulled down to a point where the cord is \textbackslash{}(5.0\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) longer than its unstretched length, then released.
+
+\#\# Question
+
+What is his velocity \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{s\}\textbackslash{}) later?
+
+\#\# Answer choices
+
+- A: A: -2.0m/s
+
+- B: B: -1.8m/s
+
+- C: C: -1.6m/s
+
+- D: D: -1.4m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a bungee jumping scenario where a bungee cord is modeled as a spring. The diagram includes the following elements:
+
+1. **Bungee Cord**: 
+   - Represented as a coiled spring attached to a ceiling.
+
+2. **Spring Constant**: 
+   - Labeled as "270 N/m" next to the spring on the left.
+
+3. **Distances**:
+   - Two horizontal dashed lines labeled "Equilibrium" and "Release," with a vertical arrow between them labeled "5.0 m."
+
+4. **Person**:
+   - A stick figure at the end of the bungee cord on the right side, labeled "83 kg."
+
+5. **Oscillation Diagram**:
+   - To the right, a vertical line represents oscillation with markers labeled "A," "0," and "-A," showing upward and downward arrows with the text "Oscillation."
+
+6. **Text**:
+   - A note states, "The bungee cord is modeled as a spring."
+
+This diagram visually explains the concept of modeling a bungee jump as a spring-mass system, highlighting key parameters like spring constant, mass, and oscillation points.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -1.6m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/718.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0718.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0718:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0718.bungee_velocity_after_two_seconds_matches_answer_C}
+\uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-velocityinmeterspersecond, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeeoscillationsetup, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-matchesproblemdata, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-matchessourcefigure, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-satisfiesidealbungeephysics, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice-velocitymeterspersecond}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.velocityDimension}
+  The physical dimension of velocity, L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[spring Stiffness Dimension]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-springstiffnessdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.springStiffnessDimension}
+  The physical dimension of linear spring stiffness, M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.TimeQuantity}
+  A nonnegative physical duration elapsed since release
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.SpringStiffnessQuantity}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-springstiffnessdimension}
+  A nonnegative physical linear-spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.SignedLengthQuantity}
+  A signed vertical displacement from equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.SignedVelocityQuantity}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-velocitydimension}
+  A signed vertical velocity, positive in the displayed upward direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.signedSIReadout}
+  Read a signed dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.massInKilograms}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  Kilogram readout of the student's physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.lengthInMeters}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  Metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.timeInSeconds}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timequantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  Second readout of a physical elapsed duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-springstiffnessquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  Newton-per-metre readout of the cord's spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationmagnitudequantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[signed Length In Meters]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedlengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.signedLengthInMeters}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedlengthquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedsireadout}
+  Metre readout of a signed upward-positive displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedvelocityquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedsireadout}
+  Metre-per-second readout of a signed upward-positive velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.FigureObject}
+  Physical and graphical objects visibly present in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.FigureTextLabel}
+  Text and mathematical labels printed in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Figure Level]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figurelevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.FigureLevel}
+  Distinguished vertical levels in the supplied bungee drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Level.
+\end{proof}
+\begin{definition}[Bungee Figure Readout]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeefigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.BungeeFigureReadout}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figureobject, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figuretextlabel, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-figurelevel}
+  The categorical incidences and scalar labels transcribed from the primary image. verticalCoordinate is only a schematic figure coordinate; it is not a replacement for any dimensionful length in the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bungee Figure Readout.
+\end{proof}
+\begin{definition}[Vertical Coordinate Convention]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-verticalcoordinateconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.VerticalCoordinateConvention}
+  The sign and origin convention shown by the vertical y axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Coordinate Convention.
+\end{proof}
+\begin{definition}[Cord Model]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-cordmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.CordModel}
+  Idealization used for the bungee cord over the modeled interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cord Model.
+\end{proof}
+\begin{definition}[Motion Regime]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-motionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.MotionRegime}
+  Motion regime assumed after the student is released
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Regime.
+\end{proof}
+\begin{definition}[Bungee Oscillation Setup]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeeoscillationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.BungeeOscillationSetup}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timequantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-springstiffnessquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationmagnitudequantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedlengthquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedvelocityquantity, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeefigurereadout, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-verticalcoordinateconvention, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-cordmodel, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-motionregime}
+  The physical quantities and response functions for the bungee experiment. unstretchedToReleaseExtension is the full 5.0 m cord extension visible in the image. It is deliberately distinct from oscillationAmplitude, which is the release-to-equilibrium distance after the gravitational equilibrium shift. The requested velocity is not stored as a special numerical field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bungee Oscillation Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massinkilograms, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthinmeters, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timeinseconds, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-stiffnessinnewtonspermeter, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeeoscillationsetup}
+  Numerical values given in the prose, together with the standard near-Earth gravity calibration used by the recorded multiple-choice calculation. No velocity value or answer-choice assertion occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Source Figure]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-matchessourcefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.MatchesSourceFigure}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massinkilograms, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthinmeters, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-stiffnessinnewtonspermeter, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeeoscillationsetup}
+  Transcription of the source image and coherence of its three numerical labels with the corresponding dimensionful quantities. The top endpoint of the 5.0 m arrow is the unstretched-cord level, not the equilibrium line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Source Figure.
+\end{proof}
+\begin{definition}[Satisfies Ideal Bungee Physics]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-satisfiesidealbungeephysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.SatisfiesIdealBungeePhysics}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-massinkilograms, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-lengthinmeters, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-timeinseconds, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-stiffnessinnewtonspermeter, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-signedlengthinmeters, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-velocityinmeterspersecond, def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-bungeeoscillationsetup}
+  The ideal vertical spring model consists of: static force balance k x\_eq = m g; amplitude equal to the excess of the release extension over the equilibrium extension; release from rest at the displayed point y = -A; Physlib's harmonic oscillator with SI-calibrated mass and stiffness; displacement and velocity given, for every elapsed duration, by Physlib's harmonic-oscillator trajectory and its time derivative. These are generic physical/modeling relations.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Bungee Physics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.AnswerChoice}
+  Letter labels of the four velocities printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[velocity Meters Per Second]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice-velocitymeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.AnswerChoice.velocityMetersPerSecond}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice}
+  Metre-per-second value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0718.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0718:phyxminiproblems-problemphyxmini0718-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

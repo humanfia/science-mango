@@ -1,0 +1,283 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0224.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0224.source.json
+
+\chapter{Physics problem phyx\_mini\_0224}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0224}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The alpenhorn (figure) was once used to send signals from one Alpine village to another. Since lower frequency sounds are less susceptible to intensity loss, long horns were used to create deep sounds. When played as a musical instrument, the alpenhorn must be blown in such a way that only one of the overtones is resonating. The most popular alpenhorn is about \textbackslash{}( 3.4\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) long, and it is called the F\textbackslash{}\# (or G\textbackslash{}flat) horn.Model as a tube open at both ends.
+
+\#\# Question
+
+What is the fundamental frequency of this horn?
+
+\#\# Answer choices
+
+- A: A: 62Hz
+
+- B: B: 56Hz
+
+- C: C: 44Hz
+
+- D: D: 50Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a group of people standing on a cobblestone street in a mountainous town. There are five individuals in the foreground, with four men and one woman. The men are wearing traditional clothing, including vests, hats, and knee-length trousers, and each is holding an alphorn, a long wooden horn typically associated with Switzerland. The woman is also in traditional attire, including a long skirt and hat, and appears to be conversing with the group. She is holding a booklet or paper. Buildings with wooden accents line the street, and there are more people visible in the background.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 50Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/224.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0224.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0224:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0224.problem_phyx_mini_0224}
+\uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyinhertz, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesproblemandfigurereadouts, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hasphysicalacousticparameters, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesstandardairsoundspeed, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-satisfiesopenopenacousticlaws, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-recordeddatasetanswer, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.LengthQuantity}
+  A nonnegative physical length, independent of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.SpeedQuantity}
+  A nonnegative propagation speed, carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.lengthReadout}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.frequencyReadout}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.speedReadout}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.lengthInMeters}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedreadout}
+  Meter-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Horn Kind]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.HornKind}
+  The traditional wind instrument named in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horn Kind.
+\end{proof}
+\begin{definition}[Horn Pitch Name]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornpitchname}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.HornPitchName}
+  The two enharmonic names given for the popular 3.4 m horn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horn Pitch Name.
+\end{proof}
+\begin{definition}[Horn End]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.HornEnd}
+  The two ends of the idealized acoustic tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horn End.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.AcousticBoundaryCondition}
+  Acoustic boundary conditions admitted by the tube model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.AcousticMedium}
+  The propagation medium inside the horn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Figure Horn Feature]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-figurehornfeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.FigureHornFeature}
+  Qualitative horn features visible in the supplied photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Horn Feature.
+\end{proof}
+\begin{definition}[Alpenhorn Resonance Setup]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.AlpenhornResonanceSetup}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedquantity, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornkind, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornpitchname, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hornend, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-acousticboundarycondition, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-acousticmedium, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-figurehornfeature}
+  Independent physical quantities and qualitative attributes of the setup. modeNumber = 1 denotes the requested fundamental longitudinal mode. Neither the wavelength nor the frequency is assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Alpenhorn Resonance Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthinmeters, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup}
+  Problem-statement and primary-image readouts. The prose supplies the horn length, pitch names, open--open idealization, and requested fundamental mode. The photograph supplies four visible long wooden horns with flared bell openings. No wavelength or frequency answer appears in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthinmeters, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyinhertz, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedinmeterspersecond, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup}
+  Positivity and nondegeneracy conditions for the acoustic mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Matches Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.MatchesStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedinmeterspersecond, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup}
+  Standard room-temperature sound-speed data used to evaluate the acoustic laws. It is separate from both the source/figure readouts and the unknown fundamental frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Satisfies Open Open Acoustic Laws]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-satisfiesopenopenacousticlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.SatisfiesOpenOpenAcousticLaws}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthreadout, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyreadout, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-speedreadout, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup}
+  Governing relations for an open--open longitudinal standing wave. The first field states 2 L = n λ; the second states v = λ f. They are given in every compatible choice of units and contain no numerical value for the requested frequency or wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Open Open Acoustic Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency In Hertz]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-displayedanswerfrequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.displayedAnswerFrequencyInHertz}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-answerchoice}
+  Frequency in hertz printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency In Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyinhertz, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-answerchoice, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-displayedanswerfrequencyinhertz}
+  Agreement with a whole-hertz displayed answer. Half a hertz is the natural tolerance for rounding a model prediction to the nearest displayed hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[fundamental Wavelength In Meters eq]
+  \label{lem:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-fundamentalwavelengthinmeters-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.fundamentalWavelengthInMeters_eq}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-lengthinmeters, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesproblemandfigurereadouts, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-satisfiesopenopenacousticlaws}
+  The open--open fundamental geometry and the stated 3.4 m horn length imply the intermediate wavelength λ₁ = 6.8 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fundamental Wavelength In Meters eq.
+\end{proof}
+\begin{lemma}[fundamental Frequency In Hertz eq]
+  \label{lem:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-fundamentalfrequencyinhertz-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0224.fundamentalFrequencyInHertz_eq}
+  \uses{def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-frequencyinhertz, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-alpenhornresonancesetup, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesproblemandfigurereadouts, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-matchesstandardairsoundspeed, def:physics:phyx-mini-0224:phyxminiproblems-problemphyxmini0224-satisfiesopenopenacousticlaws}
+  Combining λ₁ = 6.8 m with the calibrated sound speed 343 m/s gives the exact model frequency f₁ = 1715 / 34 Hz, approximately 50.44 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fundamental Frequency In Hertz eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

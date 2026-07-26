@@ -1,0 +1,321 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0336.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0336.source.json
+
+\chapter{Physics problem phyx\_mini\_0336}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0336}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The graph in \textbackslash{}textbf\{figure\} shows a \$pV\$-diagram of the air in a human lung when a person is inhaling and then exhaling a deep breath. Such graphs, obtained in clinical practice, are normally somewhat curved, but we have modeled one as a set of straight lines of the same general shape. \textbackslash{}textit\{(Important: The pressure shown is the \textbackslash{}textit\{gauge\} pressure, \textbackslash{}textit\{not\} the absolute pressure.)\}
+
+\#\# Question
+
+The process illustrated here is somewhat different from those we have been studying, because the pressure change is due to changes in the amount of gas in the lung, not to temperature changes. (Think of your own breathing. Your lungs do not expand because they’ve gotten hot.) If the temperature of the air in the lung remains a reasonable \$20\textasciicircum{}\textbackslash{}circ \textbackslash{}text\{C\}\$, what is the maximum number of moles in this person’s lung during a breath?
+
+\#\# Answer choices
+
+- A: A: 0.069mol
+
+- B: B: 0.059mol
+
+- C: C: 0.459mol
+
+- D: D: 0.055mol
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with pressure-volume (p-V) data, likely depicting a thermodynamic cycle related to breathing. The graph has the following features:
+
+- **Axes:** 
+  - The x-axis is labeled "V (L)" for volume in liters.
+  - The y-axis is labeled "p (mm of Hg)" for pressure in millimeters of mercury.
+
+- **Grid:** A grid is present to help identify precise points.
+
+- **Plot:** The graph depicts a closed loop with four key points connected by arrows, representing a cycle with two main processes: inhaling and exhaling.
+  
+- **Inhaling Process:**
+  - Starts around the coordinates (0.5, 2.0) and moves to (0.5, 10.0).
+  - The arrow indicates an increase in pressure without changing volume significantly.
+
+- **Exhaling Process:**
+  - Starts around (1.5, 12.0) and moves to (1.0, 4.0).
+  - The arrow shows decreasing pressure with a decrease in volume.
+
+- **Cycle:** The graph forms a closed loop, indicating a complete cycle of inhaling and exhaling.
+
+- **Text:** "Inhaling" and "Exhaling" are labeled along with the arrows, indicating the direction of the process.
+
+This graph visually represents the changes in pressure and volume during a breathing cycle.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.059mol
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/336.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0336.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0336:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0336.maximum_amount_of_air_is_answer_B}
+\uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-vertexposition, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-matchesprimarylungfigure, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-matchesproblemdata, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-hasphysicallungparameters, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-satisfieslungidealgaslaws, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-answeramountinmoles, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.VolumeQuantity}
+  A physical gas volume, with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.PressureQuantity}
+  A physical pressure, used both for gauge and absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.MolarGasConstantQuantity}
+  The molar gas constant, with energy-per-temperature dimension. The omitted inverse-mole dimension is paired with the explicitly molar scalar readout in amountOfAirInMolesAt, since Physlib currently has no amount-of-substance base dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.volumeInLiters}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumequantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeincubicmeters}
+  Litre readout used on the horizontal axis of the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.pressureInPascals}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Millimeters Of Mercury]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinmillimetersofmercury}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.pressureInMillimetersOfMercury}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressurequantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinpascals}
+  Millimetre-of-mercury readout, obtained by comparing with Physlib's physical quantity DimPressure.millimeterOfMercury
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Millimeters Of Mercury.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.temperatureInKelvins}
+  Kelvin readout of Physlib's absolute-temperature object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Gas Constant In Liter Millimeters Of Mercury Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantinlitermillimetersofmercurypermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.molarGasConstantInLiterMillimetersOfMercuryPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantquantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinpascals}
+  Readout of the molar gas constant in litre-millimetres of mercury per mole-kelvin. The factor 1000 converts cubic metres to litres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In Liter Millimeters Of Mercury Per Mole Kelvin.
+\end{proof}
+\begin{definition}[Breath Cycle State]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.BreathCycleState}
+  The four black vertices in cyclic order in the primary p–V plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Breath Cycle State.
+\end{proof}
+\begin{definition}[Breath Cycle Position]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcycleposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.BreathCyclePosition}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate}
+  A point on one of the four directed straight edges. edgeFraction = 0 is the named starting vertex and edgeFraction = 1 is the next vertex
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Breath Cycle Position.
+\end{proof}
+\begin{definition}[vertex Position]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-vertexposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.vertexPosition}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcycleposition}
+  The canonical cycle position at a named vertex
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertex Position.
+\end{proof}
+\begin{definition}[position On Edge]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-positiononedge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.positionOnEdge}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcycleposition}
+  A cycle position with an explicitly supplied edge fraction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position On Edge.
+\end{proof}
+\begin{definition}[Figure Axis Label]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-figureaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.FigureAxisLabel}
+  Quantities named on the two axes of the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Label.
+\end{proof}
+\begin{definition}[Volume Display Unit]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumedisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.VolumeDisplayUnit}
+  Unit printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Display Unit.
+\end{proof}
+\begin{definition}[Pressure Display Unit]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressuredisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.PressureDisplayUnit}
+  Unit printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Display Unit.
+\end{proof}
+\begin{definition}[Plotted Pressure Kind]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-plottedpressurekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.PlottedPressureKind}
+  Whether the pressure plotted vertically is absolute or gauge pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plotted Pressure Kind.
+\end{proof}
+\begin{definition}[Breathing Phase]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathingphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.BreathingPhase}
+  Breathing phase named beside an outgoing directed edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Breathing Phase.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.GasModel}
+  Material model used for the air in the lung
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Lung Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungpressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.LungPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumequantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressurequantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcycleposition, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-figureaxislabel, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumedisplayunit, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressuredisplayunit, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-plottedpressurekind, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathingphase}
+  The labelled graph and its physical coordinates. The four vertices and the edge directions are independent fields here; their observed values belong to MatchesPrimaryLungFigure, not to this structure's definitions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lung Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Lung Breath Setup]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.LungBreathSetup}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressurequantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantquantity, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcycleposition, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-gasmodel, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungpressurevolumefigure}
+  The thermodynamic quantities throughout one deep breath. absolutePressureAt is distinct from the plotted gauge pressure so that their physical relation is an explicit governing law. Likewise, neither the amount at the upper-right state nor any maximum amount is prescribed by this setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lung Breath Setup.
+\end{proof}
+\begin{definition}[Matches Primary Lung Figure]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-matchesprimarylungfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.MatchesPrimaryLungFigure}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeinliters, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinmillimetersofmercury, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-breathcyclestate, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-vertexposition, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-positiononedge, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup}
+  Qualitative labels, directed edges, and numerical coordinates read from the primary image. The auxiliary caption is not used where it conflicts with the grid: the four visible points are (0.1, 1), (0.4, 9), (1.4, 11), and (1.0, 2) in litres and millimetres of mercury
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Lung Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinmillimetersofmercury, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantinlitermillimetersofmercurypermolekelvin, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup}
+  Numerical and qualitative data stated outside the plotted cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Lung Parameters]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-hasphysicallungparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.HasPhysicalLungParameters}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeinliters, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinmillimetersofmercury, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-temperatureinkelvins, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantinlitermillimetersofmercurypermolekelvin, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup}
+  Positivity conditions selecting the physical branch of the gas model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Lung Parameters.
+\end{proof}
+\begin{definition}[Satisfies Lung Ideal Gas Laws]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-satisfieslungidealgaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.SatisfiesLungIdealGasLaws}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-volumeinliters, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-pressureinmillimetersofmercury, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-temperatureinkelvins, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-molargasconstantinlitermillimetersofmercurypermolekelvin, def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-lungbreathsetup}
+  The governing pressure-conversion, temperature-conversion, and ideal-gas laws. The ideal-gas equation is stated in the compatible units displayed by the problem: millimetres of mercury, litres, moles, and kelvins. It applies to every plotted state. In particular, it does not state which state maximizes the amount of air or prescribe the numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Lung Ideal Gas Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Amount In Moles]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-answeramountinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.answerAmountInMoles}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-answerchoice}
+  Mole readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Amount In Moles.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0336.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0336:phyxminiproblems-problemphyxmini0336-answerchoice}
+  The answer label recorded by the dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

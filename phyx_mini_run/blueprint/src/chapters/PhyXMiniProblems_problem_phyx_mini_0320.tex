@@ -1,0 +1,332 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0320.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0320.source.json
+
+\chapter{Physics problem phyx\_mini\_0320}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0320}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows four tubes with lengths \$1.0\$ m or \$2.0\$ m, with one or two open ends as drawn. The third harmonic is set up in each tube, and some of the sound that escapes from them is detected by detector \$D\$, which moves directly away from the tubes.
+
+\#\# Question
+
+In terms of the speed of sound \$v\$, what speed must the detector have such that the detected frequency of the sound from tube 4 is equal to the tube's fundamental frequency?
+
+\#\# Answer choices
+
+- A: A: \$\textbackslash{}frac\{v\}\{2\}\$
+
+- B: B: \$\textbackslash{}frac\{2v\}\{5\}\$
+
+- C: C: \$\textbackslash{}frac\{v\}\{3\}\$
+
+- D: D: \$\textbackslash{}frac\{2v\}\{3\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image contains the following elements:
+
+- Four horizontal bars on the left side, each with a gradient color that appears to be a light blue or blue-gray. The bars are numbered sequentially from top to bottom:
+
+  1. The top bar is the shortest.
+  2. The second bar is slightly longer.
+  3. The third bar is longer than the previous two.
+  4. The fourth bar is the longest.
+
+- On the right side of the image, there is a circle filled with a gradient similar to the bars, transitioning from light to dark. This circle has a bold outline.
+
+- An arrow extends from the circle, pointing to the right, indicating a direction or flow.
+
+- The letter "D" is placed to the left of the circle and arrow, suggesting a label or designation for this part of the diagram.
+
+The layout suggests a diagram possibly illustrating a process, hierarchy, or some variables measured against a scale, with the circle and arrow representing a directional or dynamic component.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$\textbackslash{}frac\{2v\}\{3\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/320.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0320.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0320:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0320.tube4_fundamental_iff_detectorSpeed_twoThirds}
+\uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-matchesproblemandprimaryfigure, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-hasphysicalacousticparameters, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-satisfiestubemodeanddopplerlaws, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorhearstube4fundamental, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-recordeddatasetanswer, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorspeedagreeswithchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.LengthQuantity}
+  A nonnegative physical length, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AxialPosition}
+  A signed axial position along the horizontal direction in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.FrequencyQuantity}
+  A nonnegative physical acoustic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.SpeedQuantity}
+  A nonnegative physical speed with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.lengthReadout}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.lengthInMeters}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.positionReadout}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialposition}
+  Read a signed axial position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.positionInMeters}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialposition, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-positionreadout}
+  Metre readout of a signed axial position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.frequencyReadout}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyquantity}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyreadout}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.speedReadout}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedquantity}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedreadout}
+  Metres-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Tube Label]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.TubeLabel}
+  Tube numbers printed down the left side of the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Label.
+\end{proof}
+\begin{definition}[Tube Endpoint]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubeendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.TubeEndpoint}
+  The two axial endpoints of any horizontal tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Endpoint.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AcousticBoundaryCondition}
+  Acoustic boundary behavior indicated by the presence or absence of an end cap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Tube Motion]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubemotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.TubeMotion}
+  Motion state of a tube relative to the acoustic medium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Motion.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AxialDirection}
+  The two directions along the horizontal axis of the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Detector Label]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.DetectorLabel}
+  The detector label printed beneath the blue circular detector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detector Label.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AcousticMedium}
+  The unspecified common gas in and around the four tubes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Acoustic Tube]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acoustictube}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AcousticTube}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialposition, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubeendpoint, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acousticboundarycondition, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubemotion}
+  Physical geometry and motion data associated with one pictured tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Tube.
+\end{proof}
+\begin{definition}[Detector State]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.DetectorState}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialposition, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialdirection, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorlabel}
+  Physical state of the moving detector D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detector State.
+\end{proof}
+\begin{definition}[Four Tube Doppler Setup]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.FourTubeDopplerSetup}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedquantity, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubelabel, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-axialdirection, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acousticmedium, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-acoustictube, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorstate}
+  The independent physical quantities in the four-tube experiment. The emitted and detected frequencies, fundamental frequencies, wavelengths, sound speed, and detector speed are independent fields. In particular, the setup does not assign the detector speed a multiple of the sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Four Tube Doppler Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthinmeters, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-positioninmeters, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup}
+  Textual data and readouts from the primary image. The tube lengths and end conditions record all four depicted tubes even though only tube 4 enters the final calculation. Every right tube end lies to the left of detector D, the sound and detector move rightward, and the tubes are stationary; hence the detector moves directly away from each source. No detector-speed multiplier or detected-frequency tuning condition occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthinmeters, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyinhertz, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedinmeterspersecond, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup}
+  Positivity and subsonic conditions selecting the ordinary acoustic branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Tube Mode And Doppler Laws]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-satisfiestubemodeanddopplerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.SatisfiesTubeModeAndDopplerLaws}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-lengthreadout, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-positionreadout, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-frequencyreadout, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-speedreadout, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-tubelabel, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup}
+  Governing relations for the standing modes and the sound heard by D. An open--open mode obeys 2 L = n λ. A mode with exactly one closed end obeys 4 L = n λ, with odd n. A harmonic's emitted frequency is n times its fundamental frequency. Sound propagation obeys v = f λ. For a stationary source and a subsonic observer receding in the direction of propagation, the detected frequency is f (v-u)/v. The laws are stated in arbitrary compatible units.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Tube Mode And Doppler Laws.
+\end{proof}
+\begin{definition}[Detector Hears Tube4 Fundamental]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorhearstube4fundamental}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.DetectorHearsTube4Fundamental}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup}
+  The condition in the question: the sound from tube 4 is detected at tube 4's fundamental frequency. This is a proposition about two independent physical frequency fields, not a definition of either frequency or of detector speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detector Hears Tube4 Fundamental.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AnswerChoice}
+  Labels of the four displayed speed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[sound Speed Multiplier]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-answerchoice-soundspeedmultiplier}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.AnswerChoice.soundSpeedMultiplier}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-answerchoice}
+  Dimensionless multiplier of the sound speed printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Speed Multiplier.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Detector Speed Agrees With Choice]
+  \label{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-detectorspeedagreeswithchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0320.DetectorSpeedAgreesWithChoice}
+  \uses{def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-fourtubedopplersetup, def:physics:phyx-mini-0320:phyxminiproblems-problemphyxmini0320-answerchoice}
+  A displayed choice agrees with the detector's physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Detector Speed Agrees With Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

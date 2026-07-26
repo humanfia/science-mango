@@ -1,0 +1,342 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0881.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0881.source.json
+
+\chapter{Physics problem phyx\_mini\_0881}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0881}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The switch in figure has been open for a long time. It is closed at \textbackslash{}( t = 0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{}).
+
+\#\# Question
+
+What is the current through the battery after the switch has been closed a long time?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.0 \textbackslash{}
+
+- B: B: \textbackslash{}( 4.0 \textbackslash{}
+
+- C: C: \textbackslash{}( 1.0 \textbackslash{}
+
+- D: D: \textbackslash{}( 0.5 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit diagram consisting of the following components:
+
+1. **Voltage Source**: A 10 V battery is present, marked with positive (+) and negative (-) terminals.
+
+2. **Switch**: A switch is shown in the open position, indicating that the circuit is initially incomplete.
+
+3. **Components in Parallel**:
+   - Two resistors are present in parallel configuration.
+   - Each resistor is labeled with a resistance of 20 Ω.
+
+4. **Inductor**: There is an inductor with an inductance of 10 mH in series with one of the resistors.
+
+The circuit layout suggests a combination of series and parallel components. The switch is placed in series with the source and the parallel configuration of the resistor and the inductor-resistor pair. The lines represent conductive traces or wires connecting the components.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 1.0 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/881.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0881.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0881:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0881.problem_phyx_mini_0881}
+\uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-currentinamperes, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matchessuppliedparallelrlfigure, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matchesswitchingprotocol, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-hasphysicalcircuitparameters, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-satisfieslongtimeidealdccircuitlaws, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.energyDimension}
+  Energy has dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-energydimension}
+  Electric potential difference has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentdimension, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricpotentialdimension}
+  Electrical resistance has dimension potential difference per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.inductanceDimension}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricalresistancedimension}
+  Inductance has dimension resistance times time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Voltage Quantity]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltagequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.VoltageQuantity}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricpotentialdimension}
+  A nonnegative, unit-independent voltage magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancedimension}
+  A nonnegative, unit-independent inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentdimension}
+  A nonnegative, unit-independent current magnitude in a fixed orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[coherent SIReadout]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-coherentsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.coherentSIReadout}
+  Coherent-SI scalar readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coherent SIReadout.
+\end{proof}
+\begin{definition}[voltage In Volts]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.voltageInVolts}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltagequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-coherentsireadout}
+  Read a voltage magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistancequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-coherentsireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-coherentsireadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductanceinhenries}
+  Read an inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.currentInAmperes}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentquantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-coherentsireadout}
+  Read a current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[Resistor Position]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistorposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.ResistorPosition}
+  The two resistor positions distinguished by the supplied circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor Position.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.CircuitComponent}
+  Individually identifiable components visible in image 881.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Circuit Topology]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-circuittopology}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.CircuitTopology}
+  The branch connectivity shown in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Topology.
+\end{proof}
+\begin{definition}[Switch State]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.SwitchState}
+  State of the switch as a function of the time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch State.
+\end{proof}
+\begin{definition}[Parallel RLFigure]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-parallelrlfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.ParallelRLFigure}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistorposition, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-circuitcomponent, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-circuittopology}
+  Literal presentation data from the supplied figure. Optional scalar fields record whether a numerical label is printed; they do not define any physical quantity in the circuit setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel RLFigure.
+\end{proof}
+\begin{definition}[Switched Parallel RLCircuit]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.SwitchedParallelRLCircuit}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltagequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistancequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductancequantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-electriccurrentquantity, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchstate, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-parallelrlfigure}
+  Independent physical quantities for the switched circuit. The functions of real time use seconds as their coordinate. Long-time currents and voltage drops are fields rather than definitions from the displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched Parallel RLCircuit.
+\end{proof}
+\begin{definition}[Matches Supplied Parallel RLFigure]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matchessuppliedparallelrlfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.MatchesSuppliedParallelRLFigure}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltageinvolts, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistanceinohms, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductanceinmillihenries, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit}
+  Primary-raster evidence and its calibration to independent dimensionful quantities. This records the 10 V, two 20 Ω, and 10 mH labels together with the depicted branch connectivity and polarity marks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Parallel RLFigure.
+\end{proof}
+\begin{definition}[Matches Switching Protocol]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matchesswitchingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.MatchesSwitchingProtocol}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit}
+  The switch is idealized as having been open throughout negative times, being closed at t = 0 s, and remaining closed thereafter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Switching Protocol.
+\end{proof}
+\begin{definition}[Has Physical Circuit Parameters]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-hasphysicalcircuitparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.HasPhysicalCircuitParameters}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltageinvolts, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistanceinohms, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-inductanceinhenries, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit}
+  Positivity conditions for the three passive component parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Circuit Parameters.
+\end{proof}
+\begin{definition}[Satisfies Long Time Ideal DCCircuit Laws]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-satisfieslongtimeidealdccircuitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.SatisfiesLongTimeIdealDCCircuitLaws}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-voltageinvolts, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-resistanceinohms, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-currentinamperes, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit}
+  The ideal lumped-circuit laws used at long times: an open switch disconnects the battery; the time-dependent battery current tends to the named long-time current; parallel branches share the battery voltage, and Kirchhoff's voltage law splits the series-branch voltage between its resistor and inductor; both resistors obey Ohm's law; an ideal inductor in the long-time DC regime has zero voltage drop; and Kirchhoff's current law adds the two branch currents at the battery.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Long Time Ideal DCCircuit Laws.
+\end{proof}
+\begin{lemma}[long Time branch Currents eq one Half Ampere]
+  \label{lem:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-longtime-branchcurrents-eq-onehalfampere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.longTime_branchCurrents_eq_oneHalfAmpere}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-currentinamperes, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matchessuppliedparallelrlfigure, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-satisfieslongtimeidealdccircuitlaws}
+  Each 20 Ω branch carries 0.5 A in the long-time DC regime: the ideal inductor has become a zero-voltage series element, so each resistor has the full 10 V source voltage across it
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of long Time branch Currents eq one Half Ampere.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.AnswerChoice}
+  Labels of the four current choices printed with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Current In Amperes]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-displayedcurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.displayedCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-answerchoice}
+  Current in amperes printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Current In Amperes.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-answerchoice}
+  The source dataset's recorded answer label, retained only as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Long Time Battery Current]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matcheslongtimebatterycurrent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.MatchesLongTimeBatteryCurrent}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-currentinamperes, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-answerchoice, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-displayedcurrentinamperes}
+  A displayed choice equals the modeled long-time battery current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Long Time Battery Current.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0881.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-switchedparallelrlcircuit, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-answerchoice, def:physics:phyx-mini-0881:phyxminiproblems-problemphyxmini0881-matcheslongtimebatterycurrent}
+  A displayed choice is the unique exact match for the modeled current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

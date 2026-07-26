@@ -1,0 +1,340 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0341.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0341.source.json
+
+\chapter{Physics problem phyx\_mini\_0341}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0341}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thermodynamic system is taken from state \$a\$ to state \$c\$ in \textbackslash{}textbf\{figure\} along either path \$abc\$ or path \$adc\$. Along path \$abc\$, the work \$W\$ done by the system is 450\textasciitilde{}J. Along path \$adc\$, \$W\$ is 120\textasciitilde{}J. The internal energies of each of the four states shown in the figure are \$U\_a = 150\textasciitilde{}\textbackslash{}text\{J\}\$, \$U\_b = 240\textasciitilde{}\textbackslash{}text\{J\}\$, \$U\_c = 680\textasciitilde{}\textbackslash{}text\{J\}\$, and \$U\_d = 330\textasciitilde{}\textbackslash{}text\{J\}\$.
+
+\#\# Question
+
+Calculate the heat flow \$Q\$ for \$ab\$?
+
+\#\# Answer choices
+
+- A: A: 15J
+
+- B: B: 90J
+
+- C: C: 55J
+
+- D: D: 32J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram of a closed loop on a Cartesian coordinate system. Here's a breakdown of its components:
+
+- **Axes**: Two axes are labeled, with a vertical axis labeled as "p" and a horizontal axis labeled as "V". The origin is marked as "O".
+
+- **Points**: There are four labeled points: "a," "b," "c," and "d." Each point is marked with a black dot.
+
+- **Arrows and Lines**: 
+  - A horizontal arrow from "a" to "b".
+  - A vertical arrow from "b" to "c".
+  - A horizontal arrow from "c" to "d".
+  - A vertical arrow from "d" to "a".
+  
+- **Lines**: The lines and arrows form a rectangular cycle.
+
+This diagram might represent a thermodynamic cycle, showing transitions between states on pressure (p) and volume (V) axes.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 90J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/341.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0341.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0341:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0341.heatTransferredAlongAB_eq_ninety_joules}
+\uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyinjoules, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchesclosedsystemscenario, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchessuppliedpressurevolumefigure, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchesproblemreadouts, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-hasphysicalpressurevolumecoordinates, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiespathworkadditivity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiesisochoricworklaw, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiesclosedsystemfirstlaw}
+For the closed system shown on the pressure--volume diagram, the leg from
+$a$ to $b$ is isochoric.  With heat positive into the system and work
+positive when done by the system, the heat transferred on this leg has SI
+readout $90\,\mathrm{J}$.
+\end{theorem}
+\begin{proof}
+The vertical $a\to b$ segment in the supplied diagram is a constant-volume
+process.  The isochoric boundary-work law therefore gives
+$W_{ab}=0\,\mathrm{J}$.  Specialize the closed-system first law
+$Q_{ab}=U_b-U_a+W_{ab}$ to SI units.  The independent state readouts give
+$U_a=150\,\mathrm{J}$ and $U_b=240\,\mathrm{J}$, so
+$Q_{ab}=240-150+0=90\,\mathrm{J}$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.EnergyQuantity}
+  Physical energy, with dimension mass * length\textasciicircum{}2 / time\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.PressureQuantity}
+  Thermodynamic pressure, with dimension mass / (length * time\textasciicircum{}2)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.VolumeQuantity}
+  Nonnegative physical volume, with dimension length\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.energyReadout}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyquantity}
+  Read an energy in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[pressure Readout]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.pressureReadout}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurequantity}
+  Read a pressure in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Readout.
+\end{proof}
+\begin{definition}[volume Readout]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.volumeReadout}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumequantity}
+  Read a volume in the cubic unit induced by a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Readout.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.energyInJoules}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyquantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyreadout}
+  SI joule readout of an energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.pressureInPascals}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurequantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurereadout}
+  SI pascal readout of a pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumequantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumereadout}
+  Cubic-metre readout of a volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ThermodynamicState}
+  The four thermodynamic states labelled in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ProcessLeg}
+  The four directed process legs used by the two named paths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ProcessLeg.initialState}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg}
+  Initial state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ProcessLeg.finalState}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg}
+  Final state of a directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Thermodynamic Path]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ThermodynamicPath}
+  The two directed paths from a to c named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Path.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ProcessKind}
+  Process classification conveyed by a straight segment in a p--V plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Figure Axis Quantity]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-figureaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.FigureAxisQuantity}
+  The two physical quantities assigned to the plotted axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Quantity.
+\end{proof}
+\begin{definition}[Segment Orientation]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-segmentorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.SegmentOrientation}
+  Orientation of a process segment in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Orientation.
+\end{proof}
+\begin{definition}[Thermodynamic System Boundary]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicsystemboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ThermodynamicSystemBoundary}
+  System-boundary idealizations relevant to the first-law sign convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic System Boundary.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.AnswerChoice}
+  The four answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Joules]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-displayedheatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.displayedHeatInJoules}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-answerchoice}
+  Printed heat readout, in joules, for each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-answerchoice}
+  The answer label recorded by the dataset. This is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-figureaxisquantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-segmentorientation}
+  Qualitative evidence retained from the primary bitmap. Physical pressure and volume live in ThermodynamicProcessSetup; this record stores visible axes, labels, segments, arrows, and their orientations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Thermodynamic Process Setup]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.ThermodynamicProcessSetup}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyquantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurequantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumequantity, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicpath, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processkind, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicsystemboundary, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressurevolumefigure}
+  Independent physical quantities for the four states and four process legs. In particular, the heat on ab is an unconstrained field here. It is related to state energy and work only through the governing first law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Process Setup.
+\end{proof}
+\begin{definition}[Matches Closed System Scenario]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchesclosedsystemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.MatchesClosedSystemScenario}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  The fixed-mass closed-system interpretation used by the process model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Closed System Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchessuppliedpressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.MatchesSuppliedPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressureinpascals, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumeincubicmetres, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  Primary-image evidence. The bitmap puts a,b at the same volume on the left, c,d at the same larger volume on the right, a,d at the same lower pressure, and b,c at the same higher pressure. Its arrows form the paths abc and adc from a to c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyinjoules, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  Numerical data printed in the problem. This includes all four state internal energies and both total path works, but no heat value for any leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Pressure Volume Coordinates]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-hasphysicalpressurevolumecoordinates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.HasPhysicalPressureVolumeCoordinates}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-pressureinpascals, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-volumeincubicmetres, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicstate, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  Positivity conditions for the pressure and volume coordinates in the plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pressure Volume Coordinates.
+\end{proof}
+\begin{definition}[Satisfies Path Work Additivity]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiespathworkadditivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.SatisfiesPathWorkAdditivity}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyreadout, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  Additivity of work on each two-leg path. This relates the supplied path-work totals to leg works without prescribing the requested heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Path Work Additivity.
+\end{proof}
+\begin{definition}[Satisfies Isochoric Work Law]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiesisochoricworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.SatisfiesIsochoricWorkLaw}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyreadout, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  The pressure--volume boundary-work law needed here: every constant-volume process has zero work. This is general in both the process leg and unit choice and does not assert the requested heat value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isochoric Work Law.
+\end{proof}
+\begin{definition}[Satisfies Closed System First Law]
+  \label{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-satisfiesclosedsystemfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0341.SatisfiesClosedSystemFirstLaw}
+  \uses{def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-energyreadout, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-processleg, def:physics:phyx-mini-0341:phyxminiproblems-problemphyxmini0341-thermodynamicprocesssetup}
+  The closed-system first law with the chosen sign convention: Q = U\_final - U\_initial + W, where W is work done by the system. This is a general legwise relation and contains no numerical heat conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed System First Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

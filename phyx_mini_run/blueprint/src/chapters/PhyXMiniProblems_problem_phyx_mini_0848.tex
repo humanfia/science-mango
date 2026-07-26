@@ -1,0 +1,326 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0848.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0848.source.json
+
+\chapter{Physics problem phyx\_mini\_0848}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0848}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the net electric flux through the cylinder?
+
+\#\# Answer choices
+
+- A: A: 120N m\textasciicircum{}2/C
+
+- B: B: -100N m\textasciicircum{}2/C
+
+- C: C: 200N m\textasciicircum{}2/C
+
+- D: D: 110N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cylindrical object with three charge symbols. 
+
+1. **Cylinder:** A large, translucent beige cylinder is centered in the image with a side view showing one complete circular end on the left and a dashed circular outline suggesting the other end on the right.
+
+2. **Charge Symbols and Text:**
+   - On the left of the cylinder, there's a red circle with a plus sign inside, labeled as "+100 nC."
+   - In the center, inside the cylinder, another red circle with a plus sign is marked as "+1 nC (inside)."
+   - On the right, a teal circle with a minus sign inside is labeled as "−100 nC."
+
+These annotations indicate the positions and magnitudes of electric charges relative to the cylindrical object.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 110N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/848.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0848.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0848:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0848.problem_phyx_mini_0848}
+\uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-matchescylinderchargefigure, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-usesstandardvacuumpermittivity, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-satisfiesintegralgausslaw, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-isnearestdisplayedfluxchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.electricFluxDimension}
+  The physical dimension of electric flux, N m² / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[vacuum Permittivity Dimension]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-vacuumpermittivitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.vacuumPermittivityDimension}
+  The physical dimension of vacuum permittivity, C² / (N m²) = F / m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Permittivity Dimension.
+\end{proof}
+\begin{definition}[Electric Charge]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electriccharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.ElectricCharge}
+  A unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Charge.
+\end{proof}
+\begin{definition}[Electric Flux]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricflux}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.ElectricFlux}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricfluxdimension}
+  A unit-independent physical electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux.
+\end{proof}
+\begin{definition}[Vacuum Permittivity]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-vacuumpermittivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.VacuumPermittivity}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-vacuumpermittivitydimension}
+  A unit-independent physical vacuum permittivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vacuum Permittivity.
+\end{proof}
+\begin{definition}[nano Coulomb Unit Choices]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-nanocoulombunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.nanoCoulombUnitChoices}
+  SI base units with the charge unit replaced by one nanocoulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nano Coulomb Unit Choices.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electriccharge}
+  Scalar readout of a physical charge in SI coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electriccharge, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-nanocoulombunitchoices}
+  Scalar readout of a physical charge in nanocoulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[flux In Newton Meters Squared Per Coulomb]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.fluxInNewtonMetersSquaredPerCoulomb}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricflux}
+  Scalar SI readout of electric flux in N m² / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of flux In Newton Meters Squared Per Coulomb.
+\end{proof}
+\begin{definition}[permittivity In Farads Per Meter]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-permittivityinfaradspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.permittivityInFaradsPerMeter}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-vacuumpermittivity}
+  Scalar SI readout of vacuum permittivity in F / m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of permittivity In Farads Per Meter.
+\end{proof}
+\begin{definition}[Point3]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.Point3}
+  Cartesian position readouts in metres in the figure's ambient space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Point3.
+\end{proof}
+\begin{definition}[Cylinder Surface Part]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindersurfacepart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylinderSurfacePart}
+  The three boundary pieces of the closed cylindrical Gaussian surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Surface Part.
+\end{proof}
+\begin{definition}[Cylindrical Gaussian Surface]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylindricalGaussianSurface}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3}
+  A finite closed cylinder. axisDirection is dimensionless, while the centre, radius, and half-length are metre readouts. Its boundary consists of the two caps and curved side named by CylinderSurfacePart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylindrical Gaussian Surface.
+\end{proof}
+\begin{definition}[axial Offset Meters]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface-axialoffsetmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylindricalGaussianSurface.axialOffsetMeters}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface}
+  Signed axial displacement of a point from the cylinder centre, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Offset Meters.
+\end{proof}
+\begin{definition}[radial Distance Squared Meters]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface-radialdistancesquaredmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylindricalGaussianSurface.radialDistanceSquaredMeters}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface}
+  Squared radial distance from the cylinder axis, in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radial Distance Squared Meters.
+\end{proof}
+\begin{definition}[Contains]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface-contains}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylindricalGaussianSurface.Contains}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface}
+  Strict containment in the finite cylinder bounded by the Gaussian surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Contains.
+\end{proof}
+\begin{definition}[Charge Label]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.ChargeLabel}
+  Labels and left-to-right roles of the three point charges in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Label.
+\end{proof}
+\begin{definition}[Point Charge]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-pointcharge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.PointCharge}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electriccharge, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-point3}
+  A point charge with a physical charge and a position readout in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Point Charge.
+\end{proof}
+\begin{definition}[Electric Flux Functional]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricfluxfunctional}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.ElectricFluxFunctional}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface}
+  Physlib supplies the time-dependent electric-field type, but currently no closed-surface electric-flux integral for this elementary geometry. This interface records precisely that missing physical operation: the net outward flux of a field through the complete cylindrical boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Functional.
+\end{proof}
+\begin{definition}[Cylinder Electrostatics Setup]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.CylinderElectrostaticsSetup}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-vacuumpermittivity, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylindricalgaussiansurface, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargelabel, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-pointcharge, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricfluxfunctional}
+  The electrostatic configuration represented by the question. No numerical flux or answer-choice value is stored in this setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Electrostatics Setup.
+\end{proof}
+\begin{definition}[net Cylinder Flux]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.netCylinderFlux}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-electricflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup}
+  The requested net outward electric flux through the cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of net Cylinder Flux.
+\end{proof}
+\begin{definition}[enclosed Charge In Coulombs]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-enclosedchargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.enclosedChargeInCoulombs}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargeincoulombs, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargelabel, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup}
+  Net charge strictly enclosed by the cylinder, read in coulombs. External charges contribute zero to this sum, exactly as required by Gauss's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of enclosed Charge In Coulombs.
+\end{proof}
+\begin{definition}[Matches Cylinder Charge Figure]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-matchescylinderchargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.MatchesCylinderChargeFigure}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-chargeinnanocoulombs, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup}
+  Literal charge labels and inside/outside relations read from the supplied figure. These fields determine the enclosed charge but do not mention the requested flux or any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Cylinder Charge Figure.
+\end{proof}
+\begin{definition}[Uses Standard Vacuum Permittivity]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-usesstandardvacuumpermittivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.UsesStandardVacuumPermittivity}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-permittivityinfaradspermeter, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup}
+  The standard numerical calibration of vacuum permittivity used to evaluate the multiple-choice answer. The rational is the decimal 8.8541878128 × 10⁻¹² F/m written without floating-point notation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Vacuum Permittivity.
+\end{proof}
+\begin{definition}[Satisfies Integral Gauss Law]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-satisfiesintegralgausslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.SatisfiesIntegralGaussLaw}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-permittivityinfaradspermeter, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-enclosedchargeincoulombs}
+  Integral Gauss law for this closed surface, written in division-free SI form: ε₀ Φ = Q\_enclosed. It is a governing physical law, not the requested numerical conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Integral Gauss Law.
+\end{proof}
+\begin{lemma}[enclosed Charge In Coulombs eq one nanocoulomb]
+  \label{lem:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-enclosedchargeincoulombs-eq-one-nanocoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.enclosedChargeInCoulombs_eq_one_nanocoulomb}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-enclosedchargeincoulombs, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-matchescylinderchargefigure}
+  Only the central +1 nC point charge lies inside the Gaussian cylinder, so the net enclosed charge is 10⁻⁹ C. The two exterior 100 nC charges do not enter the enclosed-charge sum
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of enclosed Charge In Coulombs eq one nanocoulomb.
+\end{proof}
+\begin{lemma}[net Cylinder Flux eq enclosed Charge div permittivity]
+  \label{lem:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux-eq-enclosedcharge-div-permittivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.netCylinderFlux_eq_enclosedCharge_div_permittivity}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-permittivityinfaradspermeter, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-enclosedchargeincoulombs, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-satisfiesintegralgausslaw}
+  Gauss's law gives flux as enclosed charge divided by vacuum permittivity
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net Cylinder Flux eq enclosed Charge div permittivity.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.AnswerChoice}
+  Labels of the four displayed flux choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[flux In Newton Meters Squared Per Coulomb]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-answerchoice-fluxinnewtonmeterssquaredpercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.AnswerChoice.fluxInNewtonMetersSquaredPerCoulomb}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-answerchoice}
+  Flux readout printed beside each answer choice, in N m² / C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of flux In Newton Meters Squared Per Coulomb.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Flux Choice]
+  \label{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-isnearestdisplayedfluxchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0848.IsNearestDisplayedFluxChoice}
+  \uses{def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-fluxinnewtonmeterssquaredpercoulomb, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-cylinderelectrostaticssetup, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-netcylinderflux, def:physics:phyx-mini-0848:phyxminiproblems-problemphyxmini0848-answerchoice}
+  A displayed choice is correct when its printed value is at least as close to the computed physical flux as every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Flux Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

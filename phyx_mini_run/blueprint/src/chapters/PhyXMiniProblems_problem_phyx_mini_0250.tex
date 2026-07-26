@@ -1,0 +1,290 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0250.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0250.source.json
+
+\chapter{Physics problem phyx\_mini\_0250}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0250}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A Michelson interferometer uses a helium-neon laser with wavelength \$\textbackslash{}lambda\_\{vac\} = 633\textbackslash{};nm\$. In one arm, the light passes through a \$4.00\textbackslash{};cm\$-thick glass cell. Initially the cell is evacuated, and the interferometer is adjusted so that the central spot is a bright fringe. The cell is then slowly filled to atmospheric pressure with a gas. As the cell fills, 43 bright-dark-bright fringe shifts are seen and counted.
+
+\#\# Question
+
+What is the index of refraction of the gas at this wavelength?
+
+\#\# Answer choices
+
+- A: A: 1.00034
+
+- B: B: 1.00031
+
+- C: C: 1.00042
+
+- D: D: 1.00028
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram of an optical setup, likely an interferometer. Here is a breakdown of its components:
+
+1. **Source**: The origin of the light, depicted on the left side.
+
+2. **Beam Splitter**: Positioned in the path of the light from the source. It splits the light into two paths.
+
+3. **Mirror \textbackslash{}(M\_1\textbackslash{})**: Located at the top of the image, it reflects one of the split beams back through the beam splitter.
+
+4. **Mirror \textbackslash{}(M\_2\textbackslash{})**: Placed on the right side. It also reflects the light back and is shown with an arrow indicating its possible movement.
+
+5. **Gas-filled Cell**: Placed in the path leading to \textbackslash{}(M\_2\textbackslash{}) and labeled as having a thickness \textbackslash{}(d\textbackslash{}). The light passes through this cell twice, as noted in the text.
+
+6. **Path Lengths**: The paths have labeled distances \textbackslash{}(L\_1\textbackslash{}) and \textbackslash{}(L\_2\textbackslash{}).
+
+7. **Eye**: An icon at the bottom indicating the observation point or detector for the combined light beams.
+
+8. **Text**: Above the gas-filled cell, there is a description stating: "Gas-filled cell of thickness d. Light goes through this cell twice."
+
+The diagram shows the relationships between these components, indicating how light is manipulated and directed through the setup.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1.00034
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/250.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0250.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0250:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0250.problem_phyx_mini_0250}
+\uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasstatedproblemreadouts, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-matchessourcefigure, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasphysicalparameters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasvacuumreferenceindex, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeysroundtripopticalpathlaw, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeyscompletefringeshiftlaw, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-answerrefractiveindex, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-isnearesthundredthousandthreadout}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.LengthQuantity}
+  A physical length represented independently of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.lengthReadout}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity}
+  Read a physical length as a real scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.lengthInMeters}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthreadout}
+  The metre readout used by the governing optical-path laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthreadout}
+  The centimetre readout used for the cell thickness d
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthreadout}
+  The nanometre readout used for the helium-neon laser wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[Laser Kind]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-laserkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.LaserKind}
+  The source type named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Laser Kind.
+\end{proof}
+\begin{definition}[Cell State]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-cellstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.CellState}
+  The two cell states compared during the slow filling experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cell State.
+\end{proof}
+\begin{definition}[Filling Protocol]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fillingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.FillingProtocol}
+  The quasi-static preparation described by the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Filling Protocol.
+\end{proof}
+\begin{definition}[Fringe Brightness]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fringebrightness}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.FringeBrightness}
+  Brightness states of the central interference spot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fringe Brightness.
+\end{proof}
+\begin{definition}[Fringe Shift Pattern]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fringeshiftpattern}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.FringeShiftPattern}
+  The complete fringe pattern counted once per observed shift
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fringe Shift Pattern.
+\end{proof}
+\begin{definition}[Interferometer Arm]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-interferometerarm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.InterferometerArm}
+  The two Michelson arms, carrying the figure labels L₁ and L₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Interferometer Arm.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.FigureElement}
+  Optical components and the observer shown in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Beam Leg]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-beamleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.BeamLeg}
+  Directed beam legs drawn in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Leg.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.PropagationDirection}
+  Cardinal directions used to transcribe the beam arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[Michelson Gas Cell Experiment]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.MichelsonGasCellExperiment}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthquantity, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-laserkind, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-cellstate, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fillingprotocol, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fringebrightness, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-fringeshiftpattern, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-interferometerarm, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-figureelement, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-beamleg, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-propagationdirection}
+  The physical quantities and figure data of the interferometer. refractiveIndex is an unknown dimensionless material readout at each cell state. The field does not contain the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Michelson Gas Cell Experiment.
+\end{proof}
+\begin{definition}[Has Stated Problem Readouts]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasstatedproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.HasStatedProblemReadouts}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthincentimeters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinnanometers, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  This def records the Has Stated Problem Readouts component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Source Figure]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-matchessourcefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.MatchesSourceFigure}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  This def records the Matches Source Figure component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Source Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinmeters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  Positivity and monotonicity conditions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Has Vacuum Reference Index]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasvacuumreferenceindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.HasVacuumReferenceIndex}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  The evacuated reference state has vacuum refractive index one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Vacuum Reference Index.
+\end{proof}
+\begin{definition}[Obeys Round Trip Optical Path Law]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeysroundtripopticalpathlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.ObeysRoundTripOpticalPathLaw}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinmeters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  This def records the Obeys Round Trip Optical Path Law component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Round Trip Optical Path Law.
+\end{proof}
+\begin{definition}[Obeys Complete Fringe Shift Law]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeyscompletefringeshiftlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.ObeysCompleteFringeShiftLaw}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-lengthinmeters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment}
+  This def records the Obeys Complete Fringe Shift Law component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Complete Fringe Shift Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.AnswerChoice}
+  Labels of the four numerical choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Refractive Index]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-answerrefractiveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.answerRefractiveIndex}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-answerchoice}
+  The dimensionless refractive-index readout displayed by each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Refractive Index.
+\end{proof}
+\begin{definition}[Is Nearest Hundred Thousandth Readout]
+  \label{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-isnearesthundredthousandthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.IsNearestHundredThousandthReadout}
+  Agreement with a five-decimal display by nearest-value rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Hundred Thousandth Readout.
+\end{proof}
+\begin{lemma}[gas Refractive Index eq exact]
+  \label{lem:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-gasrefractiveindex-eq-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0250.gasRefractiveIndex_eq_exact}
+  \uses{def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-michelsongascellexperiment, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasstatedproblemreadouts, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-matchessourcefigure, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasphysicalparameters, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-hasvacuumreferenceindex, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeysroundtripopticalpathlaw, def:physics:phyx-mini-0250:phyxminiproblems-problemphyxmini0250-obeyscompletefringeshiftlaw}
+  This lemma records the gas Refractive Index eq exact component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of gas Refractive Index eq exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,310 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0183.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0183.source.json
+
+\chapter{Physics problem phyx\_mini\_0183}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0183}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In 1866, the German scientist Adolph Kundt developed a technique for accurately measuring the speed of sound in various gases. A long glass tube, known today as a Kundt's tube, has a vibrating piston at one end and is closed at the other. Very finely ground particles of cork are sprinkled in the bottom of the tube before the piston is inserted. As the vibrating piston is slowly moved forward, there are a few positions that cause the cork particles to collect in small, regularly spaced piles along the bottom. Figure shows an experiment in which the tube is filled with pure oxygen and the piston is driven at \$400 \textbackslash{}, \textbackslash{}text\{Hz\}\$.
+
+\#\# Question
+
+What is the speed of sound in oxygen?
+
+\#\# Answer choices
+
+- A: A: 400 m/s
+
+- B: B: 164 m/s
+
+- C: C: 246 m/s
+
+- D: D: 328 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a setup involving sound waves in a tube. Key elements include:
+
+- A **piston** on the left side, labeled with an arrow indicating back-and-forth movement.
+- The piston is associated with **"400 Hz,"** suggesting the frequency of the sound waves it generates.
+- A **glass tube** is depicted, containing the sound waves.
+- Inside the tube are **piles of cork particles** arranged at intervals along the length.
+- The length of the tube is marked as **123 cm**.
+
+Labels indicate each component, clarifying their roles in the setup.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 328 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/183.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0183.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0183:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0183.speedOfSoundInOxygen_is_328_metersPerSecond}
+\uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-meterspersecondvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubescenarioandfigure, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubenumericalreadouts, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hasphysicalkundttubeparameters, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfieskundtstandingwavelaw, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfiesacousticwavespeedlaw, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-recordedanswerchoice, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.AcousticLength}
+  A nonnegative physical length, independent of the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.AcousticFrequency}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.lengthReadout}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticlength}
+  Read a physical length as a real scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.frequencyReadout}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticfrequency}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.speedReadout}
+  Read a physical speed in the selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.metersValue}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticlength, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout}
+  Metre readout used for wavelengths and apparatus lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.centimetersValue}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticlength, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout}
+  Centimetre readout used by the 123 cm arrow in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[hertz Value]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hertzvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.hertzValue}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticfrequency, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-frequencyreadout}
+  Hertz readout of the piston driving frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz Value.
+\end{proof}
+\begin{definition}[meters Per Second Value]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-meterspersecondvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.metersPerSecondValue}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-speedreadout}
+  Metres-per-second readout used by the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second Value.
+\end{proof}
+\begin{definition}[Tube Gas]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubegas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.TubeGas}
+  Gas sample named by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Gas.
+\end{proof}
+\begin{definition}[Tube Material]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.TubeMaterial}
+  Material of the long tube shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Material.
+\end{proof}
+\begin{definition}[Tracer Particle Material]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tracerparticlematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.TracerParticleMaterial}
+  Material whose fine particles reveal the standing-wave nodes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tracer Particle Material.
+\end{proof}
+\begin{definition}[Tube Boundary Condition]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubeboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.TubeBoundaryCondition}
+  Boundary conditions at the two ends of the resonant gas column
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Boundary Condition.
+\end{proof}
+\begin{definition}[Cork Pile Label]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.CorkPileLabel}
+  The six cork piles visible from left to right in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cork Pile Label.
+\end{proof}
+\begin{definition}[Adjacent Cork Piles]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-adjacentcorkpiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.AdjacentCorkPiles}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilelabel}
+  Consecutive cork piles in the left-to-right order drawn in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Adjacent Cork Piles.
+\end{proof}
+\begin{definition}[Kundt Tube Setup]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.KundtTubeSetup}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticlength, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-acousticfrequency, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubegas, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubematerial, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tracerparticlematerial, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-tubeboundarycondition, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilelabel}
+  Physical quantities and labels for the resonant Kundt-tube configuration. tubeInternalLength records the long glass tube, while resonantGasColumnLength records the piston-to-closed-end oxygen column at the depicted resonant piston position. The marked span and wavelength remain unknown physical lengths; in particular, no field assigns the requested sound speed a numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Kundt Tube Setup.
+\end{proof}
+\begin{definition}[Cork Piles Are Strictly Ordered]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilesarestrictlyordered}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.CorkPilesAreStrictlyOrdered}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  The six depicted cork piles occur in strict left-to-right axial order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cork Piles Are Strictly Ordered.
+\end{proof}
+\begin{definition}[Matches Kundt Tube Scenario And Figure]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubescenarioandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.MatchesKundtTubeScenarioAndFigure}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilesarestrictlyordered}
+  Qualitative apparatus information and geometry read from the primary figure. The 123 cm arrow begins at pile1 and ends at pile4; its metric readout is recorded separately. No wavelength or sound-speed answer is included
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Kundt Tube Scenario And Figure.
+\end{proof}
+\begin{definition}[Matches Kundt Tube Numerical Readouts]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubenumericalreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.MatchesKundtTubeNumericalReadouts}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-centimetersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hertzvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  The two numerical readouts printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Kundt Tube Numerical Readouts.
+\end{proof}
+\begin{definition}[Has Physical Kundt Tube Parameters]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hasphysicalkundttubeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.HasPhysicalKundtTubeParameters}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hertzvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-meterspersecondvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  Positivity and containment conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Kundt Tube Parameters.
+\end{proof}
+\begin{definition}[Satisfies Kundt Standing Wave Law]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfieskundtstandingwavelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.SatisfiesKundtStandingWaveLaw}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-corkpilelabel, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-adjacentcorkpiles, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  Kundt's cork-dust observation law for the depicted standing wave. The cork piles mark displacement nodes. Consecutive displacement nodes are separated by one half-wavelength, expressed here as twice each pile spacing equaling the wavelength. This is a general physical law, not the requested numerical wavelength or sound-speed conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Kundt Standing Wave Law.
+\end{proof}
+\begin{definition}[Satisfies Acoustic Wave Speed Law]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfiesacousticwavespeedlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.SatisfiesAcousticWaveSpeedLaw}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-lengthreadout, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-frequencyreadout, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-speedreadout, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup}
+  Nondispersive acoustic propagation law v = λ f for the driven oxygen wave, required in every compatible selection of length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Acoustic Wave Speed Law.
+\end{proof}
+\begin{lemma}[marked Span is three half Wavelengths]
+  \label{lem:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-markedspan-is-three-halfwavelengths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.markedSpan_is_three_halfWavelengths}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubescenarioandfigure, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfieskundtstandingwavelaw}
+  Because the marked arrow runs from pile1 to pile4, it covers three successive half-wavelength intervals
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of marked Span is three half Wavelengths.
+\end{proof}
+\begin{lemma}[standing Wavelength In Oxygen meters eq]
+  \label{lem:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-standingwavelengthinoxygen-meters-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.standingWavelengthInOxygen_meters_eq}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-metersvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-kundttubesetup, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubescenarioandfigure, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matcheskundttubenumericalreadouts, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-hasphysicalkundttubeparameters, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-satisfieskundtstandingwavelaw}
+  The 123 cm three-interval span determines an oxygen wavelength of 0.82 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of standing Wavelength In Oxygen meters eq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-answerchoice}
+  Metres-per-second value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0183.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-meterspersecondvalue, def:physics:phyx-mini-0183:phyxminiproblems-problemphyxmini0183-answerchoice}
+  Exact agreement of a physical speed with a displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

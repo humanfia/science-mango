@@ -1,0 +1,342 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0418.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0418.source.json
+
+\chapter{Physics problem phyx\_mini\_0418}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0418}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gas following the \textbackslash{}( pV \textbackslash{}) trajectory of figure does \textbackslash{}( 60\textbackslash{},\textbackslash{}mathrm\{J\} \textbackslash{}) of work per cycle.
+
+\#\# Question
+
+What is \textbackslash{}( p\_\{\textbackslash{}max\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 200 kPa
+
+- B: B: 250 kPa
+
+- C: C: 300 kPa
+
+- D: D: 400 kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a pressure-volume diagram with labeled axes. The vertical axis represents pressure, \textbackslash{}( p \textbackslash{}), measured in kilopascals (kPa), while the horizontal axis represents volume, \textbackslash{}( V \textbackslash{}), measured in cubic centimeters (cm\textbackslash{}(\textasciicircum{}3\textbackslash{})).
+
+- The vertical axis has markings for \textbackslash{}( p\_\{\textbackslash{}text\{max\}\} \textbackslash{}), 100, and 0.
+- The horizontal axis is marked at intervals of 0, 200, 400, 600, 800 cm\textbackslash{}(\textasciicircum{}3\textbackslash{}).
+
+In the plot, a triangular cycle is traced with three arrows indicating the direction of the cycle. The cycle:
+- Starts at the bottom left corner and moves right,
+- Moves upward to form another side of the triangle,
+- Then descends diagonally back to the starting point.
+
+The arrows indicate the progression around the cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 300 kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/418.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0418.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0418:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0418.maximumPressure_eq_three_hundred_kilopascals}
+\uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-matchesproblemandprimaryfigure, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-usesgivencyclework, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-hasphysicalcycleparameters, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-satisfiestriangularcycleboundaryworklaw, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-recordedanswerchoice, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-maximumpressurematcheschoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.VolumeQuantity}
+  A nonnegative physical volume with dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.PressureQuantity}
+  Thermodynamic pressure, using Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Work Quantity]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.WorkQuantity}
+  Signed work, using Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumequantity}
+  SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumequantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubicmeters}
+  Cubic-centimetre readout used on the horizontal figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.pressureInPascals}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurequantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinpascals}
+  Kilopascal readout used on the vertical figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[work In Joules]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.workInJoules}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workquantity}
+  Joule readout of a signed physical work quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work In Joules.
+\end{proof}
+\begin{definition}[joules Per Kilopascal Cubic Centimeter]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-joulesperkilopascalcubiccentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.joulesPerKilopascalCubicCentimeter}
+  The conversion 1 kPa * cm³ = 10⁻³ J
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Kilopascal Cubic Centimeter.
+\end{proof}
+\begin{definition}[Working Substance]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workingsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.WorkingSubstance}
+  The physical kind of working substance stated by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Substance.
+\end{proof}
+\begin{definition}[Cycle Vertex]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cyclevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.CycleVertex}
+  The three unlabeled black vertices of the triangular cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Vertex.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.CycleLeg}
+  The directed sides, listed in the order shown by the arrowheads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.FigureAxis}
+  The two Cartesian axes in the supplied pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.AxisQuantity}
+  Physical quantity assigned to a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.AxisDisplayUnit}
+  Unit text printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.AxisSymbol}
+  Literal mathematical symbol printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Path Shape]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.PathShape}
+  Geometry of each side of the depicted cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Shape.
+\end{proof}
+\begin{definition}[Arrow Direction]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-arrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.ArrowDirection}
+  Directions of the three arrowheads in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arrow Direction.
+\end{proof}
+\begin{definition}[Cycle Orientation]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.CycleOrientation}
+  Orientation of a closed path in the pV plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Orientation.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cyclevertex, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleleg, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-figureaxis, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axisquantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axisdisplayunit, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-axissymbol, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pathshape, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-arrowdirection}
+  The visible content of the supplied diagram. Numeric ticks are scalar readouts in the units named by the axes; the thermodynamic state coordinates remain separate dimensionful quantities in TriangularPVCycleSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Triangular PVCycle Setup]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.TriangularPVCycleSetup}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumequantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurequantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workquantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workingsubstance, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cyclevertex, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleleg, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleorientation, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurevolumefigure}
+  The independent physical data of the cyclic gas process. In particular, maximumPressure and netWorkDoneByGas are independent dimensionful fields; neither is defined from an answer choice or from the requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular PVCycle Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubiccentimeters, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup}
+  Exact transcription of the problem statement and primary bitmap. The apex lies halfway between the 400 and 600 cm³ ticks, hence at 500 cm³. The field equating its pressure to maximumPressure records the meaning of the printed p\_max tick but gives that pressure no numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Given Cycle Work]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-usesgivencyclework}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.UsesGivenCycleWork}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workinjoules, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup}
+  The independently stated net work done by the gas during one cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Given Cycle Work.
+\end{proof}
+\begin{definition}[Has Physical Cycle Parameters]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-hasphysicalcycleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.HasPhysicalCycleParameters}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubicmeters, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinpascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup}
+  Positivity and ordering conditions for the physical branch, including the literal meaning of the name maximumPressure. These conditions do not fix its numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cycle Parameters.
+\end{proof}
+\begin{definition}[orientation Sign]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-orientationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.orientationSign}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-cycleorientation}
+  Clockwise cycles do positive net work by the gas; reversal changes sign
+\end{definition}
+\begin{proof}
+  This is the declared model definition of orientation Sign.
+\end{proof}
+\begin{definition}[triangular PVArea In Kilopascal Cubic Centimeters]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvareainkilopascalcubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.triangularPVAreaInKilopascalCubicCentimeters}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-volumeincubiccentimeters, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup}
+  Unsigned triangular area in the displayed kPa * cm³ coordinates. For the pictured horizontal base, this is base * height / 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of triangular PVArea In Kilopascal Cubic Centimeters.
+\end{proof}
+\begin{definition}[Satisfies Triangular Cycle Boundary Work Law]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-satisfiestriangularcycleboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.SatisfiesTriangularCycleBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-workinjoules, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-joulesperkilopascalcubiccentimeter, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-orientationsign, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvareainkilopascalcubiccentimeters}
+  For a closed triangular cycle made of straight quasistatic legs, boundary work by the gas equals the orientation sign times the enclosed pV area, after converting the displayed axis units to joules. This is a general governing relation and contains neither 300 kPa nor an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Triangular Cycle Boundary Work Law.
+\end{proof}
+\begin{lemma}[maximum Pressure Rise eq two hundred kilopascals]
+  \label{lem:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-maximumpressurerise-eq-two-hundred-kilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.maximumPressureRise_eq_two_hundred_kilopascals}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-triangularpvcyclesetup, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-matchesproblemandprimaryfigure, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-usesgivencyclework, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-satisfiestriangularcycleboundaryworklaw}
+  Combining the independent 60 J work datum with the general enclosed-area law and the figure coordinates gives a 200 kPa rise from the base to the apex. This is a derived lemma, not an assumption field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Pressure Rise eq two hundred kilopascals.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Maximum Pressure Kilopascals]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-displayedmaximumpressurekilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.displayedMaximumPressureKilopascals}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-answerchoice}
+  Kilopascal value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Maximum Pressure Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Maximum Pressure Matches Choice]
+  \label{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-maximumpressurematcheschoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0418.MaximumPressureMatchesChoice}
+  \uses{def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressurequantity, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-pressureinkilopascals, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-answerchoice, def:physics:phyx-mini-0418:phyxminiproblems-problemphyxmini0418-displayedmaximumpressurekilopascals}
+  A maximum pressure agrees with the value printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Maximum Pressure Matches Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,360 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0129.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0129.source.json
+
+\chapter{Physics problem phyx\_mini\_0129}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0129}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A farsighted eye has a near point of \textbackslash{}(100\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}).A newspaper can be read at a distance of \textbackslash{}(25\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) Assume the lens is very close to the eye.
+
+\#\# Question
+
+Reading glasses must have what lens power.
+
+\#\# Answer choices
+
+- A: A: +5.0D
+
+- B: B: +2.0D
+
+- C: C: +3.0D
+
+- D: D: +4.0D
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a diagram of light refraction through a lens system. It includes the following components:
+
+1. **Objects and Labels**:
+   - An "Object" is positioned in front of a lens.
+   - The lens is shown as a double-convex lens.
+   - An "Eye" is depicted behind the lens, suggesting observation through the lens.
+   - The "Image" is labeled on the opposite side of the object, indicating the point where the image is formed.
+
+2. **Rays and Paths**:
+   - Two pink dashed lines extend from the top of the object, passing through the lens and diverging outwards towards the eye. These lines represent light rays.
+   - Solid pink lines continue from these dashed lines through the lens, indicating the refracted rays converging at the image point.
+   
+3. **Distances**:
+   - The distance from the object to the lens is labeled \textbackslash{}( d\_o \textbackslash{}).
+   - The distance from the lens to the image is labeled \textbackslash{}( d\_i \textbackslash{}).
+
+This setup visually represents the principle of image formation by lenses, where light rays from an object are refracted through a lens to form an image viewed by an eye.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: +3.0D
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/129.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0129.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0129:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0129.problem_phyx_mini_0129}
+\uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-powerindiopters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchesproblemreadouts, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchessuppliedraydiagram, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-hasphysicallengthmagnitudes, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-useslensclosetoeyeapproximation, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-formsvirtualimageatnearpoint, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-satisfiesthinlensequation, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-satisfiesopticalpowerlaw, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.LengthMagnitude}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Optical Power]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-opticalpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.OpticalPower}
+  A signed physical optical power, with inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Power.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude}
+  The scalar readout of a length magnitude in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[power In Diopters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-powerindiopters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.powerInDiopters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-opticalpower}
+  The SI readout of optical power, in inverse meters, hence in diopters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Diopters.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.FigureElement}
+  Labels of the physical elements visible in the supplied ray diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Figure Distance Label]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figuredistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.FigureDistanceLabel}
+  The two distance labels displayed below the optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Distance Label.
+\end{proof}
+\begin{definition}[Lens Side]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lensside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.LensSide}
+  The side of the lens on which a pictured optical element lies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Side.
+\end{proof}
+\begin{definition}[Lens Kind]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lenskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.LensKind}
+  The optical behavior of the thin reading lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Kind.
+\end{proof}
+\begin{definition}[Image Nature]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-imagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.ImageNature}
+  Whether the image is made by rays or by their backward extensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Nature.
+\end{proof}
+\begin{definition}[Eye Condition]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-eyecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.EyeCondition}
+  The refractive state of the eye described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Eye Condition.
+\end{proof}
+\begin{definition}[Figure Ray Segment]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureraysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.FigureRaySegment}
+  The three ray segments distinguished by the supplied picture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Ray Segment.
+\end{proof}
+\begin{definition}[Ray Rendering]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-rayrendering}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.RayRendering}
+  Whether a ray segment is drawn as an actual ray or a construction line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Rendering.
+\end{proof}
+\begin{definition}[Ray Direction]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-raydirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.RayDirection}
+  The two relevant directions along the pictured optical path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Direction.
+\end{proof}
+\begin{definition}[Eye]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-eye}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.Eye}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureelement, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lensside, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-eyecondition}
+  The eye, including its unaided near-point distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Eye.
+\end{proof}
+\begin{definition}[Newspaper]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-newspaper}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.Newspaper}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureelement, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lensside}
+  The newspaper used as the near object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Newspaper.
+\end{proof}
+\begin{definition}[Corrective Image]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-correctiveimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.CorrectiveImage}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureelement, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lensside, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-imagenature}
+  The virtual image that the reading glasses present to the unaided eye
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Corrective Image.
+\end{proof}
+\begin{definition}[Thin Reading Lens]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-thinreadinglens}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.ThinReadingLens}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-opticalpower, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureelement, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lenskind}
+  A thin reading lens with dimensionful focal length and optical power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thin Reading Lens.
+\end{proof}
+\begin{definition}[Reading Glasses Setup]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.ReadingGlassesSetup}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthmagnitude, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figureraysegment, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-rayrendering, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-raydirection, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-eye, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-newspaper, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-correctiveimage, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-thinreadinglens}
+  This structure records the Reading Glasses Setup component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reading Glasses Setup.
+\end{proof}
+\begin{definition}[signed Focal Length In Centimeters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedfocallengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.signedFocalLengthInCentimeters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-thinreadinglens}
+  A converging lens has positive signed focal length in this convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Focal Length In Centimeters.
+\end{proof}
+\begin{definition}[signed Object Distance In Centimeters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedobjectdistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.signedObjectDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-newspaper}
+  A real object on the incident side has positive Gaussian object distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Object Distance In Centimeters.
+\end{proof}
+\begin{definition}[signed Image Distance In Centimeters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedimagedistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.signedImageDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-correctiveimage}
+  A virtual image on the incident side has negative Gaussian image distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Image Distance In Centimeters.
+\end{proof}
+\begin{definition}[displayed Distance In Centimeters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-displayeddistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.displayedDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-figuredistancelabel, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedobjectdistanceincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedimagedistanceincentimeters}
+  The signed centimeter readout associated with each figure distance label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Distance In Centimeters.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  This def records the Matches Problem Readouts component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Ray Diagram]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchessuppliedraydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.MatchesSuppliedRayDiagram}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  This def records the Matches Supplied Ray Diagram component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Ray Diagram.
+\end{proof}
+\begin{definition}[Has Physical Length Magnitudes]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-hasphysicallengthmagnitudes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.HasPhysicalLengthMagnitudes}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  Strict positivity of the physical length magnitudes used by the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Length Magnitudes.
+\end{proof}
+\begin{definition}[Uses Lens Close To Eye Approximation]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-useslensclosetoeyeapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.UsesLensCloseToEyeApproximation}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  This def records the Uses Lens Close To Eye Approximation component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Lens Close To Eye Approximation.
+\end{proof}
+\begin{definition}[Forms Virtual Image At Near Point]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-formsvirtualimageatnearpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.FormsVirtualImageAtNearPoint}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-lengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup}
+  This def records the Forms Virtual Image At Near Point component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Forms Virtual Image At Near Point.
+\end{proof}
+\begin{definition}[Satisfies Thin Lens Equation]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-satisfiesthinlensequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.SatisfiesThinLensEquation}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedfocallengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-displayeddistanceincentimeters}
+  This def records the Satisfies Thin Lens Equation component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Thin Lens Equation.
+\end{proof}
+\begin{definition}[Satisfies Optical Power Law]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-satisfiesopticalpowerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.SatisfiesOpticalPowerLaw}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-powerindiopters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-thinreadinglens, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedfocallengthincentimeters}
+  This def records the Satisfies Optical Power Law component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Optical Power Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.AnswerChoice}
+  Labels of the four power choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power In Diopters]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-displayedpowerindiopters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.displayedPowerInDiopters}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-answerchoice}
+  The optical power printed beside each answer label, in diopters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power In Diopters.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-opticalpower, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-powerindiopters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-answerchoice, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-displayedpowerindiopters}
+  Exact agreement between a modeled optical power and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[reciprocal Focal Length In Centimeters eq three hundredths]
+  \label{lem:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-reciprocalfocallengthincentimeters-eq-three-hundredths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0129.reciprocalFocalLengthInCentimeters_eq_three_hundredths}
+  \uses{def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-readingglassessetup, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-signedfocallengthincentimeters, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchesproblemreadouts, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-matchessuppliedraydiagram, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-useslensclosetoeyeapproximation, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-formsvirtualimageatnearpoint, def:physics:phyx-mini-0129:phyxminiproblems-problemphyxmini0129-satisfiesthinlensequation}
+  This lemma records the reciprocal Focal Length In Centimeters eq three hundredths component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reciprocal Focal Length In Centimeters eq three hundredths.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

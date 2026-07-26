@@ -1,0 +1,321 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0357.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0357.source.json
+
+\chapter{Physics problem phyx\_mini\_0357}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0357}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The molar specific heat at constant volume of a monatomic ideal gas is known to be \$\textbackslash{}frac\{3\}\{2\}R\$. Suppose that one mole of such a gas is subjected to a cyclic quasi-static process which appears as a circle on the diagram of pressure \$p\$ versus volume \$V\$ shown in the figure.
+
+\#\# Question
+
+Find the net work (in joules) done by the gas in one cycle.
+
+\#\# Answer choices
+
+- A: A: 314J
+
+- B: B: 895J
+
+- C: C: 550J
+
+- D: D: 160J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a circular diagram plotted on a Cartesian plane. The x-axis, labeled "V \textbackslash{}((10\textasciicircum{}3 \textbackslash{}, \textbackslash{}text\{cm\}\textasciicircum{}3)\textbackslash{})," ranges from 0 to 4. The y-axis, labeled "p \textbackslash{}((10\textasciicircum{}6 \textbackslash{}, \textbackslash{}text\{dynes\} \textbackslash{}, \textbackslash{}text\{cm\}\textasciicircum{}\{-2\})\textbackslash{})," ranges from 0 to 3. 
+
+There is a circle with clockwise arrows at the points labeled A, B, C, and D, indicating a cyclic process. Point A is at approximately (1, 2), B at around (2, 3), C near (3, 2), and D close to (2, 1). 
+
+The grid is divided into equal squares. The circle intersects each line of the grid as it moves from A to B to C to D and back to A, indicating a closed loop process.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 314J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/357.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0357.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0357:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0357.netWorkDoneByGasInOneCycle}
+\uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyinjoules, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-hasphysicalparameters, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-isclosedquasistaticcycle, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiescircularpvdiagramgeometry, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiesquasistaticboundaryworklaw, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-displayednetworkjoules, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-recordedanswerchoice, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-roundstonearestjoule}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.VolumeQuantity}
+  A signed physical volume, carrying length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.PressureQuantity}
+  A physical pressure using Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.EnergyQuantity}
+  A signed physical energy using Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[Molar Energy Per Temperature Quantity]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.MolarEnergyPerTemperatureQuantity}
+  Energy per absolute temperature. It is used for molar heat capacity and the molar gas constant; the inverse-mole role is represented by the explicitly named mole readout because Physlib's Dimension has no amount-of-substance component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Per Temperature Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.pressureInPascals}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.energyInJoules}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyquantity}
+  Joule readout of a signed physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[molar Energy Per Temperature In SI]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperatureinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.molarEnergyPerTemperatureInSI}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperaturequantity}
+  SI readout in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Energy Per Temperature In SI.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.GasModel}
+  Material model explicitly specified in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.FigurePoint}
+  The four state labels printed on the circular loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Loop Shape]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-loopshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.LoopShape}
+  Shape of the loop drawn in the pV plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Loop Shape.
+\end{proof}
+\begin{definition}[Traversal Direction]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-traversaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.TraversalDirection}
+  Direction in which the arrows traverse the loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traversal Direction.
+\end{proof}
+\begin{definition}[Process Regime]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-processregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.ProcessRegime}
+  Thermodynamic regime specified for the cyclic process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Regime.
+\end{proof}
+\begin{definition}[Axis Label]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-axislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.AxisLabel}
+  Literal roles of the labels printed on the two axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Label.
+\end{proof}
+\begin{definition}[Circular PVCycle Setup]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.CircularPVCycleSetup}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumequantity, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressurequantity, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyquantity, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperaturequantity, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-gasmodel, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-figurepoint, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-loopshape, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-traversaldirection, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-processregime, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-axislabel}
+  The independent physical quantities and figure metadata for the experiment. The path is parameterized from cycleStartParameter to cycleEndParameter. workOrientedAreaInAxisUnits is the signed scalar pV-area in the displayed coordinate units, with clockwise orientation positive because the requested sign convention is work done by the gas. Neither this area nor netWorkByGas is defined to have the requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circular PVCycle Setup.
+\end{proof}
+\begin{definition}[cubic Meters Per Volume Axis Unit]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-cubicmeterspervolumeaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.cubicMetersPerVolumeAxisUnit}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup}
+  Cubic metres represented by one horizontal diagram unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cubic Meters Per Volume Axis Unit.
+\end{proof}
+\begin{definition}[pascals Per Pressure Axis Unit]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pascalsperpressureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.pascalsPerPressureAxisUnit}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup}
+  Pascals represented by one vertical diagram unit, using 1 Pa = 10 dyne/cm\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pascals Per Pressure Axis Unit.
+\end{proof}
+\begin{definition}[volume Axis Coordinate]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeaxiscoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.volumeAxisCoordinate}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeincubicmeters, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-cubicmeterspervolumeaxisunit}
+  Horizontal graph coordinate of the volume at parameter t
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Axis Coordinate.
+\end{proof}
+\begin{definition}[pressure Axis Coordinate]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureaxiscoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.pressureAxisCoordinate}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureinpascals, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pascalsperpressureaxisunit}
+  Vertical graph coordinate of the pressure at parameter t
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Axis Coordinate.
+\end{proof}
+\begin{definition}[work Orientation Sign]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-workorientationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.workOrientationSign}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-traversaldirection}
+  Sign used for boundary work: a clockwise pV cycle has positive work by the gas, while reversing the cycle reverses the work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work Orientation Sign.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Primary Figure]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-matchesproblemstatementandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.MatchesProblemStatementAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperatureinsi, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeaxiscoordinate, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureaxiscoordinate}
+  Statement data and transcription of the primary image. In particular, the four labels are at A = (1,2), B = (2,3), C = (3,2), and D = (2,1). The circle-area value and net work do not occur in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeincubicmeters, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureinpascals, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-molarenergypertemperatureinsi, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-cubicmeterspervolumeaxisunit, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pascalsperpressureaxisunit}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Is Closed Quasistatic Cycle]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-isclosedquasistaticcycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.IsClosedQuasistaticCycle}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeincubicmeters, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureinpascals, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup}
+  The path is a differentiable closed cycle, expressing the quasistatic process mathematically without assigning its work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closed Quasistatic Cycle.
+\end{proof}
+\begin{definition}[Satisfies Circular PVDiagram Geometry]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiescircularpvdiagramgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.SatisfiesCircularPVDiagramGeometry}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-volumeaxiscoordinate, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pressureaxiscoordinate, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-workorientationsign}
+  Geometry of a circular loop in calibrated diagram coordinates. The second field is the general oriented-area formula for a circle with arbitrary coordinate radii and either traversal direction; it contains no numerical answer specific to this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular PVDiagram Geometry.
+\end{proof}
+\begin{definition}[Satisfies Quasistatic Boundary Work Law]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiesquasistaticboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.SatisfiesQuasistaticBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyinjoules, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-cubicmeterspervolumeaxisunit, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-pascalsperpressureaxisunit}
+  Quasistatic boundary-work law W\_by = ∮ p dV. The signed integral is represented by workOrientedAreaInAxisUnits, and the two calibration factors convert diagram area to joules. This is a generic law and does not fix the circle's radii, scales, or resulting work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasistatic Boundary Work Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.AnswerChoice}
+  Labels of the four answer choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Net Work Joules]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-displayednetworkjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.displayedNetWorkJoules}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-answerchoice}
+  Work values printed beside the four answer labels, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Net Work Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Joule]
+  \label{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-roundstonearestjoule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.RoundsToNearestJoule}
+  A real joule readout rounds to the displayed whole number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Joule.
+\end{proof}
+\begin{lemma}[exact Net Work From Circular Diagram]
+  \label{lem:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-exactnetworkfromcirculardiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0357.exactNetWorkFromCircularDiagram}
+  \uses{def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-energyinjoules, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-circularpvcyclesetup, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiescircularpvdiagramgeometry, def:physics:phyx-mini-0357:phyxminiproblems-problemphyxmini0357-satisfiesquasistaticboundaryworklaw}
+  The circle and unit scales give the exact joule readout 100π of the dimensionful net work. This lemma is a derived conclusion, not a premise of the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exact Net Work From Circular Diagram.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

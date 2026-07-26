@@ -1,0 +1,395 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0763.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0763.source.json
+
+\chapter{Physics problem phyx\_mini\_0763}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0763}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 15.0 kg block is attached to a very light horizontal spring of force constant 500.0 N/m and is resting on a frictionless horizontal table as shown in figure. Suddenly it is struck by a 3.00 kg stone traveling horizontally at 8.00 m/s to the right, whereupon the stone rebounds at 2.00 m/s horizontally to the left.
+
+\#\# Question
+
+Find the maximum distance that the block will compress the spring after the collision.
+
+\#\# Answer choices
+
+- A: A: 0.231m
+
+- B: B: 0.346m
+
+- C: C: 0.549m
+
+- D: D: 0.651m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics scenario involving two objects and a spring. On the left, there is a small orange sphere labeled "3.00 kg" with an arrow pointing to the right labeled "8.00 m/s," indicating its velocity. To the right of the sphere is a larger orange block labeled "15.0 kg." The block is in contact with a horizontal spring that is attached to a wall on its right side. The setup suggests a dynamic interaction where the sphere is moving towards the block and the spring, potentially illustrating concepts of momentum and energy transfer.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.346m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/763.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0763.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0763:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0763.problem_phyx_mini_0763}
+\uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesproblemreadouts, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesscenarioandprimaryfigure, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-hasphysicalparameters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesimpulsivecollisionlaws, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesblockkineticenergylaw, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfieshookespringpotentialenergylaw, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiespostimpactmechanicalenergyconservation, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-recordeddatasetanswer, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoicereportsmaximumcompression}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.LengthQuantity}
+  A nonnegative, unit-independent physical length or compression magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Horizontal Velocity Quantity]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.HorizontalVelocityQuantity}
+  A signed horizontal velocity, with dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Velocity Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SpringStiffnessQuantity}
+  A nonnegative linear-spring stiffness, with dimension M T⁻² (N/m)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.massReadout}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.lengthReadout}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[horizontal Velocity Readout]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.horizontalVelocityReadout}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityquantity}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of horizontal Velocity Readout.
+\end{proof}
+\begin{definition}[spring Stiffness Readout]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.springStiffnessReadout}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessquantity}
+  Read spring stiffness in coherent selected mass and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.massInKilograms}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.lengthInMeters}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthreadout}
+  Metre readout of a spring compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[horizontal Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.horizontalVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityreadout}
+  Metres-per-second readout, positive to the right and negative to the left
+\end{definition}
+\begin{proof}
+  This is the declared model definition of horizontal Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[spring Stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.springStiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessreadout}
+  Newton-per-metre readout of a physical spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.energyInJoules}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Body]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-body}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.Body}
+  Bodies participating in the collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Body.
+\end{proof}
+\begin{definition}[Process Instant]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-processinstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.ProcessInstant}
+  The three instants needed by the collision-and-compression calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Instant.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.HorizontalDirection}
+  Horizontal directions used by the prose and velocity arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SurfaceCondition}
+  Surface idealizations relevant to the block's motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Spring Mass Idealization]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springmassidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SpringMassIdealization}
+  Mass idealization stated for the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Mass Idealization.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.CollisionOutcome}
+  Qualitative outcome of the stone--block impact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Collision Impulse Model]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-collisionimpulsemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.CollisionImpulseModel}
+  Impact-scale approximation used for the collision momentum balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Impulse Model.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.FigureObject}
+  Objects and lines visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.FigureLabel}
+  Numerical labels printed in image 763.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Stone Block Spring Figure]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.StoneBlockSpringFigure}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontaldirection, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-figureobject, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-figurelabel}
+  Qualitative transcription of the primary image. The raster fixes the left-to-right topology and the initial green velocity arrow but contains no compression scale or post-impact drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stone Block Spring Figure.
+\end{proof}
+\begin{definition}[Stone Block Spring Setup]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.StoneBlockSpringSetup}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-body, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-processinstant, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-surfacecondition, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springmassidealization, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-collisionoutcome, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-collisionimpulsemodel, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringfigure}
+  Independent physical quantities for the collision and later compression. In particular, springCompressionAt .maximumCompression is an unconstrained physical length; it is not defined from the recorded answer or a radical
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stone Block Spring Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massinkilograms, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityinmeterspersecond, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  The numerical readouts stated in the problem. The zero block velocity at the turning point expresses the meaning of maximum compression, not its distance. The block's post-impact speed and maximum compression are absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Scenario And Primary Figure]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesscenarioandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.MatchesScenarioAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  Qualitative prose assumptions and facts read directly from image 763.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massinkilograms, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  Positivity conditions selecting the physically meaningful compression branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Impulsive Collision Laws]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesimpulsivecollisionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SatisfiesImpulsiveCollisionLaws}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massreadout, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthreadout, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityreadout, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  One-dimensional momentum conservation during the short impact, together with continuity of the block/spring position across an impulsive collision. The balance is stated in every coherent selection of mass, length, and time units. It does not prescribe the block's post-impact velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Impulsive Collision Laws.
+\end{proof}
+\begin{definition}[Satisfies Block Kinetic Energy Law]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesblockkineticenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SatisfiesBlockKineticEnergyLaw}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-massinkilograms, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityinmeterspersecond, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-energyinjoules, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  Translational kinetic energy of the block is K = (1/2) M v²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Block Kinetic Energy Law.
+\end{proof}
+\begin{definition}[Satisfies Hooke Spring Potential Energy Law]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfieshookespringpotentialenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SatisfiesHookeSpringPotentialEnergyLaw}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-springstiffnessinnewtonspermeter, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-energyinjoules, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  Potential energy of the light linear spring is U = (1/2) k x²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hooke Spring Potential Energy Law.
+\end{proof}
+\begin{definition}[block Spring Mechanical Energy In Joules]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-blockspringmechanicalenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.blockSpringMechanicalEnergyInJoules}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-energyinjoules, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-processinstant, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup}
+  Total block-plus-spring mechanical energy at a selected instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of block Spring Mechanical Energy In Joules.
+\end{proof}
+\begin{definition}[Satisfies Post Impact Mechanical Energy Conservation]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiespostimpactmechanicalenergyconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.SatisfiesPostImpactMechanicalEnergyConservation}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-blockspringmechanicalenergyinjoules}
+  On the frictionless table, block-plus-spring mechanical energy is conserved from immediately after impact until the maximum-compression turning point. No energy conservation across the stone--block collision is assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Post Impact Mechanical Energy Conservation.
+\end{proof}
+\begin{lemma}[block Velocity Immediately After Impact eq two]
+  \label{lem:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-blockvelocityimmediatelyafterimpact-eq-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.blockVelocityImmediatelyAfterImpact_eq_two}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-horizontalvelocityinmeterspersecond, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesproblemreadouts, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesimpulsivecollisionlaws}
+  Momentum transfer from the rebounding stone gives the block speed 2 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of block Velocity Immediately After Impact eq two.
+\end{proof}
+\begin{lemma}[maximum Compression exact]
+  \label{lem:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-maximumcompression-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.maximumCompression_exact}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-matchesproblemreadouts, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-hasphysicalparameters, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesimpulsivecollisionlaws, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiesblockkineticenergylaw, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfieshookespringpotentialenergylaw, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-satisfiespostimpactmechanicalenergyconservation}
+  The momentum and post-impact energy laws give the exact positive compression sqrt (3/25) m. This is a derived result, not a premise or definition
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Compression exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.AnswerChoice}
+  Labels attached to the four displayed distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoice-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.AnswerChoice.distanceInMeters}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoice}
+  Distance in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Agrees With Three Decimal Meter Readout]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-agreeswiththreedecimalmeterreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.AgreesWithThreeDecimalMeterReadout}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthquantity, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-lengthinmeters}
+  Agreement with a distance displayed to the nearest millimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Three Decimal Meter Readout.
+\end{proof}
+\begin{definition}[Answer Choice Reports Maximum Compression]
+  \label{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoicereportsmaximumcompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0763.AnswerChoiceReportsMaximumCompression}
+  \uses{def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-stoneblockspringsetup, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-answerchoice, def:physics:phyx-mini-0763:phyxminiproblems-problemphyxmini0763-agreeswiththreedecimalmeterreadout}
+  A choice reports the maximum compression to the displayed precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice Reports Maximum Compression.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

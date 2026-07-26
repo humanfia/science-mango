@@ -1,0 +1,431 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0702.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0702.source.json
+
+\chapter{Physics problem phyx\_mini\_0702}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0702}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The \textbackslash{}(4.00\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{})-long, \textbackslash{}(500\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) steel beam shown in figure is supported \textbackslash{}(1.20\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) from the right end.
+
+\#\# Question
+
+What is the gravitational torque about the support?
+
+\#\# Answer choices
+
+- A: A: 3720N
+
+- B: B: 3820N
+
+- C: C: 3920N
+
+- D: D: 4020N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a horizontal beam with various labels and symbols indicating measurements and forces. 
+
+- The beam is 4.00 meters long.
+- There is a symbol "cm" (center of mass) marked near the middle of the beam.
+- A downward red arrow labeled "Mg" is positioned under the "cm," representing a force due to gravity acting at the center of mass.
+- Beneath the beam and slightly off-center to the right, there is a triangular support, suggesting a pivot or fulcrum.
+- To the left of the pivot, there is a distance marked as 0.80 meters from the force to the pivot.
+- To the right of the pivot, another distance is marked as 1.20 meters, extending to the end of the beam. 
+
+The image illustrates the setup of a lever or beam in a static equilibrium problem.
+
+\#\# Dataset metadata
+
+Statics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 3920N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/702.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0702.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0702:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0702.problem_phyx_mini_0702}
+\uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesproblemdata, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesprimaryfigure, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-usesstandardearthgravity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-hasphysicalbeamparameters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-satisfiesgravityandtorquelaws, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-gravitationaltorquemagnitudeinnewtonmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesdisplayedtorqueanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Spatial Vector]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.SpatialVector}
+  Three-dimensional Euclidean vectors used for coherent-unit readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Vector.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.accelerationDimension}
+  Acceleration has physical dimension L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.forceDimension}
+  Force has physical dimension M L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[torque Dimension]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torquedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.torqueDimension}
+  Torque has physical dimension M L\textasciicircum{}2 T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Position Vector Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-positionvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.PositionVectorQuantity}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  A spatial position or displacement with physical length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Vector Quantity.
+\end{proof}
+\begin{definition}[Acceleration Vector Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.AccelerationVectorQuantity}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationdimension}
+  A spatial gravitational-acceleration vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Vector Quantity.
+\end{proof}
+\begin{definition}[Force Vector Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forcevectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.ForceVectorQuantity}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forcedimension}
+  A spatial force vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Vector Quantity.
+\end{proof}
+\begin{definition}[Torque Vector Quantity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torquevectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.TorqueVectorQuantity}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torquedimension}
+  A spatial torque vector about the support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torque Vector Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.nonnegativeReadout}
+  Read a nonnegative scalar physical quantity in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[vector Readout]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.vectorReadout}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  Read a physical vector in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vector Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.massInKilograms}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-nonnegativereadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.lengthInMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-nonnegativereadout}
+  Metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.positionInMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-positionvectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout}
+  Cartesian metre readout of a position or displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationvectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout}
+  Cartesian metres-per-second-squared readout of an acceleration vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.forceInNewtons}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forcevectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout}
+  Cartesian newton readout of a force vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[torque In Newton Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.torqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torquevectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout}
+  Cartesian newton-metre readout of a torque vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque In Newton Meters.
+\end{proof}
+\begin{definition}[spatial Cross]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialcross}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.spatialCross}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  The ordinary three-dimensional cross product transported to Euclidean space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spatial Cross.
+\end{proof}
+\begin{definition}[x Hat]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-xhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.xHat}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  The dimensionless Cartesian unit vector pointing rightward along the beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Hat.
+\end{proof}
+\begin{definition}[y Hat]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-yhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.yHat}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  The dimensionless Cartesian unit vector pointing vertically upward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Hat.
+\end{proof}
+\begin{definition}[z Hat]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-zhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.zHat}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialvector}
+  The dimensionless Cartesian unit vector pointing out of the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of z Hat.
+\end{proof}
+\begin{definition}[Beam Point]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.BeamPoint}
+  Distinguished points ordered along the pictured beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Point.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.FigureComponent}
+  Individually identifiable objects shown in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.FigureTextLabel}
+  Literal text labels attached to the center of mass and weight arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Figure Distance Label]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figuredistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.FigureDistanceLabel}
+  The three calibrated distance labels drawn in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Distance Label.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.VerticalDirection}
+  Direction of the red gravitational-force arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Beam Material]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beammaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.BeamMaterial}
+  Material named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Material.
+\end{proof}
+\begin{definition}[Beam Orientation]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beamorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.BeamOrientation}
+  Orientation of the beam in the supplied side view
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Orientation.
+\end{proof}
+\begin{definition}[distance Label Value In Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-distancelabelvalueinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.distanceLabelValueInMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figuredistancelabel}
+  The numerical value printed by each calibrated distance label, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Label Value In Meters.
+\end{proof}
+\begin{definition}[Supplied Beam Figure]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-suppliedbeamfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.SuppliedBeamFigure}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beampoint, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figurecomponent, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figuretextlabel, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-figuredistancelabel, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-verticaldirection}
+  Labels and incidences transcribed from the supplied primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Beam Figure.
+\end{proof}
+\begin{definition}[Supported Beam Setup]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.SupportedBeamSetup}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-positionvectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationvectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-forcevectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torquevectorquantity, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beampoint, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beammaterial, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-beamorientation, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-suppliedbeamfigure}
+  The independent physical quantities of the beam-and-support setup. In particular, the gravitational force and torque are not defined from the requested numerical answer; the governing laws below constrain them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supported Beam Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massinkilograms, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthinmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  Numerical and categorical information stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-positioninmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-xhat, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-distancelabelvalueinmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  The labels, order, and calibrated geometry visible in image 702.png. Coordinates use the left endpoint as the origin. These fields supply only figure evidence; no force or torque value appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-yhat, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  The standard near-Earth field value implicit in the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Beam Parameters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-hasphysicalbeamparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.HasPhysicalBeamParameters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-massinkilograms, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-lengthinmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  Positivity conditions selecting a physical beam and gravitational field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Beam Parameters.
+\end{proof}
+\begin{definition}[Satisfies Gravity And Torque Laws]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-satisfiesgravityandtorquelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.SatisfiesGravityAndTorqueLaws}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-nonnegativereadout, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-vectorreadout, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-spatialcross, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  The two governing mechanics laws used by the calculation. They are stated in every coherent unit system: gravitational force is mass times acceleration, and torque about the support is the cross product of the support-to-center lever arm with that force. Neither law mentions a numerical torque answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Gravity And Torque Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Torque Magnitude In Newton Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-displayedtorquemagnitudeinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.displayedTorqueMagnitudeInNewtonMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-answerchoice}
+  Numerical torque magnitudes displayed by the choices, interpreted in newton-metres. The source abbreviates their unit as N, although the question asks for torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Torque Magnitude In Newton Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[gravitational Torque Magnitude In Newton Meters]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-gravitationaltorquemagnitudeinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.gravitationalTorqueMagnitudeInNewtonMeters}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-torqueinnewtonmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup}
+  SI magnitude of the gravitational torque about the support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gravitational Torque Magnitude In Newton Meters.
+\end{proof}
+\begin{definition}[Matches Displayed Torque Answer]
+  \label{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-matchesdisplayedtorqueanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0702.MatchesDisplayedTorqueAnswer}
+  \uses{def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-supportedbeamsetup, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-answerchoice, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-displayedtorquemagnitudeinnewtonmeters, def:physics:phyx-mini-0702:phyxminiproblems-problemphyxmini0702-gravitationaltorquemagnitudeinnewtonmeters}
+  A displayed choice agrees with the calculated physical torque magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Torque Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,377 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0375.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0375.source.json
+
+\chapter{Physics problem phyx\_mini\_0375}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0375}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The cylinder in figure has a moveable piston attached to a spring. The cylinder\textbackslash{}'s cross-section area is 10\textbackslash{} \textbackslash{}text\{cm\}\textasciicircum{}2, it contains 0.0040\textbackslash{} \textbackslash{}text\{mol\} of gas, and the spring constant is 1500\textbackslash{} \textbackslash{}text\{N/m\}. At 20\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\} the spring is neither compressed nor stretched.
+
+\#\# Question
+
+How far is the spring compressed if the gas temperature is raised to 100\textasciicircum{}\textbackslash{}circ\textbackslash{}text\{C\}?
+
+\#\# Answer choices
+
+- A: A: 1cm
+
+- B: B: 2cm
+
+- C: C: 5cm
+
+- D: D: 1.2cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a mechanical setup with the following components:
+
+1. **Cylinder and Piston**: A cylinder on the left side contains a piston. The interior of the cylinder is shaded in yellow. 
+
+2. **Piston Area**: The piston area is labeled "A = 10 cm²."
+
+3. **Spring**: Connected to the right side of the piston is a coiled spring extending towards the right.
+
+4. **Spring Constant**: Next to the spring, the text "1500 N/m" indicates the spring constant.
+
+The setup appears to depict a spring-piston system, possibly illustrating concepts of pressure, force, or compression.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/375.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0375.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0375:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0375.springCompression_after_heating}
+\uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchesspringpistonscenario, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchessuppliedspringpistonfigure, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchesproblemreadouts, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-hasphysicalspringpistonparameters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-satisfiesendpointidealgaslaw, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-satisfiesspringpistonmechanicallaws, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-isuniqueclosestdisplayedcompression}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.VolumeQuantity}
+  A nonnegative physical volume, with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SpringConstantQuantity}
+  A nonnegative spring constant, with dimension force per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.ForceQuantity}
+  A nonnegative force magnitude along the horizontal piston axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.areaInSquareMeters}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[area In Square Centimeters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-areainsquarecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.areaInSquareCentimeters}
+  Read the figure's piston-area label in square centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Centimeters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.lengthInMeters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthquantity}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantquantity}
+  Read a spring constant in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.forceInNewtons}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-forcequantity}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.temperatureInKelvin}
+  Physlib's Temperature is an absolute nonnegative temperature whose stored magnitude uses a zero-preserving unit. Recording the storage unit explicitly allows a coherent kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-temperatureinkelvin}
+  The affine Celsius readout is kept separate from the absolute temperature. The exact rational 5463 / 20 is 273.15 kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.AmountOfSubstanceScale}
+  Physlib currently has no amount-of-substance base dimension. This abstract carrier and its mole readout preserve the role of gas amount without identifying the physical quantity itself with a real number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[Thermal State]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.ThermalState}
+  The two equilibrium states named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal State.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.FigureObject}
+  Objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.FigureTextLabel}
+  Text labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Spring Endpoint]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SpringEndpoint}
+  Distinguished endpoints of the spring shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Endpoint.
+\end{proof}
+\begin{definition}[Piston Axis Orientation]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pistonaxisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.PistonAxisOrientation}
+  Orientation of the piston axis in the supplied drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Axis Orientation.
+\end{proof}
+\begin{definition}[Spring Model]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SpringModel}
+  Constitutive model used for the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Model.
+\end{proof}
+\begin{definition}[Supplied Spring Piston Figure]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-suppliedspringpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SuppliedSpringPistonFigure}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figureobject, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figuretextlabel, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springendpoint, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pistonaxisorientation}
+  Qualitative geometry and labels transcribed from the primary raster. The image supplies no numerical compression readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Spring Piston Figure.
+\end{proof}
+\begin{definition}[Spring Piston Setup]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SpringPistonSetup}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthquantity, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumequantity, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantquantity, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-forcequantity, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springmodel, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-suppliedspringpistonfigure}
+  The physical apparatus and its endpoint observables. In particular, the heated-state spring compression is an independent physical field rather than a definition made from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Piston Setup.
+\end{proof}
+\begin{definition}[gas Temperature In Kelvin]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-gastemperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.gasTemperatureInKelvin}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-temperatureinkelvin, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Kelvin readout of the gas temperature in a named equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gas Temperature In Kelvin.
+\end{proof}
+\begin{definition}[gas Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-gastemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.gasTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-temperatureindegreescelsius, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Celsius readout of the gas temperature in a named equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gas Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[heated Spring Compression In Centimeters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-heatedspringcompressionincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.heatedSpringCompressionInCentimeters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthincentimeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Centimetre readout of the spring compression after heating
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heated Spring Compression In Centimeters.
+\end{proof}
+\begin{definition}[Matches Spring Piston Scenario]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchesspringpistonscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.MatchesSpringPistonScenario}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Qualitative properties stated or implied by the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Spring Piston Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Spring Piston Figure]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchessuppliedspringpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.MatchesSuppliedSpringPistonFigure}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figureobject, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-figuretextlabel, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Primary-image evidence: all drawn components and both printed labels are present, the spring runs from the piston to the fixed right wall, and the piston axis is horizontal with the gas on its left and spring on its right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Spring Piston Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-areainsquarecentimeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthinmeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantinnewtonspermeter, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-gastemperatureindegreescelsius}
+  Numerical readouts printed in the problem, together with the standard atmosphere and SI gas-constant calibrations required by the textbook model. The heated compression and all answer-choice relations are absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Spring Piston Parameters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-hasphysicalspringpistonparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.HasPhysicalSpringPistonParameters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-areainsquaremeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumeincubicmeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pressureinpascals, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantinnewtonspermeter, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-gastemperatureinkelvin}
+  Positivity and nondegeneracy conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Spring Piston Parameters.
+\end{proof}
+\begin{definition}[Satisfies Endpoint Ideal Gas Law]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-satisfiesendpointidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SatisfiesEndpointIdealGasLaw}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumeincubicmeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pressureinpascals, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-gastemperatureinkelvin}
+  The ideal-gas equation PV = nRT at each static endpoint, expressed in coherent SI readouts. It is a governing state law and contains no solved compression value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Endpoint Ideal Gas Law.
+\end{proof}
+\begin{definition}[Satisfies Spring Piston Mechanical Laws]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-satisfiesspringpistonmechanicallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.SatisfiesSpringPistonMechanicalLaws}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-areainsquaremeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-lengthinmeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-volumeincubicmeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-pressureinpascals, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springconstantinnewtonspermeter, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-forceinnewtons, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-thermalstate, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup}
+  Mechanical and geometric laws of the spring-loaded piston: Hooke's law makes the spring-force magnitude kx. Static force balance equates the gas force on the piston with the sum of atmospheric and spring forces. Piston sweep increases gas volume by piston area times displacement; because the spring is fixed to the right wall, this displacement is also its compression relative to the initially unstrained state. These are general apparatus laws, not a numerical answer for the compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Spring Piston Mechanical Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.AnswerChoice}
+  Labels of the four compression choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Compression In Centimeters]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-displayedcompressionincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.displayedCompressionInCentimeters}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-answerchoice}
+  Centimetre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Compression In Centimeters.
+\end{proof}
+\begin{definition}[distance From Displayed Compression]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-distancefromdisplayedcompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.distanceFromDisplayedCompression}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-heatedspringcompressionincentimeters, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-answerchoice, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-displayedcompressionincentimeters}
+  Distance between the calculated compression and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance From Displayed Compression.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Compression]
+  \label{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-isuniqueclosestdisplayedcompression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0375.IsUniqueClosestDisplayedCompression}
+  \uses{def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-amountofsubstancescale, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-springpistonsetup, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-answerchoice, def:physics:phyx-mini-0375:phyxminiproblems-problemphyxmini0375-distancefromdisplayedcompression}
+  A choice is the unique nearest displayed compression. This expresses the rounding inherent in the multiple-choice answer without asserting that the solution of the calibrated physical equations is exactly an integral number of centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Compression.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,265 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0728.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0728.source.json
+
+\chapter{Physics problem phyx\_mini\_0728}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0728}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a general situation in which a stream of people attempt to escape through an exit door that turns out to be locked. The people move toward the door at speed \$v\_s = 3.50\textbackslash{} \textbackslash{}text\{m/s\}\$, are each \$d = 0.25\textbackslash{} \textbackslash{}text\{m\}\$ in depth, and are separated by \$L = 1.75\textbackslash{} \textbackslash{}text\{m\}\$. The arrangement in figure occurs at time \$t = 0\$.
+
+\#\# Question
+
+At what time does the layer's depth reach \$5.0\textbackslash{} \textbackslash{}text\{m\}\$?
+
+\#\# Answer choices
+
+- A: A: 5 s
+
+- B: B: 8 s
+
+- C: C: 10 s
+
+- D: D: 15 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a top-down view of a corridor with three individuals walking in the same direction towards a locked door at the end of the corridor. Each person is depicted with a small, labeled section of the corridor they occupy, marked "L" for length and "d" for distance between them. The locked door is noted with text, and arrows indicate the direction they are moving.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 10 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/728.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0728.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0728:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0728.layer_depth_reaches_five_meters_at_ten_seconds}
+\uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationinseconds, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matcheslockeddoorstreamscenario, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matchessuppliedcrowdfigure, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matchesproblemreadouts, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-hasphysicalstreamparameters, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-satisfiesuniformstreampackinglaws, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-isfirsttimelayerreachesrequesteddepth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.DurationQuantity}
+  A nonnegative elapsed physical time measured from the pictured t = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.SpeedQuantity}
+  A nonnegative, unit-independent physical speed from Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.lengthReadout}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthquantity}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.durationReadout}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity}
+  Read an elapsed physical time in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.speedReadout}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedquantity}
+  Read a physical speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.lengthInMeters}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthreadout}
+  Metre readout used for the corridor geometry and requested layer depth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.durationInSeconds}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationreadout}
+  Second readout used for elapsed times measured from the pictured instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedreadout}
+  Metres-per-second readout of the common walking speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Visible Person]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-visibleperson}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.VisiblePerson}
+  The three people visible in the raster, ordered from left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Visible Person.
+\end{proof}
+\begin{definition}[Visible Clear Gap]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-visiblecleargap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.VisibleClearGap}
+  The three clear intervals visibly marked above the stream
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Visible Clear Gap.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.FigureLabel}
+  Literal semantic labels appearing in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Corridor Direction]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-corridordirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.CorridorDirection}
+  Longitudinal directions along the horizontal corridor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Corridor Direction.
+\end{proof}
+\begin{definition}[Door State]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-doorstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.DoorState}
+  Whether the exit door obstructs the stream
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Door State.
+\end{proof}
+\begin{definition}[Stream Motion Model]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-streammotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.StreamMotionModel}
+  Idealized motion regime used before each person joins the layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stream Motion Model.
+\end{proof}
+\begin{definition}[Layer Packing Model]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-layerpackingmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.LayerPackingModel}
+  Idealized configuration of people who have reached the door
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Layer Packing Model.
+\end{proof}
+\begin{definition}[Locked Door Stream Figure]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.LockedDoorStreamFigure}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-visibleperson, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-visiblecleargap, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-figurelabel, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-corridordirection}
+  Qualitative transcription of phyx\_data/test\_image/728.png. It distinguishes the three L-marked clear gaps from the three d-marked occupied depths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Locked Door Stream Figure.
+\end{proof}
+\begin{definition}[Locked Door Stream Setup]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.LockedDoorStreamSetup}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-corridordirection, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-doorstate, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-streammotionmodel, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-layerpackingmodel, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamfigure}
+  Independent quantities and observables of the idealized crowd stream. The natural number index in initialFrontDistanceToDoor is zero-based, with index 0 denoting the leading person. The two time-dependent observables are not defined from the answer choice; their behavior is constrained only by the generic physical laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Locked Door Stream Setup.
+\end{proof}
+\begin{definition}[Matches Locked Door Stream Scenario]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matcheslockeddoorstreamscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.MatchesLockedDoorStreamScenario}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  Physical roles stated in the prose, independent of all numerical values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Locked Door Stream Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Crowd Figure]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matchessuppliedcrowdfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.MatchesSuppliedCrowdFigure}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  Qualitative facts and literal labels read from the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Crowd Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthinmeters, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedinmeterspersecond, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  The numerical values supplied in the question. The 5 m value specifies which depth is being asked about; it does not specify when that depth occurs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Stream Parameters]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-hasphysicalstreamparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.HasPhysicalStreamParameters}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthreadout, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedreadout, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  Positivity conditions selecting the physically meaningful branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Stream Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Stream Packing Laws]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-satisfiesuniformstreampackinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.SatisfiesUniformStreamPackingLaws}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthreadout, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationreadout, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-speedreadout, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  Generic laws for the idealized stream. At the pictured initial instant, the front of person n is (n+1)L + n d from the door. Because all people move together until blocked, a new person joins the stationary layer after every additional travel distance L. The floor therefore counts completed arrivals, while the contact-packed layer has one body depth per arrival. These laws contain neither the requested five-metre threshold nor the ten-second answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Stream Packing Laws.
+\end{proof}
+\begin{definition}[Is First Time Layer Reaches Requested Depth]
+  \label{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-isfirsttimelayerreachesrequesteddepth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0728.IsFirstTimeLayerReachesRequestedDepth}
+  \uses{def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationquantity, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lengthinmeters, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-durationinseconds, def:physics:phyx-mini-0728:phyxminiproblems-problemphyxmini0728-lockeddoorstreamsetup}
+  An elapsed time is the first time the layer reaches the requested depth when the depth equals the requested value then and is strictly smaller at every earlier physical duration. Durations are nonnegative by their NNReal representation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is First Time Layer Reaches Requested Depth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

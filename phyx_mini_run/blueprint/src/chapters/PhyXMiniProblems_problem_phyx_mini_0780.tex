@@ -1,0 +1,386 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0780.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0780.source.json
+
+\chapter{Physics problem phyx\_mini\_0780}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0780}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thin, light string is wrapped around the outer rim of a uniform hollow cylinder of mass \textbackslash{}(4.75\textbackslash{}text\{ kg\}\textbackslash{}) having inner and outer radii as shown in figure. The cylinder is then released from rest.
+
+\#\# Question
+
+How far must the cylinder fall before its center is moving at \textbackslash{}(6.66\textbackslash{}text\{ m/s\}\textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 4.76m
+
+- B: B: 3.76m
+
+- C: C: 2.76m
+
+- D: D: 1.76m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a suspended orange ring. It consists of:
+
+1. **Ring Structure**: An orange circular ring with a visible central hole.
+   
+2. **Suspension**: A thin gray cable or string attached to the upper edge of the ring, connected to a structure above (a horizontal bar).
+
+3. **Measurements**:
+   - An inner radius marked as 20.0 cm.
+   - An outer radius marked as 35.0 cm.
+   
+4. **Arrows and Labels**: Two arrows pointing from the center of the ring outward to indicate the measurements, with text labeling the distances.
+
+Overall, it illustrates a hanging ring with specified inner and outer radii.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 3.76m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/780.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0780.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0780:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0780.distanceAtTargetSpeed_matches_answerB}
+\uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesprimaryfigure, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesproblemdata, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hasphysicalparameters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-satisfiesfallinghollowcylinderlaws, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesdisplayeddistance}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MassQuantity}
+  The nonnegative physical mass of the hollow cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.LengthQuantity}
+  A nonnegative length magnitude, used for both radii and fall distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.SpeedQuantity}
+  A nonnegative center-of-mass speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.AngularSpeedQuantity}
+  An angular-speed magnitude, with physical dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.AccelerationQuantity}
+  An acceleration magnitude, with physical dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MomentOfInertiaQuantity}
+  A scalar moment of inertia about the cylinder's symmetry axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.EnergyQuantity}
+  A real-valued physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.massInKilograms}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.lengthInMeters}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedquantity}
+  Metre-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedquantity}
+  Radian-per-second readout of an angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationquantity}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-momentofinertiaquantity}
+  Kilogram-metre-squared readout of a scalar moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.energyInJoules}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-energyquantity}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Motion Event]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-motionevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MotionEvent}
+  The release event and the later event specified by the target speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Event.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.FigureObject}
+  Physical objects visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.FigureLabel}
+  The two numerical radius labels printed in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Radius Kind]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-radiuskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.RadiusKind}
+  Which cylindrical surface a radius label identifies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radius Kind.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.Orientation}
+  Orientations needed to transcribe the string and support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Hollow Cylinder Figure]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hollowcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.HollowCylinderFigure}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figureobject, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figurelabel, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-radiuskind, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-orientation}
+  Direct qualitative and label evidence from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hollow Cylinder Figure.
+\end{proof}
+\begin{definition}[Cylinder Mass Distribution]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-cylindermassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.CylinderMassDistribution}
+  The cylinder's mass distribution stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Mass Distribution.
+\end{proof}
+\begin{definition}[String Mass Model]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.StringMassModel}
+  Idealized string-mass models
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Mass Model.
+\end{proof}
+\begin{definition}[String Thickness Model]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringthicknessmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.StringThicknessModel}
+  Idealized transverse-thickness models for the string
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Thickness Model.
+\end{proof}
+\begin{definition}[String Contact Regime]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringcontactregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.StringContactRegime}
+  How the string and cylinder move relative to one another
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Contact Regime.
+\end{proof}
+\begin{definition}[Release Protocol]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-releaseprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.ReleaseProtocol}
+  How the cylinder begins its motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Release Protocol.
+\end{proof}
+\begin{definition}[Falling Hollow Cylinder Setup]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.FallingHollowCylinderSetup}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-momentofinertiaquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-energyquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-motionevent, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hollowcylinderfigure, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-cylindermassdistribution, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringmassmodel, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringthicknessmodel, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-stringcontactregime, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-releaseprotocol}
+  The physical quantities and SI rigid-body data used to model the two events. The fall distance is an independent physical quantity: it is not defined from the requested 3.76 m answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Falling Hollow Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figureobject, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-figurelabel, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup}
+  Primary-image evidence: the cylinder is annular, the string is vertical and tangent to the outer rim, its upper end meets a horizontal support, and arrows from the center label the inner and outer radii as 20.0 cm and 35.0 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massinkilograms, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedinmeterspersecond, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedinradianspersecond, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup}
+  Numerical and qualitative data supplied by the statement and primary figure. The radius readouts convert 20.0 cm and 35.0 cm to 1/5 m and 7/20 m. The standard terrestrial acceleration readout 9.81 m/s² is made explicit so that the rounding convention behind the multiple-choice answer is visible
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massinkilograms, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup}
+  Positivity and nondegeneracy of the independent physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Falling Hollow Cylinder Laws]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-satisfiesfallinghollowcylinderlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.SatisfiesFallingHollowCylinderLaws}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-massinkilograms, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-speedinmeterspersecond, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-angularspeedinradianspersecond, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-energyinjoules, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-motionevent, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup}
+  The governing rigid-body, kinematic, and energy laws. A uniform hollow cylinder has axial inertia I = (1/2) M (R\_inner² + R\_outer²). The thin string unwinds without slip, so v = R\_outer ω. Translational kinetic energy is M v² / 2, while rotational kinetic energy is linked to Physlib's inertia-tensor definition.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Falling Hollow Cylinder Laws.
+\end{proof}
+\begin{lemma}[distance At Target Speed exact]
+  \label{lem:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-distanceattargetspeed-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.distanceAtTargetSpeed_exact}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesproblemdata, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hasphysicalparameters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-satisfiesfallinghollowcylinderlaws}
+  With g = 9.81 m/s², the exact ideal-model distance is 2008323 / 534100 m, approximately 3.760200337 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of distance At Target Speed exact.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth Meter]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-roundstonearesthundredthmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.RoundsToNearestHundredthMeter}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthinmeters}
+  A displayed metre value is a valid nearest-hundredth approximation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth Meter.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-answerchoice-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.AnswerChoice.meters}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-answerchoice}
+  Distance in metres printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Distance]
+  \label{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesdisplayeddistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.MatchesDisplayedDistance}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-lengthquantity, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-roundstonearesthundredthmeter, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-answerchoice}
+  A physical distance rounds to the metre value displayed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Distance.
+\end{proof}
+\begin{theorem}[distance At Target Speed rounds To three Point Seven Six Meters]
+  \label{thm:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-distanceattargetspeed-roundsto-threepointsevensixmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0780.distanceAtTargetSpeed_roundsTo_threePointSevenSixMeters}
+  \uses{def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-fallinghollowcylindersetup, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesprimaryfigure, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-matchesproblemdata, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-hasphysicalparameters, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-satisfiesfallinghollowcylinderlaws, def:physics:phyx-mini-0780:phyxminiproblems-problemphyxmini0780-roundstonearesthundredthmeter}
+  The cylinder must fall about 3.76 m before its center reaches 6.66 m/s. This is answer choice B and formalizes
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of distance At Target Speed rounds To three Point Seven Six Meters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

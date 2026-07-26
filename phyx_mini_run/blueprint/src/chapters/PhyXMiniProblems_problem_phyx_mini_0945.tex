@@ -1,0 +1,284 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0945.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0945.source.json
+
+\chapter{Physics problem phyx\_mini\_0945}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0945}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An earth-orbiting satellite has solar energy–collecting panels with a total area of 4.0\textbackslash{} \textbackslash{}mathrm\{m\}\textasciicircum{}2 (figure). If the sun’s radiation is perpendicular to the panels and is completely absorbed.
+
+\#\# Question
+
+find the average solar power absorbed.
+
+\#\# Answer choices
+
+- A: A: 5.5kW
+
+- B: B: 5.6kW
+
+- C: C: 7.5kW
+
+- D: D: 5.9kW
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a spacecraft or satellite component with solar panels and a sun sensor. 
+
+- **Central Object**: A central hub, likely representing the body of a spacecraft or satellite.
+- **Solar Panels**: Two long, rectangular solar panels extending from either side of the central body.
+- **Sun Sensor**: Attached near the central hub, used to keep the panels facing the sun.
+- **Arrows (\textbackslash{}(\textbackslash{}vec\{S\}\textbackslash{}))**: Two arrows indicating the direction of sunlight towards the solar panels.
+- **Annotations**: 
+  - "Sun sensor (to keep panels facing the sun)" pointing to the sensor.
+  - "Solar panels" labeled below the panels.
+
+The diagram highlights the orientation of the solar panels to harness sunlight effectively.
+
+\#\# Dataset metadata
+
+Electromagnetic Waves; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 5.6kW
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/945.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0945.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0945:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0945.averageSolarPowerAbsorbed_matches_answer_B}
+\uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinkilowatts, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesproblemstatement, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesprimarysatellitefigure, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-usestextbookaveragenearearthirradiance, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satisfiessolarpanelpowerlaws, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesdisplayedabsorbedpower, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-isuniquematchingabsorbedpower}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[irradiance Dimension]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradiancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.irradianceDimension}
+  The physical dimension M T⁻³ of irradiance (watt per square metre)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance Dimension.
+\end{proof}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.powerDimension}
+  The physical dimension M L² T⁻³ of power (watt)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[Irradiance Quantity]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradiancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.IrradianceQuantity}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradiancedimension}
+  A nonnegative, unit-independent solar irradiance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Irradiance Quantity.
+\end{proof}
+\begin{definition}[Radiant Power Quantity]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiantpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.RadiantPowerQuantity}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerdimension}
+  A nonnegative, unit-independent radiant power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radiant Power Quantity.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.areaInSquareMeters}
+  Read a physical area in coherent-SI square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.irradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradiancequantity}
+  Read a solar irradiance in coherent-SI watts per square metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.powerInWatts}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiantpowerquantity}
+  Read a radiant power in coherent-SI watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[power In Kilowatts]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinkilowatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.powerInKilowatts}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiantpowerquantity, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinwatts}
+  Read a radiant power in kilowatts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Kilowatts.
+\end{proof}
+\begin{definition}[Orbital Region]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-orbitalregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.OrbitalRegion}
+  Orbital environment specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orbital Region.
+\end{proof}
+\begin{definition}[Radiation Incidence]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiationincidence}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.RadiationIncidence}
+  Relation between the sunlight propagation direction and a panel surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radiation Incidence.
+\end{proof}
+\begin{definition}[Surface Absorption Model]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-surfaceabsorptionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SurfaceAbsorptionModel}
+  Optical absorption model of the collecting surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Absorption Model.
+\end{proof}
+\begin{definition}[Panel Wing]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-panelwing}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.PanelWing}
+  The two panel wings visible on opposite sides of the satellite body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Panel Wing.
+\end{proof}
+\begin{definition}[Sunlight Vector Label]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-sunlightvectorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SunlightVectorLabel}
+  Symbol attached to each sunlight-direction arrow in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sunlight Vector Label.
+\end{proof}
+\begin{definition}[Sun Sensor Purpose]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-sunsensorpurpose}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SunSensorPurpose}
+  Purpose stated by the annotation attached to the sun sensor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sun Sensor Purpose.
+\end{proof}
+\begin{definition}[Satellite Solar Panel Figure]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpanelfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SatelliteSolarPanelFigure}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-panelwing, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-sunlightvectorlabel, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-sunsensorpurpose}
+  Literal content of image 945.png. This stores only labels and qualitative geometry visible in the raster; it does not store a power value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satellite Solar Panel Figure.
+\end{proof}
+\begin{definition}[Solar Panel Array]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-solarpanelarray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SolarPanelArray}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiantpowerquantity, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-surfaceabsorptionmodel}
+  The physical panel array. Incident and absorbed average powers are independent observables; their relation is supplied only by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solar Panel Array.
+\end{proof}
+\begin{definition}[Satellite Solar Power Setup]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SatelliteSolarPowerSetup}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradiancequantity, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-orbitalregion, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-radiationincidence, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpanelfigure, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-solarpanelarray}
+  All physical quantities and figure data in the satellite setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satellite Solar Power Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-areainsquaremeters, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup}
+  Numerical and qualitative facts stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Satellite Figure]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesprimarysatellitefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.MatchesPrimarySatelliteFigure}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup}
+  Primary-image evidence: a central body has a panel wing on each side; a labeled sun sensor keeps them facing the Sun; and two arrows labeled S point toward the panels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Satellite Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Average Near Earth Irradiance]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-usestextbookaveragenearearthirradiance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.UsesTextbookAverageNearEarthIrradiance}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradianceinwattspersquaremeter, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup}
+  The textbook average solar irradiance near Earth's orbit is approximately 1.4 kW/m² = 1400 W/m². The source problem omits this necessary environmental calibration, so it is exposed as a separate data premise rather than hidden in a definition or in the requested power conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Average Near Earth Irradiance.
+\end{proof}
+\begin{definition}[Satisfies Solar Panel Power Laws]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satisfiessolarpanelpowerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.SatisfiesSolarPanelPowerLaws}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-areainsquaremeters, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-irradianceinwattspersquaremeter, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinwatts, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup}
+  The governing power relations. At normal incidence the intercepted average power is irradiance times total collecting area. Complete absorption means unit absorptivity, and absorbed power is the absorptivity fraction of incident power. None of these laws mentions 5.6 kW or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Solar Panel Power Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.AnswerChoice}
+  Labels of the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power In Kilowatts]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-displayedpowerinkilowatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.displayedPowerInKilowatts}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-answerchoice}
+  Power in kilowatts printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power In Kilowatts.
+\end{proof}
+\begin{definition}[Matches Displayed Absorbed Power]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesdisplayedabsorbedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.MatchesDisplayedAbsorbedPower}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-powerinkilowatts, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-answerchoice, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-displayedpowerinkilowatts}
+  A displayed choice exactly matches the computed absorbed-power readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Absorbed Power.
+\end{proof}
+\begin{definition}[Is Unique Matching Absorbed Power]
+  \label{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-isuniquematchingabsorbedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0945.IsUniqueMatchingAbsorbedPower}
+  \uses{def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-satellitesolarpowersetup, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-answerchoice, def:physics:phyx-mini-0945:phyxminiproblems-problemphyxmini0945-matchesdisplayedabsorbedpower}
+  Exactly one displayed answer matches the absorbed-power readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Absorbed Power.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

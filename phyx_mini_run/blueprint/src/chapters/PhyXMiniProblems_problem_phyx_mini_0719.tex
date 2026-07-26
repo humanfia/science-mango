@@ -1,0 +1,382 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0719.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0719.source.json
+
+\chapter{Physics problem phyx\_mini\_0719}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0719}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A pendulum consists of a massless, rigid rod with a mass at one end. The other end is pivoted on a frictionless pivot so that the rod can rotate in a complete circle. The pendulum is inverted, with the mass directly above the pivot point, then released. The speed of the mass as it passes through the lowest point is \textbackslash{}(5.0\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}). The pendulum later undergoes small-amplitude oscillations at the bottom of the arc.
+
+\#\# Question
+
+What will its frequency be?
+
+\#\# Answer choices
+
+- A: A: 0.42Hz
+
+- B: B: 0.52Hz
+
+- C: C: 0.62Hz
+
+- D: D: 0.72Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a pendulum-like system with key components and information annotated. 
+
+- A circular path is shown, with a rod or string labeled "L" attached to a pivot point at the top.
+- There are two positions marked on the circle: the highest point and the lowest point.
+- At the highest point, there's a label indicating a "Before" state with \textbackslash{}( y\_i = 2L \textbackslash{}) and \textbackslash{}( v\_i = 0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}), suggesting initial height and velocity.
+- At the lowest point, a label indicates an "After" state with \textbackslash{}( y\_f = 0 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}) and \textbackslash{}( v\_f = 5.0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}), for final height and velocity.
+- The pivot is marked clearly with a note, connected to the bottom sphere by the line "L".
+- Arrows along the circle indicate the direction of motion from the highest point down to the lowest point.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.62Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/719.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0719.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0719:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0719.invertedRodPendulumFrequency_is_answer_C}
+\uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyinhertz, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-matchesprimaryfigure, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-matchesproblemdata, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-usesstandardearthgravity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasphysicalparameters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-satisfiesinvertedpendulumlaws, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerfrequencyinhertz, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-roundstodisplayedhundredth, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-isuniqueclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.accelerationDimension}
+  Acceleration has physical dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.SpeedQuantity}
+  A nonnegative physical speed, with dimension length divided by time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.FrequencyQuantity}
+  Cyclic frequency, with physical dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.AngularFrequencyQuantity}
+  Angular frequency; radians are dimensionless, so its dimension is inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[quantity SIReadout]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.quantitySIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of quantity SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.massInKilograms}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.lengthInMeters}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Meter readout of a physical length or height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Meter-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Meter-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Hertz readout of a cyclic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-quantitysireadout}
+  Radian-per-second readout of an angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[Path Position]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pathposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.PathPosition}
+  Distinguished bob positions on the circular path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Position.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.FigureLabel}
+  Text and mathematical labels visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Anchor]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-figureanchor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.FigureAnchor}
+  Anchors to which the handwritten labels refer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Anchor.
+\end{proof}
+\begin{definition}[Inverted Pendulum Figure]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedpendulumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.InvertedPendulumFigure}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pathposition, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-figurelabel, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-figureanchor}
+  Qualitative evidence read directly from the supplied bitmap. Numerical readouts are attached to the dimensionful quantities in MatchesPrimaryFigure and MatchesProblemData below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverted Pendulum Figure.
+\end{proof}
+\begin{definition}[Bob Model]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-bobmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.BobModel}
+  Idealized model of the body attached to the moving end of the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bob Model.
+\end{proof}
+\begin{definition}[Rod Model]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-rodmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.RodModel}
+  Mechanical model assigned to the pendulum rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Model.
+\end{proof}
+\begin{definition}[Pivot Model]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pivotmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.PivotModel}
+  Dissipation model assigned to the central pivot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pivot Model.
+\end{proof}
+\begin{definition}[Path Model]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pathmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.PathModel}
+  Extent of the trajectory allowed by the rod and pivot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Model.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.OscillationRegime}
+  Approximation regime for the later motion about the bottom of the arc
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Inverted Rod Pendulum Setup]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.InvertedRodPendulumSetup}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyquantity, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pathposition, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedpendulumfigure, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-bobmodel, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-rodmodel, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pivotmodel, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pathmodel, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-oscillationregime}
+  Independent physical quantities and modeling choices for the experiment. The rod length and both frequencies are unconstrained fields: none is defined to be the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverted Rod Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  The primary-image readout. It places Before, y\_i, and v\_i at the highest point, After, y\_f, and v\_f at the lowest point, L on the lowest radius, and identifies the central pivot. These are geometric and diagrammatic facts, not frequency conclusions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedinmeterspersecond, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  Numerical and qualitative data stated in the prose and written on the image. The lowest point is the zero of height, the inverted release point is 2 L above it, and the measured bottom speed is 5.0 m/s. No frequency value or answer choice is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  The standard near-Earth textbook calibration implicit in the recorded multiple-choice answer. The source does not print a value of g, so this is kept separate from the image and prose readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massinkilograms, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyinhertz, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyinradianspersecond, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[pendulum Oscillator SI]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pendulumoscillatorsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.pendulumOscillatorSI}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massinkilograms, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasphysicalparameters}
+  The small-angle pendulum as a generalized harmonic oscillator. Its generalized inertia is m L², while the linearized gravitational restoring coefficient is m g L; their ratio is therefore g / L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pendulum Oscillator SI.
+\end{proof}
+\begin{definition}[pendulum Linear Coefficient SI]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pendulumlinearcoefficientsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.pendulumLinearCoefficientSI}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup}
+  The coefficient g / L in the equation linearized at the bottom equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pendulum Linear Coefficient SI.
+\end{proof}
+\begin{definition}[Has Valid Pendulum Linearization]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasvalidpendulumlinearization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.HasValidPendulumLinearization}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pendulumlinearcoefficientsi}
+  An explicit local/asymptotic contract for the small-angle approximation. The exact restoring acceleration vanishes at the bottom, has derivative -g / L there, and differs from its linear part by o(θ) as θ → 0. Thus no equality for a finite-amplitude nonlinear oscillation is asserted
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Valid Pendulum Linearization.
+\end{proof}
+\begin{definition}[Satisfies Inverted Pendulum Laws]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-satisfiesinvertedpendulumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.SatisfiesInvertedPendulumLaws}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-massinkilograms, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-lengthinmeters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-speedinmeterspersecond, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-frequencyinhertz, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-angularfrequencyinradianspersecond, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasphysicalparameters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pendulumoscillatorsi, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-pendulumlinearcoefficientsi, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasvalidpendulumlinearization}
+  The governing laws used to infer the rod length and then the linearized frequency prediction. The first field is conservation of m g y + 1/2 m v² between the two pictured states. The second is the exact nonlinear sine restoring law. The final fields use Physlib's harmonic-oscillator angular frequency only for the model obtained by local linearization, and the general conversion ω = 2πf. None substitutes 5.0 m/s, assigns a numerical length, or states the requested 0.62 Hz conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Inverted Pendulum Laws.
+\end{proof}
+\begin{theorem}[exact Pendulum Law has Valid Local Linearization]
+  \label{thm:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-exactpendulumlaw-hasvalidlocallinearization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.exactPendulumLaw_hasValidLocalLinearization}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-invertedrodpendulumsetup, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasphysicalparameters, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-hasvalidpendulumlinearization, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-satisfiesinvertedpendulumlaws}
+  The exact sine law supplies the local derivative/remainder contract required to pass from the nonlinear pendulum to its bottom-equilibrium linearization. This is a mathematical consequence of the general governing law, not a numerical frequency premise
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exact Pendulum Law has Valid Local Linearization.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.AnswerChoice}
+  Labels of the four answer choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Frequency In Hertz]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerfrequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.answerFrequencyInHertz}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerchoice}
+  Frequency in hertz printed beside each source answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Frequency In Hertz.
+\end{proof}
+\begin{definition}[Rounds To Displayed Hundredth]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-roundstodisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.RoundsToDisplayedHundredth}
+  A computed frequency rounds to a displayed hundredth of a hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Hundredth.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer Choice]
+  \label{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-isuniqueclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0719.IsUniqueClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerchoice, def:physics:phyx-mini-0719:phyxminiproblems-problemphyxmini0719-answerfrequencyinhertz}
+  A displayed answer is strictly closer than every other listed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

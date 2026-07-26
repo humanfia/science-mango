@@ -1,0 +1,478 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0627.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0627.source.json
+
+\chapter{Physics problem phyx\_mini\_0627}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0627}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The magnetic moment \$\textbackslash{}vec\{\textbackslash{}mu\}\$ of a spinning object with charge \$Q\$ and mass \$M\$ is proportional to its angular momentum \$\textbackslash{}vec\{L\}\$ according to \$\textbackslash{}vec\{\textbackslash{}mu\} = g(Q/2M)\textbackslash{}vec\{L\}\$. The dimensionless coefficient \$g\$ is known as the \$g\$-factor of the object. Consider a spherical shell with radius \$R\$ and uniform charge density \$\textbackslash{}sigma\$ spinning with angular velocity \$\textbackslash{}omega\$ around the z-axis.
+
+\#\# Question
+
+If the charge is uniformly distributed so that \$\textbackslash{}rho = Q/(\textbackslash{}frac\{4\}\{3\}\textbackslash{}pi R\textasciicircum{}3)\$ and if the mass is uniformly distributed so that \$c = \textbackslash{}frac\{2\}\{5\}\$, then what is the value of \$g\$?
+
+\#\# Answer choices
+
+- A: A: 1
+
+- B: B: 0
+
+- C: C: 3
+
+- D: D: 2
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a sphere with several labeled elements. 
+
+- The sphere is transparent with an axis labeled \textbackslash{}( z \textbackslash{}) passing through its center.
+- The point \textbackslash{}( O \textbackslash{}) is at the center of the sphere.
+- A dashed line extends from point \textbackslash{}( O \textbackslash{}), labeled \textbackslash{}( R \textbackslash{}), to a point on the surface making an angle \textbackslash{}( \textbackslash{}theta \textbackslash{}).
+- Another dashed line extends from this surface point horizontally, labeled \textbackslash{}( Rd\textbackslash{}theta \textbackslash{}).
+- A circular band, indicating rotation, encircles the sphere with arrows denoting direction. The band is labeled \textbackslash{}( dl \textbackslash{}).
+- Above the band, a curved arrow indicates rotation, labeled \textbackslash{}( \textbackslash{}omega \textbackslash{}).
+- At the lower left of the sphere, the symbols \textbackslash{}( Q, M, \textbackslash{}sigma \textbackslash{}) are present.
+- The elements demonstrate spherical coordinates and rotational dynamics.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 1
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/627.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0627.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0627:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0627.uniformlyChargedMassiveSphereGFactor}
+\uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesspinningspherescenario, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesstateduniformdistributiondata, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchessuppliedrotatingspherefigure, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-hasphysicalspinningsphereparameters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesrigidrotationanddipolelaws, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesgfactorrelation, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesdisplayedgfactor}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Charge Quantity]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.ChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Quantity.
+\end{proof}
+\begin{definition}[angular Velocity Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.angularVelocityDimension}
+  The inverse-time dimension of angular velocity; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity Dimension.
+\end{proof}
+\begin{definition}[angular Momentum Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentumdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.angularMomentumDimension}
+  The dimension M L\textasciicircum{}2 T\textasciicircum{}-1 of angular momentum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Dimension.
+\end{proof}
+\begin{definition}[magnetic Moment Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.magneticMomentDimension}
+  The dimension C L\textasciicircum{}2 T\textasciicircum{}-1 of magnetic dipole moment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment Dimension.
+\end{proof}
+\begin{definition}[volume Charge Density Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.volumeChargeDensityDimension}
+  The dimension C L\textasciicircum{}-3 of volume charge density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Charge Density Dimension.
+\end{proof}
+\begin{definition}[surface Charge Density Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.surfaceChargeDensityDimension}
+  The dimension C L\textasciicircum{}-2 of the surface-density symbol printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of surface Charge Density Dimension.
+\end{proof}
+\begin{definition}[current Density Dimension]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.currentDensityDimension}
+  The dimension C T\textasciicircum{}-1 L\textasciicircum{}-2 of electric current density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Density Dimension.
+\end{proof}
+\begin{definition}[Angular Velocity Vector]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.AngularVelocityVector}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocitydimension}
+  A three-component angular-velocity vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Velocity Vector.
+\end{proof}
+\begin{definition}[Angular Momentum Vector]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentumvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.AngularMomentumVector}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentumdimension}
+  A three-component angular-momentum vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Momentum Vector.
+\end{proof}
+\begin{definition}[Magnetic Moment Vector]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MagneticMomentVector}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentdimension}
+  A three-component magnetic-dipole-moment vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Moment Vector.
+\end{proof}
+\begin{definition}[Volume Charge Density Quantity]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.VolumeChargeDensityQuantity}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensitydimension}
+  A signed uniform volume charge density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Charge Density Quantity.
+\end{proof}
+\begin{definition}[Surface Charge Density Quantity]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.SurfaceChargeDensityQuantity}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensitydimension}
+  The sigma density label from the primary image, interpreted as surface density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Charge Density Quantity.
+\end{proof}
+\begin{definition}[Current Density Vector]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensityvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.CurrentDensityVector}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensitydimension}
+  A three-component electric current-density field value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Current Density Vector.
+\end{proof}
+\begin{definition}[mass Magnitude In Kilograms]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massmagnitudeinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.massMagnitudeInKilograms}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massquantity}
+  Nonnegative mass readout in coherent SI units (kilograms)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Magnitude In Kilograms.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.massInKilograms}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massmagnitudeinkilograms}
+  Mass readout in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length Magnitude In Meters]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthmagnitudeinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.lengthMagnitudeInMeters}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthquantity}
+  Nonnegative length readout in coherent SI units (metres)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Magnitude In Meters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.lengthInMeters}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthmagnitudeinmeters}
+  Length readout in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargequantity}
+  Charge readout in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[angular Velocity In Radians Per Second]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.angularVelocityInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityvector}
+  Angular-velocity readout in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Momentum In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentuminsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.angularMomentumInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentumvector}
+  Angular-momentum readout in kilogram-square-metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum In SI.
+\end{proof}
+\begin{definition}[magnetic Moment In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.magneticMomentInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentvector}
+  Magnetic-moment readout in coulomb-square-metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment In SI.
+\end{proof}
+\begin{definition}[volume Charge Density In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.volumeChargeDensityInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityquantity}
+  Volume charge-density readout in coulombs per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Charge Density In SI.
+\end{proof}
+\begin{definition}[surface Charge Density In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.surfaceChargeDensityInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensityquantity}
+  Surface charge-density readout in coulombs per square metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of surface Charge Density In SI.
+\end{proof}
+\begin{definition}[current Density In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.currentDensityInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensityvector}
+  Current-density readout in amperes per square metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Density In SI.
+\end{proof}
+\begin{definition}[Source Shape Description]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-sourceshapedescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.SourceShapeDescription}
+  The literal object description used in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Shape Description.
+\end{proof}
+\begin{definition}[Effective Distribution Model]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-effectivedistributionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.EffectiveDistributionModel}
+  The distribution model selected by the supplied rho and c formulas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Effective Distribution Model.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.FigureLabel}
+  Literal labels visible in image 627.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Rotating Sphere Figure]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-rotatingspherefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.RotatingSphereFigure}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-figurelabel}
+  Qualitative and geometric data visible in the 578 x 630 primary raster. Angles and pixel counts are dimensionless. The two labelled arc elements retain physical length dimensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotating Sphere Figure.
+\end{proof}
+\begin{definition}[Spinning Sphere Setup]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.SpinningSphereSetup}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargequantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityvector, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentumvector, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentvector, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-surfacechargedensityquantity, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensityvector, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-sourceshapedescription, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-effectivedistributionmodel, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-rotatingspherefigure}
+  Independent physical quantities of the rotating object. The gFactor, magnetic moment, and angular momentum are stored independently; none is defined from answer A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spinning Sphere Setup.
+\end{proof}
+\begin{definition}[displacement From Center]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-displacementfromcenter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.displacementFromCenter}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  Coordinate displacement from the sphere's center in the chosen SI spatial chart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From Center.
+\end{proof}
+\begin{definition}[occupied Ball]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-occupiedball}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.occupiedBall}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  The closed spatial region occupied by the uniform solid-ball model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of occupied Ball.
+\end{proof}
+\begin{definition}[setup Current Density In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-setupcurrentdensityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.setupCurrentDensityInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-currentdensityinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  SI current-density field associated with the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of setup Current Density In SI.
+\end{proof}
+\begin{definition}[magnetic Moment Integrand In SI]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentintegrandinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.magneticMomentIntegrandInSI}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-displacementfromcenter, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-setupcurrentdensityinsi}
+  Integrand in mu = (1/2) integral (r cross J) dV
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Moment Integrand In SI.
+\end{proof}
+\begin{definition}[Matches Spinning Sphere Scenario]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesspinningspherescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MatchesSpinningSphereScenario}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  The qualitative source scenario: a charged spherical object rotates about the z-axis through its center. The shell wording is retained here independently of the later effective uniform-volume model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Spinning Sphere Scenario.
+\end{proof}
+\begin{definition}[Matches Stated Uniform Distribution Data]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesstateduniformdistributiondata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MatchesStatedUniformDistributionData}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massmagnitudeinkilograms, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthmagnitudeinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargeincoulombs, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  The two distribution formulas supplied by the question. The equality with RigidBody.solidSphere uses Physlib's uniform mass-distribution model. No magnetic moment, angular momentum, gFactor, or answer choice occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Uniform Distribution Data.
+\end{proof}
+\begin{definition}[Matches Supplied Rotating Sphere Figure]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchessuppliedrotatingspherefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MatchesSuppliedRotatingSphereFigure}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  Direct evidence from image 627.png: the transparent sphere, vertical z-axis, point O, radius R, angle theta, R dtheta, ring element dl, rotation omega, and the Q, M, sigma parameter block. The geometric equations interpret only the printed R dtheta and latitude-band construction; they state no g-factor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Rotating Sphere Figure.
+\end{proof}
+\begin{definition}[Has Physical Spinning Sphere Parameters]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-hasphysicalspinningsphereparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.HasPhysicalSpinningSphereParameters}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massinkilograms, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargeincoulombs, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  Positivity and nondegeneracy assumptions needed to determine a unique g-factor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Spinning Sphere Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rigid Rotation And Dipole Laws]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesrigidrotationanddipolelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.SatisfiesRigidRotationAndDipoleLaws}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentuminsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-volumechargedensityinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-displacementfromcenter, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-occupiedball, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-setupcurrentdensityinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentintegrandinsi}
+  General governing laws for a rigidly rotating charged body: inside the occupied ball, J = rho * (omega cross r); outside it, the current density vanishes; mu = (1/2) integral (r cross J) dV; and mass angular momentum is Physlib's RigidBody.angularMomentum. These laws contain neither the special solid-sphere coefficients 1/5 and 2/5 nor the current target g = 1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Rotation And Dipole Laws.
+\end{proof}
+\begin{definition}[Satisfies GFactor Relation]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesgfactorrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.SatisfiesGFactorRelation}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massinkilograms, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargeincoulombs, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentuminsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup}
+  The defining relation from the problem statement, mu = g * (Q/(2M)) * L. This constrains an independent gFactor but does not assume its requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies GFactor Relation.
+\end{proof}
+\begin{lemma}[uniform Mass Sphere Angular Momentum Readout]
+  \label{lem:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-uniformmasssphereangularmomentumreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.uniformMassSphereAngularMomentumReadout}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-massinkilograms, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularmomentuminsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesspinningspherescenario, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesstateduniformdistributiondata, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-hasphysicalspinningsphereparameters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesrigidrotationanddipolelaws}
+  Physlib's solid-sphere inertia tensor and angular-momentum law yield L = (2/5) M R\textasciicircum{}2 omega in coherent SI readouts. This is an intermediate mechanical result and contains no charge, magnetic moment, or g-factor
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of uniform Mass Sphere Angular Momentum Readout.
+\end{proof}
+\begin{lemma}[uniform Charge Sphere Magnetic Moment Readout]
+  \label{lem:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-uniformchargespheremagneticmomentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.uniformChargeSphereMagneticMomentReadout}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-lengthinmeters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-chargeincoulombs, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-angularvelocityinradianspersecond, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-magneticmomentinsi, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesspinningspherescenario, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesstateduniformdistributiondata, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-hasphysicalspinningsphereparameters, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-satisfiesrigidrotationanddipolelaws}
+  Integrating mu = (1/2) integral (r cross J) dV for the stated uniform volume charge density gives mu = (1/5) Q R\textasciicircum{}2 omega. It is kept as a derived lemma rather than inserted into a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of uniform Charge Sphere Magnetic Moment Readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.AnswerChoice}
+  Labels of the four g-factor choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed GFactor]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-displayedgfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.displayedGFactor}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-answerchoice}
+  Dimensionless g-factor printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed GFactor.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-answerchoice}
+  Dataset metadata recording answer A; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed GFactor]
+  \label{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-matchesdisplayedgfactor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0627.MatchesDisplayedGFactor}
+  \uses{def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-spinningspheresetup, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-answerchoice, def:physics:phyx-mini-0627:phyxminiproblems-problemphyxmini0627-displayedgfactor}
+  Exact agreement of the inferred dimensionless g-factor with a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed GFactor.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

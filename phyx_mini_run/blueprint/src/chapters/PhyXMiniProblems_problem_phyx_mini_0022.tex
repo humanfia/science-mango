@@ -1,0 +1,234 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0022.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0022.source.json
+
+\chapter{Physics problem phyx\_mini\_0022}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0022}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A. H. Pfund's method for measuring the index of refraction of glass is illustrated in figure. One face of a slab of thickness \textbackslash{}( t \textbackslash{}) is painted white, and a small hole scraped clear at point \textbackslash{}( P \textbackslash{}) serves as a source of diverging rays when the slab is illuminated from below. Ray \textbackslash{}( PBB' \textbackslash{}) strikes the clear surface at the critical angle and is totally reflected, as are rays such as \textbackslash{}( PCC' \textbackslash{}). Rays such as \textbackslash{}( PAA' \textbackslash{}) emerge from the clear surface. On the painted surface, there appears a dark circle of diameter \textbackslash{}( d \textbackslash{}) surrounded by an illuminated region, or halo.
+
+\#\# Question
+
+What is the diameter of the dark circle if \textbackslash{}( n = 1.52 \textbackslash{}) for a slab \textbackslash{}( 0.600 \textbackslash{}) cm thick?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 1.99 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- B: B: \textbackslash{}( 1.82 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- C: C: \textbackslash{}( 2.10 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- D: D: \textbackslash{}( 2.48 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram illustrating the reflection of light through a clear medium. Here are the details:
+
+- **Medium:** A rectangular slab with a clear surface at the top and a painted surface at the bottom.
+- **Dimensions and Labels:** 
+  - The thickness of the slab is labeled as \textbackslash{}( t \textbackslash{}).
+  - The horizontal distance at the bottom is labeled \textbackslash{}( d \textbackslash{}).
+- **Points and Lines:**
+  - The point \textbackslash{}( P \textbackslash{}) is situated on the painted surface where light rays originate.
+  - Multiple blue arrows represent light rays emanating from point \textbackslash{}( P \textbackslash{}).
+- **Light Rays:**
+  - Three separate light rays (\textbackslash{}( C, B, A \textbackslash{})) emerge from \textbackslash{}( P \textbackslash{}), striking the clear surface.
+  - Upon reaching the clear surface, each ray reflects back into the medium and exits from the top surface at different points (\textbackslash{}( C', B', A' \textbackslash{})).
+- **Interaction:**
+  - Arrows show the direction of the reflected rays extending outwards from the clear surface.
+
+The image effectively demonstrates how light reflects through and exits a slab of clear material.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 2.10 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/22.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0022.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0022:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0022.problem_phyx_mini_0022}
+\uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-matchespfundfigure, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-satisfiescriticalraygeometry, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-satisfiespfundcriticalanglelaw, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-matchesanswertonearesthundredth}
+For a \(0.600\,\mathrm{cm}\) glass slab of dimensionless index \(1.52\) in
+air, the Pfund critical ray makes the dark-circle diameter
+\(4t\tan\theta_c\).  This diameter rounds to \(2.10\,\mathrm{cm}\), answer C.
+\end{theorem}
+\begin{proof}
+The two equal horizontal runs of the limiting reflected ray give
+\(d=4t\tan\theta_c\).  Critical Snell refraction gives
+\(\sin\theta_c=1/1.52=25/38\), so the acute branch has
+\(\tan\theta_c=25/\sqrt{819}\).  Thus
+\(d=60/\sqrt{819}\,\mathrm{cm}\), and certified square-root bounds place it
+within \(0.005\,\mathrm{cm}\) of \(2.10\,\mathrm{cm}\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.DimLength}
+  A physical length, represented independently of any particular unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.centimeterUnitChoices}
+  SI base units with centimeters, rather than meters, chosen for length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-dimlength, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-centimeterunitchoices}
+  The numerical value of a dimensionful length when measured in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Pfund Medium]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.PfundMedium}
+  The two optical media meeting at the slab's clear upper face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pfund Medium.
+\end{proof}
+\begin{definition}[Slab Face]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-slabface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.SlabFace}
+  The painted lower face and clear upper face shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Slab Face.
+\end{proof}
+\begin{definition}[Pfund Point Label]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundpointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.PfundPointLabel}
+  All point labels explicitly shown on the left half of the Pfund diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pfund Point Label.
+\end{proof}
+\begin{definition}[Pfund Ray Label]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundraylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.PfundRayLabel}
+  The three labelled ray paths PAA', PBB', and PCC'
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pfund Ray Label.
+\end{proof}
+\begin{definition}[Clear Surface Behavior]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-clearsurfacebehavior}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.ClearSurfaceBehavior}
+  The interface behavior assigned to each labelled ray by the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Clear Surface Behavior.
+\end{proof}
+\begin{definition}[Figure Point Centimeters]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-figurepointcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.FigurePointCentimeters}
+  A two-dimensional coordinate readout, with both components measured in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point Centimeters.
+\end{proof}
+\begin{definition}[Pfund Figure Readout]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundfigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.PfundFigureReadout}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-slabface, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundpointlabel, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundraylabel, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-clearsurfacebehavior, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-figurepointcentimeters}
+  Scalar readouts taken from the Pfund-method diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pfund Figure Readout.
+\end{proof}
+\begin{definition}[Pfund Experiment]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.PfundExperiment}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-dimlength, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundmedium, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundfigurereadout}
+  The physical quantities and material data of one Pfund-method experiment. The diameter is an unknown physical length; no numerical answer is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pfund Experiment.
+\end{proof}
+\begin{definition}[Matches Pfund Figure]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-matchespfundfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.MatchesPfundFigure}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment}
+  The labelled surface incidences, ray behaviors, and dark-circle boundary read from the figure. The diameter relation only says that rotational symmetry makes the full diameter twice the left critical-ray radius PB'; it does not state the requested numerical value or the derived 4 t tan θ\_c formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pfund Figure.
+\end{proof}
+\begin{definition}[Satisfies Critical Ray Geometry]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-satisfiescriticalraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.SatisfiesCriticalRayGeometry}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment}
+  The right-triangle geometry of the incident critical segment PB and the reflected segment BB'. Equal incident and reflection angles, together with the common slab thickness, give the same horizontal run for both segments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Critical Ray Geometry.
+\end{proof}
+\begin{definition}[Satisfies Pfund Critical Angle Law]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-satisfiespfundcriticalanglelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.SatisfiesPfundCriticalAngleLaw}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment}
+  Snell's law at the glass--air critical angle, with the physical acute-angle branch and positive material indices made explicit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pfund Critical Angle Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.AnswerChoice}
+  The four printed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Diameter Centimeters]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-answerdiametercentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.answerDiameterCentimeters}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-answerchoice}
+  The diameter in centimeters displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Diameter Centimeters.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-matchesanswertonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.MatchesAnswerToNearestHundredth}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-dimlength, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-answerchoice, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-answerdiametercentimeters}
+  Agreement with a diameter displayed to the nearest hundredth centimeter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Hundredth.
+\end{proof}
+\begin{lemma}[critical ray diameter formula]
+  \label{lem:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-critical-ray-diameter-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0022.critical_ray_diameter_formula}
+  \uses{def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-lengthincentimeters, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-pfundexperiment, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-matchespfundfigure, def:physics:phyx-mini-0022:phyxminiproblems-problemphyxmini0022-satisfiescriticalraygeometry}
+  This lemma records the critical ray diameter formula component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of critical ray diameter formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,199 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0377.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0377.source.json
+
+\chapter{Physics problem phyx\_mini\_0377}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0377}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows the velocities of all the molecules in a six-molecule, two-dimensional gas.
+
+\#\# Question
+
+Calculate and the rms speed v\_\{\textbackslash{}text\{rms\}\}.
+
+\#\# Answer choices
+
+- A: A: 12.2m/s
+
+- B: B: 12.5m/s
+
+- C: C: 18.2m/s
+
+- D: D: 10.2m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram with six black dots labeled 1 through 6, each with an arrow representing vectors emanating from these points. The vectors are green, indicating direction and magnitude, as represented by the vector notations next to them:
+
+1. From dot 1, a green arrow points downwards at an angle, labeled with the vector \textbackslash{}(10\textbackslash{}hat\{i\} - 10\textbackslash{}hat\{j\}\textbackslash{}).
+2. From dot 2, a green arrow points upwards, labeled with the vector \textbackslash{}(2\textbackslash{}hat\{i\} + 15\textbackslash{}hat\{j\}\textbackslash{}).
+3. From dot 3, a green arrow points upwards to the left, labeled with the vector \textbackslash{}(-8\textbackslash{}hat\{i\} + 6\textbackslash{}hat\{j\}\textbackslash{}).
+4. From dot 4, a green arrow points to the left slightly upwards, labeled with the vector \textbackslash{}(-10\textbackslash{}hat\{i\} - 2\textbackslash{}hat\{j\}\textbackslash{}).
+5. From dot 5, a green arrow points upwards to the right, labeled with the vector \textbackslash{}(6\textbackslash{}hat\{i\} + 5\textbackslash{}hat\{j\}\textbackslash{}).
+6. From dot 6, a green arrow points straight downwards, labeled with the vector \textbackslash{}(-14\textbackslash{}hat\{j\}\textbackslash{}).
+
+Each vector and point is organized within a rectangular border, giving an appearance similar to a whiteboard or diagram within a frame.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 12.2m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/377.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0377.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0377:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0377.problem_phyx_mini_0377}
+\uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesproblemandprimaryfigure, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-satisfiesrmsspeedlaw, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-recordedanswerchoice, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Planar Axis]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planaraxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.PlanarAxis}
+  The two coordinate directions denoted by i-hat and j-hat in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Axis.
+\end{proof}
+\begin{definition}[Planar Velocity]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planarvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.PlanarVelocity}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planaraxis}
+  A planar physical velocity. Its Euclidean vector carries the dimension length / time, independently of any chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity.
+\end{proof}
+\begin{definition}[components In Meters Per Second]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-componentsinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.componentsInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planaraxis, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planarvelocity}
+  The vector of i-hat and j-hat velocity components in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of components In Meters Per Second.
+\end{proof}
+\begin{definition}[speed Squared In Meters Squared Per Second Squared]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedsquaredinmeterssquaredpersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.speedSquaredInMetersSquaredPerSecondSquared}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planarvelocity, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-componentsinmeterspersecond}
+  The squared Euclidean speed readout, in square metres per square second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Squared In Meters Squared Per Second Squared.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.speedInMetersPerSecond}
+  The coherent-SI readout of a dimensionful speed, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Molecule Label]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-moleculelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.MoleculeLabel}
+  The six black dots labelled 1 through 6 in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecule Label.
+\end{proof}
+\begin{definition}[Six Molecule Gas Snapshot]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.SixMoleculeGasSnapshot}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-planarvelocity, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-moleculelabel}
+  The physical state pictured in the problem. Each molecule has an independent dimensionful planar velocity; no RMS value or answer choice is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Six Molecule Gas Snapshot.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-componentsinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot}
+  The twelve signed component readouts printed next to the six velocity arrows. The image is treated as primary evidence: in particular molecule 4 is read as -10 i-hat - 2 j-hat metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Rms Speed Law]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-satisfiesrmsspeedlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.SatisfiesRmsSpeedLaw}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedsquaredinmeterssquaredpersecondsquared, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-moleculelabel, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot}
+  The RMS speed is the nonnegative speed whose square is the arithmetic mean of the molecules' squared Euclidean speeds. The law is generic over the pictured snapshot and contains none of the numerical answer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rms Speed Law.
+\end{proof}
+\begin{lemma}[sum Of Squared Speeds from Primary Figure]
+  \label{lem:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sumofsquaredspeeds-fromprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.sumOfSquaredSpeeds_fromPrimaryFigure}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedsquaredinmeterssquaredpersecondsquared, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-moleculelabel, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesproblemandprimaryfigure}
+  The six squared speeds shown in the figure sum to 200 + 229 + 100 + 104 + 61 + 196 = 890 m²/s²
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sum Of Squared Speeds from Primary Figure.
+\end{proof}
+\begin{lemma}[rms Speed exact]
+  \label{lem:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-rmsspeed-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.rmsSpeed_exact}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-sixmoleculegassnapshot, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesproblemandprimaryfigure, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-satisfiesrmsspeedlaw}
+  The exact RMS speed readout is sqrt (890 / 6) = sqrt (445 / 3) metres per second. This is kept separate from the rounded multiple-choice display
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rms Speed exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.AnswerChoice}
+  Labels printed beside the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-answerchoice-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.AnswerChoice.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-answerchoice}
+  The speed displayed beside each answer label, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0377.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-speedinmeterspersecond, def:physics:phyx-mini-0377:phyxminiproblems-problemphyxmini0377-answerchoice}
+  Agreement with a speed displayed to the nearest 0.1 m/s. The tolerance is 0.05 m/s, half a unit in the last displayed digit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

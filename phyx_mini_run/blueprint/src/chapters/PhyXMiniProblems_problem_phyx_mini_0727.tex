@@ -1,0 +1,254 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0727.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0727.source.json
+
+\chapter{Physics problem phyx\_mini\_0727}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0727}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An astronomical unit (\$AU\$) is equal to the average distance from Earth to the Sun, about \$92.9 \textbackslash{}times 10\textasciicircum{}6\$ \$mi\$. A parsec (\$pc\$) is the distance at which a length of \$1\$ \$AU\$ would subtend an angle of exactly \$1''\$. A light-year (\$ly\$) is the distance that light, traveling through a vacuum with a speed of \$186000\$ \$mi/s\$, would cover in \$1.0\$ \$year\$.
+
+\#\# Question
+
+Express the Earth--Sun distance in \$ly\$.
+
+\#\# Answer choices
+
+- A: A: \$1.26 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ \$ly\$
+
+- B: B: \$1.42 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ \$ly\$
+
+- C: C: \$1.57 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ \$ly\$
+
+- D: D: \$1.74 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ \$ly\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram depicting a right triangle. The triangle is used to illustrate astronomical distances. 
+
+- The base of the triangle is labeled "1 AU" (Astronomical Unit).
+- The two longer sides are labeled "1 pc" (parsec).
+- At the vertex where the two sides labeled "1 pc" meet, there's a notation indicating "An angle of exactly 1 second.”
+- The triangle is filled with a light gray color, distinguishing it from the background.
+
+This diagram is likely illustrating the concept of a parsec, a unit of distance used in astronomy, defined as the distance at which one astronomical unit subtends an angle of one arcsecond.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$1.57 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ \$ly\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/727.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0727.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0727:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0727.earthSunDistanceInLightYears}
+\uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthreadout, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-approximately, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-astronomicaldistancesetup, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-satisfiesastronomicaldefinitions, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-matchesreportedastronomicaldata, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-matchesparsecfigure, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-isnearestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.LengthQuantity}
+  A physical length, independent of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.TimeQuantity}
+  A physical duration, independent of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.SpeedQuantity}
+  A physical speed with Physlib's length-per-time dimension. This is the actual codomain used by DimSpeed.speedOfLight in the pinned Physlib version
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[units With Length]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitswithlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.unitsWithLength}
+  A unit system whose selected length unit is unit and whose other units are SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units With Length.
+\end{proof}
+\begin{definition}[units With Time]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitswithtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.unitsWithTime}
+  A unit system whose selected time unit is unit and whose other units are SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units With Time.
+\end{proof}
+\begin{definition}[units For Speed]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitsforspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.unitsForSpeed}
+  A unit system for speed readouts in lengthUnit / timeUnit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units For Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.lengthReadout}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitswithlength}
+  The real numerical readout of a physical length in the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.timeReadout}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timequantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitswithtime}
+  The real numerical readout of a physical duration in the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.speedReadout}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-unitsforspeed}
+  The real numerical readout of a physical speed in the selected quotient of a length unit by a time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[julian Years]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-julianyears}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.julianYears}
+  A Julian year, the 365.25-day duration used in the standard definition of a light-year
+\end{definition}
+\begin{proof}
+  This is the declared model definition of julian Years.
+\end{proof}
+\begin{definition}[one Arcsecond]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-onearcsecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.oneArcsecond}
+  One arcsecond as a physical angle: π / (180 * 60 * 60) radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of one Arcsecond.
+\end{proof}
+\begin{definition}[Approximately]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-approximately}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.Approximately}
+  actual lies within the stated absolute tolerance of a rounded reported readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Approximately.
+\end{proof}
+\begin{definition}[Parsec Figure]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-parsecfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.ParsecFigure}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity}
+  The three length labels and the angle label visible in the supplied parsec diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parsec Figure.
+\end{proof}
+\begin{definition}[Astronomical Distance Setup]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-astronomicaldistancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.AstronomicalDistanceSetup}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timequantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-parsecfigure}
+  The physical quantities named in the text, together with a minimal interface for the angular subtense used to define a parsec
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Astronomical Distance Setup.
+\end{proof}
+\begin{definition}[Satisfies Constant Speed Travel Law]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-satisfiesconstantspeedtravellaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.SatisfiesConstantSpeedTravelLaw}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timequantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedquantity}
+  Constant-speed travel obeys distance = speed * duration. The equality is required in every common unit system, so it relates physical quantities rather than one privileged scalar representation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Speed Travel Law.
+\end{proof}
+\begin{definition}[Satisfies Astronomical Definitions]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-satisfiesastronomicaldefinitions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.SatisfiesAstronomicalDefinitions}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-onearcsecond, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-astronomicaldistancesetup, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-satisfiesconstantspeedtravellaw}
+  Governing astronomical definitions used in the problem. These fields state that the AU is the Earth--Sun distance, that a light-year obeys the vacuum-light travel law for one year, and that a parsec gives a one-arcsecond subtense to one AU. They do not state the requested light-year conversion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Astronomical Definitions.
+\end{proof}
+\begin{definition}[Matches Reported Astronomical Data]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-matchesreportedastronomicaldata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.MatchesReportedAstronomicalData}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthreadout, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-timereadout, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-speedreadout, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-julianyears, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-approximately, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-astronomicaldistancesetup}
+  Numerical unit calibrations and rounded readouts stated in the problem. The tolerances make the word “about” and the rounded speed 186000 mi/s explicit, while the named unit quantities themselves use Physlib's standard AU, parsec, light-year, mile, second, and speed-of-light definitions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reported Astronomical Data.
+\end{proof}
+\begin{definition}[Matches Parsec Figure]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-matchesparsecfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.MatchesParsecFigure}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-onearcsecond, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-astronomicaldistancesetup}
+  Primary-image readouts. The supplied diagram has a 1 AU base, two 1 pc sides, and a one-arcsecond apex angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Parsec Figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.AnswerChoice}
+  The four displayed multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[value In Light Years]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice-valueinlightyears}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.AnswerChoice.valueInLightYears}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice}
+  The dimensionless number of light-years printed beside each answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of value In Light Years.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice}
+  Dataset metadata: the recorded answer label is C. This is not a premise of the conversion theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0727.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthquantity, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-lengthreadout, def:physics:phyx-mini-0727:phyxminiproblems-problemphyxmini0727-answerchoice}
+  A choice is uniquely closest to the physical distance's light-year readout among the four printed alternatives
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

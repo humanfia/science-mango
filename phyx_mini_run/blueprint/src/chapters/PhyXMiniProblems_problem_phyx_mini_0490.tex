@@ -1,0 +1,308 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0490.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0490.source.json
+
+\chapter{Physics problem phyx\_mini\_0490}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0490}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In a typical squash game (figure), two people hit a soft rubber ball at a wall. Assume that the ball hits the wall at a velocity of \textbackslash{}(22\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}) and bounces back at a velocity of \textbackslash{}(12\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}), and that the kinetic energy lost in the process heats the ball.(The specific heat of rubber is about \textbackslash{}(1200\textbackslash{},\textbackslash{}mathrm\{J/(kg \textbackslash{}cdot \textasciicircum{}\textbackslash{}circ C)\}\textbackslash{}).)
+
+\#\# Question
+
+What will be the temperature increase of the ball after one bounce?
+
+\#\# Answer choices
+
+- A: A: 0.18°C
+
+- B: B: 0.16°C
+
+- C: C: 0.20°C
+
+- D: D: 0.14°C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two men playing squash in an indoor squash court. One man, wearing a yellow shirt and black shorts, is positioned at the forefront, swinging a squash racket. Behind him, another man in a white shirt and dark shorts is also holding a racket and appears to be engaged in the game. Both men are focused on a squash ball in motion, which is close to the floor. The court walls are white with red boundary lines marking the playing area. The floor is made of wood, typical of squash courts. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.14°C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/490.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0490.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0490:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0490.problem_phyx_mini_0490}
+\uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchessquashballbouncescenario, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchesproblemspeedreadouts, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-usesroundedrubberspecificheatdata, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchessuppliedsquashfigure, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-hasphysicalsquashballparameters, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-satisfiesbounceheatinglaws, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchesdisplayedtwodecimalanswer, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-isuniqueclosestdisplayedtemperatureincrease}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[specific Heat Capacity Dimension]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatcapacitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.specificHeatCapacityDimension}
+  The dimension of mass-specific heat capacity, energy / (mass * temperature) = L² T⁻² Θ⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Heat Capacity Dimension.
+\end{proof}
+\begin{definition}[Specific Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.SpecificHeatCapacityQuantity}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatcapacitydimension}
+  A nonnegative, unit-independent mass-specific heat capacity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.massInKilograms}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.speedInMetersPerSecond}
+  Metre-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.energyInJoules}
+  Joule readout of a signed physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[specific Heat In Joules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatinjoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.specificHeatInJoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatcapacityquantity}
+  SI readout of mass-specific heat capacity in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Heat In Joules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.CelsiusTemperatureReading}
+  An affine Celsius coordinate attached to a Physlib absolute temperature. Temperature differences have the same numerical size in Celsius and kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Bounce State]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-bouncestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.BounceState}
+  The instants immediately before and immediately after wall contact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bounce State.
+\end{proof}
+\begin{definition}[Wall Relative Direction]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-wallrelativedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.WallRelativeDirection}
+  Direction of the ball's motion relative to the court wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wall Relative Direction.
+\end{proof}
+\begin{definition}[Ball Material]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-ballmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.BallMaterial}
+  Material classification of the ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball Material.
+\end{proof}
+\begin{definition}[Collision Partner]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-collisionpartner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.CollisionPartner}
+  The object struck by the ball in the idealized bounce
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Partner.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.FigureObject}
+  Distinct objects plainly visible in the supplied squash photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.FigureFeature}
+  Court features and visual encodings visible in the photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Squash Game Figure]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashgamefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.SquashGameFigure}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-figureobject, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-figurefeature}
+  Qualitative evidence extracted from the primary image. The photograph has no printed labels or quantitative scale and therefore contributes no speed, temperature, mass, or specific-heat readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Squash Game Figure.
+\end{proof}
+\begin{definition}[Squash Ball Bounce Setup]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.SquashBallBounceSetup}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massquantity, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatcapacityquantity, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-celsiustemperaturereading, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-bouncestate, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-wallrelativedirection, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-ballmaterial, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-collisionpartner, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashgamefigure}
+  Independent physical quantities for one wall impact. Both kinetic energies, the energy lost, and the heat absorbed by the ball are signed physical energy quantities. The final temperature is not defined from any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Squash Ball Bounce Setup.
+\end{proof}
+\begin{definition}[Matches Squash Ball Bounce Scenario]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchessquashballbouncescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.MatchesSquashBallBounceScenario}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  Qualitative physical scenario stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Squash Ball Bounce Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Speed Readouts]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchesproblemspeedreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.MatchesProblemSpeedReadouts}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-speedinmeterspersecond, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  The two speed magnitudes explicitly stated in the prose. The opposing motion directions are recorded separately by MatchesSquashBallBounceScenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Speed Readouts.
+\end{proof}
+\begin{definition}[Uses Rounded Rubber Specific Heat Data]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-usesroundedrubberspecificheatdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.UsesRoundedRubberSpecificHeatData}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  Rounded textbook reference data for rubber. The word "about" in the source is represented by selecting 1200 J/(kg K) as the calculation-model value; this premise contains no temperature rise or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Rubber Specific Heat Data.
+\end{proof}
+\begin{definition}[Matches Supplied Squash Figure]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchessuppliedsquashfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.MatchesSuppliedSquashFigure}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashgamefigure}
+  Qualitative facts visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Squash Figure.
+\end{proof}
+\begin{definition}[Has Physical Squash Ball Parameters]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-hasphysicalsquashballparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.HasPhysicalSquashBallParameters}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massinkilograms, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  Positivity assumptions selecting a physically meaningful bounce
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Squash Ball Parameters.
+\end{proof}
+\begin{definition}[Satisfies Bounce Heating Laws]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-satisfiesbounceheatinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.SatisfiesBounceHeatingLaws}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-massinkilograms, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-speedinmeterspersecond, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-energyinjoules, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  Governing mechanics and calorimetry relations for the idealized impact: translational kinetic energy is m v² / 2 at both bounce states; the lost kinetic energy is the incoming energy minus the outgoing energy; all of that loss is deposited as heat in the ball; sensible heat is m c (T\_f - T\_i). These general laws contain neither the calculated rise 17/120 °C nor any displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bounce Heating Laws.
+\end{proof}
+\begin{definition}[temperature Increase In Degrees Celsius]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.temperatureIncreaseInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup}
+  The ball's measured Celsius temperature increase over the bounce
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Increase In Degrees Celsius.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.AnswerChoice}
+  Labels of the four choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Temperature Increase In Degrees Celsius]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-displayedtemperatureincreaseindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.displayedTemperatureIncreaseInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-answerchoice}
+  Temperature-increase value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Temperature Increase In Degrees Celsius.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Two Decimal Answer]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchesdisplayedtwodecimalanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.MatchesDisplayedTwoDecimalAnswer}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-answerchoice, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-displayedtemperatureincreaseindegreescelsius}
+  Agreement with a two-decimal displayed answer under ordinary rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Two Decimal Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Temperature Increase]
+  \label{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-isuniqueclosestdisplayedtemperatureincrease}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.IsUniqueClosestDisplayedTemperatureIncrease}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-answerchoice, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-displayedtemperatureincreaseindegreescelsius}
+  The selected displayed rise is strictly closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Temperature Increase.
+\end{proof}
+\begin{lemma}[temperature Increase In Degrees Celsius exact]
+  \label{lem:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0490.temperatureIncreaseInDegreesCelsius_exact}
+  \uses{def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-squashballbouncesetup, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchessquashballbouncescenario, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-matchesproblemspeedreadouts, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-usesroundedrubberspecificheatdata, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-hasphysicalsquashballparameters, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-satisfiesbounceheatinglaws, def:physics:phyx-mini-0490:phyxminiproblems-problemphyxmini0490-temperatureincreaseindegreescelsius}
+  The loss of translational kinetic energy per unit ball mass is (22² - 12²)/2 = 170 J/kg. Dividing by the rounded rubber specific heat gives the exact calculation-model temperature rise 17/120 °C
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of temperature Increase In Degrees Celsius exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

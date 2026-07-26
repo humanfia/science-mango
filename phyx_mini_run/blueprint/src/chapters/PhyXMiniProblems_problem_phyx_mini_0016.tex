@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0016.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0016.source.json
+
+\chapter{Physics problem phyx\_mini\_0016}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0016}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The light beam in figure strikes surface 2 at the critical angle.
+
+\#\# Question
+
+Determine the angle of incidence \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 11.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- B: B: \textbackslash{}( 27.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- C: C: \textbackslash{}( 42.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- D: D: \textbackslash{}( 19.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a geometric figure, specifically an isosceles triangular prism, illustrating the path of a light ray as it passes through the prism. The light ray enters from the top at an angle denoted as \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) with respect to the normal to "Surface 1." It then refracts through the prism.
+
+The interior angles of the prism are labeled, with one angle being \textbackslash{}( 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{}). As the light ray travels within the prism, it forms angles of \textbackslash{}( 42.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) with the normals at each interface where refraction occurs.
+
+The diagram highlights two surfaces of the prism, labeled "Surface 1" and "Surface 2," where the light ray enters and exits. The paths of the light ray inside and outside the prism are marked with arrows to indicate the direction of travel.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 42.5\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/16.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0016.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0016:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0016.incidenceAngleSurfaceOne_is_answerChoiceB}
+\uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-degreestoangle, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-angleinradians, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-radianstodegrees, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-isphysicalprismconfiguration, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismopticslaws, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismfigurereadouts, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-answerangledegrees, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-roundstonearesttenth}
+In the pictured $60^\circ$ prism, the internal incidence angle at surface 2
+is the displayed critical angle $42^\circ$. Under the principal-branch
+Snell laws, the requested external incidence angle at surface 1 rounds to
+$27.5^\circ$, answer B. The dataset's recorded answer C ($42.5^\circ$) is
+inconsistent with the displayed geometry and must remain metadata rather than
+the formal conclusion. Media, surfaces, and rays must be typed, and angle
+values must be explicit scalar projections with their degree/radian role.
+\end{theorem}
+\begin{proof}
+The two internal normal-referenced angles sum to the $60^\circ$ prism angle,
+so the first refraction angle is $18^\circ$. Critical incidence at surface 2
+gives $n_{\rm prism}\sin42^\circ=n_{\rm air}$. Entry Snell refraction gives
+$n_{\rm air}\sin\theta_1=n_{\rm prism}\sin18^\circ$. Eliminating the
+unknown index yields
+$\sin\theta_1=\sin18^\circ/\sin42^\circ$, whose acute solution is about
+$27.5045^\circ$. It therefore rounds to choice B, not choice C.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[degrees To Angle]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-degreestoangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.degreesToAngle}
+  Convert a scalar degree readout into a physical plane angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Angle.
+\end{proof}
+\begin{definition}[angle In Radians]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-angleinradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.angleInRadians}
+  The principal representative of a plane angle, measured in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle In Radians.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.radiansToDegrees}
+  Convert a scalar radian readout into its numerical value in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.OpticalMedium}
+  The two homogeneous optical media traversed by the pictured beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Prism Surface]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.PrismSurface}
+  The two prism interfaces named in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Surface.
+\end{proof}
+\begin{definition}[Prism Ray Segment]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.PrismRaySegment}
+  The three directed physical ray segments visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Segment.
+\end{proof}
+\begin{definition}[Normal Referenced Angle]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-normalreferencedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.NormalReferencedAngle}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismsurface, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraysegment}
+  An angle between a typed ray segment and the normal to a typed prism surface. The value is a plane angle; its ordered radian representative is obtained only through angleInRadians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Normal Referenced Angle.
+\end{proof}
+\begin{definition}[Triangular Prism Setup]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.TriangularPrismSetup}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-opticalmedium}
+  The physical prism and its dimensionless material readouts. The interior angle is the angle at which surface 1 and surface 2 meet in the triangular cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Prism Setup.
+\end{proof}
+\begin{definition}[Prism Ray Path]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.PrismRayPath}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-normalreferencedangle}
+  The four normal-referenced angular quantities along the depicted path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Path.
+\end{proof}
+\begin{definition}[Is Interface Angle]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-isinterfaceangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.IsInterfaceAngle}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-angleinradians}
+  An interface angle is on the nonnegative principal branch up to grazing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Interface Angle.
+\end{proof}
+\begin{definition}[Is Physical Prism Configuration]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-isphysicalprismconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.IsPhysicalPrismConfiguration}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-isinterfaceangle}
+  Positivity, optical density ordering, and principal-branch conditions for the pictured physical configuration. These conditions do not determine the requested incidence angle numerically
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Prism Configuration.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At Surface One]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiessnelllawatsurfaceone}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.SatisfiesSnellLawAtSurfaceOne}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  Snell's law where the ray passes from ambient air into the prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At Surface One.
+\end{proof}
+\begin{definition}[Satisfies Critical Angle Law At Surface Two]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiescriticalanglelawatsurfacetwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.SatisfiesCriticalAngleLawAtSurfaceTwo}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-degreestoangle, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  The incidence at surface 2 is critical: the limiting transmitted air ray is at 90° from the interface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Critical Angle Law At Surface Two.
+\end{proof}
+\begin{definition}[Satisfies Reflection Law At Surface Two]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiesreflectionlawatsurfacetwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.SatisfiesReflectionLawAtSurfaceTwo}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  Specular reflection gives equal incidence and reflection angles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Reflection Law At Surface Two.
+\end{proof}
+\begin{definition}[Satisfies Prism Ray Geometry]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiesprismraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.SatisfiesPrismRayGeometry}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  The straight internal ray lies between the two inward normals; the two normal-referenced internal angles sum to the prism's surface angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Prism Ray Geometry.
+\end{proof}
+\begin{definition}[Prism Optics Laws]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismopticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.PrismOpticsLaws}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiessnelllawatsurfaceone, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiescriticalanglelawatsurfacetwo, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiesreflectionlawatsurfacetwo, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-satisfiesprismraygeometry}
+  The governing geometrical-optics laws for the pictured ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Optics Laws.
+\end{proof}
+\begin{definition}[Prism Figure Readouts]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.PrismFigureReadouts}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-degreestoangle, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-triangularprismsetup, def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-prismraypath}
+  Categorical and numerical readouts taken from the primary image. In particular, neither 18° nor the requested external incidence angle occurs among these source readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Figure Readouts.
+\end{proof}
+\begin{definition}[Incidence Answer Choice]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-incidenceanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.IncidenceAnswerChoice}
+  Labels of the four incidence-angle choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Incidence Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-incidenceanswerchoice}
+  The scalar degree readout printed beside each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[recorded Dataset Answer Choice]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-recordeddatasetanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.recordedDatasetAnswerChoice}
+  \uses{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-incidenceanswerchoice}
+  The answer label supplied by the dataset, retained only as metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Tenth]
+  \label{def:physics:phyx-mini-0016:phyxminiproblems-problemphyxmini0016-roundstonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0016.RoundsToNearestTenth}
+  value rounds to rounded to the nearest tenth: rounded is an integral multiple of one tenth and differs from value by less than half a tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

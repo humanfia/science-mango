@@ -1,0 +1,394 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0389.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0389.source.json
+
+\chapter{Physics problem phyx\_mini\_0389}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0389}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two cylinders are filled with liquid water, \$\textbackslash{}rho = 1000\$ kg/m\$\textasciicircum{}3\$, and connected by a line with a closed valve, as shown in figure. A has 100 kg and B has 500 kg of water, their cross-sectional areas are \$A\_A = 0.1\$ m\$\textasciicircum{}2\$ and \$A\_B = 0.25\$ m\$\textasciicircum{}2\$, and the height \$h\$ is 1 m. Find the pressure on either side of the valve. The valve is opened, and water flows to an equilibrium.
+
+\#\# Question
+
+Find the final pressure at the valve location.
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 125.2kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a fluid dynamics scenario involving two tanks connected by a pipe. Here's a detailed description:
+
+- There are two tanks labeled as "A" (right) and "B" (left), both filled with liquid and exposed to atmospheric pressure indicated as \textbackslash{}( P\_0 \textbackslash{}).
+
+- Tank B is higher than tank A by a height \textbackslash{}( h \textbackslash{}).
+
+- A pipe connects the bottom of tank B to the bottom of tank A.
+
+- The pipe has a bend and a valve symbol, suggesting a controlled flow between the two tanks.
+
+- Gravity is indicated by the downward arrow marked \textbackslash{}( g \textbackslash{}), showing the direction of gravitational force.
+
+- The liquid level in tank B is higher than in tank A due to the height difference \textbackslash{}( h \textbackslash{}).
+
+- The entire setup indicates a potential for fluid flow from the higher tank (B) to the lower tank (A) through the connecting pipe.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 125.2kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/389.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0389.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0389:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0389.problem_phyx_mini_0389}
+\uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesproblemreadouts, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesprimaryfigure, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-usesstandardatmosphereandgravity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-satisfiesconnectedtanklaws, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.LengthQuantity}
+  A nonnegative physical length or vertical elevation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.AreaQuantity}
+  A nonnegative physical cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.VolumeQuantity}
+  A nonnegative physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.MassDensityQuantity}
+  A nonnegative mass density, with dimension M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.PressureQuantity}
+  A physical pressure, grounded in Physlib's DimPressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.massInKilograms}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massquantity}
+  Read a mass in coherent-SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.lengthInMeters}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity}
+  Read a length or elevation in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areaquantity}
+  Read an area in square metres, using Physlib's named square-metre unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumequantity}
+  Read a volume in coherent-SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[mass Density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.massDensityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityquantity}
+  Read a mass density in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationquantity}
+  Read an acceleration magnitude in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.pressureInPascals}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity}
+  Read a pressure in pascals, using Physlib's named pascal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinpascals}
+  Read a pressure in kilopascals, the unit used by all answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Tank]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tank}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.Tank}
+  The two cylinder labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank.
+\end{proof}
+\begin{definition}[Figure Side]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-figureside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.FigureSide}
+  Horizontal placement of a tank in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Side.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.VerticalDirection}
+  The direction of the arrow labelled g in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Valve State]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-valvestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ValveState}
+  Whether the valve blocks or permits flow through the connecting line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve State.
+\end{proof}
+\begin{definition}[Tank Connection Figure]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tankconnectionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.TankConnectionFigure}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tank, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-figureside, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-verticaldirection}
+  Figure-derived geometry and labels. All elevations are measured upward from the valve, so the valve itself and the lower tank bottom have elevation zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Connection Figure.
+\end{proof}
+\begin{definition}[Water State]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-waterstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.WaterState}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tank}
+  Water data at either the initial closed-valve state or final equilibrium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water State.
+\end{proof}
+\begin{definition}[Connected Water Tanks Setup]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ConnectedWaterTanksSetup}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areaquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tank, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-valvestate, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-tankconnectionfigure, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-waterstate}
+  The complete two-reservoir experiment, retaining the closed initial state and the open, motionless equilibrium state requested by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connected Water Tanks Setup.
+\end{proof}
+\begin{definition}[final Valve Pressure]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-finalvalvepressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.finalValvePressure}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup}
+  The final pressure at the valve, read from the tank-A side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Valve Pressure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massinkilograms, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areainsquaremeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup}
+  Numerical data stated in the prose. No initial or final valve pressure occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup}
+  Primary-image evidence: B is the raised left tank, A is the lower right tank, their bottoms differ by h = 1 m, the line joins both bottoms, the valve is in that line at the lower datum, and both surfaces carry the label P₀
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Atmosphere And Gravity]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-usesstandardatmosphereandgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.UsesStandardAtmosphereAndGravity}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup}
+  The conventional environmental calibration implicit in the numerical answer: one standard atmosphere and g = 9.81 m/s²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Atmosphere And Gravity.
+\end{proof}
+\begin{definition}[Obeys Mass Density Relation]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysmassdensityrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ObeysMassDensityRelation}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massinkilograms, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumeincubicmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityinkilogramspercubicmeter}
+  For incompressible water, mass is density times volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Mass Density Relation.
+\end{proof}
+\begin{definition}[Obeys Prismatic Cylinder Volume Law]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysprismaticcylindervolumelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ObeysPrismaticCylinderVolumeLaw}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areaquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areainsquaremeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumeincubicmeters}
+  A vertical cylinder of constant cross-section has volume area × depth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Prismatic Cylinder Volume Law.
+\end{proof}
+\begin{definition}[Obeys Free Surface Geometry]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysfreesurfacegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ObeysFreeSurfaceGeometry}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters}
+  The free-surface elevation is the tank-bottom elevation plus water depth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Free Surface Geometry.
+\end{proof}
+\begin{definition}[Obeys Hydrostatic Pressure Law At Valve]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeyshydrostaticpressurelawatvalve}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.ObeysHydrostaticPressureLawAtValve}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationquantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressurequantity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinpascals}
+  Hydrostatic pressure at the valve datum is P = P₀ + ρ g z\_surface, since the valve elevation is zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Hydrostatic Pressure Law At Valve.
+\end{proof}
+\begin{definition}[Satisfies Connected Tank Laws]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-satisfiesconnectedtanklaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.SatisfiesConnectedTankLaws}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-volumeincubicmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysmassdensityrelation, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysprismaticcylindervolumelaw, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeysfreesurfacegeometry, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-obeyshydrostaticpressurelawatvalve}
+  The initial constitutive and hydrostatic laws, conservation of water volume, and the open-valve equilibrium laws. The final numerical pressure and all answer-choice values are absent from these premises
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Connected Tank Laws.
+\end{proof}
+\begin{lemma}[equilibrium free surface elevation]
+  \label{lem:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-equilibrium-free-surface-elevation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.equilibrium_free_surface_elevation}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massinkilograms, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-lengthinmeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-areainsquaremeters, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-massdensityinkilogramspercubicmeter, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesproblemreadouts, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-satisfiesconnectedtanklaws}
+  Volume conservation and the common free-surface condition determine the final surface elevation from the two masses, density, areas, and bottom elevations
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equilibrium free surface elevation.
+\end{proof}
+\begin{lemma}[initial tank A valve pressure]
+  \label{lem:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-initial-tank-a-valve-pressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.initial_tank_A_valve_pressure}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinkilopascals, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesproblemreadouts, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesprimaryfigure, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-usesstandardatmosphereandgravity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-satisfiesconnectedtanklaws}
+  The initial closed-valve pressure on the lower tank-A side
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial tank A valve pressure.
+\end{proof}
+\begin{lemma}[initial tank B valve pressure]
+  \label{lem:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-initial-tank-b-valve-pressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.initial_tank_B_valve_pressure}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinkilopascals, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesproblemreadouts, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesprimaryfigure, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-usesstandardatmosphereandgravity, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-satisfiesconnectedtanklaws}
+  The initial closed-valve pressure on the raised tank-B side
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial tank B valve pressure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.AnswerChoice}
+  Labels of the four pressure choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-answerchoice-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.AnswerChoice.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinkilopascals, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-answerchoice}
+  Kilopascal value printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Matches Displayed Answer]
+  \label{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-matchesdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0389.MatchesDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-pressureinkilopascals, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-connectedwatertankssetup, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-finalvalvepressure, def:physics:phyx-mini-0389:phyxminiproblems-problemphyxmini0389-answerchoice}
+  Agreement with a displayed answer to its stated 0.1 kPa precision. The tolerance makes explicit that the source reports a rounded textbook value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

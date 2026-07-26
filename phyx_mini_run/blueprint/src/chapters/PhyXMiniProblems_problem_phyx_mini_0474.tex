@@ -1,0 +1,260 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0474.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0474.source.json
+
+\chapter{Physics problem phyx\_mini\_0474}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0474}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A Carnot engine takes 2000 J of heat from a reservoir at 500 K, does some work, and discards some heat to a reservoir at 350 K.
+
+\#\# Question
+
+What is its efficiency?
+
+\#\# Answer choices
+
+- A: A: 36\%
+
+- B: B: 30\%
+
+- C: C: 28\%
+
+- D: D: 45\%
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The diagram depicts a heat engine process involving heat transfer and work done. Here's a breakdown of the content:
+
+- **Arrows and Labels**:
+  - A vertical arrow pointing downward from \textbackslash{}( T\_H \textbackslash{}) to \textbackslash{}( T\_C \textbackslash{}), representing heat transfer.
+  - A horizontal arrow pointing to the right representing work output.
+
+- **Textual Information**:
+  - Top of the diagram: \textbackslash{}( T\_H = 500 \textbackslash{}, \textbackslash{}text\{K\} \textbackslash{}) indicating the high temperature reservoir.
+  - Below \textbackslash{}( T\_H \textbackslash{}): \textbackslash{}( Q\_H = 2000 \textbackslash{}, \textbackslash{}text\{J\} \textbackslash{}) indicating the amount of heat absorbed from the high temperature reservoir.
+  - Below the horizontal arrow: \textbackslash{}( W = ? \textbackslash{}) and \textbackslash{}( e = ? \textbackslash{}), representing the unknown work done by the engine and the efficiency.
+  - Bottom of the diagram: \textbackslash{}( T\_C = 350 \textbackslash{}, \textbackslash{}text\{K\} \textbackslash{}) indicating the low temperature reservoir.
+  - Beside the downward arrow near \textbackslash{}( T\_C \textbackslash{}): \textbackslash{}( Q\_C = ? \textbackslash{}), representing the unknown amount of heat expelled to the low temperature reservoir.
+
+This diagram visually represents the key components and relationships in a heat engine cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 30\%
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/474.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0474.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0474:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0474.carnotEfficiency_eq_recordedAnswerB}
+\uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesproblemstatement, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesprimaryheatenginefigure, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-hasphysicalcarnotengineparameters, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-satisfiescarnotheatenginelaws, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.TemperatureQuantity}
+  Absolute thermodynamic temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.EnergyQuantity}
+  A physical heat or work quantity, carrying the dimension of energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.energyInJoules}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyquantity}
+  Read a physical energy quantity in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperaturequantity}
+  Read an absolute temperature in kelvins from its stated storage unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Thermodynamic Device Role]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-thermodynamicdevicerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.ThermodynamicDeviceRole}
+  The thermodynamic role of the device in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Device Role.
+\end{proof}
+\begin{definition}[Heat Engine Model]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-heatenginemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.HeatEngineModel}
+  The reversible ideal engine model specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Engine Model.
+\end{proof}
+\begin{definition}[Reservoir]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-reservoir}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.Reservoir}
+  The two reservoirs with which the engine exchanges heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reservoir.
+\end{proof}
+\begin{definition}[Diagram Node]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-diagramnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.DiagramNode}
+  Locations joined by the arrows in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Node.
+\end{proof}
+\begin{definition}[Diagram Arrow]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-diagramarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.DiagramArrow}
+  Directed energy-transfer arrows shown in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Arrow.
+\end{proof}
+\begin{definition}[Arrow Orientation]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-arroworientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.ArrowOrientation}
+  Geometric orientation of an arrow in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arrow Orientation.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.FigureLabel}
+  Textual quantity labels printed in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Heat Engine Diagram]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-heatenginediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.HeatEngineDiagram}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-diagramnode, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-diagramarrow, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-arroworientation, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-figurelabel}
+  Raw label and arrow information transcribed from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Engine Diagram.
+\end{proof}
+\begin{definition}[Carnot Heat Engine Setup]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.CarnotHeatEngineSetup}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperaturequantity, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyquantity, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-thermodynamicdevicerole, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-heatenginemodel, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-reservoir, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-heatenginediagram}
+  The physical Carnot-engine setup. Reservoir heat transfers and net work are stored as positive energy magnitudes; the efficiency is dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Carnot Heat Engine Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup}
+  The prose identifies the device as a Carnot heat engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Heat Engine Figure]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesprimaryheatenginefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.MatchesPrimaryHeatEngineFigure}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperatureinkelvins, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-figurelabel, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup}
+  Figure-derived data and geometry. The image supplies only the hot input heat and the two reservoir temperatures; rejected heat, work, and efficiency remain explicitly marked unknown
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Heat Engine Figure.
+\end{proof}
+\begin{definition}[Has Physical Carnot Engine Parameters]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-hasphysicalcarnotengineparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.HasPhysicalCarnotEngineParameters}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperatureinkelvins, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup}
+  Positivity and ordering conditions for a physically operating engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Carnot Engine Parameters.
+\end{proof}
+\begin{definition}[Satisfies Carnot Heat Engine Laws]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-satisfiescarnotheatenginelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.SatisfiesCarnotHeatEngineLaws}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-temperatureinkelvins, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup}
+  Governing relations for one complete reversible Carnot cycle. Heat magnitudes are positive: the first law gives W = Q\_H - Q\_C, efficiency is W / Q\_H, and reversibility gives Q\_C / Q\_H = T\_C / T\_H. None of these fields fixes the requested numerical efficiency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Carnot Heat Engine Laws.
+\end{proof}
+\begin{lemma}[rejected Heat in Joules eq 1400]
+  \label{lem:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-rejectedheat-injoules-eq-1400}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.rejectedHeat_inJoules_eq_1400}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesproblemstatement, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesprimaryheatenginefigure, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-hasphysicalcarnotengineparameters, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-satisfiescarnotheatenginelaws}
+  The reversible heat ratio determines 1400 J of rejected heat
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rejected Heat in Joules eq 1400.
+\end{proof}
+\begin{lemma}[net Work Output in Joules eq 600]
+  \label{lem:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-networkoutput-injoules-eq-600}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.netWorkOutput_inJoules_eq_600}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-energyinjoules, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-carnotheatenginesetup, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesproblemstatement, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-matchesprimaryheatenginefigure, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-hasphysicalcarnotengineparameters, def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-satisfiescarnotheatenginelaws}
+  The first law then determines 600 J of net work output
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net Work Output in Joules eq 600.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.AnswerChoice}
+  Labels attached to the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[efficiency Percent]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-answerchoice-efficiencypercent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.AnswerChoice.efficiencyPercent}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-answerchoice}
+  Efficiency percentage printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of efficiency Percent.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0474.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0474:phyxminiproblems-problemphyxmini0474-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

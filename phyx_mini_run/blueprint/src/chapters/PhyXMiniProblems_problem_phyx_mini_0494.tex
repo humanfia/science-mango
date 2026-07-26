@@ -1,0 +1,293 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0494.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0494.source.json
+
+\chapter{Physics problem phyx\_mini\_0494}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0494}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+When a gas is taken from a to c along the curved path in figure, the work done by the gas is \textbackslash{}(W = -35\textbackslash{},\textbackslash{}mathrm\{J\}\textbackslash{}) and the heat added to the gas is \textbackslash{}(Q = -175\textbackslash{},\textbackslash{}mathrm\{J\}\textbackslash{}). Along path abc, the work done by the gas is \textbackslash{}(W = -56\textbackslash{},\textbackslash{}mathrm\{J\}\textbackslash{}). (That is, \textbackslash{}(56\textbackslash{},\textbackslash{}mathrm\{J\}\textbackslash{}) of work is done on the gas.)\textbackslash{}(U\_d - U\_c = 42\textbackslash{},\textbackslash{}mathrm\{J\}\textbackslash{}).
+
+\#\# Question
+
+What is \textbackslash{}(Q\textbackslash{}) for path da?
+
+\#\# Answer choices
+
+- A: A: 21J
+
+- B: B: 19J
+
+- C: C: 13J
+
+- D: D: 16J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a PV diagram, which plots pressure (P) on the vertical axis and volume (V) on the horizontal axis, with both axes starting from zero. 
+
+The diagram features a thermodynamic cycle represented as a closed loop with four distinct points labeled as a, b, c, and d. These points are connected by arrows indicating the direction of the process:
+
+- **Point a** to **Point b**: The line is horizontal, indicating a process at constant volume.
+- **Point b** to **Point c**: The line is vertical, indicating a process at constant pressure.
+- **Point c** to **Point d**: The line is horizontal, indicating another process at constant volume.
+- **Point d** to **Point a**: The line is vertical, indicating another process at constant pressure.
+
+The arrows follow a clockwise direction throughout the cycle. Each segment has a distinct red arrow indicating the flow direction. The black dots highlight each of the four points on the loop.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 16J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/494.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0494.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0494:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0494.heat_added_on_d_to_a_is_ninety_eight_joules}
+\uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-heataddedtogasinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-matchesproblemstatement, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-matchesprimarypvdiagram, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-obeysthermodynamiclaws}
+The heat added to the gas on the path from state d to state a is $98$ joules.
+\end{theorem}
+\begin{proof}
+For the curved path a-to-c, the readouts and first law give $U_c-U_a=-140$ joules.  The supplied c-to-d internal-energy change is $U_d-U_c=42$ joules, so $U_a-U_d=98$ joules.  The primary figure makes d-to-a isochoric, hence its work is zero.  Applying the first law on d-to-a gives $Q_{d\to a}=U_a-U_d+0=98$ joules.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.VolumeQuantity}
+  A signed physical volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.energyInJoules}
+  Read a signed physical energy, heat transfer, or work in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.StateLabel}
+  The four thermodynamic state labels printed in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Process Path]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.ProcessPath}
+  Directed processes mentioned in the prose or visible in the image. aToBToC names the concatenated path abc; it is not an additional edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Path.
+\end{proof}
+\begin{definition}[path Start]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.pathStart}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath}
+  Initial state of each directed process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of path Start.
+\end{proof}
+\begin{definition}[path Finish]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathfinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.pathFinish}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath}
+  Final state of each directed process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of path Finish.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.PathGeometry}
+  Geometric appearance of a process in the primary pressure--volume plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.ProcessKind}
+  Thermodynamic constraint represented by a path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[displayed Path Geometry]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-displayedpathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.displayedPathGeometry}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathgeometry}
+  Geometry read from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Path Geometry.
+\end{proof}
+\begin{definition}[displayed Process Kind]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-displayedprocesskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.displayedProcessKind}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processkind}
+  Process kinds determined by the axes and segment orientations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Process Kind.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.AxisQuantity}
+  Physical quantity assigned to one of the two plotted axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-volumequantity}
+  A dimensionful equilibrium state of the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[PVDiagram]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.PVDiagram}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathgeometry, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-axisquantity, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-thermodynamicstate}
+  Qualitative and dimensionful content of the supplied P--V diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVDiagram.
+\end{proof}
+\begin{definition}[Gas PVExperiment]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.GasPVExperiment}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processkind, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pvdiagram}
+  The gas system and its thermodynamic observables. Heat and work are kept as independent dimensionful physical quantities. Internal energy is a state function, rather than a separately assignable change on each path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas PVExperiment.
+\end{proof}
+\begin{definition}[internal Energy In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-internalenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.internalEnergyInJoules}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-energyinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-statelabel, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment}
+  Joule readout of the internal energy at a labeled state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy In Joules.
+\end{proof}
+\begin{definition}[internal Energy Change In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-internalenergychangeinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.internalEnergyChangeInJoules}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathstart, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pathfinish, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-internalenergyinjoules}
+  Endpoint-defined internal-energy change U\_finish - U\_start, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy Change In Joules.
+\end{proof}
+\begin{definition}[work Done By Gas In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-workdonebygasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.workDoneByGasInJoules}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-energyinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment}
+  Signed joule readout of work done by the gas on a directed path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work Done By Gas In Joules.
+\end{proof}
+\begin{definition}[heat Added To Gas In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-heataddedtogasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.heatAddedToGasInJoules}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-energyinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-processpath, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment}
+  Signed joule readout of heat added to the gas on a directed path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Added To Gas In Joules.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-internalenergyinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-workdonebygasinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-heataddedtogasinjoules}
+  The numeric data stated in the problem. In particular, this structure does not assign any heat to d → a
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary PVDiagram]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-matchesprimarypvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.MatchesPrimaryPVDiagram}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-pressureinpascals, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-volumeincubicmeters, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-displayedpathgeometry, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-displayedprocesskind, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment}
+  Transcription of the primary bitmap. The four rectangle edges and the curved a → c path carry visible arrows. Equal-coordinate and strict-order fields record the relative point locations even though the image supplies no numeric pressure or volume scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary PVDiagram.
+\end{proof}
+\begin{definition}[Obeys Thermodynamic Laws]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-obeysthermodynamiclaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.ObeysThermodynamicLaws}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-gaspvexperiment, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-internalenergychangeinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-workdonebygasinjoules, def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-heataddedtogasinjoules}
+  Macroscopic laws used by the intended calculation. The first law uses heat into the gas and work done by the gas: Q = (U\_finish - U\_start) + W\_by. Boundary work vanishes for any isochoric process. Work and heat are additive on the specifically named concatenated path a → b → c. These are general governing relations. No field fixes the requested heat on d → a or mentions an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Thermodynamic Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.AnswerChoice}
+  Displayed answer-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer In Joules]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-displayedanswerinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.displayedAnswerInJoules}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-answerchoice}
+  Joule values printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer In Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0494.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0494:phyxminiproblems-problemphyxmini0494-answerchoice}
+  The dataset records choice D; this is metadata, not a physics premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,310 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0113.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0113.source.json
+
+\chapter{Physics problem phyx\_mini\_0113}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0113}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In setting up an experiment for a high school biology lab, you use a concave spherical mirror to produce real images of a 4.00-mm-tall firefly. The firefly is to the right of the mirror, on the mirror's optic axis, and serves as a real object for the mirror. You want to determine how far the object must be from the mirror's vertex (that is, object distance \$s\$) to produce an image of a specified height. First you place a square of white cardboard to the right of the object and find what its distance from the vertex needs to be so that the image is sharply focused on it. Next you measure the height of the sharply focused images for five values of \$s\$. For each \$s\$ value, you then calculate the lateral magnification \$m\$. You find that if you graph your data with \$s\$ on the vertical axis and \$1/m\$ on the horizontal axis, then your measured points fall close to a straight line.
+
+\#\# Question
+
+How far from the mirror's vertex should you place the object in order for the image to be real, 8.00 mm tall, and inverted?
+
+\#\# Answer choices
+
+- A: A: 37.5cm
+
+- B: B: 38.6cm
+
+- C: C: 36.4cm
+
+- D: D: 35.8cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a scatter plot with a line of best fit. Here are the details:
+
+- **Axes**:
+  - The x-axis is labeled \textbackslash{}( \textbackslash{}frac\{1\}\{m\} \textbackslash{}) and ranges from \textbackslash{}(-2.0\textbackslash{}) to \textbackslash{}(0.0\textbackslash{}) with grid lines marking each interval of 0.5.
+  - The y-axis is labeled \textbackslash{}( s \textbackslash{}, (\textbackslash{}text\{cm\}) \textbackslash{}) and ranges from \textbackslash{}(0\textbackslash{}) to \textbackslash{}(80\textbackslash{}) with grid lines marking each interval of 20.
+
+- **Data Points**:
+  - There are five black data points plotted on the graph.
+
+- **Line of Best Fit**:
+  - A magenta line connects the data points, indicating a negative slope.
+
+- **Grid**:
+  - The background has a grid that helps in locating the data points and understanding the slope of the line.
+
+This plot shows a negative correlation between \textbackslash{}( \textbackslash{}frac\{1\}\{m\} \textbackslash{}) and \textbackslash{}( s \textbackslash{}) (in cm).
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 37.5cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/113.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0113.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0113:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0113.object_distance_matches_choice_A}
+\uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-millimetres, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-mirrortrial, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-satisfiessphericalmirrorequation, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-satisfieslateralmagnificationlaw, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationplot, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-isfigure113calibration, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationlinerepresentsmirror, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.LengthQuantity}
+  A physical quantity carrying the dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[metres]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.metres}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity}
+  Construct a physical length from its SI-metre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of metres.
+\end{proof}
+\begin{definition}[centimetres]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.centimetres}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metres}
+  Construct a physical length from its centimetre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimetres.
+\end{proof}
+\begin{definition}[millimetres]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-millimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.millimetres}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metres}
+  Construct a physical length from its millimetre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of millimetres.
+\end{proof}
+\begin{definition}[metre Readout]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.metreReadout}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity}
+  The SI-metre scalar readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of metre Readout.
+\end{proof}
+\begin{definition}[centimetre Readout]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetrereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.centimetreReadout}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout}
+  The centimetre scalar readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimetre Readout.
+\end{proof}
+\begin{definition}[millimetre Readout]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-millimetrereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.millimetreReadout}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout}
+  The millimetre scalar readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of millimetre Readout.
+\end{proof}
+\begin{definition}[Side Of Vertex]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-sideofvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.SideOfVertex}
+  The two sides of the mirror vertex along its oriented optic axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Side Of Vertex.
+\end{proof}
+\begin{definition}[Axial Location]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axiallocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.AxialLocation}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-sideofvertex}
+  A location constrained to the mirror's optic axis. Its distance is a dimensionful, strictly positive distance from the vertex; side retains the orientation information that an unsigned distance alone would discard
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Location.
+\end{proof}
+\begin{definition}[Concave Spherical Mirror]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-concavesphericalmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.ConcaveSphericalMirror}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout}
+  The concave spherical mirror used by the experiment. The radius and focal length are physical lengths, and the last field records the paraxial focal relation for a spherical mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Concave Spherical Mirror.
+\end{proof}
+\begin{definition}[Object Nature]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-objectnature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.ObjectNature}
+  Whether an optical object is real or virtual
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Object Nature.
+\end{proof}
+\begin{definition}[Axial Object]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axialobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.AxialObject}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axiallocation, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-objectnature}
+  The firefly regarded as an axial optical object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Object.
+\end{proof}
+\begin{definition}[Image Nature]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-imagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.ImageNature}
+  Whether the image is formed by actual rays or only by backward extensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Nature.
+\end{proof}
+\begin{definition}[Image Orientation]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-imageorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.ImageOrientation}
+  Orientation of an image relative to the upright object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Orientation.
+\end{proof}
+\begin{definition}[Axial Image]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axialimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.AxialImage}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axiallocation, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-imagenature, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-imageorientation}
+  A sharply observed axial mirror image and its physical height magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Image.
+\end{proof}
+\begin{definition}[Cardboard Screen]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-cardboardscreen}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.CardboardScreen}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axiallocation}
+  The white cardboard screen used to locate a real, sharply focused image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cardboard Screen.
+\end{proof}
+\begin{definition}[Mirror Trial]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-mirrortrial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.MirrorTrial}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-metrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-concavesphericalmirror, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axialobject, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axialimage, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-cardboardscreen}
+  One trial of the mirror experiment. This stores the physical objects and the dimensionless measured lateral magnification, but no optical law and no answer to the current question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Trial.
+\end{proof}
+\begin{definition}[orientation Sign]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-orientationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.orientationSign}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-imageorientation}
+  The sign attached to an image height by its orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of orientation Sign.
+\end{proof}
+\begin{definition}[signed Image Height Millimetres]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-signedimageheightmillimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.signedImageHeightMillimetres}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-millimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-axialimage, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-orientationsign}
+  The signed millimetre height used in the lateral-magnification law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Image Height Millimetres.
+\end{proof}
+\begin{definition}[Satisfies Spherical Mirror Equation]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-satisfiessphericalmirrorequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.SatisfiesSphericalMirrorEquation}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-mirrortrial}
+  The paraxial spherical-mirror equation, expressed using consistent centimetre readouts for object distance s, image distance s', and focal length f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Spherical Mirror Equation.
+\end{proof}
+\begin{definition}[Satisfies Lateral Magnification Law]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-satisfieslateralmagnificationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.SatisfiesLateralMagnificationLaw}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-millimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-mirrortrial, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-signedimageheightmillimetres}
+  Both standard meanings of the dimensionless lateral magnification: m = hᵢ/hₒ with an orientation sign, and m = -s'/s for a mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Lateral Magnification Law.
+\end{proof}
+\begin{definition}[Calibration Plot]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.CalibrationPlot}
+  The five measured plot points and the magenta best-fit line. Horizontal coordinates are dimensionless 1/m; vertical coordinates and line coefficients are numerical centimetre readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Calibration Plot.
+\end{proof}
+\begin{definition}[Is Figure113 Calibration]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-isfigure113calibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.IsFigure113Calibration}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationplot}
+  Primary-image readout for Figure 113: the five black points, displayed axis ranges and grid spacings, and the magenta line read from the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Figure113 Calibration.
+\end{proof}
+\begin{definition}[Calibration Line Represents Mirror]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationlinerepresentsmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.CalibrationLineRepresentsMirror}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-concavesphericalmirror, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-calibrationplot}
+  Physical interpretation of the s versus 1/m calibration line. From the mirror and magnification equations, the intercept is f and the slope is -f; this predicate connects those generic coefficients to the actual mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Calibration Line Represents Mirror.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.AnswerChoice}
+  Labels of the four printed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Distance Centimetres]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-answerdistancecentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.answerDistanceCentimetres}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-answerchoice}
+  Centimetre readouts printed for the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Distance Centimetres.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0113.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-lengthquantity, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-centimetrereadout, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-answerchoice, def:physics:phyx-mini-0113:phyxminiproblems-problemphyxmini0113-answerdistancecentimetres}
+  A physical object distance has the numerical centimetre readout of a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

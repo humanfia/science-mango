@@ -1,0 +1,178 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0051.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0051.source.json
+
+\chapter{Physics problem phyx\_mini\_0051}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0051}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A lightbulb is set in the bottom of a 3.0m deep swimming pool.
+
+\#\# Question
+
+What is the diameter of the circle of light seen on the water’s surface from above?
+
+\#\# Answer choices
+
+- A: A: 6.4m
+
+- B: B: 6.8m
+
+- C: C: 8.9m
+
+- D: D: 1.24m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene illustrating the concept of refraction and critical angle at the interface between water and air. Here's a breakdown of its components:
+
+1. **Layers:**
+   - **Water Layer (shaded in blue):** Has a refractive index \textbackslash{}( n\_1 = 1.33 \textbackslash{}).
+   - **Air Layer:** Above the water with a refractive index \textbackslash{}( n\_2 = 1.00 \textbackslash{}).
+
+2. **Measurements:**
+   - **Height (h):** The water layer is labeled with a height of \textbackslash{}( h = 3.0 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}).
+   - **Diameter (D):** Represents the diameter of the circle of light seen from above.
+
+3. **Critical Angle:**
+   - Rays emanate from a point in the water and intersect the water-air boundary. The angle at which they do not escape to air is labeled as the critical angle \textbackslash{}( \textbackslash{}theta\_c \textbackslash{}).
+
+4. **Visual Elements:**
+   - Several purple arrows representing rays that refract at different angles at the interface.
+   - Dashed blue lines indicating the circle of light seen from above due to these rays.
+   - A green dot represents the origin of the rays inside the water.
+
+5. **Text:**
+   - "Air, \textbackslash{}( n\_2 = 1.00 \textbackslash{})"
+   - "Water, \textbackslash{}( n\_1 = 1.33 \textbackslash{})"
+   - "Rays at the critical angle \textbackslash{}( \textbackslash{}theta\_c \textbackslash{}) form the edge of the circle of light seen from above."
+
+The image effectively shows the phenomenon of total internal reflection at the interface where light rays at or above \textbackslash{}( \textbackslash{}theta\_c \textbackslash{}) reflect back into the water.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.8m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/51.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0051.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0051:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0051.problem_phyx_mini_0051}
+\uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-matchespoolfigure, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-satisfiescriticalraygeometry, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-satisfieswateraircriticalanglelaw, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.DimLength}
+  A physical length, represented independently of any particular unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.lengthInMeters}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-dimlength}
+  The numerical value of a dimensionful length when measured in SI meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.OpticalMedium}
+  The two homogeneous optical media shown on either side of the surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Pool Light Setup]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.PoolLightSetup}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-dimlength, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-opticalmedium}
+  The physical quantities labelled in the pool diagram. The critical and edge angles are kept separate so that their identification remains figure data. No numerical value for the requested diameter is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Light Setup.
+\end{proof}
+\begin{definition}[Matches Pool Figure]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-matchespoolfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.MatchesPoolFigure}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup}
+  Problem and figure readouts: a 3.0 m deep pool, a source at its bottom, water index n₁ = 1.33, air index n₂ = 1.00, boundary rays at the critical angle, and the full circle diameter equal to twice its radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pool Figure.
+\end{proof}
+\begin{definition}[Satisfies Critical Ray Geometry]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-satisfiescriticalraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.SatisfiesCriticalRayGeometry}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup}
+  Right-triangle geometry for a boundary ray from the point source to the surface: its horizontal reach is the source depth times the tangent of its incidence angle from the vertical normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Critical Ray Geometry.
+\end{proof}
+\begin{definition}[Satisfies Water Air Critical Angle Law]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-satisfieswateraircriticalanglelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.SatisfiesWaterAirCriticalAngleLaw}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup}
+  Snell's law at the water--air critical angle. At the threshold, the transmitted ray is tangent to the interface, so its refraction angle from the normal is π / 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Air Critical Angle Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.AnswerChoice}
+  The four diameter choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Diameter Meters]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-answerdiametermeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.answerDiameterMeters}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-answerchoice}
+  The meter readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Diameter Meters.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-dimlength, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-answerchoice, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-answerdiametermeters}
+  Agreement with a diameter displayed to the nearest tenth of a meter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{lemma}[critical ray circle diameter formula]
+  \label{lem:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-critical-ray-circle-diameter-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0051.critical_ray_circle_diameter_formula}
+  \uses{def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-lengthinmeters, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-poollightsetup, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-matchespoolfigure, def:physics:phyx-mini-0051:phyxminiproblems-problemphyxmini0051-satisfiescriticalraygeometry}
+  This lemma records the critical ray circle diameter formula component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of critical ray circle diameter formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,303 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0800.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0800.source.json
+
+\chapter{Physics problem phyx\_mini\_0800}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0800}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Your firm needs to haul granite blocks up a \textbackslash{}( 15\textasciicircum{}\textbackslash{}circ \textbackslash{}) slope out of a quarry and to lower dirt into the quarry to fill the holes. You design a system in which a granite block on a cart with steel wheels (weight \textbackslash{}( w\_1 \textbackslash{}), including both block and cart) is pulled uphill on steel rails by a dirt-filled bucket (weight \textbackslash{}( w\_2 \textbackslash{}), including both dirt and bucket) that descends vertically into the quarry as shown in figure.
+
+\#\# Question
+
+How must the weights \textbackslash{}( w\_1 \textbackslash{}) and \textbackslash{}( w\_2 \textbackslash{}) be related in order for the system to move with constant speed? Ignore friction in the pulley and wheels, and ignore the weight of the cable.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( w\_1 = w\_2 \textbackslash{}sin 15\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( w\_2 = w\_1 \textbackslash{}sin 15\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( w\_2 = w\_1 \textbackslash{}sin 75\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( w\_1 = w\_2 \textbackslash{}sin 75\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a mechanical setup involving a cart and a bucket. 
+
+- The cart is positioned on a ramp inclined at an angle of 15 degrees. The cart contains a package, and it appears to be moving downward along the slope.
+- The ramp is connected to a pulley system at the top.
+- The bucket is suspended vertically from the pulley, hanging downwards.
+- The arrangement suggests that the cart's movement on the inclined plane is linked to the bucket's vertical position through the pulley system.
+- There is text labeling the two main objects: "Cart" and "Bucket."
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( w\_2 = w\_1 \textbackslash{}sin 15\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/800.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0800.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0800:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0800.problem_phyx_mini_0800}
+\uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightinnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-degreestoradians, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-matchesproblemandprimaryfigure, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-usesstatedidealizations, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-hasphysicalquarryparameters, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-moveswithconstantspeed, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-satisfiesidealquarryhaullaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Weight Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.WeightQuantity}
+  A nonnegative physical force magnitude used specifically as a weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Weight Quantity.
+\end{proof}
+\begin{definition}[Tension Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.TensionQuantity}
+  A nonnegative physical force magnitude carried by the cable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tension Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.SpeedQuantity}
+  A nonnegative speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Signed Acceleration Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.SignedAccelerationQuantity}
+  A signed acceleration component along a specified one-dimensional axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Acceleration Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.AccelerationMagnitudeQuantity}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.massInKilograms}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[weight In Newtons]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.weightInNewtons}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightquantity}
+  Newton readout of a physical weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of weight In Newtons.
+\end{proof}
+\begin{definition}[tension In Newtons]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensioninnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.tensionInNewtons}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensionquantity}
+  Newton readout of a cable-tension magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tension In Newtons.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-speedquantity}
+  Metres-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[signed Acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.signedAccelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationquantity}
+  Signed metres-per-second-squared readout of an acceleration component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[acceleration Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.accelerationMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudequantity}
+  SI readout of a nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.degreesToRadians}
+  Convert a dimensionless angle readout in degrees to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Material]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-material}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.Material}
+  Materials explicitly named in the quarry scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Material.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.FigureObject}
+  Individually identifiable physical objects in the supplied image and text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.FigureLabel}
+  Text and angle labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Coupled Motion Direction]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-coupledmotiondirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.CoupledMotionDirection}
+  The two possible directions of the coupled one-cable motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupled Motion Direction.
+\end{proof}
+\begin{definition}[Friction Model]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-frictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.FrictionModel}
+  Whether a rotating or rolling contact contributes friction to the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Friction Model.
+\end{proof}
+\begin{definition}[Cable Weight Model]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-cableweightmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.CableWeightModel}
+  Whether the cable's own weight contributes to the force balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Weight Model.
+\end{proof}
+\begin{definition}[Cable Extension Model]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-cableextensionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.CableExtensionModel}
+  The standard fixed-length idealization for the connecting cable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Extension Model.
+\end{proof}
+\begin{definition}[Supplied Quarry Figure]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-suppliedquarryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.SuppliedQuarryFigure}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-figureobject, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-figurelabel}
+  Qualitative geometry and labels transcribed from the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Quarry Figure.
+\end{proof}
+\begin{definition}[Quarry Haul Setup]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.QuarryHaulSetup}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massquantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightquantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensionquantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-speedquantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationquantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudequantity, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-material, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-coupledmotiondirection, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-frictionmodel, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-cableweightmodel, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-cableextensionmodel, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-suppliedquarryfigure}
+  The independent physical quantities of the coupled system. cartWeight means the combined weight w₁ of granite block and cart; bucketWeight means the combined weight w₂ of dirt and bucket. Positive acceleration axes are up the incline for the cart and vertically downward for the bucket. No equation fixing either weight in terms of the other is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Quarry Haul Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-degreestoradians, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  Problem-text and primary-image readouts. This records the 15° incline, the cart--pulley--bucket arrangement, the named materials, and the intended uphill-cart/downward-bucket direction. It assigns no numerical value to w₁ or w₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Stated Idealizations]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-usesstatedidealizations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.UsesStatedIdealizations}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  The friction and cable idealizations explicitly stated or implied by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Stated Idealizations.
+\end{proof}
+\begin{definition}[Has Physical Quarry Parameters]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-hasphysicalquarryparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.HasPhysicalQuarryParameters}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massinkilograms, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightinnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  Positivity and acute-angle conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Quarry Parameters.
+\end{proof}
+\begin{definition}[Moves With Constant Speed]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-moveswithconstantspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.MovesWithConstantSpeed}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-speedinmeterspersecond, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationinmeterspersecondsquared, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  The system moves in the direction described by the question at a common, strictly positive constant speed. In the one-dimensional Newton equations, constant speed is recorded by zero signed acceleration of each body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moves With Constant Speed.
+\end{proof}
+\begin{definition}[Satisfies Ideal Quarry Haul Laws]
+  \label{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-satisfiesidealquarryhaullaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.SatisfiesIdealQuarryHaulLaws}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-massinkilograms, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightinnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensioninnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-signedaccelerationinmeterspersecondsquared, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup}
+  Governing laws The first two equations identify each named weight with m g. The next two are Newton's second law along the two positive motion axes. Thus the cart's downslope gravitational component is w₁ sin θ, while the bucket's weight is positive downward. The final equations are the equal-tension and equal-motion consequences of a massless, inextensible cable over a frictionless pulley.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Quarry Haul Laws.
+\end{proof}
+\begin{lemma}[constant Speed end force balances]
+  \label{lem:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-constantspeed-end-force-balances}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0800.constantSpeed_end_force_balances}
+  \uses{def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-weightinnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-tensioninnewtons, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-quarryhaulsetup, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-moveswithconstantspeed, def:physics:phyx-mini-0800:phyxminiproblems-problemphyxmini0800-satisfiesidealquarryhaullaws}
+  At constant speed, Newton's second law separately reduces to force balance on the inclined cart and on the vertically moving bucket. This is an intermediate consequence, not a premise of the final theorem
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of constant Speed end force balances.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

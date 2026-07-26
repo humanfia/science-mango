@@ -1,0 +1,380 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0887.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0887.source.json
+
+\chapter{Physics problem phyx\_mini\_0887}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0887}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is \textbackslash{}( V\_\textbackslash{}text\{C\} \textbackslash{}) if the emf frequency in figure is \textbackslash{}( 10\textbackslash{},\textbackslash{}text\{kHz\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 12.0\textbackslash{}
+
+- B: B: \textbackslash{}( 6.0\textbackslash{}
+
+- C: C: \textbackslash{}( 8.0\textbackslash{}
+
+- D: D: \textbackslash{}( 5.0\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image displays an electrical circuit diagram consisting of the following components:
+
+1. **Voltage Source**: 
+   - Labeled as \textbackslash{}((10 \textbackslash{}, \textbackslash{}text\{V\})\textbackslash{}cos \textbackslash{}omega t\textbackslash{}), indicating an alternating current (AC) source with an amplitude of 10 volts.
+
+2. **Resistor**:
+   - Positioned vertically and labeled with a resistance of \textbackslash{}(150 \textbackslash{}, \textbackslash{}Omega\textbackslash{}).
+
+3. **Capacitor**:
+   - Connected in parallel with the resistor and labeled with a capacitance of \textbackslash{}(80 \textbackslash{}, \textbackslash{}text\{nF\}\textbackslash{}) (nanofarads).
+
+The circuit is shown as a loop with the voltage source on the left, and the resistor and capacitor on the right side, indicating that they are connected in series with the source.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 8.0\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/887.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0887.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0887:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0887.problem_phyx_mini_0887}
+\uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-matchesstatedseriesrcscenario, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-matchessuppliedseriesrcfigure, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-haspositiveseriesrcparameters, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-satisfiessinusoidalsteadystaterclaws, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-displayedvoltagetoleranceinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-isuniquematchinganswer, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[frequency Dimension]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.frequencyDimension}
+  Frequency and angular frequency have inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.electricPotentialDimension}
+  Electric potential difference has the dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.electricCurrentDimension}
+  Electric current has the dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricpotentialdimension, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electriccurrentdimension}
+  Electrical resistance and reactance have the dimension voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[electrical Capacitance Dimension]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricalcapacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.electricalCapacitanceDimension}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricpotentialdimension}
+  Electrical capacitance has the dimension charge per voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Capacitance Dimension.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.FrequencyQuantity}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencydimension}
+  A nonnegative, unit-independent physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Voltage Amplitude Quantity]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.VoltageAmplitudeQuantity}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricpotentialdimension}
+  A nonnegative, unit-independent voltage amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Amplitude Quantity.
+\end{proof}
+\begin{definition}[Resistance Magnitude Quantity]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.ResistanceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricalresistancedimension}
+  A nonnegative, unit-independent resistance or reactance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude Quantity.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-electricalcapacitancedimension}
+  A nonnegative, unit-independent capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyquantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  Read an ordinary frequency in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[frequency In Kilohertz]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinkilohertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.frequencyInKilohertz}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyquantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinhertz}
+  Read an ordinary frequency in kilohertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Kilohertz.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyquantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  Read an angular frequency in radians per second (radians are dimensionless)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[voltage Amplitude In Volts]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.voltageAmplitudeInVolts}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  Read a voltage amplitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage Amplitude In Volts.
+\end{proof}
+\begin{definition}[resistance Magnitude In Ohms]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudeinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.resistanceMagnitudeInOhms}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  Read a resistance, reactance, or impedance magnitude in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance Magnitude In Ohms.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitancequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-nonnegativesireadout}
+  Read a capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Nanofarads]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinnanofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.capacitanceInNanofarads}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitancequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinfarads}
+  Read a capacitance in nanofarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Nanofarads.
+\end{proof}
+\begin{definition}[Voltage Source Model]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltagesourcemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.VoltageSourceModel}
+  Idealizations relevant to the source shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Source Model.
+\end{proof}
+\begin{definition}[Passive Component Model]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-passivecomponentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.PassiveComponentModel}
+  Idealizations relevant to the resistor and capacitor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Passive Component Model.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.CircuitComponent}
+  Component identities encountered in one traversal of the depicted loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.CircuitNode}
+  The three electrically distinct nodes of the depicted series circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Sinusoidal Voltage Source]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-sinusoidalvoltagesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.SinusoidalVoltageSource}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyquantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltagesourcemodel}
+  The sinusoidal source and its independent physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sinusoidal Voltage Source.
+\end{proof}
+\begin{definition}[Resistor]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.Resistor}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-passivecomponentmodel}
+  The idealized resistor shown on the upper right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor.
+\end{proof}
+\begin{definition}[Capacitor]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.Capacitor}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitancequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-passivecomponentmodel}
+  The idealized capacitor shown below the resistor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitor.
+\end{proof}
+\begin{definition}[Series RCFigure]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.SeriesRCFigure}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-circuitcomponent, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-circuitnode}
+  Literal presentation data from the primary raster. Printed values are scalar readouts in the units named by their fields and remain distinct from physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RCFigure.
+\end{proof}
+\begin{definition}[Series RCCircuit Setup]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.SeriesRCCircuitSetup}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudequantity, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-sinusoidalvoltagesource, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistor, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitor, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrcfigure}
+  Independent physical data for the circuit. Reactance and impedance are fields rather than definitions, so their governing laws carry the physical content
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RCCircuit Setup.
+\end{proof}
+\begin{definition}[Matches Stated Series RCScenario]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-matchesstatedseriesrcscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.MatchesStatedSeriesRCScenario}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinkilohertz, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup}
+  The ideal lumped-element interpretation and the prose-supplied frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Series RCScenario.
+\end{proof}
+\begin{definition}[Matches Supplied Series RCFigure]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-matchessuppliedseriesrcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.MatchesSuppliedSeriesRCFigure}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudeinohms, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinnanofarads, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup}
+  Topology and annotations transcribed from 887.png. The resistor and capacitor share only their intermediate junction and therefore occur in series in the single loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Series RCFigure.
+\end{proof}
+\begin{definition}[Has Positive Series RCParameters]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-haspositiveseriesrcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.HasPositiveSeriesRCParameters}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinhertz, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudeinohms, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinfarads, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup}
+  Positivity needed for the reciprocal and voltage-divider relations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Series RCParameters.
+\end{proof}
+\begin{definition}[Satisfies Sinusoidal Steady State RCLaws]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-satisfiessinusoidalsteadystaterclaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.SatisfiesSinusoidalSteadyStateRCLaws}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-frequencyinhertz, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-angularfrequencyinradianspersecond, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-resistancemagnitudeinohms, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-capacitanceinfarads, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup}
+  Standard sinusoidal steady-state laws for an ideal series RC circuit. These relations are generic: they contain neither the requested 8 V result nor any answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sinusoidal Steady State RCLaws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.AnswerChoice}
+  Labels of the four voltage-valued answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Voltage In Volts]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice-displayedvoltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.AnswerChoice.displayedVoltageInVolts}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice}
+  Voltage amplitude printed beside each answer-choice label, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Voltage In Volts.
+\end{proof}
+\begin{definition}[displayed Voltage Tolerance In Volts]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-displayedvoltagetoleranceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.displayedVoltageToleranceInVolts}
+  Half of the 0.1 V display unit used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Voltage Tolerance In Volts.
+\end{proof}
+\begin{definition}[Answer Matches Capacitor Voltage Amplitude]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answermatchescapacitorvoltageamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.AnswerMatchesCapacitorVoltageAmplitude}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-voltageamplitudeinvolts, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-displayedvoltagetoleranceinvolts}
+  A choice agrees with the physical capacitor amplitude to displayed precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Capacitor Voltage Amplitude.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-seriesrccircuitsetup, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice, def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answermatchescapacitorvoltageamplitude}
+  A choice is the unique displayed option matching the physical amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0887.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0887:phyxminiproblems-problemphyxmini0887-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

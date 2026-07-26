@@ -1,0 +1,384 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0990.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0990.source.json
+
+\chapter{Physics problem phyx\_mini\_0990}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0990}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A long solenoid with \textbackslash{}( N\_1 \textbackslash{}) windings and radius \textbackslash{}( b \textbackslash{}) surrounds a coaxial, narrower solenoid with \textbackslash{}( N\_2 \textbackslash{}) windings and radius \textbackslash{}( a < b \textbackslash{}), as shown in figure. At the far end, the outer solenoid is attached to the inner solenoid by a wire, so that current flows down the outer coil and then back through the inner coil as shown.
+
+\#\# Question
+
+What would be the inductannce if the sense of the inner coil were reversed?
+
+\#\# Answer choices
+
+- A: A: 10.0 Ω
+
+- B: B: 6.67 Ω
+
+- C: C: 3.33 Ω
+
+- D: D: 13.3 Ω
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a solenoid consisting of a closely wound helical coil, represented in a cylindrical shape. The solenoid is illustrated with yellow windings and has an arrow labeled "I" indicating the direction of current flow into the solenoid via two leads. 
+
+Key elements in the image include:
+
+1. **Dimensions and Labels:**
+   - The length of a single coil loop is labeled as "λ".
+   - The outer radius of the solenoid is labeled as "b".
+   - The inner radius is labeled as "a".
+   - The number of turns (windings) is labeled as \textbackslash{}(N\_1\textbackslash{}) for the outer coil and \textbackslash{}(N\_2\textbackslash{}) for the inner winding.
+
+2. **Text:**
+   - "Leads" refers to the wires connected to the solenoid carrying current.
+   - "Solenoids connected at this end" indicates a specific point on the solenoid where connections are made.
+
+The image is likely representing the structure and function of a double-wound solenoid with emphasis on the geometry and winding configuration.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.67 Ω
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/990.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0990.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0990:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0990.problem_phyx_mini_0990}
+\uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthinmeters, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductanceinhenries, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-permeabilityinhenriespermeter, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-matchessuppliedcoaxialsolenoidfigure, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-hasphysicallongcoaxialgeometry, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-modelsinnerwindingreversal, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-satisfieslongcoaxialsolenoidlaws, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-satisfiesseriesmagneticenergylaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.energyDimension}
+  Energy has dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.inductanceDimension}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-electriccurrentdimension, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energydimension}
+  Inductance is energy divided by current squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[magnetic Permeability Dimension]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticpermeabilitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.magneticPermeabilityDimension}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancedimension}
+  Magnetic permeability has dimension inductance per unit length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Permeability Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancedimension}
+  Resistance has dimension inductance per unit time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Current Magnitude]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.CurrentMagnitude}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Current Magnitude.
+\end{proof}
+\begin{definition}[Energy Magnitude]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.EnergyMagnitude}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energydimension}
+  A nonnegative, unit-independent magnetic-energy magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Magnitude.
+\end{proof}
+\begin{definition}[Inductance Magnitude]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.InductanceMagnitude}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancedimension}
+  A nonnegative, unit-independent inductance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Permeability Magnitude]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticpermeabilitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.MagneticPermeabilityMagnitude}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticpermeabilitydimension}
+  A nonnegative, unit-independent permeability magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Permeability Magnitude.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.nonnegativeSIReadout}
+  Read any nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.lengthInMeters}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthmagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  Read a length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.currentInAmperes}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentmagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.energyInJoules}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energymagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  Read magnetic energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancemagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[permeability In Henries Per Meter]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-permeabilityinhenriespermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.permeabilityInHenriesPerMeter}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticpermeabilitymagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-nonnegativesireadout}
+  Read a magnetic permeability in henries per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of permeability In Henries Per Meter.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.FigureObject}
+  Physical objects visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.FigureLabel}
+  Textual or symbolic annotations visible in 990.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Solenoid End]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-solenoidend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.SolenoidEnd}
+  The two axial ends of the coaxial pair in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solenoid End.
+\end{proof}
+\begin{definition}[Axial Current Direction]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-axialcurrentdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.AxialCurrentDirection}
+  Directed travel along the common solenoid axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Current Direction.
+\end{proof}
+\begin{definition}[Series Current Path]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-seriescurrentpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.SeriesCurrentPath}
+  The series-current route determined by the right-end connection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series Current Path.
+\end{proof}
+\begin{definition}[Winding Configuration]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-windingconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.WindingConfiguration}
+  The winding state relevant to the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Winding Configuration.
+\end{proof}
+\begin{definition}[Magnetic Coupling Sense]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticcouplingsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.MagneticCouplingSense}
+  Whether the two solenoid fields oppose or reinforce for the series current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Coupling Sense.
+\end{proof}
+\begin{definition}[Coaxial Solenoid Figure]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialsolenoidfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.CoaxialSolenoidFigure}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-figureobject, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-figurelabel, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-solenoidend, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-axialcurrentdirection, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-seriescurrentpath}
+  Literal presentation and spatial relations transcribed from 990.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coaxial Solenoid Figure.
+\end{proof}
+\begin{definition}[Coaxial Series Solenoid Setup]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.CoaxialSeriesSolenoidSetup}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthmagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentmagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energymagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductancemagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticpermeabilitymagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-windingconfiguration, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-magneticcouplingsense, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialsolenoidfigure}
+  Independent geometry, material properties, inductances, and energy observables. In particular, the reversed equivalent inductance is an independent field and is not defined from the desired closed formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coaxial Series Solenoid Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Coaxial Solenoid Figure]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-matchessuppliedcoaxialsolenoidfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.MatchesSuppliedCoaxialSolenoidFigure}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  The labels, nesting, connection, and current arrows read from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Coaxial Solenoid Figure.
+\end{proof}
+\begin{definition}[Has Physical Long Coaxial Geometry]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-hasphysicallongcoaxialgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.HasPhysicalLongCoaxialGeometry}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthinmeters, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-permeabilityinhenriespermeter, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  Positivity and the strict radius relation 0 < a < b
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Long Coaxial Geometry.
+\end{proof}
+\begin{definition}[Models Inner Winding Reversal]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-modelsinnerwindingreversal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.ModelsInnerWindingReversal}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  Reversing only the inner winding changes an opposing series-field arrangement into an aiding one; it does not change the geometry, turn counts, or material. This is qualitative winding data, not an inductance-value premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Models Inner Winding Reversal.
+\end{proof}
+\begin{definition}[Satisfies Long Coaxial Solenoid Laws]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-satisfieslongcoaxialsolenoidlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.SatisfiesLongCoaxialSolenoidLaws}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-lengthinmeters, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductanceinhenries, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-permeabilityinhenriespermeter, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  The standard long-solenoid self and mutual inductances. The mutual term uses the area π a² common to both coaxial fields, not the outer area π b². None of these fields mentions the equivalent inductance after reversal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Long Coaxial Solenoid Laws.
+\end{proof}
+\begin{definition}[Satisfies Series Magnetic Energy Laws]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-satisfiesseriesmagneticenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.SatisfiesSeriesMagneticEnergyLaws}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentmagnitude, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-currentinamperes, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-energyinjoules, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductanceinhenries, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup}
+  Magnetic energy is both L\_eq I² / 2 and the sum of the two self-energy terms plus the aiding mutual-energy term after reversal. Stating the laws for every current avoids defining the requested inductance by the target formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Series Magnetic Energy Laws.
+\end{proof}
+\begin{definition}[Answer Label]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-answerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.AnswerLabel}
+  Labels printed beside the four dataset choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Label.
+\end{proof}
+\begin{definition}[Printed Electrical Unit]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-printedelectricalunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.PrintedElectricalUnit}
+  The source explicitly prints the resistance unit ohm after every value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Printed Electrical Unit.
+\end{proof}
+\begin{definition}[Listed Answer]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-listedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.ListedAnswer}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-answerlabel, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-printedelectricalunit}
+  A literal answer row, kept separate from dimensionful physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Listed Answer.
+\end{proof}
+\begin{definition}[listed Answer]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-listedanswer-value}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.listedAnswer}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-answerlabel, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-listedanswer}
+  The four rows exactly as numerically represented in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of listed Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-listedanswer, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-listedanswer-value}
+  The answer key records row B; this is metadata, not an inductance claim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[reversed series inductance eq self add self add twice mutual]
+  \label{lem:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-reversed-series-inductance-eq-self-add-self-add-twice-mutual}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0990.reversed_series_inductance_eq_self_add_self_add_twice_mutual}
+  \uses{def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-inductanceinhenries, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-coaxialseriessolenoidsetup, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-hasphysicallongcoaxialgeometry, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-modelsinnerwindingreversal, def:physics:phyx-mini-0990:phyxminiproblems-problemphyxmini0990-satisfiesseriesmagneticenergylaws}
+  Aiding magnetic energy gives the standard series formula
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reversed series inductance eq self add self add twice mutual.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

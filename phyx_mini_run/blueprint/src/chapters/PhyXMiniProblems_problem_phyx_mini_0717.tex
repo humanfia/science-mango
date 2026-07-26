@@ -1,0 +1,299 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0717.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0717.source.json
+
+\chapter{Physics problem phyx\_mini\_0717}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0717}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+At \textbackslash{}(t=0\textbackslash{},\textbackslash{}mathrm\{s\}\textbackslash{}), a \textbackslash{}(500\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) block oscillating on a spring is observed moving to the right at \textbackslash{}(x=15\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}). It reaches a maximum displacement of \textbackslash{}(25\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) at \textbackslash{}(t=0.30\textbackslash{},\textbackslash{}mathrm\{s\}\textbackslash{}).
+
+\#\# Question
+
+At what times during the first cycle does the mass pass through \textbackslash{}(x=20\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 0.41s
+
+- B: B: 0.46s
+
+- C: C: 0.51s
+
+- D: D: 0.56s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a sinusoidal wave with the x-axis labeled "t (s)" representing time in seconds and the y-axis labeled "x (cm)" representing displacement in centimeters. The title or annotation at the top indicates "T = 2.0 s," identifying the period of the wave as 2.0 seconds.
+
+Key features of the graph:
+
+- The wave starts at approximately 17 cm on the y-axis.
+- It has a positive peak slightly above 20 cm, a negative trough around -20 cm, and returns to the positive y-axis.
+- The wave completes one full cycle (from peak to peak or trough to trough) over the course of 2 seconds.
+- A dashed vertical line extends from the 0.3 s mark on the x-axis to the wave, indicating a specific point along the wave.
+- The pattern shows a smooth, continuous oscillation typical of a sine wave.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.51s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/717.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0717.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0717:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0717.problem_phyx_mini_0717}
+\uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementinmeters, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationinseconds, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-springoscillationsetup, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-matchesproblemandprimarygraph, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-satisfiessimpleharmonicmotion, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoice, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoiceinseconds, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-recordedanswerchoice, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-withinonehundredthofdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.LengthQuantity}
+  A nonnegative physical length, used for the oscillation amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Displacement Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signeddisplacementquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.SignedDisplacementQuantity}
+  A signed displacement along the horizontal spring axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Displacement Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.DurationQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.SignedVelocityQuantity}
+  A signed one-dimensional velocity along the spring axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.massInKilograms}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.lengthReadout}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthquantity}
+  Read a nonnegative length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[displacement Readout]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.displacementReadout}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signeddisplacementquantity}
+  Read a signed displacement in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.durationReadout}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationquantity}
+  Read a duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.velocityReadout}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signedvelocityquantity}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.lengthInMeters}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthreadout}
+  Metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[displacement In Meters]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.displacementInMeters}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signeddisplacementquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementreadout}
+  Metre readout of a signed displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.durationInSeconds}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationreadout}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signedvelocityquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-velocityreadout}
+  Metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Graph Axis]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-graphaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.GraphAxis}
+  The two coordinate axes shown in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.AxisQuantity}
+  The physical quantity named by each graph-axis label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Restoring Element]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-restoringelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.RestoringElement}
+  The restoring element named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Restoring Element.
+\end{proof}
+\begin{definition}[Motion Regime]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-motionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.MotionRegime}
+  The undamped motion regime represented by the sinusoidal graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Regime.
+\end{proof}
+\begin{definition}[Displacement Time Graph]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementtimegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.DisplacementTimeGraph}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signeddisplacementquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-graphaxis, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-axisquantity}
+  Typed quantities and qualitative rendering features read from the primary displacement--time graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Time Graph.
+\end{proof}
+\begin{definition}[Spring Oscillation Setup]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-springoscillationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.SpringOscillationSetup}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signeddisplacementquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-signedvelocityquantity, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-restoringelement, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-motionregime, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementtimegraph}
+  The physical setup. requestedPosition is the position named in the question, not a claimed solution time. The oscillator's initial velocity is independent because the source gives only its direction, not its magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Oscillation Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Graph]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-matchesproblemandprimarygraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.MatchesProblemAndPrimaryGraph}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massinkilograms, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthreadout, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementreadout, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationinseconds, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-velocityinmeterspersecond, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-springoscillationsetup}
+  Problem data and calibrated readouts from the primary image. The graph itself shows 15 cm, 25 cm, -25 cm, the dashed 0.3 s marker, and T = 2.0 s; these primary-image values supersede the caption's rough visual estimates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Graph.
+\end{proof}
+\begin{definition}[Fits Nearest Centimeter Reading]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-fitsnearestcentimeterreading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.FitsNearestCentimeterReading}
+  A scalar oscillator coordinate fits a position displayed to the nearest centimetre when the SI readouts differ by at most half a centimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fits Nearest Centimeter Reading.
+\end{proof}
+\begin{definition}[Satisfies Simple Harmonic Motion]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-satisfiessimpleharmonicmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.SatisfiesSimpleHarmonicMotion}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-massinkilograms, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-lengthinmeters, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-displacementinmeters, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-durationinseconds, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-velocityinmeterspersecond, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-springoscillationsetup, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-fitsnearestcentimeterreading}
+  The governing simple-harmonic-motion interface. Physlib defines the oscillator from positive mass and spring constant, its trajectory from arbitrary initial position and velocity, its recovered amplitude from those initial conditions, and its period as 2 * pi / omega. These fields connect that general model to the dimensionful apparatus and graph readouts. No 20 cm passage time or answer-choice value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Simple Harmonic Motion.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.AnswerChoice}
+  Labels printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Seconds]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoiceinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.answerChoiceInSeconds}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoice}
+  The time in seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Within One Hundredth Of Displayed Answer]
+  \label{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-withinonehundredthofdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0717.WithinOneHundredthOfDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoice, def:physics:phyx-mini-0717:phyxminiproblems-problemphyxmini0717-answerchoiceinseconds}
+  Agreement with a displayed time to within 0.01 s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Within One Hundredth Of Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

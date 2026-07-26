@@ -1,0 +1,285 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0572.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0572.source.json
+
+\chapter{Physics problem phyx\_mini\_0572}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0572}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A certain diode has a reverse bias current of \$1.0 \textbackslash{}times 10\textasciicircum{}\{-5\}\$ A. Now this diode is connected in forward bias in the circuit shown below, in series with a resistor and with a constant voltage source of 6.0 volts.
+
+\#\# Question
+
+What is the wavelength of a photon required to excite a transition from \$l=0\$ to \$l=1\$?
+
+\#\# Answer choices
+
+- A: A: 6.7V
+
+- B: B: 15.7V
+
+- C: C: 5.7V
+
+- D: D: 4.7V
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+This image depicts a simple electrical circuit diagram. The circuit includes the following components:
+
+1. **Battery**: Represented by two parallel lines of different lengths. The longer line indicates the positive terminal. Below the battery, there is a label that reads "6 volts," indicating the voltage of the battery.
+
+2. **Diode**: Positioned immediately after the battery in the circuit. It is illustrated as a triangle pointing towards a line, indicating the direction of conventional current flow (from positive to negative).
+
+3. **Resistor**: Represented by a zigzag line following the diode. Above the resistor, there is a label "R," representing resistance.
+
+These components are connected in series to form a complete electrical circuit. The diode ensures current flows in one direction, and the resistor limits the current flow.
+
+\#\# Dataset metadata
+
+Quantum Phenomena
+
+\paragraph{Recorded answer/context.}
+C: C: 5.7V
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/572.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0572.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0572:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0572.resistor_voltage_drop_matches_choice_C}
+\uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-potentialinvolts, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-matchesstateddiodescenario, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-matchessuppliedseriescircuitfigure, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-satisfiestextbookdiodemodel, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-satisfiesseriescircuitlaws, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-answerchoicevoltageinvolts}
+In the pictured single-loop circuit, the measured reverse leakage identifies
+the forward-biased diode as germanium in the stated textbook model.  The
+resistor voltage drop is therefore $5.7\,\mathrm{V}$, the value displayed by
+choice C.
+\end{theorem}
+\begin{proof}
+The reverse-current readout is $10^{-5}\,\mathrm{A}$, which is at least the
+$10^{-6}\,\mathrm{A}$ threshold in the diode-identification law.  Hence the
+diode is germanium.  Because it is connected in forward bias, its nominal
+drop is $0.3\,\mathrm{V}$.  The figure calibrates the constant source to
+$6.0\,\mathrm{V}$.  Kirchhoff's voltage law around the one series loop then
+gives $6.0=0.3+V_R$, so $V_R=5.7\,\mathrm{V}$, exactly the readout attached
+to choice C.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.electricCurrentDimension}
+  Electric current has the physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.electricPotentialDimension}
+  Electric potential has the physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentdimension, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialdimension}
+  Electrical resistance has the physical dimension potential per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentdimension}
+  A nonnegative, unit-independent magnitude of electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialdimension}
+  A nonnegative, unit-independent magnitude of potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electrical Resistance Quantity]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.ElectricalResistanceQuantity}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Resistance Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.currentInAmperes}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-nonnegativesireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.potentialInVolts}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-nonnegativesireadout}
+  Read a potential-difference magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricalresistancequantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-nonnegativesireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[Diode Material]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diodematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.DiodeMaterial}
+  Coarse material classes used by the textbook diode model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diode Material.
+\end{proof}
+\begin{definition}[Diode Bias]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diodebias}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.DiodeBias}
+  The bias orientation in which the diode is connected
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diode Bias.
+\end{proof}
+\begin{definition}[Diode]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.Diode}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diodematerial}
+  The same physical diode in its preliminary reverse-current measurement and circuit use
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diode.
+\end{proof}
+\begin{definition}[Resistor]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-resistor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.Resistor}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricalresistancequantity}
+  The resistor marked R in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor.
+\end{proof}
+\begin{definition}[Voltage Source]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-voltagesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.VoltageSource}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electricpotentialquantity}
+  The constant source drawn at the bottom of the circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Source.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.CircuitComponent}
+  Component identities used to transcribe the single-loop drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Series Circuit Figure]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriescircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.SeriesCircuitFigure}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-circuitcomponent}
+  Figure-derived topology and annotations. The three positions describe one cyclic traversal of the loop, beginning with the diode at the upper left
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series Circuit Figure.
+\end{proof}
+\begin{definition}[Series Diode Circuit]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.SeriesDiodeCircuit}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-electriccurrentquantity, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diodebias, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-diode, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-resistor, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-voltagesource, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriescircuitfigure}
+  The physical objects and unknown quantities in the depicted circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series Diode Circuit.
+\end{proof}
+\begin{definition}[Matches Stated Diode Scenario]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-matchesstateddiodescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.MatchesStatedDiodeScenario}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-currentinamperes, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit}
+  The prose supplies the preliminary reverse-current measurement and says that the same diode is subsequently connected in forward bias to a constant source. These hypotheses do not specify the resistor voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Diode Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Series Circuit Figure]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-matchessuppliedseriescircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.MatchesSuppliedSeriesCircuitFigure}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-potentialinvolts, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit}
+  Direct transcription of the supplied bitmap: one closed series loop, diode, resistor R, and a source labelled 6 volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Series Circuit Figure.
+\end{proof}
+\begin{definition}[Satisfies Textbook Diode Model]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-satisfiestextbookdiodemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.SatisfiesTextbookDiodeModel}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-currentinamperes, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-potentialinvolts, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit}
+  A textbook diode-identification model: a reverse leakage current at least one microampere places the diode in the germanium class, whose nominal forward drop is 0.3 V. This encodes the physical inference for which the supplied reverse current is relevant; it does not mention the requested resistor drop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Textbook Diode Model.
+\end{proof}
+\begin{definition}[Satisfies Series Circuit Laws]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-satisfiesseriescircuitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.SatisfiesSeriesCircuitLaws}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-currentinamperes, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-potentialinvolts, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-resistanceinohms, def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-seriesdiodecircuit}
+  Kirchhoff's voltage law for the one source, diode, and resistor in the loop, together with Ohm's law for R. Both are stated for the independent physical fields of setup, rather than by defining any field from the desired answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Series Circuit Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.AnswerChoice}
+  Labels of the four voltage-valued answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Voltage In Volts]
+  \label{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-answerchoicevoltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0572.answerChoiceVoltageInVolts}
+  \uses{def:physics:phyx-mini-0572:phyxminiproblems-problemphyxmini0572-answerchoice}
+  Numerical voltage printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Voltage In Volts.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

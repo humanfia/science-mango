@@ -1,0 +1,342 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0992.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0992.source.json
+
+\chapter{Physics problem phyx\_mini\_0992}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0992}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two point charges, \textbackslash{}( q\_1 = +25\textbackslash{},\textbackslash{}text\{nC\} \textbackslash{}) and \textbackslash{}( q\_2 = -75\textbackslash{},\textbackslash{}text\{nC\} \textbackslash{}), are separated by a distance \textbackslash{}( r = 3.0\textbackslash{},\textbackslash{}text\{cm\} \textbackslash{}).
+
+\#\# Question
+
+Find the magnitude of the electric force that \textbackslash{}( q\_1 \textbackslash{}) exerts on \textbackslash{}( q\_2 \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 0.63N
+
+- B: B: 0.0187N
+
+- C: C: 0.019N
+
+- D: D: 0.028N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a basic representation of electrostatic charges. It features two spheres:
+
+1. The sphere on the left is red with a plus sign, indicating a positive charge, labeled as \textbackslash{}( q\_1 \textbackslash{}).
+2. The sphere on the right is blue with a minus sign, representing a negative charge, labeled as \textbackslash{}( q\_2 \textbackslash{}).
+
+Both spheres are connected by a horizontal double-headed arrow labeled \textbackslash{}( r \textbackslash{}), indicating the distance between the two charges. The setup suggests an example related to Coulomb's law or electrostatic interactions.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.0187N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/992.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0992.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0992:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0992.problem_phyx_mini_0992}
+\uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudeinnewtons, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-matchessuppliedtwopointchargefigure, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-matchesstatedpointchargedata, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-usesroundedcoulombconstant, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-hasphysicalpointchargeparameters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-satisfiespointchargecoulombmagnitudelaw, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-recordeddatasetanswer, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-roundstofourdecimalplaces, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-isstrictlyclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.SignedChargeQuantity}
+  A signed, unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.LengthQuantity}
+  A nonnegative, unit-independent physical separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcedimension}
+  A nonnegative, unit-independent physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-signedchargequantity}
+  Coherent-SI readout of a signed charge, in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-signedchargequantity, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeincoulombs}
+  Nanocoulomb readout used by the numerical problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.lengthInMeters}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthquantity}
+  Coherent-SI readout of a separation, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthquantity, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters}
+  Centimetre readout used by the numerical problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudequantity}
+  Coherent-SI readout of a force magnitude, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[Charge Label]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.ChargeLabel}
+  The two charges named in image 992.png and in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Label.
+\end{proof}
+\begin{definition}[Horizontal Side]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-horizontalside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.HorizontalSide}
+  Horizontal location of a charge marker in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Side.
+\end{proof}
+\begin{definition}[Charge Sphere Color]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargespherecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.ChargeSphereColor}
+  Fill color of a charge sphere in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Sphere Color.
+\end{proof}
+\begin{definition}[Charge Sign Glyph]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargesignglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.ChargeSignGlyph}
+  Sign glyph drawn inside a charge sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Sign Glyph.
+\end{proof}
+\begin{definition}[Charged Body Model]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargedbodymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.ChargedBodyModel}
+  Idealization of each charged body used in the governing law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Body Model.
+\end{proof}
+\begin{definition}[expected Charge Name]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedchargename}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.expectedChargeName}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel}
+  Expected typographic label beside each charge sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Name.
+\end{proof}
+\begin{definition}[expected Horizontal Side]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedhorizontalside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.expectedHorizontalSide}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-horizontalside}
+  Expected left/right placement of the two charge spheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Horizontal Side.
+\end{proof}
+\begin{definition}[expected Sphere Color]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedspherecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.expectedSphereColor}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargespherecolor}
+  Expected sphere color at each labelled charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Sphere Color.
+\end{proof}
+\begin{definition}[expected Charge Sign]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedchargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.expectedChargeSign}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargesignglyph}
+  Expected sign glyph at each labelled charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Charge Sign.
+\end{proof}
+\begin{definition}[Two Point Charge Figure]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.TwoPointChargeFigure}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-horizontalside, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargespherecolor, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargesignglyph}
+  Literal presentation data transcribed from image 992.png. It contains no force value and no answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Point Charge Figure.
+\end{proof}
+\begin{definition}[Two Point Charge Force Setup]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.TwoPointChargeForceSetup}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-signedchargequantity, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthquantity, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudequantity, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargelabel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargedbodymodel, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargefigure}
+  Independent physical quantities in the two-charge setup. In particular, the force exerted by q₁ on q₂ is stored independently rather than defined from Coulomb's formula or from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Point Charge Force Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Two Point Charge Figure]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-matchessuppliedtwopointchargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.MatchesSuppliedTwoPointChargeFigure}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedchargename, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedhorizontalside, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedspherecolor, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-expectedchargesign, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  Exact qualitative evidence read from the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Two Point Charge Figure.
+\end{proof}
+\begin{definition}[Matches Stated Point Charge Data]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-matchesstatedpointchargedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.MatchesStatedPointChargeData}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeinnanocoulombs, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthincentimeters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  The numerical values and point-charge idealization stated in the prose. These are calibrated readouts of dimensionful quantities, not scalar replacements for charge or length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Point Charge Data.
+\end{proof}
+\begin{definition}[Uses Rounded Coulomb Constant]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-usesroundedcoulombconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.UsesRoundedCoulombConstant}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  The rounded textbook calibration 8.99 × 10⁹ N m²/C². Physlib represents Electromagnetism.EMSystem.coulombConstant as the coherent-SI scalar 1 / (4 π ε₀); this premise supplies the precision used by the answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Coulomb Constant.
+\end{proof}
+\begin{definition}[Has Physical Point Charge Parameters]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-hasphysicalpointchargeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.HasPhysicalPointChargeParameters}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  Positivity and separation conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Point Charge Parameters.
+\end{proof}
+\begin{definition}[Satisfies Point Charge Coulomb Magnitude Law]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-satisfiespointchargecoulombmagnitudelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.SatisfiesPointChargeCoulombMagnitudeLaw}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeincoulombs, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudeinnewtons, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup}
+  Coulomb's inverse-square law for the magnitude of the force exerted by q₁ on q₂. Absolute value retains the signed charge data while producing a nonnegative magnitude. This general law contains no numerical target value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Point Charge Coulomb Magnitude Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.AnswerChoice}
+  The four force magnitudes printed in the source's answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-answerchoice-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.AnswerChoice.forceInNewtons}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-answerchoice}
+  Literal newton value printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Four Decimal Places]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-roundstofourdecimalplaces}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.RoundsToFourDecimalPlaces}
+  The strict half-unit criterion for displaying an actual newton value to four places after the decimal point. The strict inequality excludes tie cases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Four Decimal Places.
+\end{proof}
+\begin{definition}[Is Strictly Closest Answer Choice]
+  \label{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-isstrictlyclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.IsStrictlyClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-answerchoice}
+  A displayed answer is uniquely closest to the actual force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Strictly Closest Answer Choice.
+\end{proof}
+\begin{lemma}[force On Q2 From Q1 eq coulomb Expression]
+  \label{lem:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forceonq2fromq1-eq-coulombexpression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.forceOnQ2FromQ1_eq_coulombExpression}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeincoulombs, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-forcemagnitudeinnewtons, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-hasphysicalpointchargeparameters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-satisfiespointchargecoulombmagnitudelaw}
+  Specializing the governing magnitude law gives the exact coherent-SI Coulomb expression before any decimal rounding
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of force On Q2 From Q1 eq coulomb Expression.
+\end{proof}
+\begin{lemma}[stated Data In Coherent SI]
+  \label{lem:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-stateddataincoherentsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0992.statedDataInCoherentSI}
+  \uses{def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-chargeincoulombs, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-lengthinmeters, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-twopointchargeforcesetup, def:physics:phyx-mini-0992:phyxminiproblems-problemphyxmini0992-matchesstatedpointchargedata}
+  The stated nanocoulomb and centimetre values have these coherent-SI readouts. This helper records unit conversion only; it does not mention the force
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of stated Data In Coherent SI.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

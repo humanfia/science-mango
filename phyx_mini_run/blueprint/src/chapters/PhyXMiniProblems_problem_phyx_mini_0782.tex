@@ -1,0 +1,430 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0782.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0782.source.json
+
+\chapter{Physics problem phyx\_mini\_0782}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0782}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thin, uniform, \textbackslash{}(3.80\textbackslash{}text\{ kg\}\textbackslash{}) bar, \textbackslash{}(80.0\textbackslash{}text\{ cm\}\textbackslash{}) long, has very small \textbackslash{}(2.50\textbackslash{}text\{ kg\}\textbackslash{}) balls glued on at either end as shown in figure, It is supported horizontally by a thin, horizontal, frictionless axle passing through its center and perpendicular to the bar. Suddenly the right-hand ball becomes detached and falls off, but the other ball remains glued to the bar.
+
+\#\# Question
+
+Find the angular velocity of the bar just as it swings through its vertical position.
+
+\#\# Answer choices
+
+- A: A: 4.60 rad/s
+
+- B: B: 5.70 rad/s
+
+- C: C: 6.20 rad/s
+
+- D: D: 3.10 rad/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a horizontal bar with two spheres, each labeled "2.50 kg," positioned at each end. The bar has a labeled "Bar." In the middle, there's a black circle representing an "Axle (seen end-on)" that appears to be the pivot or rotation point. The structure implies symmetry, with the weights balanced on either side of the axle.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 5.70 rad/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/782.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0782.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0782:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0782.problem_phyx_mini_0782}
+\uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedinradianspersecond, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchescenteredbarreleasescenario, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchesproblemreadouts, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-usesstandardterrestrialgravity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchessuppliedfigure, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-haspositivephysicalparameters, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiescenteredbarinertialaws, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiesdetachedbarenergylaws, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-isuniqueclosestangularspeedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.accelerationDimension}
+  Gravitational acceleration has dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.momentOfInertiaDimension}
+  Moment of inertia has dimension mass times length squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiadimension}
+  A nonnegative moment of inertia about the fixed axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.EnergyQuantity}
+  Mechanical energy with Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.massReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.lengthReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.accelerationReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationquantity}
+  Read acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedquantity}
+  Read angular speed in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiaquantity}
+  Read moment of inertia in coherent selected mass and length units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.energyReadout}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-energyquantity}
+  Read energy in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.massInKilograms}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.lengthInMeters}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationreadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiaquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiareadout}
+  Kilogram-metre-squared readout of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedreadout}
+  Radian-per-second readout of angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[Bar End]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.BarEnd}
+  The two ends of the horizontal bar in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar End.
+\end{proof}
+\begin{definition}[Swing Stage]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-swingstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.SwingStage}
+  The two instants relevant to the energy balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Swing Stage.
+\end{proof}
+\begin{definition}[Bar Orientation]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.BarOrientation}
+  Orientation of the bar in the vertical plane of its swing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Orientation.
+\end{proof}
+\begin{definition}[Axle Location]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-axlelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.AxleLocation}
+  Location of the axle along the bar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Location.
+\end{proof}
+\begin{definition}[Axle Friction Model]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-axlefrictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.AxleFrictionModel}
+  Idealized friction model for the axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Friction Model.
+\end{proof}
+\begin{definition}[Bar Mass Model]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.BarMassModel}
+  Mass-distribution model for the bar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Mass Model.
+\end{proof}
+\begin{definition}[Endpoint Ball Model]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-endpointballmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.EndpointBallModel}
+  Geometric idealization for either very small endpoint ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Endpoint Ball Model.
+\end{proof}
+\begin{definition}[Post Release Attachment]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-postreleaseattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.PostReleaseAttachment}
+  Attachment state of an endpoint ball immediately after release
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Post Release Attachment.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.FigureObject}
+  Objects literally visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Bar Axle Figure]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-suppliedbaraxlefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.SuppliedBarAxleFigure}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barend, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-figureobject}
+  Presentation-level evidence transcribed from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Bar Axle Figure.
+\end{proof}
+\begin{definition}[Center Axle Bar Setup]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.CenterAxleBarSetup}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiaquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-energyquantity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barend, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-swingstage, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barorientation, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-axlelocation, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-axlefrictionmodel, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-barmassmodel, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-endpointballmodel, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-postreleaseattachment, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-suppliedbaraxlefigure}
+  The independent physical data for the bar-plus-one-ball system after the right ball detaches. Energy and inertia fields are not defined from the answer; the governing-law predicates below relate them to the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Center Axle Bar Setup.
+\end{proof}
+\begin{definition}[Matches Centered Bar Release Scenario]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchescenteredbarreleasescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.MatchesCenteredBarReleaseScenario}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Qualitative mechanics and geometry stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Centered Bar Release Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massinkilograms, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthinmeters, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedinradianspersecond, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Numerical data stated in the text, including release from rest
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Standard terrestrial gravity used to evaluate the multiple-choice data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massinkilograms, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Literal information visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Positive Physical Parameters]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-haspositivephysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.HasPositivePhysicalParameters}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiareadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Positivity conditions for the nondegenerate physical system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Centered Bar Inertia Laws]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiescenteredbarinertialaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.SatisfiesCenteredBarInertiaLaws}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiareadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  For a thin uniform bar pivoted through its center, I\_bar = M L² / 12. The remaining very small ball is a point mass a distance L/2 from the axle, and the total inertia is the sum of the two
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Centered Bar Inertia Laws.
+\end{proof}
+\begin{definition}[Satisfies Detached Bar Energy Laws]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiesdetachedbarenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.SatisfiesDetachedBarEnergyLaws}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-massreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-lengthreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-accelerationreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-momentofinertiareadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-energyreadout, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup}
+  Rotational kinetic energy is I ω² / 2. Because the bar's center of mass is at the axle, only the remaining endpoint ball loses gravitational potential energy, by falling through the distance L/2. The frictionless axle implies conservation of mechanical energy between the two stages
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Detached Bar Energy Laws.
+\end{proof}
+\begin{definition}[Angular Speed Answer Choice]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.AngularSpeedAnswerChoice}
+  Answer labels in the order shown in the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angular Speed Radians Per Second]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-displayedangularspeedradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.displayedAngularSpeedRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedanswerchoice}
+  The four displayed angular-speed values, in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angular Speed Radians Per Second.
+\end{proof}
+\begin{definition}[Is Closest Angular Speed Choice]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-isclosestangularspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.IsClosestAngularSpeedChoice}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedanswerchoice, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-displayedangularspeedradianspersecond}
+  A displayed answer choice is at least as close as every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Angular Speed Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Angular Speed Choice]
+  \label{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-isuniqueclosestangularspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.IsUniqueClosestAngularSpeedChoice}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedanswerchoice, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-isclosestangularspeedchoice}
+  The selected displayed answer is the unique closest one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Angular Speed Choice.
+\end{proof}
+\begin{lemma}[vertical angular speed squared]
+  \label{lem:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-vertical-angular-speed-squared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.vertical_angular_speed_squared}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedinradianspersecond, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchescenteredbarreleasescenario, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchesproblemreadouts, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-usesstandardterrestrialgravity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-haspositivephysicalparameters, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiescenteredbarinertialaws, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiesdetachedbarenergylaws}
+  The standard inertia and energy laws give ω² = (m g L) / (M L² / 12 + m (L/2)²) = 3675/113. This is a derived conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of vertical angular speed squared.
+\end{proof}
+\begin{lemma}[vertical angular speed exact]
+  \label{lem:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-vertical-angular-speed-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0782.vertical_angular_speed_exact}
+  \uses{def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-angularspeedinradianspersecond, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-centeraxlebarsetup, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchescenteredbarreleasescenario, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-matchesproblemreadouts, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-usesstandardterrestrialgravity, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-haspositivephysicalparameters, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiescenteredbarinertialaws, def:physics:phyx-mini-0782:phyxminiproblems-problemphyxmini0782-satisfiesdetachedbarenergylaws}
+  Nonnegativity of angular speed selects the positive square root
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of vertical angular speed exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

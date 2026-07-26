@@ -1,0 +1,255 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0340.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0340.source.json
+
+\chapter{Physics problem phyx\_mini\_0340}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0340}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+When a system is taken from state \$a\$ to state \$b\$ in \textbackslash{}textbf\{figure\}, 90.0\textasciitilde{}J of heat flows along path \$acb\$, and 60.0\textasciitilde{}J of work is done by the system.
+
+\#\# Question
+
+How much heat flows into the system along path \$adb\$ if the work done by the system is 15.0J?
+
+\#\# Answer choices
+
+- A: A: 15J
+
+- B: B: 45J
+
+- C: C: 25J
+
+- D: D: 32J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a p-V (pressure-volume) diagram with labeled points and colored arrows indicating a thermodynamic cycle. 
+
+- There are axes labeled \textbackslash{}( p \textbackslash{}) (pressure) on the vertical and \textbackslash{}( V \textbackslash{}) (volume) on the horizontal. The origin is labeled \textbackslash{}( O \textbackslash{}).
+  
+- Four points are marked: \textbackslash{}( a \textbackslash{}), \textbackslash{}( b \textbackslash{}), \textbackslash{}( c \textbackslash{}), and \textbackslash{}( d \textbackslash{}).
+
+- The path consists of four segments forming a cycle:
+  - From \textbackslash{}( a \textbackslash{}) to \textbackslash{}( b \textbackslash{}), there is a curved arrow (blue) representing an expansion process.
+  - From \textbackslash{}( b \textbackslash{}) to \textbackslash{}( c \textbackslash{}), there is a horizontal arrow (purple) indicating an isochoric process (constant volume).
+  - From \textbackslash{}( c \textbackslash{}) to \textbackslash{}( d \textbackslash{}), there is a vertical arrow (green) indicating a compression process.
+  - From \textbackslash{}( d \textbackslash{}) to \textbackslash{}( a \textbackslash{}), there is a horizontal arrow (green) representing an isochoric process (constant volume).
+
+- The arrows indicate the direction of the cycle, moving clockwise around the loop \textbackslash{}( a \textbackslash{}to b \textbackslash{}to c \textbackslash{}to d \textbackslash{}to a \textbackslash{}).
+
+The diagram visually represents a cyclic process in a thermodynamic system.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 45J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/340.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0340.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0340:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0340.heatIntoSystemAlongADB_eq_45_joules}
+\uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyinjoules, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pvfigure, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-matchessuppliedfigure, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicmodel, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-satisfiesfirstlaw}
+For the two displayed paths from state \(a\) to state \(b\), if \(90\) joules
+of heat enter and the system does \(60\) joules of work along \(acb\), while
+the system does \(15\) joules of work along \(adb\), then \(45\) joules of
+heat enter along \(adb\).
+\end{theorem}
+\begin{proof}
+The figure hypotheses identify both \(acb\) and \(adb\) as paths with initial
+state \(a\) and final state \(b\).  Applying
+\(\Delta U=Q-W_{\mathrm{by}}\) to \(acb\) gives
+\(\Delta U=90-60=30\) joules.  Internal energy depends only on the endpoint
+state, so the same difference occurs along \(adb\).  A second application of
+the first law gives \(30=Q_{adb}-15\), and hence \(Q_{adb}=45\) joules.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.VolumeQuantity}
+  Physical volume, with dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.PressureQuantity}
+  Physical pressure, with dimension M L⁻¹ T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.EnergyQuantity}
+  Heat, work, or internal energy, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-volumequantity}
+  SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.pressureInPascals}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pressurequantity}
+  SI pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.energyInJoules}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyquantity}
+  SI joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-volumequantity, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pressurequantity}
+  A point in the p-V state space of the system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.ProcessKind}
+  Qualitative process type indicated by a segment in the p-V figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.ProcessLeg}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processkind}
+  One directed leg of a thermodynamic path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[Thermodynamic Path]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.ThermodynamicPath}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processleg}
+  A directed thermodynamic path, including its displayed legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Path.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.AxisQuantity}
+  The physical quantity assigned to an axis in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[PVFigure]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pvfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.PVFigure}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-axisquantity}
+  Raw labels, states, and directed paths read from the supplied p-V image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVFigure.
+\end{proof}
+\begin{definition}[Is Two Leg Path Via]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-istwolegpathvia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.IsTwoLegPathVia}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processkind, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath}
+  A displayed two-leg path from startState through middleState to endState, with the indicated process type on each leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Two Leg Path Via.
+\end{proof}
+\begin{definition}[Is One Leg Path]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-isonelegpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.IsOneLegPath}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-processkind, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath}
+  A displayed direct one-leg path with the indicated process type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is One Leg Path.
+\end{proof}
+\begin{definition}[Has Displayed PVGeometry]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-hasdisplayedpvgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.HasDisplayedPVGeometry}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-volumeincubicmetres, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pressureinpascals, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate}
+  The rectangular placement of a, b, c, and d in the primary image. The strict SI inequalities record which pressure and volume levels are the lower and higher ones; the equalities record the isochoric and isobaric alignments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Displayed PVGeometry.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-pvfigure, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-istwolegpathvia, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-isonelegpath, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-hasdisplayedpvgeometry}
+  Exact axis, label, geometry, and arrow-direction information extracted from the supplied p-V image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Thermodynamic Model]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.ThermodynamicModel}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyquantity, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicstate, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath}
+  State-dependent internal energy and path-dependent heat and work. heatIntoSystem is positive for heat entering the system, while workDoneBySystem is positive for work done by the system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Model.
+\end{proof}
+\begin{definition}[Satisfies First Law]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-satisfiesfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.SatisfiesFirstLaw}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-energyinjoules, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicpath, def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-thermodynamicmodel}
+  The first law with the sign convention ΔU = Q - W\_by, expressed in coherent SI joule readouts. Internal energy is a function of state, whereas heat and work are functions of the complete path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies First Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.AnswerChoice}
+  Answer labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[joule Value]
+  \label{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-answerchoice-joulevalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0340.AnswerChoice.jouleValue}
+  \uses{def:physics:phyx-mini-0340:phyxminiproblems-problemphyxmini0340-answerchoice}
+  Joule value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joule Value.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

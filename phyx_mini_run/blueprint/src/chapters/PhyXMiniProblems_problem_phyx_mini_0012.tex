@@ -1,0 +1,104 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0012.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0012.source.json
+
+\chapter{Physics problem phyx\_mini\_0012}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0012}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An optical fiber has an index of refraction \textbackslash{}( n \textbackslash{}) and diameter \textbackslash{}( d \textbackslash{}). It is surrounded by vacuum. Light is sent into the fiber along its axis as shown in figure.
+
+\#\# Question
+
+Find the smallest outside radius \textbackslash{}( R\_\{\textbackslash{}text\{min\}\} \textbackslash{}) permitted for a bend in the fiber if no light is to escape.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( \textbackslash{}frac\{nd\}\{2n+1\} \textbackslash{})
+
+- B: B: \textbackslash{}( \textbackslash{}frac\{nd\}\{2n-1\} \textbackslash{})
+
+- C: C: \textbackslash{}( \textbackslash{}frac\{nd\}\{n-1\} \textbackslash{})
+
+- D: D: \textbackslash{}( \textbackslash{}frac\{nd\}\{n+1\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a section of a curved, hollow pipe or tube with a circular arc shape. 
+
+- The arc is shown as a light blue, semi-transparent band with a uniform inner and outer radius.
+- The pipe has an outer radius marked as \textbackslash{}( R \textbackslash{}), and the thickness of the pipe is labeled as \textbackslash{}( d \textbackslash{}).
+- Several blue arrows are drawn at one end of the pipe, pointing upwards, indicating a direction of flow or force.
+- A black line extends from the center of the curvature to the inner edge of the arc, marked with \textbackslash{}( R \textbackslash{}).
+- There is a vertical black line at the left end of the pipe, indicating its thickness, with the letter \textbackslash{}( d \textbackslash{}) next to it.
+
+Overall, the image is a diagrammatic representation, possibly referring to properties of fluid flow or structural analysis through a curved pipe section.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( \textbackslash{}frac\{nd\}\{n-1\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/12.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0012.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0012:target}
+\lean{PhyXMini0012.minimum_outside_radius}
+\uses{def:physics:phyx-mini-0012:phyxmini0012-fiberlength, def:physics:phyx-mini-0012:phyxmini0012-bentopticalfiber, def:physics:phyx-mini-0012:phyxmini0012-axialrayconfinementmodel}
+For a vacuum-clad fiber of index \(n>1\), diameter \(d>0\), and outside
+bend radius \(R\), suppose the limiting axial ray has incidence sine
+\((R-d)/R\) and is confined exactly when this is at least the critical sine
+\(1/n\).  Then the least confining outside radius is
+\(R_{\min}=nd/(n-1)\).
+\end{theorem}
+\begin{proof}
+Because \(n>1\) and \(d>0\), the candidate \(R_0=nd/(n-1)\) is larger than
+\(d\).  Substitution gives
+\((R_0-d)/R_0=1/n\), so the total-internal-reflection equivalence makes
+\(R_0\) confining.  If \(R>d\) is any confining radius, the same equivalence
+and geometry give \(1/n\leq(R-d)/R\).  Multiplication by the positive
+quantities \(n\), \(R\), and \(n-1\) rearranges this to
+\(nd/(n-1)\leq R\).  Hence \(R_0\) is the stated least element, and uniqueness
+of a least element identifies it with the supplied minimum radius.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Fiber Length]
+  \label{def:physics:phyx-mini-0012:phyxmini0012-fiberlength}
+  \lean{PhyXMini0012.FiberLength}
+  A nonnegative length readout carrying Physlib's physical length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fiber Length.
+\end{proof}
+\begin{definition}[Bent Optical Fiber]
+  \label{def:physics:phyx-mini-0012:phyxmini0012-bentopticalfiber}
+  \lean{PhyXMini0012.BentOpticalFiber}
+  \uses{def:physics:phyx-mini-0012:phyxmini0012-fiberlength}
+  The material and geometric data of the vacuum-clad optical fiber
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bent Optical Fiber.
+\end{proof}
+\begin{definition}[Axial Ray Confinement Model]
+  \label{def:physics:phyx-mini-0012:phyxmini0012-axialrayconfinementmodel}
+  \lean{PhyXMini0012.AxialRayConfinementModel}
+  \uses{def:physics:phyx-mini-0012:phyxmini0012-fiberlength}
+  The least information about the axial family of geometrical-optics rays needed to discuss confinement in a bend. At a proposed outside radius, the limiting ray is the axial ray having the smallest incidence angle at the outer wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Ray Confinement Model.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

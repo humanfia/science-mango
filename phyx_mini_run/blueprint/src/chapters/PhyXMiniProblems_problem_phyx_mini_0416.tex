@@ -1,0 +1,322 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0416.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0416.source.json
+
+\chapter{Physics problem phyx\_mini\_0416}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0416}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A monatomic gas fills the left end of the cylinder in figure. At 300 \$	ext\{K\}\$, the gas cylinder length is 10.0 \$	ext\{cm\}\$ and the spring is compressed by 2.0 \$	ext\{cm\}\$.
+
+\#\# Question
+
+How much heat energy must be added to the gas to expand the cylinder length to 16.0 \$	ext\{cm\}\$?
+
+\#\# Answer choices
+
+- A: A: 0 J
+
+- B: B: 18 J
+
+- C: C: 39 J
+
+- D: D: 78 J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional diagram of a piston-cylinder setup.
+
+- **Left Section:**
+  - A shaded region represents the inside of the cylinder.
+  - The area inside the square is labeled as "8.0 cm²".
+  - The bottom of this section is labeled with "L", suggesting a length measurement.
+
+- **Right Section:**
+  - Contains a spring adjacent to the piston.
+  - The spring is set against a labeled area indicating a "Vacuum."
+  - Text indicates the spring constant as "2000 N/m."
+
+- **General Description:**
+  - There is a clear division between the two sections by a dark grey vertical line representing a piston.
+  - The left part inside the cylinder is shaded beige, while the right part is white.
+  
+The diagram suggests a mechanical setup possibly related to physics or engineering, involving pressure, volume, or force calculations.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 39 J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/416.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0416.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0416:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0416.heat_required_for_spring_loaded_monatomic_gas_expansion}
+\uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-heataddedinjoules, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-matchesproblemscenario, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-matchessuppliedfigure, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-hasphysicalparameters, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-satisfiesquasistaticidealgasspringphysics, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-answerchoice, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-isclosestdisplayedheatanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Cylinder Length Quantity]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-cylinderlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.CylinderLengthQuantity}
+  A nonnegative cylinder length carrying the physical dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Length Quantity.
+\end{proof}
+\begin{definition}[Gas Volume Quantity]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-gasvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.GasVolumeQuantity}
+  A nonnegative gas volume carrying the physical dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.SpringConstantQuantity}
+  A nonnegative spring constant. Its dimension is mass per time squared, equivalently force per length (N/m)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[length In Metres]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-lengthinmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.lengthInMetres}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-cylinderlengthquantity}
+  Read a cylinder length or spring compression in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Metres.
+\end{proof}
+\begin{definition}[length In Centimetres]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-lengthincentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.lengthInCentimetres}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-cylinderlengthquantity}
+  Read a cylinder length or spring compression in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimetres.
+\end{proof}
+\begin{definition}[area In Square Metres]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-areainsquaremetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.areaInSquareMetres}
+  Read an area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Metres.
+\end{proof}
+\begin{definition}[area In Square Centimetres]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-areainsquarecentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.areaInSquareCentimetres}
+  Read an area in square centimetres, as printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Centimetres.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-gasvolumequantity}
+  Read a gas volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Metre]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantinnewtonspermetre}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.springConstantInNewtonsPerMetre}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantquantity}
+  Read a spring constant in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Metre.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.temperatureInKelvin}
+  Read an absolute temperature in kelvin, accounting for the zero-preserving unit in which a Physlib Temperature value is stored
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.energyInJoules}
+  Read heat, internal energy, or work in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Process Stage]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-processstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.ProcessStage}
+  The initial and requested final equilibrium states of the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Stage.
+\end{proof}
+\begin{definition}[Chamber Side]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-chamberside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.ChamberSide}
+  The left and right regions separated by the piston in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chamber Side.
+\end{proof}
+\begin{definition}[Chamber Contents]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-chambercontents}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.ChamberContents}
+  Material shown in each region of the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chamber Contents.
+\end{proof}
+\begin{definition}[Gas Kind]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-gaskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.GasKind}
+  The gas model specified in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Kind.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.ProcessKind}
+  The process idealization needed for equilibrium force balance at each endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-pistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.PistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantquantity, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-chamberside, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-chambercontents}
+  The information represented in the primary image. The area and spring constant remain physical quantities; the Boolean fields record the labelled geometry rather than introducing any thermodynamic conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Monatomic Gas State]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-monatomicgasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.MonatomicGasState}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-cylinderlengthquantity, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-gasvolumequantity}
+  A gas state stores independent physical observables. In particular, volume, pressure, temperature, spring compression, and internal energy are not defined from the answer sought; the governing relations between them are assumptions below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Monatomic Gas State.
+\end{proof}
+\begin{definition}[Spring Loaded Gas Setup]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.SpringLoadedGasSetup}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-processstage, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-gaskind, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-processkind, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-pistoncylinderfigure, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-monatomicgasstate}
+  The closed gas-piston-spring experiment. amountTimesGasConstant is the fixed nR coefficient of this particular gas sample, calibrated in joules per kelvin. Heat and work are independent energy observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Loaded Gas Setup.
+\end{proof}
+\begin{definition}[heat Added In Joules]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-heataddedinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.heatAddedInJoules}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-energyinjoules, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup}
+  The joule readout of the heat added to the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Added In Joules.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-lengthincentimetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-temperatureinkelvin, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup}
+  The qualitative model and the numerical endpoint data stated in the prose. The final spring compression, final pressure, final temperature, work, and heat are deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-areainsquarecentimetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantinnewtonspermetre, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup}
+  Facts read directly from the supplied raster: gas on the left, vacuum and the spring on the right, the piston and spring geometry, the L label, area 8.0 cm², and spring constant 2000 N/m. No heat value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-lengthinmetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-areainsquaremetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-volumeincubicmetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantinnewtonspermetre, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-pressureinpascals, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-temperatureinkelvin, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup}
+  Positivity and nondegeneracy conditions selecting physical states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Quasistatic Ideal Gas Spring Physics]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-satisfiesquasistaticidealgasspringphysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.SatisfiesQuasistaticIdealGasSpringPhysics}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-lengthinmetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-areainsquaremetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-volumeincubicmetres, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springconstantinnewtonspermetre, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-pressureinpascals, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-temperatureinkelvin, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-energyinjoules, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-springloadedgassetup, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-heataddedinjoules}
+  The governing endpoint and energy-balance laws in coherent SI readouts: cylinder geometry gives V = A L; piston displacement changes spring compression by the same amount; the sealed ideal gas obeys PV = nRT; quasistatic force balance against vacuum gives PA = kx; a monatomic ideal gas has ΔU = (3/2)nRΔT; work done by the gas is the increase in spring energy; and the first law gives Q = ΔU + W\_by. These are general physical relations. None states the requested heat or an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasistatic Ideal Gas Spring Physics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.AnswerChoice}
+  Labels of the four answer choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Joules]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-displayedheatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.displayedHeatInJoules}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-answerchoice}
+  Heat in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-answerchoice}
+  The source dataset records choice C; this is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Heat Answer]
+  \label{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-isclosestdisplayedheatanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0416.IsClosestDisplayedHeatAnswer}
+  \uses{def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-answerchoice, def:physics:phyx-mini-0416:phyxminiproblems-problemphyxmini0416-displayedheatinjoules}
+  A choice is at least as close to a heat readout as every displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Heat Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

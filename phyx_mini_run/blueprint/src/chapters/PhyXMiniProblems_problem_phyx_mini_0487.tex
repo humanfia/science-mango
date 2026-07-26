@@ -1,0 +1,391 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0487.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0487.source.json
+
+\chapter{Physics problem phyx\_mini\_0487}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0487}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Suppose the insulating qualities of the wall of a house come mainly from a \textbackslash{}(4.0\textbackslash{},\textbackslash{}mathrm\{in.\}\textbackslash{}) layer of brick and an \textbackslash{}(R\textbackslash{}text\{-\}19\textbackslash{}) layer of insulation, as shown in figure.Its total area is \textbackslash{}(195\textbackslash{},\textbackslash{}mathrm\{ft\}\textasciicircum{}2\textbackslash{}) and the temperature difference across it is \textbackslash{}(35\textbackslash{},\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{F\}\textbackslash{}).
+
+\#\# Question
+
+What is the total rate of heat loss through such a wall?
+
+\#\# Answer choices
+
+- A: A: 200Btu/h
+
+- B: B: 250Btu/h
+
+- C: C: 300Btu/h
+
+- D: D: 350Btu/h
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-section of a wall with two distinct layers. 
+
+- The left side is labeled as "Brick (R₁)" and is represented by a series of red blocks with a dotted pattern, symbolizing the brick material. 
+- The right side is labeled as "Insulation (R₂)" and is represented by a green area with wavy lines, symbolizing the insulation layer.
+
+Temperature labels "T₂" and "T₁" are adjacent to the brick and insulation layers, respectively. An arrow labeled "Heat flow" points from right to left, indicating the direction of heat transfer through the wall. This suggests that heat is moving from the higher temperature side (T₁) to the lower temperature side (T₂).
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 350Btu/h
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/487.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0487.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0487:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0487.problem_phyx_mini_0487}
+\uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchescompositewallscenario, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchessuppliedfigure, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesproblemreadouts, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-usestextbookfourinchbrickresistance, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-hasphysicalcompositewallparameters, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiesseriesarealresistancelaw, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiessteadyserieswallheatlaw, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.LengthQuantity}
+  A nonnegative physical length, independent of the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.AreaQuantity}
+  A nonnegative physical area, using Physlib's existing area quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Heat Current Quantity]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.HeatCurrentQuantity}
+  A nonnegative heat-transfer rate, carrying the dimension of power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Current Quantity.
+\end{proof}
+\begin{definition}[Areal Thermal Resistance Quantity]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.ArealThermalResistanceQuantity}
+  Areal thermal resistance (an insulation R-value), whose dimension is area times temperature divided by power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Areal Thermal Resistance Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.lengthReadout}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.areaReadout}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areaquantity}
+  Read a physical area in the square of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[length In Inches]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthininches}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.lengthInInches}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthreadout}
+  Inch readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Inches.
+\end{proof}
+\begin{definition}[area In Square Feet]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areainsquarefeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.areaInSquareFeet}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areaquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areareadout}
+  Square-foot readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Feet.
+\end{proof}
+\begin{definition}[heat Current In Watts]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.heatCurrentInWatts}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentquantity}
+  SI watt readout of a physical heat current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Current In Watts.
+\end{proof}
+\begin{definition}[international Table Btu In Joules]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-internationaltablebtuinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.internationalTableBtuInJoules}
+  The international-table British thermal unit, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of international Table Btu In Joules.
+\end{proof}
+\begin{definition}[heat Current In Btu Per Hour]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.heatCurrentInBtuPerHour}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinwatts, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-internationaltablebtuinjoules}
+  Btu-per-hour readout of a physical heat current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Current In Btu Per Hour.
+\end{proof}
+\begin{definition}[areal Thermal Resistance In Square Meter Kelvin Per Watt]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinsquaremeterkelvinperwatt}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.arealThermalResistanceInSquareMeterKelvinPerWatt}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistancequantity}
+  SI square-meter-kelvin-per-watt readout of an areal thermal resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of areal Thermal Resistance In Square Meter Kelvin Per Watt.
+\end{proof}
+\begin{definition}[one Imperial RValue In Square Meter Kelvin Per Watt]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-oneimperialrvalueinsquaremeterkelvinperwatt}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.oneImperialRValueInSquareMeterKelvinPerWatt}
+  One US insulation R-value, 1 h ft² °F / Btu, is 9290304000 / 52752792631 m² K / W, using exact foot, hour, Fahrenheit-degree, and international-table-Btu conversions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of one Imperial RValue In Square Meter Kelvin Per Watt.
+\end{proof}
+\begin{definition}[areal Thermal Resistance In Imperial RValue]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.arealThermalResistanceInImperialRValue}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistancequantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinsquaremeterkelvinperwatt, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-oneimperialrvalueinsquaremeterkelvinperwatt}
+  US insulation R-value readout, in h ft² °F / Btu
+\end{definition}
+\begin{proof}
+  This is the declared model definition of areal Thermal Resistance In Imperial RValue.
+\end{proof}
+\begin{definition}[Measured Temperature]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-measuredtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.MeasuredTemperature}
+  Fahrenheit is affine, whereas Physlib's temperature units preserve absolute zero. We therefore retain both a physical absolute temperature and the thermometer readout. Only a temperature difference enters the heat law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Measured Temperature.
+\end{proof}
+\begin{definition}[Wall Layer]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-walllayer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.WallLayer}
+  The two wall layers identified by the labels R₁ and R₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wall Layer.
+\end{proof}
+\begin{definition}[Wall Material]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-wallmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.WallMaterial}
+  The material occupying each layer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wall Material.
+\end{proof}
+\begin{definition}[Wall Boundary]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-wallboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.WallBoundary}
+  The two boundary locations labeled in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wall Boundary.
+\end{proof}
+\begin{definition}[Heat Flow Direction]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatflowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.HeatFlowDirection}
+  Direction assigned to the positive heat-loss magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Flow Direction.
+\end{proof}
+\begin{definition}[Conduction Regime]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-conductionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.ConductionRegime}
+  Thermal regime used by the plane-wall model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Conduction Regime.
+\end{proof}
+\begin{definition}[Dominant Heat Transfer Path]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-dominantheattransferpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.DominantHeatTransferPath}
+  Heat-transfer path retained in the stated approximation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dominant Heat Transfer Path.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.FigureLabel}
+  Text labels visible in the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Composite Wall Figure]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.CompositeWallFigure}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-walllayer, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-wallboundary, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-figurelabel}
+  Qualitative information transcribed from the primary image. The arrow tail is on the right at T₁ and its head is on the left at T₂. The raster contains no numerical or answer readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Composite Wall Figure.
+\end{proof}
+\begin{definition}[Composite Wall Setup]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.CompositeWallSetup}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areaquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistancequantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-measuredtemperature, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-walllayer, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-wallmaterial, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-wallboundary, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatflowdirection, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-conductionregime, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-dominantheattransferpath, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallfigure}
+  Independent physical data for the wall. Neither totalHeatLossRate nor totalArealThermalResistance is defined from an answer choice; the governing laws below constrain these observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Composite Wall Setup.
+\end{proof}
+\begin{definition}[Matches Composite Wall Scenario]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchescompositewallscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.MatchesCompositeWallScenario}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Categorical facts stated by the prose and the adopted sign convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Composite Wall Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Evidence read directly from the supplied primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthininches, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areainsquarefeet, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Numerical data explicitly supplied in the prose. The requested heat-loss rate and the brick resistance are deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Textbook Four Inch Brick Resistance]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-usestextbookfourinchbrickresistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.UsesTextbookFourInchBrickResistance}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  The extracted prompt omits the material table needed to convert four inches of brick into an R-value. The recorded answer uses the textbook calibration R = 0.20 per inch for common brick, giving R₁ = 0.80. This material datum is exposed separately rather than hidden in a target or definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Four Inch Brick Resistance.
+\end{proof}
+\begin{definition}[Has Physical Composite Wall Parameters]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-hasphysicalcompositewallparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.HasPhysicalCompositeWallParameters}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-lengthininches, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areainsquarefeet, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Positivity and hot-to-cold ordering for the physical model. No field fixes the heat current to the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Composite Wall Parameters.
+\end{proof}
+\begin{definition}[Satisfies Series Areal Resistance Law]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiesseriesarealresistancelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.SatisfiesSeriesArealResistanceLaw}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Areal thermal resistances of plane layers in series add
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Series Areal Resistance Law.
+\end{proof}
+\begin{definition}[Satisfies Steady Series Wall Heat Law]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiessteadyserieswallheatlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.SatisfiesSteadySeriesWallHeatLaw}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-areainsquarefeet, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup}
+  Steady one-dimensional heat loss through a plane wall expressed using areal resistance: heat-loss rate = area * (T₁ - T₂) / total R-value. This governing law contains no numerical heat-current conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Steady Series Wall Heat Law.
+\end{proof}
+\begin{theorem}[total Areal Thermal Resistance exact]
+  \label{thm:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-totalarealthermalresistance-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.totalArealThermalResistance_exact}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-arealthermalresistanceinimperialrvalue, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesproblemreadouts, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-usestextbookfourinchbrickresistance, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiesseriesarealresistancelaw}
+  The two layer resistances give a total wall R-value of 19.8
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Areal Thermal Resistance exact.
+\end{proof}
+\begin{theorem}[total Heat Loss Rate exact]
+  \label{thm:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-totalheatlossrate-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.totalHeatLossRate_exact}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesproblemreadouts, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-usestextbookfourinchbrickresistance, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-hasphysicalcompositewallparameters, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiesseriesarealresistancelaw, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-satisfiessteadyserieswallheatlaw}
+  The unrounded prediction is 11375/33 Btu/h, approximately 344.7
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Heat Loss Rate exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.AnswerChoice}
+  Labels of the four supplied answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Loss In Btu Per Hour]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-displayedheatlossinbtuperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.displayedHeatLossInBtuPerHour}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-answerchoice}
+  Btu-per-hour value printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Loss In Btu Per Hour.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-answerchoice}
+  Dataset metadata recording the supplied answer label. This definition is not used to establish the physical theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Fifty Btu Per Hour]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-roundstonearestfiftybtuperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.RoundsToNearestFiftyBtuPerHour}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentquantity, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-heatcurrentinbtuperhour}
+  Agreement with rounding a Btu-per-hour rate to the nearest 50 Btu/h
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Fifty Btu Per Hour.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0487.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-compositewallsetup, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-answerchoice, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-displayedheatlossinbtuperhour, def:physics:phyx-mini-0487:phyxminiproblems-problemphyxmini0487-roundstonearestfiftybtuperhour}
+  The physical heat-loss rate rounds to the rate printed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

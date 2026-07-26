@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0547.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0547.source.json
+
+\chapter{Physics problem phyx\_mini\_0547}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0547}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two spacecraft, A and B, are observed from the ground to be flying in opposite directions with velocities of \textbackslash{}(+0.85c\textbackslash{}) and \textbackslash{}(-0.85c\textbackslash{} respectively, as shown in figure.
+
+\#\# Question
+
+What is the velocity of spacecraft A relative to spacecraft B?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(0.135c\textbackslash{})
+
+- B: B: \textbackslash{}(1.301c\textbackslash{})
+
+- C: C: \textbackslash{}(1.700c\textbackslash{})
+
+- D: D: \textbackslash{}(0.987c\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram with two rockets labeled A and B. Each rocket is flying in opposite directions along the x’ and x axes, respectively. 
+
+- Rocket A is moving to the left at a velocity of 0.85c (where c represents the speed of light).
+- Rocket B is moving to the right at the same velocity of 0.85c.
+- The origin point O is at the intersection of axes x and y.
+- The axes x and y extend horizontally and vertically, respectively.
+- Another set of axes, x’ and y’, is shown with the same orientation but offset to the position of Rocket A.
+- Rocket A is positioned at the origin point labeled O’, on the x’ axis. 
+- The diagram is likely part of a physics context, possibly illustrating concepts related to relativity and velocity.
+
+There are arrows indicating the respective directions of movement for both rockets.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}(0.987c\textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/547.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0547.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0547:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0547.spacecraftARelativeToBSpeed_eq_choiceD}
+\uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-matchessuppliedfigure, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-matchesgroundframereadouts, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-hasphysicalopposingspacecraftparameters, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-obeyscollinearrelativisticvelocitytransformation, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-relativespeedismagnitudeofbframevelocity, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-answerchoiceinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-roundstonearestthousandth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.SignedVelocityQuantity}
+  A signed one-dimensional physical velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.SpeedQuantity}
+  A nonnegative physical speed, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityquantity}
+  Read a signed velocity in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.speedReadout}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedquantity}
+  Read a nonnegative speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.vacuumSpeedOfLightReadout}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityreadout}
+  Physlib's exact vacuum speed of light in the selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[velocity In Light Speed Units]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.velocityInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityquantity, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityreadout, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-vacuumspeedoflightreadout}
+  A signed velocity as the dimensionless ratio beta = v / c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Light Speed Units.
+\end{proof}
+\begin{definition}[speed In Light Speed Units]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.speedInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedquantity, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedreadout, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-vacuumspeedoflightreadout}
+  A nonnegative speed as a dimensionless multiple of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Light Speed Units.
+\end{proof}
+\begin{definition}[Reference Frame Label]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-referenceframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.ReferenceFrameLabel}
+  The inertial frames needed to interpret the observations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reference Frame Label.
+\end{proof}
+\begin{definition}[Spacecraft Label]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-spacecraftlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.SpacecraftLabel}
+  The two spacecraft labels printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spacecraft Label.
+\end{proof}
+\begin{definition}[Origin Label]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-originlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.OriginLabel}
+  The coordinate-origin labels printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Origin Label.
+\end{proof}
+\begin{definition}[Coordinate Axis Label]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-coordinateaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.CoordinateAxisLabel}
+  The four coordinate-axis labels printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis Label.
+\end{proof}
+\begin{definition}[Axis Orientation]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-axisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.AxisOrientation}
+  Horizontal or vertical orientation of a printed coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Orientation.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.AxialDirection}
+  Orientation along the common horizontal motion axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Opposing Spacecraft Figure]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.OpposingSpacecraftFigure}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-spacecraftlabel, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-originlabel, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-coordinateaxislabel, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-axisorientation, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-axialdirection}
+  Qualitative and numerical evidence from phyx\_data/test\_image/547.png. The image places A at O', prints the x,y axes there and the x',y' axes at O, and shows equal 0.85 c arrows pointing left for A and right for B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Opposing Spacecraft Figure.
+\end{proof}
+\begin{definition}[Opposing Spacecraft Setup]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.OpposingSpacecraftSetup}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-signedvelocityquantity, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedquantity, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-referenceframelabel, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftfigure}
+  All physical quantities in the problem. In particular, spacecraftAVelocityInBFrame and spacecraftARelativeToBSpeed are unknown observables: no field assigns either one a numerical value or answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Opposing Spacecraft Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  The labels, axes, arrow directions, and arrow magnitudes read from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Ground Frame Readouts]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-matchesgroundframereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.MatchesGroundFrameReadouts}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  Ground-frame numerical observations from the problem and figure. Positive is chosen to point right, so A has velocity -0.85 c and B has velocity +0.85 c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ground Frame Readouts.
+\end{proof}
+\begin{definition}[Has Physical Opposing Spacecraft Parameters]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-hasphysicalopposingspacecraftparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.HasPhysicalOpposingSpacecraftParameters}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-vacuumspeedoflightreadout, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  Positivity of c, subluminality, and the opposing signs of the given ground-frame velocities. This predicate places no restriction on either unknown B-frame observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Opposing Spacecraft Parameters.
+\end{proof}
+\begin{definition}[Obeys Collinear Relativistic Velocity Transformation]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-obeyscollinearrelativisticvelocitytransformation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.ObeysCollinearRelativisticVelocityTransformation}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  The governing one-dimensional Lorentz velocity transformation beta\_(A|B) = (beta\_(A|G) - beta\_(B|G)) / (1 - beta\_(B|G) * beta\_(A|G)). Its left-hand side remains an unknown signed velocity, and the law contains no problem-specific B-frame result or multiple-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Collinear Relativistic Velocity Transformation.
+\end{proof}
+\begin{definition}[Relative Speed Is Magnitude Of BFrame Velocity]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-relativespeedismagnitudeofbframevelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.RelativeSpeedIsMagnitudeOfBFrameVelocity}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-velocityinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-speedinlightspeedunits, def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-opposingspacecraftsetup}
+  Operational meaning of the requested nonnegative relative speed: it is the magnitude of A's signed velocity component in spacecraft B's rest frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relative Speed Is Magnitude Of BFrame Velocity.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.AnswerChoice}
+  Labels of the four choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Light Speed Units]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-answerchoiceinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.answerChoiceInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-answerchoice}
+  Displayed candidate speeds, as dimensionless multiples of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Light Speed Units.
+\end{proof}
+\begin{definition}[Rounds To Nearest Thousandth]
+  \label{def:physics:phyx-mini-0547:phyxminiproblems-problemphyxmini0547-roundstonearestthousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0547.RoundsToNearestThousandth}
+  Nearest-thousandth agreement, using a half-open convention at ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Thousandth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

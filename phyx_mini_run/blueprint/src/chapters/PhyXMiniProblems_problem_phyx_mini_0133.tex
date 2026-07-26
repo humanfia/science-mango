@@ -1,0 +1,277 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0133.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0133.source.json
+
+\chapter{Physics problem phyx\_mini\_0133}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0133}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A convex meniscus lens is made from glass with \textbackslash{}(n = 1.50\textbackslash{}). The radius of curvature of the convex surface (left in figure) is \textbackslash{}(22\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}). The surface on the right is concave with radius of curvature \textbackslash{}(46\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}).
+
+\#\# Question
+
+What is the focal length?
+
+\#\# Answer choices
+
+- A: A: 0.72m
+
+- B: B: 0.78m
+
+- C: C: 0.84m
+
+- D: D: 0.92m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a lens diagram showing a biconcave lens. The lens is shaded in light blue and has two radii marked, labeled as \textbackslash{}( R\_1 = 22 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}) and \textbackslash{}( R\_2 = -46 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}). 
+
+Points \textbackslash{}( C\_1 \textbackslash{}) and \textbackslash{}( C\_2 \textbackslash{}) are indicated; \textbackslash{}( C\_1 \textbackslash{}) is between the lens and the divergent surface, representing the center of curvature related to \textbackslash{}( R\_1 \textbackslash{}), and \textbackslash{}( C\_2 \textbackslash{}) is on the opposite side, representing the center of curvature related to \textbackslash{}( R\_2 \textbackslash{}). Arrows and lines connect these points to the lens surface, showing the directions of the radii. The figure illustrates the geometry of the lens’ curved surfaces.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.84m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/133.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0133.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0133:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0133.problem_phyx_mini_0133}
+\uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthinmeters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesproblemdescription, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesprimaryfigure, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-usessurfacetocenterlensmakerconvention, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-hasphysicalopticalparameters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-obeysthinlenslensmakerequation, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesanswertonearesthundredthmeter}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.OpticalLength}
+  A signed, unit-independent physical quantity carrying length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.lengthReadout}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength}
+  Read a signed physical length as a real number in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.lengthInMeters}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthreadout}
+  The metre readout of a signed physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthreadout}
+  The centimetre readout used by the radius labels in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Lens Surface]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lenssurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.LensSurface}
+  The two spherical surfaces encountered by light travelling left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Surface.
+\end{proof}
+\begin{definition}[Surface Shape]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-surfaceshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.SurfaceShape}
+  Qualitative surface shape as viewed from outside the lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Shape.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.FigurePoint}
+  Labeled points and surface vertices on the horizontal optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.OpticalMedium}
+  The optical media needed for the relative refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Lens Description]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lensdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.LensDescription}
+  Lens descriptions occurring in the problem prose and auxiliary caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Description.
+\end{proof}
+\begin{definition}[Optical Approximation]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticalapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.OpticalApproximation}
+  The paraxial approximation under which the thin-lens law is used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Approximation.
+\end{proof}
+\begin{definition}[Figure Evidence Policy]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figureevidencepolicy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.FigureEvidencePolicy}
+  Which source controls when the auxiliary caption conflicts with the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Evidence Policy.
+\end{proof}
+\begin{definition}[surface Vertex]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-surfacevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.surfaceVertex}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lenssurface, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figurepoint}
+  The vertex belonging to each labeled spherical surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of surface Vertex.
+\end{proof}
+\begin{definition}[curvature Center]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-curvaturecenter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.curvatureCenter}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lenssurface, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figurepoint}
+  The curvature centre label belonging to each spherical surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of curvature Center.
+\end{proof}
+\begin{definition}[Meniscus Lens Setup]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.MeniscusLensSetup}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lenssurface, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-surfaceshape, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figurepoint, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticalmedium, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lensdescription, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticalapproximation, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figureevidencepolicy}
+  The physical meniscus-lens model. lensmakerRadius is directed from a surface vertex to its curvature centre, the Cartesian convention used in the governing equation. By contrast, figureRadiusAnnotation preserves the signed arrows printed in the primary figure and is not silently substituted into lensmaker's equation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Meniscus Lens Setup.
+\end{proof}
+\begin{definition}[axial Separation Readout]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-axialseparationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.axialSeparationReadout}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthreadout, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-figurepoint, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  Directed axial separation between two figure points in a selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Separation Readout.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  Problem-text data: the lens is a convex meniscus made from glass of index 1.50, surrounded by air of index 1. The auxiliary caption's incompatible word "biconcave" is retained as provenance, while the stated image-primary policy selects the profile actually drawn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthincentimeters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-axialseparationreadout}
+  Primary-figure readouts and spatial relations. The surface profile is convex on the left and concave on the right. Both curvature centres lie to the right of the corresponding vertices, C₁ precedes C₂, and the axial vertex-to- centre distances are 22 cm and 46 cm. The signed annotations printed in the image are kept verbatim as +22 cm and -46 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Surface To Center Lensmaker Convention]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-usessurfacetocenterlensmakerconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.UsesSurfaceToCenterLensmakerConvention}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lenssurface, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-surfacevertex, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-curvaturecenter, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  The Cartesian sign convention for lensmaker's equation. A signed surface radius is the displacement from that surface's vertex to its curvature centre in every unit system. Thus the image's left-pointing R₂ annotation is the opposite orientation from the second lensmaker radius; this predicate states only the geometric convention, not the unknown focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Surface To Center Lensmaker Convention.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthinmeters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  Positivity and nondegeneracy of the optical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Obeys Thin Lens Lensmaker Equation]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-obeysthinlenslensmakerequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.ObeysThinLensLensmakerEquation}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup}
+  The thin-lens lensmaker equation in a surrounding medium, 1 / f = (n\_glass / n\_air - 1) * (1 / R₁ - 1 / R₂). It is stated in every unit system. This is the governing optical law and does not assume a numerical focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Thin Lens Lensmaker Equation.
+\end{proof}
+\begin{lemma}[lensmaker radius readouts from figure]
+  \label{lem:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lensmaker-radius-readouts-from-figure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.lensmaker_radius_readouts_from_figure}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthincentimeters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-meniscuslenssetup, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesprimaryfigure, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-usessurfacetocenterlensmakerconvention}
+  The figure and its sign convention determine the two Cartesian radii
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of lensmaker radius readouts from figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Focal Length Meters]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerfocallengthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.answerFocalLengthMeters}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerchoice}
+  Focal length in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Focal Length Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerchoice}
+  Dataset metadata recording answer C; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Hundredth Meter]
+  \label{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-matchesanswertonearesthundredthmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0133.MatchesAnswerToNearestHundredthMeter}
+  \uses{def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-opticallength, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-lengthinmeters, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerchoice, def:physics:phyx-mini-0133:phyxminiproblems-problemphyxmini0133-answerfocallengthmeters}
+  A computed physical focal length matches a two-decimal-place answer when its metre readout differs by at most half of 0.01 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Hundredth Meter.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

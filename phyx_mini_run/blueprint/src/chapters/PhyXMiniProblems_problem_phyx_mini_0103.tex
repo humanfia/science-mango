@@ -1,0 +1,212 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0103.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0103.source.json
+
+\chapter{Physics problem phyx\_mini\_0103}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0103}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A beam of unpolarized sunlight strikes the vertical plastic wall of a water tank at an unknown angle. Some of the light reflects from the wall and enters the water (figure). The refractive index of the plastic wall is 1.61. The light that has been reflected from the wall into the water is observed to be completely polarized.
+
+\#\# Question
+
+What angle does this beam make with the normal inside the water?
+
+\#\# Answer choices
+
+- A: A: 23.3°
+
+- B: B: 25.3°
+
+- C: C: 24.2°
+
+- D: D: 22.6°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a simplified cross-sectional diagram involving a plastic wall and adjacent layers of air and water. 
+
+- The left side depicts a vertical "Plastic wall" with a light beige color.
+- To the right of the wall, there is a horizontal layer labeled "Air" with a light blue background.
+- Below the air, there is a horizontal line separating it from a layer labeled "Water," which has a slightly darker blue background.
+- A purple arrow, labeled "Incident sunlight," is shown entering from the left and moving at an angle through the plastic wall into the air layer. 
+
+The diagram likely represents the interaction of light as it penetrates different media: plastic, air, and water.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 23.3°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/103.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0103.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0103:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0103.completelyPolarizedWallReflection_waterAngle_is_answer_A}
+\uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-matchestankwallproblemdata, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankfiguregeometry, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankopticslaws, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.OpticalMedium}
+  The three homogeneous optical media involved in the ray path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Tank Interface]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.TankInterface}
+  The two planar interfaces labelled in the tank cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Interface.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.RaySegment}
+  The three directed portions of the depicted sunlight path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[Polarization State]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-polarizationstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.PolarizationState}
+  Qualitative polarization state of an optical beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Polarization State.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.DiagramPlane}
+  The two-dimensional plane of the tank ray diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Tank Wall Reflection Setup]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.TankWallReflectionSetup}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-opticalmedium, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankinterface, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-raysegment, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-polarizationstate, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-diagramplane}
+  Physical quantities and labelled geometry in the wall--air--water diagram. normalTowardAir points into the air at both interfaces. Thus an incoming propagation vector is negated when its angle is read against that normal, while the water-side refracted vector is compared with the opposite normal. The requested quantity is waterRefractionAngleRadians; no numerical value for it is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Wall Reflection Setup.
+\end{proof}
+\begin{definition}[Has Tank Normal Angle Readouts]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-hastanknormalanglereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.HasTankNormalAngleReadouts}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup}
+  The four scalar angle fields are the geometric normal-angle readouts of their corresponding direction vectors
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Tank Normal Angle Readouts.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At Water Surface]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiessnelllawatwatersurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.SatisfiesSnellLawAtWaterSurface}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup}
+  Snell's law at the horizontal air--water boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At Water Surface.
+\end{proof}
+\begin{definition}[Satisfies Brewster Polarization Law]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiesbrewsterpolarizationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.SatisfiesBrewsterPolarizationLaw}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup}
+  Brewster's polarization criterion for unpolarized light incident from air on the plastic wall: complete polarization of the reflected beam is equivalent to n\_air tan θ\_B = n\_plastic on the physical acute-angle branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Brewster Polarization Law.
+\end{proof}
+\begin{definition}[Matches Tank Wall Problem Data]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-matchestankwallproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.MatchesTankWallProblemData}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankinterface, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-raysegment, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup}
+  Problem and standard-medium readouts. The stated plastic index is 1.61; ordinary air and water are represented by the standard dimensionless values 1.00 and 1.33. The complete polarization observation is data, not the requested numerical water angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Tank Wall Problem Data.
+\end{proof}
+\begin{definition}[Satisfies Tank Figure Geometry]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankfiguregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.SatisfiesTankFigureGeometry}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-hastanknormalanglereadouts}
+  Relations read from the cross-sectional figure. The vertical wall and horizontal water surface have perpendicular normals. The reflected ray runs from the wall interaction point to the water interaction point, and its normal-angle readouts at the perpendicular interfaces are complementary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Tank Figure Geometry.
+\end{proof}
+\begin{definition}[Satisfies Tank Optics Laws]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankopticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.SatisfiesTankOpticsLaws}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-opticalmedium, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiessnelllawatwatersurface, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiesbrewsterpolarizationlaw}
+  Governing physical laws and principal-branch conditions. None of these fields mentions a numerical value for the angle inside the water or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Tank Optics Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-answerchoice}
+  Degree value printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.degreesToRadians}
+  Convert a real-valued degree readout to the radian scalar used by Mathlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-answerchoice, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-answerangledegrees, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-degreestoradians}
+  A printed choice is uniquely closest to the physical radian-angle readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{lemma}[reflected wall ray air water relation]
+  \label{lem:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-reflected-wall-ray-air-water-relation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0103.reflected_wall_ray_air_water_relation}
+  \uses{def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-tankwallreflectionsetup, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankfiguregeometry, def:physics:phyx-mini-0103:phyxminiproblems-problemphyxmini0103-satisfiestankopticslaws}
+  The perpendicular wall/water geometry and Snell's law relate the requested water angle to the wall reflection angle. This physical relation does not assume or state a numerical answer choice
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflected wall ray air water relation.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

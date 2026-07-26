@@ -1,0 +1,228 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0872.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0872.source.json
+
+\chapter{Physics problem phyx\_mini\_0872}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0872}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the potential difference \textbackslash{}( \textbackslash{}Delta V\_\{34\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 12V
+
+- B: B: -14V
+
+- C: C: -200V
+
+- D: D: -20V
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure is a directed graph with four nodes labeled 1, 2, 3, and 4, connected by arrows. Each arrow represents a voltage change (\textbackslash{}(\textbackslash{}Delta V\textbackslash{})) between nodes:
+
+1. An arrow from node 1 to node 2 with the label \textbackslash{}(\textbackslash{}Delta V\_\{12\} = 30 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+2. An arrow from node 2 to node 3 with the label \textbackslash{}(\textbackslash{}Delta V\_\{23\} = 50 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+3. An arrow from node 3 to node 4 with the label \textbackslash{}(\textbackslash{}Delta V\_\{34\}\textbackslash{}).
+4. An arrow from node 4 to node 1 with the label \textbackslash{}(\textbackslash{}Delta V\_\{41\} = -60 \textbackslash{}, \textbackslash{}text\{V\}\textbackslash{}).
+
+The arrows represent the direction of voltage change, and the values indicate the magnitude of these changes.
+
+\#\# Dataset metadata
+
+Electric Circuits; Multi-Formula Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: -20V
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/872.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0872.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0872:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0872.deltaV34_eq_negative_twenty_volts_and_matches_choice_D}
+\uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-potentialdifferenceinvolts, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopsetup, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-matchessupplieddirectedvoltagefigure, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-satisfiesclosedloopvoltagelaw, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-answerchoicepotentialdifferenceinvolts}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.energyDimension}
+  The physical dimension of energy, M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Potential Difference Dimension]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-electricpotentialdifferencedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.electricPotentialDifferenceDimension}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-energydimension}
+  Electric potential difference has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Difference Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Difference Quantity]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-electricpotentialdifferencequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.ElectricPotentialDifferenceQuantity}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-electricpotentialdifferencedimension}
+  A signed, unit-independent physical electric-potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Difference Quantity.
+\end{proof}
+\begin{definition}[potential Difference In Volts]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-potentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.potentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-electricpotentialdifferencequantity}
+  Read a signed electric-potential difference in coherent-SI volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference In Volts.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.CircuitNode}
+  The four numbered nodes in image 872.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Directed Voltage Edge]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageEdge}
+  The four potential-change arrows in their displayed cyclic order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Directed Voltage Edge.
+\end{proof}
+\begin{definition}[initial Node]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge-initialnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageEdge.initialNode}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge}
+  Initial node of each arrow, as indicated by its voltage subscript
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Node.
+\end{proof}
+\begin{definition}[final Node]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge-finalnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageEdge.finalNode}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge}
+  Final node of each arrow, as indicated by its voltage subscript
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Node.
+\end{proof}
+\begin{definition}[printed Label]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode-printedlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.CircuitNode.printedLabel}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode}
+  Printed numeral identifying each node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of printed Label.
+\end{proof}
+\begin{definition}[printed Delta VLabel]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge-printeddeltavlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageEdge.printedDeltaVLabel}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge}
+  Printed symbolic label attached to each directed potential change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of printed Delta VLabel.
+\end{proof}
+\begin{definition}[Figure Node Placement]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-figurenodeplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.FigureNodePlacement}
+  Coarse relative placement of a node in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Node Placement.
+\end{proof}
+\begin{definition}[figure Node Placement]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-figurenodeplacement-value}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.figureNodePlacement}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-figurenodeplacement}
+  Placement visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Node Placement.
+\end{proof}
+\begin{definition}[Directed Voltage Loop Figure]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageLoopFigure}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-circuitnode, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-figurenodeplacement}
+  Literal diagram data. printedVoltageInVolts edge = none means that the symbolic ΔV label is present but the raster supplies no numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Directed Voltage Loop Figure.
+\end{proof}
+\begin{definition}[Directed Voltage Loop Setup]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.DirectedVoltageLoopSetup}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-electricpotentialdifferencequantity, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageedge, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopfigure}
+  The four independent physical potential changes and their associated figure. In particular, the 3 → 4 change is not defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Directed Voltage Loop Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Directed Voltage Figure]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-matchessupplieddirectedvoltagefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.MatchesSuppliedDirectedVoltageFigure}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-potentialdifferenceinvolts, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-figurenodeplacement-value, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopsetup}
+  Facts transcribed from 872.png. The final field connects only those physical potential changes for which the raster actually prints a number. Since the 3 → 4 label has value none, this structure does not constrain the requested potential change numerically
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Directed Voltage Figure.
+\end{proof}
+\begin{definition}[Satisfies Closed Loop Voltage Law]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-satisfiesclosedloopvoltagelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.SatisfiesClosedLoopVoltageLaw}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-potentialdifferenceinvolts, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopsetup}
+  Kirchhoff's voltage law in the orientation of the displayed closed loop. It states the general closed-loop sum relation and does not assign a value to the unknown 3 → 4 edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Loop Voltage Law.
+\end{proof}
+\begin{lemma}[delta V34 eq negative sum of other directed changes]
+  \label{lem:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-deltav34-eq-negative-sum-of-other-directed-changes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.deltaV34_eq_negative_sum_of_other_directed_changes}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-potentialdifferenceinvolts, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-directedvoltageloopsetup, def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-satisfiesclosedloopvoltagelaw}
+  Rearranging the governing closed-loop law isolates the unknown edge. This is a derived conclusion rather than a field of either premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of delta V34 eq negative sum of other directed changes.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Potential Difference In Volts]
+  \label{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-answerchoicepotentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0872.answerChoicePotentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0872:phyxminiproblems-problemphyxmini0872-answerchoice}
+  Potential-difference value printed beside each answer, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Potential Difference In Volts.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

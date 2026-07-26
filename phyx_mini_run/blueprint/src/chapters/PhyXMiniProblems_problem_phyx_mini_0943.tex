@@ -1,0 +1,392 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0943.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0943.source.json
+
+\chapter{Physics problem phyx\_mini\_0943}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0943}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The series circuit in figure is similar to some radio tuning circuits. It is connected to a variable-frequency ac source with an rms terminal voltage of 1.0\textbackslash{} \textbackslash{}mathrm\{V\}.
+
+\#\# Question
+
+Determine the the inductive reactance \textbackslash{}( X\_L \textbackslash{}), the capacitive reactance \textbackslash{}( X\_C \textbackslash{}), and the impedance \textbackslash{}( Z \textbackslash{})
+
+\#\# Answer choices
+
+- A: A: 200\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- B: B: 2000\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- C: C: 1000\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- D: D: 2200\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit schematic with various components and measurement labels. Here's a detailed description:
+
+1. **Components:**
+   - **Current Source:** A labeled source indicating a current of 2.0 mA.
+   - **Voltage Sources:** Five voltage nodes labeled with values: 1.0 V, 1.0 V, 4.0 V, 4.0 V, and 0 V.
+   - **Resistor:** Represented by a zigzag line with a resistance value of \textbackslash{}( R = 500 \textbackslash{}, \textbackslash{}Omega \textbackslash{}).
+   - **Inductor:** Denoted by a coil symbol with an inductance of \textbackslash{}( L = 0.40 \textbackslash{}, \textbackslash{}text\{mH\} \textbackslash{}).
+   - **Capacitor:** Shown as two parallel lines with a capacitance of \textbackslash{}( C = 100 \textbackslash{}, \textbackslash{}text\{pF\} \textbackslash{}).
+
+2. **Connections:**
+   - The components are connected in a loop, with labels a, b, c, and d indicating key points in the circuit.
+   - The inductor connects between points b and c.
+   - The capacitor connects between points c and d.
+
+3. **Diagram Features:**
+   - An AC voltage symbol is included at the top, indicating an alternating current in the circuit.
+   - Voltage measurement circles are placed at different nodes to indicate the voltage readings there.
+
+This diagram depicts the relationships between these elements in an electrical circuit context.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 2000\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/943.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0943.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0943:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0943.problem_phyx_mini_0943}
+\uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudeinohms, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-matchesidealvariablefrequencyseriesrlcscenario, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-matchessuppliedseriesrlcfigure, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-hasphysicalseriesrlcparameters, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-satisfiesidealseriesrlcsteadystatelaws, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.electricCurrentDimension}
+  Electric current has physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.electricPotentialDimension}
+  Electric potential difference has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electriccurrentdimension, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricpotentialdimension}
+  Resistance, reactance, and impedance have dimension voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[electrical Inductance Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalinductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.electricalInductanceDimension}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalresistancedimension}
+  Inductance has dimension resistance times time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Inductance Dimension.
+\end{proof}
+\begin{definition}[electrical Capacitance Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalcapacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.electricalCapacitanceDimension}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricpotentialdimension}
+  Capacitance has dimension charge per voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Capacitance Dimension.
+\end{proof}
+\begin{definition}[angular Frequency Dimension]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.angularFrequencyDimension}
+  Angular frequency has inverse-time dimension; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Dimension.
+\end{proof}
+\begin{definition}[RMSCurrent Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.RMSCurrentQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electriccurrentdimension}
+  A nonnegative, unit-independent RMS electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of RMSCurrent Quantity.
+\end{proof}
+\begin{definition}[RMSVoltage Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltagequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.RMSVoltageQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricpotentialdimension}
+  A nonnegative, unit-independent RMS potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of RMSVoltage Quantity.
+\end{proof}
+\begin{definition}[Resistance Magnitude Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.ResistanceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalresistancedimension}
+  A nonnegative physical resistance, reactance, or impedance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalinductancedimension}
+  A nonnegative, unit-independent physical inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-electricalcapacitancedimension}
+  A nonnegative, unit-independent physical capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.AngularFrequencyQuantity}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencydimension}
+  A nonnegative, unit-independent physical angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.nonnegativeSIReadout}
+  Read any nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[rms Current In Amperes]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.rmsCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentquantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read an RMS current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rms Current In Amperes.
+\end{proof}
+\begin{definition}[rms Current In Milliamperes]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.rmsCurrentInMilliamperes}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentquantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinamperes}
+  Read an RMS current in milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rms Current In Milliamperes.
+\end{proof}
+\begin{definition}[rms Voltage In Volts]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.rmsVoltageInVolts}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltagequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read an RMS potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rms Voltage In Volts.
+\end{proof}
+\begin{definition}[resistance Magnitude In Ohms]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudeinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.resistanceMagnitudeInOhms}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read a resistance, reactance, or impedance magnitude in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance Magnitude In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinhenries}
+  Read an inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read a capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Picofarads]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinpicofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.capacitanceInPicofarads}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinfarads}
+  Read a capacitance in picofarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Picofarads.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyquantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-nonnegativesireadout}
+  Read angular frequency in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.CircuitNode}
+  The four electrically distinct junctions labelled in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Circuit Element]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-circuitelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.CircuitElement}
+  The four elements encountered in one traversal of the closed loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Element.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.ComponentModel}
+  Idealized physical roles assigned to the standard circuit symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Voltage Meter Placement]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-voltagemeterplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.VoltageMeterPlacement}
+  The five voltmeter placements visible in image 943.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Meter Placement.
+\end{proof}
+\begin{definition}[Series RLCFigure]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.SeriesRLCFigure}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-circuitnode, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-circuitelement, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-voltagemeterplacement}
+  Literal topology and scalar annotations transcribed from the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCFigure.
+\end{proof}
+\begin{definition}[Variable Frequency ACSource]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-variablefrequencyacsource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.VariableFrequencyACSource}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltagequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyquantity}
+  The variable-frequency source with its independent terminal observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Variable Frequency ACSource.
+\end{proof}
+\begin{definition}[Series RLCSetup]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.SeriesRLCSetup}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentquantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltagequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitancequantity, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-circuitelement, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-componentmodel, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-voltagemeterplacement, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcfigure, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-variablefrequencyacsource}
+  Independent physical data for the measured series RLC circuit. In particular, the reactance and impedance fields are observables constrained later by constitutive and circuit laws; they are not definitions made from the answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCSetup.
+\end{proof}
+\begin{definition}[Matches Ideal Variable Frequency Series RLCScenario]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-matchesidealvariablefrequencyseriesrlcscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.MatchesIdealVariableFrequencySeriesRLCScenario}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup}
+  The standard ideal lumped-component interpretation of the shown symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Variable Frequency Series RLCScenario.
+\end{proof}
+\begin{definition}[Matches Supplied Series RLCFigure]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-matchessuppliedseriesrlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.MatchesSuppliedSeriesRLCFigure}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinmilliamperes, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltageinvolts, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudeinohms, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinmillihenries, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinpicofarads, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup}
+  Primary-image evidence and calibration. The circle marked 2.0 mA is treated as an in-series ammeter, while the five blue circles are RMS voltmeters across the node pairs indicated by their fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Series RLCFigure.
+\end{proof}
+\begin{definition}[Has Physical Series RLCParameters]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-hasphysicalseriesrlcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.HasPhysicalSeriesRLCParameters}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinamperes, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudeinohms, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinhenries, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinfarads, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyinradianspersecond, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup}
+  Positivity and nondegeneracy of the driven passive circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Series RLCParameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Series RLCSteady State Laws]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-satisfiesidealseriesrlcsteadystatelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.SatisfiesIdealSeriesRLCSteadyStateLaws}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmscurrentinamperes, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-rmsvoltageinvolts, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-resistancemagnitudeinohms, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-inductanceinhenries, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-capacitanceinfarads, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-angularfrequencyinradianspersecond, def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-seriesrlcsetup}
+  Standard sinusoidal steady-state laws for an ideal series RLC circuit. These are general relations among independently supplied physical observables and contain none of the requested numerical reactance or impedance values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Series RLCSteady State Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.AnswerChoice}
+  Labels of the four resistance-valued choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Magnitude In Ohms]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-answerchoice-displayedmagnitudeinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.AnswerChoice.displayedMagnitudeInOhms}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-answerchoice}
+  The resistance or reactance magnitude printed beside each choice, in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Magnitude In Ohms.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0943.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0943:phyxminiproblems-problemphyxmini0943-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

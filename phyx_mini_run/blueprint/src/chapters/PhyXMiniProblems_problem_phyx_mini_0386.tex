@@ -1,0 +1,319 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0386.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0386.source.json
+
+\chapter{Physics problem phyx\_mini\_0386}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0386}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A steel tank of cross-sectional area 3 \textbackslash{}m\textasciicircum{}2\textbackslash{} and height 16 m weighs 10 000 kg and is open at the top, as shown in the figure. We want to float it in the ocean so that it is positioned 10 m straight down by pouring concrete into its bottom.
+
+\#\# Question
+
+How much concrete should we use?
+
+\#\# Answer choices
+
+- A: A: 490kg
+
+- B: B: 19910kg
+
+- C: C: 154kg
+
+- D: D: 10.2kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a vertical structure partially submerged in the ocean. The structure is a U-shaped container with the following components:
+
+1. **Air**: The top part of the container is filled with air.
+2. **Concrete**: Below the air, a segment is filled with concrete, illustrated in blue.
+3. **Ocean**: The container is in the ocean, depicted by a wavy line representing the water surface.
+4. **Depth Indication**: A vertical arrow labeled "10 m" indicates the distance from the ocean surface to the bottom of the concrete section.
+5. **Labels**:
+   - The word "Air" is placed within the container's top section.
+   - "Concrete" is labeled within the blue section.
+   - "Ocean" is labeled outside the container, parallel to the water surface. 
+
+These elements collectively illustrate a submerged concrete-filled container with specified sections and measurements.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 19910kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/386.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0386.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0386:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0386.requiredConcreteMass_eq_answerB}
+\uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilograms, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hastankandfiguredata, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasrecordedoceandensitycalibration, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasphysicalgravity, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesprismaticdisplacementlaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiestotalweightlaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesarchimedeslaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-floatsinverticalstaticequilibrium, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-answermassinkilograms}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[area Dimension]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-areadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.areaDimension}
+  The physical dimension of an area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Dimension.
+\end{proof}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.volumeDimension}
+  The physical dimension of a volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.accelerationDimension}
+  The physical dimension of acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.forceDimension}
+  The physical dimension of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[square Meters]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-squaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.squareMeters}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-areadimension}
+  An area readout in square metres in the SI unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of square Meters.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.meters}
+  A length readout in metres in the SI unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[cubic Meters]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-cubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.cubicMeters}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-volumedimension}
+  A volume readout in cubic metres in the SI unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cubic Meters.
+\end{proof}
+\begin{definition}[kilograms]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.kilograms}
+  A mass readout in kilograms in the SI unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kilograms.
+\end{proof}
+\begin{definition}[kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.kilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-massdensitydimension}
+  A mass-density readout in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[meters Per Second Squared]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-meterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.metersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-accelerationdimension}
+  An acceleration readout in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second Squared.
+\end{proof}
+\begin{definition}[newtons]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-newtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.newtons}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-forcedimension}
+  A force readout in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of newtons.
+\end{proof}
+\begin{definition}[Tank Top Boundary]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-tanktopboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.TankTopBoundary}
+  Whether the tank's upper boundary is open or sealed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Top Boundary.
+\end{proof}
+\begin{definition}[Tank Axis Orientation]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-tankaxisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.TankAxisOrientation}
+  Orientation of the tank's long axis relative to the ocean surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Axis Orientation.
+\end{proof}
+\begin{definition}[Figure Material]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-figurematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.FigureMaterial}
+  Material names stated in the scenario or printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Material.
+\end{proof}
+\begin{definition}[Ballast Location]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.BallastLocation}
+  The location of the concrete ballast inside the tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ballast Location.
+\end{proof}
+\begin{definition}[Ballasted Tank Setup]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.BallastedTankSetup}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-areadimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-volumedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-massdensitydimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-accelerationdimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-forcedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-tanktopboundary, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-tankaxisorientation, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-figurematerial, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastlocation}
+  Physical quantities and categorical figure data for the ballasted tank. The concrete mass and the force magnitudes are independent observables. Their relations are supplied only by the governing-law predicates below, so the requested mass is not built into the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ballasted Tank Setup.
+\end{proof}
+\begin{definition}[total Supported Mass]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-totalsupportedmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.totalSupportedMass}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  The total supported mass is the steel tank mass plus its concrete ballast. The mass of the contained air is neglected in this elementary model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Supported Mass.
+\end{proof}
+\begin{definition}[Has Tank And Figure Data]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hastankandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.HasTankAndFigureData}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-squaremeters, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-meters, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilograms, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Numerical and diagrammatic data explicitly supplied by the problem and its figure. In particular, the 10 m arrow is read as the depth of the tank bottom below the ocean surface, not as the concrete fill height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Tank And Figure Data.
+\end{proof}
+\begin{definition}[Has Recorded Ocean Density Calibration]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasrecordedoceandensitycalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.HasRecordedOceanDensityCalibration}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilogramspercubicmeter, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Reference-density calibration implicit in the recorded exact answer. The problem does not state an ocean density. The choice 19910 kg is obtained from the textbook readout 997 kg/m³; keeping this as a separate hypothesis makes that otherwise hidden modeling choice explicit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Recorded Ocean Density Calibration.
+\end{proof}
+\begin{definition}[Has Physical Gravity]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasphysicalgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.HasPhysicalGravity}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Nondegeneracy needed to cancel gravity from the force balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Gravity.
+\end{proof}
+\begin{definition}[Satisfies Prismatic Displacement Law]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesprismaticdisplacementlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.SatisfiesPrismaticDisplacementLaw}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-areadimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-volumedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Prismatic displacement law for the upright, unflooded tank: the displaced ocean volume is the effective horizontal cross-sectional area times the draft. Steel-wall thickness is neglected at the resolution of the supplied area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Prismatic Displacement Law.
+\end{proof}
+\begin{definition}[Satisfies Total Weight Law]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiestotalweightlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.SatisfiesTotalWeightLaw}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-accelerationdimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-forcedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-totalsupportedmass}
+  The tank's downward weight magnitude is (tank mass + ballast mass) g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Total Weight Law.
+\end{proof}
+\begin{definition}[Satisfies Archimedes Law]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesarchimedeslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.SatisfiesArchimedesLaw}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-volumedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-massdensitydimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-accelerationdimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-forcedimension, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Archimedes' law: buoyancy is ocean density × displaced volume × g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Archimedes Law.
+\end{proof}
+\begin{definition}[Floats In Vertical Static Equilibrium]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-floatsinverticalstaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.FloatsInVerticalStaticEquilibrium}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup}
+  Static vertical flotation: the upward buoyant force balances the weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Floats In Vertical Static Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.AnswerChoice}
+  The four concrete-mass answers printed beside the multiple-choice labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Mass In Kilograms]
+  \label{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-answermassinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.answerMassInKilograms}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-answerchoice}
+  The concrete mass, in kilograms, displayed for an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Mass In Kilograms.
+\end{proof}
+\begin{lemma}[displaced Ocean Volume at requested Draft]
+  \label{lem:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-displacedoceanvolume-at-requesteddraft}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.displacedOceanVolume_at_requestedDraft}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-cubicmeters, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hastankandfiguredata, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesprismaticdisplacementlaw}
+  The area and requested 10 m draft displace exactly 30 m³ of ocean
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of displaced Ocean Volume at requested Draft.
+\end{proof}
+\begin{lemma}[total Supported Mass at requested Draft]
+  \label{lem:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-totalsupportedmass-at-requesteddraft}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0386.totalSupportedMass_at_requestedDraft}
+  \uses{def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-kilograms, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-ballastedtanksetup, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-totalsupportedmass, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hastankandfiguredata, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasrecordedoceandensitycalibration, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-hasphysicalgravity, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesprismaticdisplacementlaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiestotalweightlaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-satisfiesarchimedeslaw, def:physics:phyx-mini-0386:phyxminiproblems-problemphyxmini0386-floatsinverticalstaticequilibrium}
+  At the requested draft, buoyancy supports 997 × 30 = 29910 kg
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Supported Mass at requested Draft.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

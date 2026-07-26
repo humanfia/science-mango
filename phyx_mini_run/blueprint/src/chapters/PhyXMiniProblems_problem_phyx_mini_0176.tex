@@ -1,0 +1,269 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0176.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0176.source.json
+
+\chapter{Physics problem phyx\_mini\_0176}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0176}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a standing wave oscillating at \$100 \textbackslash{}, \textbackslash{}text\{Hz\}\$ on a string.
+
+\#\# Question
+
+What is the wave speed?
+
+\#\# Answer choices
+
+- A: A: 15 m/s
+
+- B: B: 60 m/s
+
+- C: C: 50 m/s
+
+- D: D: 30 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a sinusoidal wave pattern in blue, displayed horizontally. The wave consists of three complete wavelengths from left to right, across a straight horizontal line. The wave is enclosed between two vertical, shaded rectangles, which likely represent physical boundaries or walls.
+
+Below the wave, there is a double-headed arrow extending the width of the wave, labeled "60 cm," indicating the total horizontal distance across the waves from one rectangle to the other. The overall depiction suggests this is a representation related to wave physics, possibly demonstrating standing waves or resonance between two boundaries.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 30 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/176.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0176.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0176:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0176.problem_phyx_mini_0176}
+\uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedinmeterspersecond, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-matchesproblemandfigurereadouts, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-hasphysicalstandingwaveparameters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-satisfiesstandingwavelaws, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.SpeedQuantity}
+  A nonnegative physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.lengthReadout}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.frequencyReadout}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.speedReadout}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedquantity}
+  Read a physical speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.lengthInMeters}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthreadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthreadout}
+  Centimeter readout used by the dimension arrow in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedreadout}
+  Meter-per-second readout of the string-wave propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[String Endpoint]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.StringEndpoint}
+  The two shaded boundaries of the vibrating string segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Endpoint.
+\end{proof}
+\begin{definition}[String Boundary Condition]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.StringBoundaryCondition}
+  Boundary conditions relevant to the endpoint nodes in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Boundary Condition.
+\end{proof}
+\begin{definition}[String Wave Kind]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.StringWaveKind}
+  The physical type of the blue disturbance drawn in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Wave Kind.
+\end{proof}
+\begin{definition}[Wave Medium Kind]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-wavemediumkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.WaveMediumKind}
+  The material system on which the wave propagates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Medium Kind.
+\end{proof}
+\begin{definition}[Standing Wave On String Setup]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.StandingWaveOnStringSetup}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringendpoint, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringboundarycondition, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-stringwavekind, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-wavemediumkind}
+  Independent physical quantities and qualitative figure data for the standing wave. visibleAntinodalLoopCount is the number of lobes between successive nodes; each such lobe occupies one half-wavelength. Neither wavelength nor propagationSpeed is assigned a numerical value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Wave On String Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthincentimeters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyinhertz, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup}
+  The prose and primary-image readouts. The image visibly contains four loops, so it represents four half-wavelength intervals across the 60 cm span
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Standing Wave Parameters]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-hasphysicalstandingwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.HasPhysicalStandingWaveParameters}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyinhertz, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedinmeterspersecond, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup}
+  Positivity and nondegeneracy conditions for the pictured string mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Standing Wave Parameters.
+\end{proof}
+\begin{definition}[Satisfies Standing Wave Laws]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-satisfiesstandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.SatisfiesStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-frequencyinhertz, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedinmeterspersecond, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup}
+  Governing relations for this fixed-end string mode. The first field expresses 2 L = n λ, where n is the number of visible antinodal loops (equivalently, half-wavelength segments). The second is the standard kinematic relation v = f λ. These laws relate the independent physical quantities but state neither the inferred wavelength nor the requested numerical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Standing Wave Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.AnswerChoice}
+  The answer labels printed alongside the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-displayedanswerspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.displayedAnswerSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-answerchoice}
+  Displayed answer speeds, in meters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-answerchoice}
+  The answer recorded in the dataset metadata; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-speedinmeterspersecond, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-answerchoice, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-displayedanswerspeedinmeterspersecond}
+  A physical setup's speed agrees with the displayed value of a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[length In Meters eq length In Centimeters div hundred]
+  \label{lem:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters-eq-lengthincentimeters-div-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.lengthInMeters_eq_lengthInCentimeters_div_hundred}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthquantity, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthincentimeters}
+  General conversion between the two length readouts used in this problem
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of length In Meters eq length In Centimeters div hundred.
+\end{proof}
+\begin{lemma}[wavelength is three tenths meter]
+  \label{lem:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-wavelength-is-three-tenths-meter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0176.wavelength_is_three_tenths_meter}
+  \uses{def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-lengthinmeters, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-standingwaveonstringsetup, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-matchesproblemandfigurereadouts, def:physics:phyx-mini-0176:phyxminiproblems-problemphyxmini0176-satisfiesstandingwavelaws}
+  The four-loop fixed-end geometry and the 60 cm span imply a wavelength of 0.30 m. This is an intermediate physical conclusion, not an input premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wavelength is three tenths meter.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0792.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0792.source.json
+
+\chapter{Physics problem phyx\_mini\_0792}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0792}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Vector \textbackslash{}( \textbackslash{}vec\{A\} \textbackslash{}) has magnitude 6 units and is in the direction of the \textbackslash{}( +x \textbackslash{})-axis. Vector \textbackslash{}( \textbackslash{}vec\{B\} \textbackslash{}) has magnitude 4 units and lies in the xy-plane, making an angle of \textbackslash{}( 30\textasciicircum{}\textbackslash{}circ \textbackslash{}) with the \textbackslash{}( +x \textbackslash{})-axis as shown in figure.
+
+\#\# Question
+
+Find the vector product \textbackslash{}( \textbackslash{}vec\{C\} = \textbackslash{}vec\{A\} \textbackslash{}times \textbackslash{}vec\{B\} \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}[15\textbackslash{}hat\{k\}\textbackslash{}]
+
+- B: B: \textbackslash{}[12\textbackslash{}hat\{k\} \textbackslash{}]
+
+- C: C: \textbackslash{}[ 8\textbackslash{}hat\{k\} \textbackslash{}]
+
+- D: D: \textbackslash{}[18\textbackslash{}hat\{k\} \textbackslash{}]
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a three-dimensional coordinate system with vectors and a plane. Here's a detailed description:
+
+1. **Axes**:
+   - The coordinate system axes are labeled as \textbackslash{}(x\textbackslash{}), \textbackslash{}(y\textbackslash{}), and \textbackslash{}(z\textbackslash{}).
+   - The \textbackslash{}(x\textbackslash{})-axis extends to the right, the \textbackslash{}(y\textbackslash{})-axis extends upward and out of the screen, and the \textbackslash{}(z\textbackslash{})-axis extends diagonally downward to the left.
+
+2. **Vectors**:
+   - **Vector \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{})**: Points along the \textbackslash{}(x\textbackslash{})-axis starting from the origin \textbackslash{}(O\textbackslash{}) and is represented in brown.
+   - **Vector \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{})**: Extends from the origin \textbackslash{}(O\textbackslash{}) and makes an angle with the \textbackslash{}(x\textbackslash{})-axis within the plane shown. It’s also represented in brown.
+   - **Vector \textbackslash{}(\textbackslash{}vec\{C\}\textbackslash{})**: Points diagonally from the origin \textbackslash{}(O\textbackslash{}) into the \textbackslash{}(z\textbackslash{})-axis direction.
+
+3. **Plane**:
+   - A beige-colored plane is shown intersecting the \textbackslash{}(x\textbackslash{}) and \textbackslash{}(y\textbackslash{}) axes. It appears to be a vertical plane containing vectors \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}).
+
+4. **Angle**:
+   - An angle \textbackslash{}(\textbackslash{}phi = 30\textasciicircum{}\textbackslash{}circ\textbackslash{}) is marked between vectors \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}) within the beige plane. 
+
+5. **Origin**:
+   - The point of intersection of all the vectors and axes is labeled \textbackslash{}(O\textbackslash{}).
+
+This diagram likely represents a vector projection or interaction in three-dimensional space, with specific interest in the angle between vectors \textbackslash{}(\textbackslash{}vec\{A\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{B\}\textbackslash{}).
+
+\#\# Dataset metadata
+
+Dynamics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}[12\textbackslash{}hat\{k\} \textbackslash{}]
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/792.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0792.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0792:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0792.vectorProduct_eq_twelve_kHat}
+\uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-khat, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductsetup, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-statedvectordata, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-matchessuppliedfigure, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-satisfiesvectorproductlaw}
+If \(A\) has magnitude \(6\) along \(+x\), \(B\) has magnitude \(4\) in the
+\(xy\)-plane at \(30^\circ\) counterclockwise from \(A\), and
+\(C=A\times B\), then \(C=12\widehat{k}\).
+\end{theorem}
+\begin{proof}
+The positive-axis and magnitude hypotheses give \(A=6\widehat{i}\).  The
+figure converts the marked angle to \(\pi/6\), and the positive \(y\)-component
+chooses the counterclockwise planar orientation.  Thus
+\[
+ B=4\cos(\pi/6)\widehat{i}+4\sin(\pi/6)\widehat{j}
+   =2\sqrt3\,\widehat{i}+2\widehat{j}.
+\]
+The three-dimensional cross-product formula now gives
+\[
+ A\times B
+ =(6,0,0)\times(2\sqrt3,2,0)=(0,0,12)
+ =12\widehat{k}.
+\]
+The governing vector-product law identifies this vector with \(C\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Spatial Vector]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.SpatialVector}
+  Numerical Cartesian components of a three-dimensional spatial vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Vector.
+\end{proof}
+\begin{definition}[Coordinate Axis]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.CoordinateAxis}
+  The three labelled coordinate axes in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis.
+\end{proof}
+\begin{definition}[axis Index]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.axisIndex}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateaxis}
+  Coordinate index belonging to a labelled axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axis Index.
+\end{proof}
+\begin{definition}[axis Vector]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.axisVector}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateaxis, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisindex}
+  Unit vector along a labelled positive coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axis Vector.
+\end{proof}
+\begin{definition}[i Hat]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-ihat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.iHat}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisvector}
+  Unit vector i-hat along +x
+\end{definition}
+\begin{proof}
+  This is the declared model definition of i Hat.
+\end{proof}
+\begin{definition}[j Hat]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-jhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.jHat}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisvector}
+  Unit vector j-hat along +y
+\end{definition}
+\begin{proof}
+  This is the declared model definition of j Hat.
+\end{proof}
+\begin{definition}[k Hat]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-khat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.kHat}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisvector}
+  Unit vector k-hat along +z
+\end{definition}
+\begin{proof}
+  This is the declared model definition of k Hat.
+\end{proof}
+\begin{definition}[Coordinate Plane]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.CoordinatePlane}
+  The three coordinate planes determined by the labelled axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Plane.
+\end{proof}
+\begin{definition}[Lies In Coordinate Plane]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-liesincoordinateplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.LiesInCoordinatePlane}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisindex, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateplane}
+  A vector has zero component normal to the indicated coordinate plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lies In Coordinate Plane.
+\end{proof}
+\begin{definition}[Points Along Positive Axis]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-pointsalongpositiveaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.PointsAlongPositiveAxis}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateaxis, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisvector}
+  A nonzero vector is a positive scalar multiple of a labelled axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Points Along Positive Axis.
+\end{proof}
+\begin{definition}[Figure Vector Label]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-figurevectorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.FigureVectorLabel}
+  Vector labels printed beside the three arrows in image 792.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Vector Label.
+\end{proof}
+\begin{definition}[Axis Sense]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axissense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.AxisSense}
+  Positive or negative sense along a labelled coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Sense.
+\end{proof}
+\begin{definition}[Vector Product Figure]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.VectorProductFigure}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateaxis, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-coordinateplane, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-figurevectorlabel, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axissense}
+  Literal and qualitative information visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vector Product Figure.
+\end{proof}
+\begin{definition}[Vector Product Setup]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.VectorProductSetup}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductfigure}
+  The three vectors are independent data. In particular, vectorCInSquaredUnits is not defined to be either a cross product or an answer choice; the governing cross-product relation is an explicit law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vector Product Setup.
+\end{proof}
+\begin{definition}[Stated Vector Data]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-statedvectordata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.StatedVectorData}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-liesincoordinateplane, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-pointsalongpositiveaxis, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductsetup}
+  Quantitative and geometric data stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stated Vector Data.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-axisindex, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductsetup}
+  Image-derived facts. The positive y component disambiguates the two planar vectors making the same undirected angle with +x. No calibrated numerical fact about the drawn C arrow is asserted
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Vector Product Law]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-satisfiesvectorproductlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.SatisfiesVectorProductLaw}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-vectorproductsetup}
+  Governing relation specified by C = A × B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Vector Product Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Coefficient]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-displayedcoefficient}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.displayedCoefficient}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-answerchoice}
+  Numerical coefficient of k-hat printed in an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Coefficient.
+\end{proof}
+\begin{definition}[displayed Answer Vector]
+  \label{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-displayedanswervector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0792.displayedAnswerVector}
+  \uses{def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-spatialvector, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-khat, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-answerchoice, def:physics:phyx-mini-0792:phyxminiproblems-problemphyxmini0792-displayedcoefficient}
+  Vector printed by an answer choice, in squared vector units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Vector.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

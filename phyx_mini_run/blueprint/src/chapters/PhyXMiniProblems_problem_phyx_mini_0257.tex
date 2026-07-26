@@ -1,0 +1,364 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0257.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0257.source.json
+
+\chapter{Physics problem phyx\_mini\_0257}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0257}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a block weighing \$14.0\textbackslash{} N\$, which can slide without friction on an incline at angle \$\textbackslash{}theta = 40.0\textasciicircum{}\textbackslash{}circ\$, is connected to the top of the incline by a massless spring of unstretched length \$0.450\textbackslash{} m\$ and spring constant \$120\textbackslash{} N/m\$.
+
+\#\# Question
+
+If the block is pulled slightly down the incline and released, what is the period of the resulting oscillations?
+
+\#\# Answer choices
+
+- A: A: 0.619 s
+
+- B: B: 0.628 s
+
+- C: C: 0.686 s
+
+- D: D: 0.742 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram involving a spring, an inclined plane, and a block. Here are the details:
+
+- **Inclined Plane**: The plane is angled, with an angle labeled as \textbackslash{}( \textbackslash{}theta \textbackslash{}).
+- **Block**: A rectangular block rests on the inclined plane.
+- **Spring**: A spring is attached to a fixed surface at the top of the incline and connected to the block.
+- **Spring Constant**: The spring is labeled with a constant \textbackslash{}( k \textbackslash{}), representing the spring constant.
+- **Relationships**: The block is in contact with the plane and the spring, suggesting a scenario involving elastic potential energy and gravitational forces.
+
+This is a typical setup for analyzing mechanical systems involving friction, gravity, and spring force.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.686 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/257.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0257.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0257:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0257.oscillationPeriod_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchesproblemdata, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchessuppliedfigure, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-satisfiesinclinedspringoscillatorlaws, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-recordedanswerchoice, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchesdisplayedperiod, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.MassQuantity}
+  A physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.ForceQuantity}
+  A physical force, used for the block's weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.LengthQuantity}
+  A physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.AccelerationQuantity}
+  A physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpringConstantQuantity}
+  A spring stiffness, with dimension force per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpeedQuantity}
+  A physical speed, used for the release speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.TimeQuantity}
+  A physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.massInKilograms}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.forceInNewtons}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forcequantity}
+  Newton readout of a physical force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.lengthInMeters}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationquantity}
+  Metres-per-second-squared readout of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantquantity}
+  Newton-per-metre readout of a spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-speedquantity}
+  Metres-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.timeInSeconds}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timequantity}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.degreesToRadians}
+  Convert a dimensionless angle stated in degrees to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Block Contact Model]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-blockcontactmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.BlockContactModel}
+  Contact model between the block and the incline
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Contact Model.
+\end{proof}
+\begin{definition}[Spring Mass Model]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpringMassModel}
+  Mass model for the connecting spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Mass Model.
+\end{proof}
+\begin{definition}[Incline Direction]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.InclineDirection}
+  Direction in which the block is initially pulled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Incline Direction.
+\end{proof}
+\begin{definition}[Displacement Regime]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-displacementregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.DisplacementRegime}
+  Qualitative displacement regime expressed by the word "slightly"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Regime.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.FigureComponent}
+  Components visible in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.FigureLabel}
+  Symbols printed in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Spring Orientation]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpringOrientation}
+  Orientation of the spring relative to the incline
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Orientation.
+\end{proof}
+\begin{definition}[Spring Upper Attachment]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springupperattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpringUpperAttachment}
+  Upper attachment shown for the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Upper Attachment.
+\end{proof}
+\begin{definition}[Spring Lower Attachment]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springlowerattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SpringLowerAttachment}
+  Lower attachment shown for the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Lower Attachment.
+\end{proof}
+\begin{definition}[Supplied Figure]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-suppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SuppliedFigure}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-figurecomponent, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-figurelabel, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springorientation, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springupperattachment, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springlowerattachment}
+  Structured readout of the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Figure.
+\end{proof}
+\begin{definition}[Inclined Spring Setup]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.InclinedSpringSetup}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massquantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forcequantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthquantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationquantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantquantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-speedquantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timequantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-blockcontactmodel, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springmassmodel, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedirection, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-displacementregime, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-suppliedfigure}
+  The physical system and its unknown oscillation period. The physical period is an independent field: it is neither defined to be a displayed answer nor assigned a numerical value in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inclined Spring Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forceinnewtons, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthinmeters, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantinnewtonspermeter, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-speedinmeterspersecond, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup}
+  Numerical and qualitative data stated in the problem. The value 9.8 m/s² is the standard gravitational calibration needed to infer mass from the given weight. No period or answer-choice value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup}
+  Primary-image readout: an inclined plane, block, spring, and top anchor are visible; θ labels the incline and k labels the spring; the spring runs along the incline from the block to a fixed upper anchor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Inclined Spring Oscillator Laws]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-satisfiesinclinedspringoscillatorlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.SatisfiesInclinedSpringOscillatorLaws}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massinkilograms, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-forceinnewtons, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-lengthinmeters, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantinnewtonspermeter, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timeinseconds, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-degreestoradians, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup}
+  The governing laws for the frictionless, small-displacement motion. The first two equations identify weight with m g and locate the statically shifted equilibrium using the component of gravity along the incline. The last three fields connect the physical system to Physlib's positive-mass, positive-stiffness harmonic oscillator and its general period. None assumes the requested numerical period or a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Inclined Spring Oscillator Laws.
+\end{proof}
+\begin{lemma}[oscillation Period formula]
+  \label{lem:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-oscillationperiod-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.oscillationPeriod_formula}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-massinkilograms, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-springconstantinnewtonspermeter, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timeinseconds, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-inclinedspringsetup, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-satisfiesinclinedspringoscillatorlaws}
+  The Physlib oscillator laws give the standard mass--spring period formula. Gravity and incline angle affect the equilibrium extension but not this linearized period
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of oscillation Period formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice}
+  Period in seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Period]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-matchesdisplayedperiod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.MatchesDisplayedPeriod}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timequantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timeinseconds, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice}
+  Agreement with a displayed period rounded to the nearest millisecond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Period.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0257.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timequantity, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-timeinseconds, def:physics:phyx-mini-0257:phyxminiproblems-problemphyxmini0257-answerchoice}
+  The selected choice is strictly closer than every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

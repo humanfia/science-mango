@@ -1,0 +1,379 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0570.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0570.source.json
+
+\chapter{Physics problem phyx\_mini\_0570}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0570}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider a particle of kinetic energy \$K\$ approaching the step function of the figure from the left, where the potential barrier steps from 0 to \$V\_0\$ at \$x = 0\$.
+
+\#\# Question
+
+Calculate the penetration distance for a 5-eV electron approaching a step barrier of 10 eV.
+
+\#\# Answer choices
+
+- A: A: 0.55nm
+
+- B: B: 0.95nm
+
+- C: C: 0.044nm
+
+- D: D: 10.2nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a potential step in a quantum mechanics context. It features:
+
+- **Axes**: The horizontal axis is labeled "Position (x)" and the vertical axis is labeled "V(x)" for potential energy.
+- **Potential Step**: At position \textbackslash{}( x = 0 \textbackslash{}), there is a vertical line indicating a step in potential energy. The potential is \textbackslash{}( V\_0 \textbackslash{}) for \textbackslash{}( x > 0 \textbackslash{}) and 0 for \textbackslash{}( x < 0 \textbackslash{}).
+- **Line Segments**: Horizontal blue lines represent potential energy levels. The left side is at zero potential, and the right side is at potential \textbackslash{}( V\_0 \textbackslash{}).
+- **Particle**: An arrow with a dashed line pointing right indicates the movement of a particle approaching the step, labeled "Particle."
+- **Energy Level**: A line and label "E" represent the particle's energy, positioned below \textbackslash{}( V\_0 \textbackslash{}).
+  
+The diagram illustrates a scenario often used to explain quantum tunneling or the behavior of a particle encountering a potential step.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.044nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/570.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0570.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0570:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0570.problem_phyx_mini_0570}
+\uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matcheselectronstepscenario, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchesproblemnumericalreadouts, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchesupwardpotentialstepprofile, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchessuppliedpotentialstepfigure, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-usesstandardelectronreferencedata, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-hasphysicalunderstepparameters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-satisfiesevanescentprobabilitydensitylaw, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-isprobabilitydensityefoldingdistance, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-agreeswhenroundedtothreedecimalnanometers, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-isuniquenearestpenetrationdistancechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.SignedLengthQuantity}
+  A signed, unit-independent coordinate along the scattering axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Inverse Length Quantity]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.InverseLengthQuantity}
+  A nonnegative inverse length, used for the evanescent decay constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverse Length Quantity.
+\end{proof}
+\begin{definition}[action Dimension]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actiondimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.actionDimension}
+  The physical dimension of action, mass * length\textasciicircum{}2 / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action Dimension.
+\end{proof}
+\begin{definition}[Action Quantity]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.ActionQuantity}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actiondimension}
+  A nonnegative, unit-independent physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Action Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.energyInJoules}
+  Coherent-SI readout of an energy, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules}
+  Read an energy in electron volts using Physlib's calibrated electron volt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.massInKilograms}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massquantity}
+  Read a mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[action In Joule Seconds]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actioninjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.actionInJouleSeconds}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actionquantity}
+  Read an action in coherent SI units, joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action In Joule Seconds.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.positionInMeters}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-signedlengthquantity}
+  Read a signed position in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.lengthReadout}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.lengthInMeters}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthreadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthreadout}
+  Read a physical length in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[inverse Length In Inverse Meters]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthininversemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.inverseLengthInInverseMeters}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthquantity}
+  Read an inverse-length quantity in inverse metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inverse Length In Inverse Meters.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.ParticleSpecies}
+  Particle species distinguished by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Potential Region]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-potentialregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.PotentialRegion}
+  The two constant-potential regions separated by x = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Region.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.HorizontalDirection}
+  Horizontal propagation directions in the one-dimensional diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Axis Role]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-figureaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.FigureAxisRole}
+  Physical roles of the two plotted axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Role.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.FigureTextLabel}
+  Literal quantity/text labels visible in image 570.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Potential Step Figure]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-potentialstepfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.PotentialStepFigure}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-horizontaldirection, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-figureaxisrole, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-figuretextlabel}
+  Qualitative evidence read from the primary raster: axes and labels, a zero left plateau, a jump at the origin, the V₀ right plateau, the lower E level, and a particle directed toward positive x
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Step Figure.
+\end{proof}
+\begin{definition}[Electron Potential Step Setup]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.ElectronPotentialStepSetup}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-signedlengthquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actionquantity, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-particlespecies, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-potentialregion, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-horizontaldirection, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-potentialstepfigure}
+  Independent quantities in the under-step scattering experiment. In particular, the probability-density penetration distance is stored rather than defined from the source's recorded numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electron Potential Step Setup.
+\end{proof}
+\begin{definition}[Matches Electron Step Scenario]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matcheselectronstepscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.MatchesElectronStepScenario}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  The prose describes an electron incident from the left toward positive x
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Electron Step Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Numerical Readouts]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchesproblemnumericalreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.MatchesProblemNumericalReadouts}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinelectronvolts, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  The numerical input data stated in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Numerical Readouts.
+\end{proof}
+\begin{definition}[Matches Upward Potential Step Profile]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchesupwardpotentialstepprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.MatchesUpwardPotentialStepProfile}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-positioninmeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  The sharp step is at the origin, with zero potential on the left and V₀ on the right. The incident total energy equals kinetic plus potential energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Upward Potential Step Profile.
+\end{proof}
+\begin{definition}[Matches Supplied Potential Step Figure]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-matchessuppliedpotentialstepfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.MatchesSuppliedPotentialStepFigure}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-potentialstepfigure}
+  Primary-image evidence from 570.png. This contains no penetration-distance readout and no answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Potential Step Figure.
+\end{proof}
+\begin{definition}[Uses Standard Electron Reference Data]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-usesstandardelectronreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.UsesStandardElectronReferenceData}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massinkilograms, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actioninjouleseconds, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  Standard electron mass and Physlib reduced-Planck-constant calibrations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Electron Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Under Step Parameters]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-hasphysicalunderstepparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.HasPhysicalUnderStepParameters}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massinkilograms, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actioninjouleseconds, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinmeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthininversemeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  Positivity and E < V₀ select the classically forbidden branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Under Step Parameters.
+\end{proof}
+\begin{definition}[Satisfies Evanescent Probability Density Law]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-satisfiesevanescentprobabilitydensitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.SatisfiesEvanescentProbabilityDensityLaw}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massinkilograms, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actioninjouleseconds, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-inverselengthininversemeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  For a constant region with E < V₀, the amplitude decay constant obeys κ = sqrt (2 m (V₀ - E)) / ℏ, and the probability density relative to its boundary value obeys ρ(x) / ρ(0) = exp (-2 κ x) for x ≥ 0. These are general governing laws, not a numerical penetration-distance answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Evanescent Probability Density Law.
+\end{proof}
+\begin{definition}[Is Probability Density Efolding Distance]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-isprobabilitydensityefoldingdistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.IsProbabilityDensityEfoldingDistance}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinmeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup}
+  The requested observable is the positive distance at which the normalized probability density has fallen to exp (-1). This fixes the physical meaning of "penetration distance" without assuming its numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Probability Density Efolding Distance.
+\end{proof}
+\begin{lemma}[probability Density Penetration Distance closed Form]
+  \label{lem:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-probabilitydensitypenetrationdistance-closedform}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.probabilityDensityPenetrationDistance_closedForm}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-energyinjoules, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-massinkilograms, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-actioninjouleseconds, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinmeters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-hasphysicalunderstepparameters, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-satisfiesevanescentprobabilitydensitylaw, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-isprobabilitydensityefoldingdistance}
+  The two governing decay laws imply the coherent-SI closed form for the probability-density penetration distance. This is a derived conclusion, not a field of any premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of probability Density Penetration Distance closed Form.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.AnswerChoice}
+  Labels of the four penetration-distance choices in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Penetration Distance Nanometers]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-displayedpenetrationdistancenanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.displayedPenetrationDistanceNanometers}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-answerchoice}
+  The penetration distance printed beside each label, measured in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Penetration Distance Nanometers.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-answerchoice}
+  Dataset metadata recording answer C; it is deliberately not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Agrees When Rounded To Three Decimal Nanometers]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-agreeswhenroundedtothreedecimalnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.AgreesWhenRoundedToThreeDecimalNanometers}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinnanometers, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-answerchoice, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-displayedpenetrationdistancenanometers}
+  Agreement with a value displayed to three decimal places in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees When Rounded To Three Decimal Nanometers.
+\end{proof}
+\begin{definition}[Is Unique Nearest Penetration Distance Choice]
+  \label{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-isuniquenearestpenetrationdistancechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0570.IsUniqueNearestPenetrationDistanceChoice}
+  \uses{def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-lengthinnanometers, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-electronpotentialstepsetup, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-answerchoice, def:physics:phyx-mini-0570:phyxminiproblems-problemphyxmini0570-displayedpenetrationdistancenanometers}
+  The selected value is strictly nearer than each other displayed distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Penetration Distance Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

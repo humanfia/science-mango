@@ -1,0 +1,234 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0878.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0878.source.json
+
+\chapter{Physics problem phyx\_mini\_0878}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0878}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the equivalent capacitance of the three capacitors?
+
+\#\# Answer choices
+
+- A: A: 2.5\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\}
+
+- B: B: 35\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\}
+
+- C: C: 55\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\}
+
+- D: D: 25\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure is a circuit diagram featuring three capacitors and a battery. Here's a detailed description:
+
+1. **Battery:** Located on the left side, represented by a vertical line pair connected to the circuit, with positive (+) on the top and negative (−) on the bottom.
+
+2. **Capacitors:**
+   - Two capacitors, labeled as 20 μF and 30 μF, are arranged in parallel to each other and are connected across the battery.
+   - Another capacitor, labeled as 13 μF, is connected in series with the parallel combination of the 20 μF and 30 μF capacitors.
+
+3. **Circuit Layout:**
+   - The battery is connected to the parallel combination of the 20 μF and 30 μF capacitors.
+   - This parallel combination is then connected to the 13 μF capacitor, completing the circuit. 
+
+The diagram displays a common configuration used in electric circuits to vary capacitance through series and parallel connections.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 25\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/878.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0878.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0878:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0878.recorded_answer_is_D}
+\uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinmicrofarads, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-equivalentcapacitancelaws, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-matchesprimaryfigure, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-representsfigurenetworkreduction, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-answerchoice, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-displayedchoiceinmicrofarads}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.capacitanceDimension}
+  Capacitance has dimension C² T² M⁻¹ L⁻², since one farad is one coulomb per volt and voltage has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancedimension}
+  A nonnegative, unit-independent physical capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[capacitance Readout]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.capacitanceReadout}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity}
+  Read a physical capacitance in an arbitrary coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Readout.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancereadout}
+  Read a physical capacitance in coherent-SI farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinfarads}
+  Read a physical capacitance in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.CircuitNode}
+  The three electrically relevant nodes visible in image 878.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Capacitor Label]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.CapacitorLabel}
+  Figure-derived names for the three physical capacitors
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitor Label.
+\end{proof}
+\begin{definition}[Ideal Battery]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-idealbattery}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.IdealBattery}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-circuitnode}
+  The ideal battery symbol shown on the left of the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Battery.
+\end{proof}
+\begin{definition}[Capacitor]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.Capacitor}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-circuitnode}
+  A physical capacitor together with its two endpoints. upperTerminal and lowerTerminal refer only to the orientation in the raster circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitor.
+\end{proof}
+\begin{definition}[Series Capacitance Reduction]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-seriescapacitancereduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.SeriesCapacitanceReduction}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity}
+  A claimed two-capacitance series reduction, before applying its law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series Capacitance Reduction.
+\end{proof}
+\begin{definition}[Parallel Capacitance Reduction]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-parallelcapacitancereduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.ParallelCapacitanceReduction}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancequantity}
+  A claimed two-branch parallel reduction, before applying its law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Capacitance Reduction.
+\end{proof}
+\begin{definition}[Equivalent Capacitance Laws]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-equivalentcapacitancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.EquivalentCapacitanceLaws}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitancereadout, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-seriescapacitancereduction, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-parallelcapacitancereduction}
+  The elementary physical laws for reducing ideal capacitors. They are stated at every coherent unit choice; within each equation all readouts therefore use one common coordinate and have the same dimensional role
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equivalent Capacitance Laws.
+\end{proof}
+\begin{definition}[Three Capacitor Circuit]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.ThreeCapacitorCircuit}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitorlabel, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-idealbattery, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitor, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-seriescapacitancereduction, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-parallelcapacitancereduction}
+  The circuit quantities to be reduced. The two equivalent capacitances here are unknown physical quantities, not numerical answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Capacitor Circuit.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinmicrofarads, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit}
+  Endpoint and printed-value observations read from the primary image. In particular, these fields encode the centre *series* branch shown in the image, not the reversed topology asserted by the auxiliary caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Represents Figure Network Reduction]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-representsfigurenetworkreduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.RepresentsFigureNetworkReduction}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit}
+  The reduction order inferred from the endpoint topology: first reduce the two centre capacitors in series, then put that result in parallel with the right capacitor. This predicate contains no numerical value for either output
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Represents Figure Network Reduction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.AnswerChoice}
+  Multiple-choice labels in the order printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Choice In Microfarads]
+  \label{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-displayedchoiceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.displayedChoiceInMicrofarads}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-answerchoice}
+  The capacitance value displayed beside each choice, in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Choice In Microfarads.
+\end{proof}
+\begin{lemma}[center series equivalent eq twelve microfarads]
+  \label{lem:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-center-series-equivalent-eq-twelve-microfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.center_series_equivalent_eq_twelve_microfarads}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinmicrofarads, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-equivalentcapacitancelaws, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-matchesprimaryfigure, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-representsfigurenetworkreduction}
+  The two centre capacitors reduce to 12 μF
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of center series equivalent eq twelve microfarads.
+\end{proof}
+\begin{theorem}[equivalent capacitance eq twenty five microfarads]
+  \label{thm:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-equivalent-capacitance-eq-twenty-five-microfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0878.equivalent_capacitance_eq_twenty_five_microfarads}
+  \uses{def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-capacitanceinmicrofarads, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-equivalentcapacitancelaws, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-threecapacitorcircuit, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-matchesprimaryfigure, def:physics:phyx-mini-0878:phyxminiproblems-problemphyxmini0878-representsfigurenetworkreduction}
+  the equivalent capacitance of all three capacitors is 25 μF
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equivalent capacitance eq twenty five microfarads.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

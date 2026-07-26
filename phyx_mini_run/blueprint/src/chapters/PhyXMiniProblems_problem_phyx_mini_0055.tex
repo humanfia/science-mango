@@ -1,0 +1,146 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0055.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0055.source.json
+
+\chapter{Physics problem phyx\_mini\_0055}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0055}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A goldfish lives in a spherical fish bowl 50 cm in diameter. If the fish is 10 cm from the near edge of the bowl.
+
+\#\# Question
+
+How faraway is the image of the fish from the edge of the bowl?
+
+\#\# Answer choices
+
+- A: A: 14cm
+
+- B: B: 8.6cm
+
+- C: C: 8.3cm
+
+- D: D: 7.4cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a ray diagram illustrating the formation of a virtual image by a concave lens or interface. Here's a detailed breakdown of the content:
+
+1. **Media and Refraction**:
+   - The image shows two regions with different refractive indices: \textbackslash{}( n\_1 = 1.33 \textbackslash{}) on the left and \textbackslash{}( n\_2 = 1.00 \textbackslash{}) on the right, indicating a transition from a denser to a less dense medium.
+
+2. **Surface and Radius of Curvature**:
+   - The curved boundary between the two media has a radius of curvature \textbackslash{}( R = -25 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}).
+
+3. **Object and Image**:
+   - A green arrow labeled "Object" is placed in the denser medium.
+   - A virtual image, shown as a dashed arrow and labeled "Virtual image," appears to the right of the object.
+
+4. **Light Rays**:
+   - Several purple lines represent light rays diverging from the object and refracting at the boundary. 
+   - Solid lines depict actual rays bending and diverging in the less dense medium.
+   - Dashed lines are extensions of these rays, converging to the point where the virtual image appears.
+
+5. **Distances**:
+   - The object distance is \textbackslash{}( s = 10 \textbackslash{}, \textbackslash{}text\{cm\} \textbackslash{}).
+   - The label \textbackslash{}( s' \textbackslash{}) indicates the image distance, but its actual value isn't specified in the diagram.
+
+Overall, the diagram is a typical illustration of light refraction at a curved interface, demonstrating the creation of a virtual image.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 8.3cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/55.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0055.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0055:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0055.problem_phyx_mini_0055}
+\uses{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-lengthreadout, def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-fishbowlrefractionsetup, def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-meridionalrayfamily, def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-answerchoice, def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-answerdistanceincentimeters}
+At the spherical water--air interface of radius \(-25\,\mathrm{cm}\), a fish
+\(10\,\mathrm{cm}\) from the near vertex has a first-order virtual-image
+distance \(5000/599\,\mathrm{cm}\).  This is within \(0.05\,\mathrm{cm}\) of
+choice C, \(8.3\,\mathrm{cm}\), and is strictly closer to C than to every
+other displayed choice.
+\end{theorem}
+\begin{proof}
+Differentiate the exact local Snell identity at the central ray.  Since all
+three central angles are zero and the derivative of sine there is one, the
+derivative equation is
+\[
+ \frac{133}{100}\left(\frac1{10}-\frac1{25}\right)
+   =\frac1q-\frac1{25},
+\]
+with the signs supplied by the oriented object, normal, and virtual-image
+slopes.  Solving gives \(q=5000/599\,\mathrm{cm}\); the axial-order premise
+selects the positive back-projection distance.  Normalize the resulting
+rational absolute differences to prove the \(0.05\) bound for \(8.3\) and
+the four finite strict comparisons establishing unique closeness.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.OpticalLength}
+  A signed physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.lengthReadout}
+  \uses{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-opticallength}
+  The scalar readout of a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[Fish Bowl Refraction Setup]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-fishbowlrefractionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.FishBowlRefractionSetup}
+  \uses{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-opticallength}
+  Dimensionful data for the pictured spherical bowl. The four axial positions name the center of curvature, fish, first-order virtual image, and near surface vertex in the left-to-right optical-axis orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fish Bowl Refraction Setup.
+\end{proof}
+\begin{definition}[Meridional Ray Family]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-meridionalrayfamily}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.MeridionalRayFamily}
+  A meridional ray family parametrized by signed ray height at the surface in centimeters. The values are oriented direction-angle readouts in radians from the left-to-right optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Meridional Ray Family.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Distance In Centimeters]
+  \label{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-answerdistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0055.answerDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0055:phyxminiproblems-problemphyxmini0055-answerchoice}
+  Distance in centimeters printed beside each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Distance In Centimeters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

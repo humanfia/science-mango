@@ -1,0 +1,416 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0331.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0331.source.json
+
+\chapter{Physics problem phyx\_mini\_0331}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0331}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A long rod, insulated to prevent heat loss along its sides, is in perfect thermal contact with boiling water (at atmospheric pressure) at one end and with an ice–water mixture at the other (	extbf\{figure\}). The rod consists of a \textbackslash{}( 1.00\textbackslash{},\textbackslash{}text\{m\} \textbackslash{}) section of copper (one end in boiling water) joined end to end to a length \textbackslash{}( L\_2 \textbackslash{}) of steel (one end in the ice–water mixture). Both sections of the rod have cross-sectional areas of \textbackslash{}( 4.00\textbackslash{},\textbackslash{}text\{cm\}\textasciicircum{}2 \textbackslash{}). The temperature of the copper–steel junction is \textbackslash{}( 65.0\textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\} \textbackslash{}) after a steady state has been set up.
+
+\#\# Question
+
+What is the length \textbackslash{}( L\_2 \textbackslash{}) of the steel section?
+
+\#\# Answer choices
+
+- A: A: 0.242m
+
+- B: B: 0.222m
+
+- C: C: 0.142m
+
+- D: D: 0.262m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional diagram illustrating heat transfer through a composite rod touching boiling water on one side and ice water on the other. 
+
+1. **Sections**:
+   - **Left Section**: Contains representations of boiling water with blue bubbles and labeled "Boiling water."
+   - **Middle Section**:
+     - Composed of two materials: labeled "COPPER" (in orange) and "STEEL" (in gray).
+     - Surrounded by a layer labeled "Insulation" (in light green).
+     - The temperature "65.0°C" is marked on the copper section near the steel junction.
+     - A length "1.00 m" is indicated for the copper section.
+     - The section marked as "L2" extends over another part of the steel section.
+   
+2. **Right Section**: Contains illustrations of ice cubes in water, labeled "Ice and water."
+
+This diagram likely represents a thermal conductivity experiment or problem setup, demonstrating how heat moves from the boiling water, through the copper and steel materials, to the ice water.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 0.242m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/331.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0331.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0331:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0331.problem_phyx_mini_0331}
+\uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchescompositerodscenario, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchessuppliedfigure, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchesproblemreadouts, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usesatmosphericwaterfixedpoints, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfieskelvincelsiuscalibration, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usestextbookthermalconductivities, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-hasphysicalcompositerodparameters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesperfectthermalcontactlaw, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesinsulatedsteadyfourierconduction, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.LengthQuantity}
+  A nonnegative physical length, independent of the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.AreaQuantity}
+  A nonnegative cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Heat Current Quantity]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.HeatCurrentQuantity}
+  A nonnegative heat-transfer rate (power), with dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Current Quantity.
+\end{proof}
+\begin{definition}[Thermal Conductivity Quantity]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.ThermalConductivityQuantity}
+  Thermal conductivity, with SI unit watt per meter-kelvin and dimension mass * length / (time\textasciicircum{}3 * temperature)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Conductivity Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.lengthInMeters}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthquantity}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areaquantity}
+  Square-meter readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[area In Square Centimeters]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areainsquarecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.areaInSquareCentimeters}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areaquantity}
+  Square-centimeter readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Centimeters.
+\end{proof}
+\begin{definition}[heat Current In Watts]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.heatCurrentInWatts}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentquantity}
+  SI watt readout of a heat current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Current In Watts.
+\end{proof}
+\begin{definition}[thermal Conductivity In Watts Per Meter Kelvin]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityinwattspermeterkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.thermalConductivityInWattsPerMeterKelvin}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityquantity}
+  SI watt-per-meter-kelvin readout of thermal conductivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Conductivity In Watts Per Meter Kelvin.
+\end{proof}
+\begin{definition}[Measured Temperature]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-measuredtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.MeasuredTemperature}
+  Physlib stores an absolute, nonnegative physical temperature. Celsius has an affine offset and Physlib currently supplies no offset-Celsius measurement API, so the figure's Celsius value is retained as a named scalar instrument readout rather than replacing the physical temperature by ℝ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Measured Temperature.
+\end{proof}
+\begin{definition}[Rod Material]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.RodMaterial}
+  The two material kinds named in the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Material.
+\end{proof}
+\begin{definition}[Rod Section]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.RodSection}
+  The two end-to-end sections of the composite rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Section.
+\end{proof}
+\begin{definition}[Thermal Location]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermallocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.ThermalLocation}
+  Thermally distinguished locations in the apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Location.
+\end{proof}
+\begin{definition}[Thermal Contact]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalcontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.ThermalContact}
+  The three interfaces described as being in perfect thermal contact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Contact.
+\end{proof}
+\begin{definition}[Contact Quality]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-contactquality}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.ContactQuality}
+  Physical quality of a thermal interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Contact Quality.
+\end{proof}
+\begin{definition}[Water Pressure Regime]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-waterpressureregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.WaterPressureRegime}
+  Water-pressure regime at the boiling reservoir
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Pressure Regime.
+\end{proof}
+\begin{definition}[Thermal Regime]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.ThermalRegime}
+  Time dependence of the temperature profile
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Regime.
+\end{proof}
+\begin{definition}[Rod Side Condition]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsidecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.RodSideCondition}
+  Lateral boundary condition of the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Side Condition.
+\end{proof}
+\begin{definition}[contact Locations]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-contactlocations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.contactLocations}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermallocation, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalcontact}
+  The two physical locations joined by each contact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of contact Locations.
+\end{proof}
+\begin{definition}[section Hot Location]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-sectionhotlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.sectionHotLocation}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsection, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermallocation}
+  Hot-side location of each rod section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of section Hot Location.
+\end{proof}
+\begin{definition}[section Cold Location]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-sectioncoldlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.sectionColdLocation}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsection, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermallocation}
+  Cold-side location of each rod section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of section Cold Location.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.FigureObject}
+  Physical objects visibly depicted in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.FigureLabel}
+  Text or numerical labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Composite Rod Figure]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.CompositeRodFigure}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-figureobject, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-figurelabel}
+  Qualitative information from the primary image. The image labels the copper length and the unknown steel length, locates 65.0 °C at the junction, and shows insulation around the rod sides. It does not print the common area or either material's conductivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Composite Rod Figure.
+\end{proof}
+\begin{definition}[Composite Rod Setup]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.CompositeRodSetup}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthquantity, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areaquantity, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentquantity, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityquantity, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-measuredtemperature, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodmaterial, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsection, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermallocation, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalcontact, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-contactquality, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-waterpressureregime, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalregime, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-rodsidecondition, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodfigure}
+  Independent quantities and categorical data for the apparatus. In particular, sectionLength .steelSection is not defined from the displayed answer or from a conductivity formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Composite Rod Setup.
+\end{proof}
+\begin{definition}[Matches Composite Rod Scenario]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchescompositerodscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.MatchesCompositeRodScenario}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Categorical scenario stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Composite Rod Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Detailed evidence transcribed from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areainsquarecentimeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Numerical geometry and thermometer readouts explicitly given by the problem. The steel length is deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Atmospheric Water Fixed Points]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usesatmosphericwaterfixedpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.UsesAtmosphericWaterFixedPoints}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  At atmospheric pressure, boiling water supplies the 100 °C fixed point and an equilibrated ice--water mixture supplies the 0 °C fixed point. These are boundary-temperature calibrations, not assumptions about the steel length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Atmospheric Water Fixed Points.
+\end{proof}
+\begin{definition}[Satisfies Kelvin Celsius Calibration]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfieskelvincelsiuscalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.SatisfiesKelvinCelsiusCalibration}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Physlib's Temperature.toReal reads the nonnegative absolute-temperature coordinate without an affine Celsius offset. This calibration states that, for this setup, that coordinate is being read in kelvins and relates it to the separately reported Celsius instrument value. It is a general measurement law and contains no information about the steel length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Kelvin Celsius Calibration.
+\end{proof}
+\begin{definition}[Uses Textbook Thermal Conductivities]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usestextbookthermalconductivities}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.UsesTextbookThermalConductivities}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  The extracted problem omits the conductivity table needed for a numerical choice. The recorded answer uses the standard textbook readouts k\_copper = 385 W/(m K) and k\_steel = 50.2 W/(m K); they are exposed as a separate material calibration rather than hidden in the target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Thermal Conductivities.
+\end{proof}
+\begin{definition}[Has Physical Composite Rod Parameters]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-hasphysicalcompositerodparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.HasPhysicalCompositeRodParameters}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areainsquaremeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentinwatts, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Strict positivity and the hot-to-cold ordering needed by the conduction model. None of these conditions fixes the unknown steel length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Composite Rod Parameters.
+\end{proof}
+\begin{definition}[Satisfies Perfect Thermal Contact Law]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesperfectthermalcontactlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.SatisfiesPerfectThermalContactLaw}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-contactlocations, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  A perfect contact makes the two physical temperature measurements on its sides agree. This is a general interface law over all three contacts and contains no length formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Perfect Thermal Contact Law.
+\end{proof}
+\begin{definition}[Satisfies Insulated Steady Fourier Conduction]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesinsulatedsteadyfourierconduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.SatisfiesInsulatedSteadyFourierConduction}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-areainsquaremeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-heatcurrentinwatts, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-sectionhotlocation, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-sectioncoldlocation, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup}
+  Steady one-dimensional Fourier conduction in each homogeneous section: heat current = conductivity * area * temperature drop / length. The same independent axialHeatCurrent occurs for both sections, expressing continuity of heat flow in the steady series arrangement. The lateral loss readout is zero because of insulation. The law contains neither 0.242 m nor any answer-choice relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Insulated Steady Fourier Conduction.
+\end{proof}
+\begin{theorem}[steel Length exact from steady conduction]
+  \label{thm:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-steellength-exact-from-steady-conduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.steelLength_exact_from_steady_conduction}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchescompositerodscenario, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchessuppliedfigure, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchesproblemreadouts, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usesatmosphericwaterfixedpoints, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfieskelvincelsiuscalibration, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-usestextbookthermalconductivities, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-hasphysicalcompositerodparameters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesperfectthermalcontactlaw, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-satisfiesinsulatedsteadyfourierconduction}
+  The exact steel-length expression obtained before decimal rounding
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of steel Length exact from steady conduction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.AnswerChoice}
+  Labels of the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Length In Meters]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-displayedlengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.displayedLengthInMeters}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-answerchoice}
+  Meter value printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Length In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-answerchoice}
+  Dataset metadata recording that the supplied answer label is A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Millimeter]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-roundstodisplayedmillimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.RoundsToDisplayedMillimeter}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthquantity, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-lengthinmeters}
+  Agreement with a three-decimal-place meter display: the actual length is within half a millimeter of the displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Millimeter.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0331.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-compositerodsetup, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-answerchoice, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-displayedlengthinmeters, def:physics:phyx-mini-0331:phyxminiproblems-problemphyxmini0331-roundstodisplayedmillimeter}
+  The steel length rounds to the number printed for an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

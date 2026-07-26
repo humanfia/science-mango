@@ -1,0 +1,332 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0164.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0164.source.json
+
+\chapter{Physics problem phyx\_mini\_0164}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0164}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure is an overhead view of a mirror maze based on floor sections that are equilateral triangles. Every wall within the maze is mirrored. Maze monsters a, b, and c hiding in the maze.
+
+\#\# Question
+
+If you stand at entrance \$x\$, how many times does each visible monster appear in a hallway?
+
+\#\# Answer choices
+
+- A: A: 6
+
+- B: B: 5
+
+- C: C: 4
+
+- D: D: 3
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a geometric arrangement of hexagons and triangles. The central structure is a hexagon divided into smaller equilateral triangles by dashed lines. 
+
+Inside the hexagonal grid:
+
+- There are three labeled black dots: `a`, `b`, and `c`.
+- `b` is located at the bottom center, `a` is on the left side, and `c` is on the upper right.
+- Another point labeled `x` is situated on the left side of the hexagon.
+
+Red arrows point towards `x`, indicating direction or movement. The top red arrow points downwards at an angle, while the side red arrow points directly left towards `x`. 
+
+The dashed lines form smaller triangles within the hexagon, creating a complex tessellation. The thicker lines outline the main hexagonal shape and some interior divisions.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 3
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/164.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0164.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0164:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0164.problem_phyx_mini_0164}
+\uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isvisiblemonster, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagecount, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-matchesstatedmazefigure, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-satisfiesidealmirrormazeoptics, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hasfiguresightlineclassification, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-answerappearancecount, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Floor Plane]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.FloorPlane}
+  Physlib's two-dimensional floor space, with coordinates read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Floor Plane.
+\end{proof}
+\begin{definition}[x Coordinate Meters]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-xcoordinatemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.xCoordinateMeters}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane}
+  Horizontal coordinate of a floor position, as a scalar metre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Coordinate Meters.
+\end{proof}
+\begin{definition}[y Coordinate Meters]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-ycoordinatemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.yCoordinateMeters}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane}
+  Vertical coordinate of a floor position, as a scalar metre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Coordinate Meters.
+\end{proof}
+\begin{definition}[Monster Label]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.MonsterLabel}
+  The three monsters named by black-dot labels in the intended figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Monster Label.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.FigurePoint}
+  All named object and observer positions in the intended figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[figure Point Of Monster]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-figurepointofmonster}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.figurePointOfMonster}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-figurepoint}
+  Associate each monster with its labelled black dot in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Point Of Monster.
+\end{proof}
+\begin{definition}[Hallway Direction]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hallwaydirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.HallwayDirection}
+  The three unoriented line families in an equilateral-triangle grid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hallway Direction.
+\end{proof}
+\begin{definition}[Entrance Arrow]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entrancearrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.EntranceArrow}
+  The two red entrance arrows described by the intended figure caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Entrance Arrow.
+\end{proof}
+\begin{definition}[Triangle Cell]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-trianglecell}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.TriangleCell}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane}
+  An equilateral triangular floor cell, represented by a Mathlib simplex
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangle Cell.
+\end{proof}
+\begin{definition}[next Hexagon Vertex]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-nexthexagonvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.nextHexagonVertex}
+  Advance cyclically around the six vertices of the outer hexagon
+\end{definition}
+\begin{proof}
+  This is the declared model definition of next Hexagon Vertex.
+\end{proof}
+\begin{definition}[Is Regular Hexagon]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isregularhexagon}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.IsRegularHexagon}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-nexthexagonvertex}
+  The intended outer hexagon has six equal nonzero sides and equal radii
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Regular Hexagon.
+\end{proof}
+\begin{definition}[Mirror Wall]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrorwall}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.MirrorWall}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hallwaydirection}
+  A finite mirror wall has two endpoints on a one-dimensional affine supporting line. Reflection uses Mathlib's affine-subspace reflection, while the endpoints retain the physically finite extent of a maze wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Wall.
+\end{proof}
+\begin{definition}[reflect Point Across Wall]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-reflectpointacrosswall}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.reflectPointAcrossWall}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrorwall}
+  Reflect a virtual source point across a mirror wall's supporting line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflect Point Across Wall.
+\end{proof}
+\begin{definition}[Entrance Ray]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entranceray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.EntranceRay}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane}
+  An oriented, nonzero ray approaching the entrance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Entrance Ray.
+\end{proof}
+\begin{definition}[Points Toward]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entranceray-pointstoward}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.EntranceRay.PointsToward}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entranceray}
+  A ray points toward a target when positive propagation reaches it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Points Toward.
+\end{proof}
+\begin{definition}[Reflection Route]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-reflectionroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.ReflectionRoute}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hallwaydirection, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrorwall}
+  A candidate optical route terminating in one hallway direction family
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflection Route.
+\end{proof}
+\begin{definition}[Mirror Maze Setup]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.MirrorMazeSetup}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-figurepoint, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hallwaydirection, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entrancearrow, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-trianglecell, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrorwall, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-entranceray, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-reflectionroute}
+  The physical and observational data of a maze instance. routeIsClear records occlusion and wall-segment topology; observerSeesImageAt records an actual appearance. Neither relation carries a numeric image count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Maze Setup.
+\end{proof}
+\begin{definition}[virtual Image From Route]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-virtualimagefromroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.virtualImageFromRoute}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-figurepointofmonster, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-reflectpointacrosswall, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-reflectionroute, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup}
+  Unfold a monster successively through all mirrors along a route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of virtual Image From Route.
+\end{proof}
+\begin{definition}[visible Image Positions]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagepositions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.visibleImagePositions}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup}
+  Positions at which a given monster is seen from entrance x
+\end{definition}
+\begin{proof}
+  This is the declared model definition of visible Image Positions.
+\end{proof}
+\begin{definition}[Is Visible Monster]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isvisiblemonster}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.IsVisibleMonster}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagepositions}
+  A monster is visible if at least one real or virtual appearance is seen
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Visible Monster.
+\end{proof}
+\begin{definition}[visible Image Count]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagecount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.visibleImageCount}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagepositions}
+  Number of distinct appearances of a monster seen in the hallway
+\end{definition}
+\begin{proof}
+  This is the declared model definition of visible Image Count.
+\end{proof}
+\begin{definition}[Matches Stated Maze Figure]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-matchesstatedmazefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.MatchesStatedMazeFigure}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-xcoordinatemeters, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-ycoordinatemeters, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isregularhexagon, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup}
+  Qualitative readouts from the intended maze figure and caption: a regular hexagonal outline, equilateral triangular cells, three distinct one-dimensional grid families, mirror walls aligned with those families, relative placements of a, b, c, and x, and two distinct arrows aimed at x. This predicate asserts no visibility relation and no image cardinality
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Maze Figure.
+\end{proof}
+\begin{definition}[Satisfies Ideal Mirror Maze Optics]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-satisfiesidealmirrormazeoptics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.SatisfiesIdealMirrorMazeOptics}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-virtualimagefromroute}
+  The governing ideal geometrical-optics law. An observed appearance is exactly the virtual source obtained by successively reflecting along a clear route. The predicate constrains neither the number of clear routes nor the number of distinct images
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Mirror Maze Optics.
+\end{proof}
+\begin{definition}[Has Figure Sightline Classification]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hasfiguresightlineclassification}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.HasFigureSightlineClassification}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-virtualimagefromroute, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isvisiblemonster}
+  Sightline data to be read from the intended maze diagram. Clear routes use depicted walls and unfold to a direction-indexed canonical source. A visible monster has a route in every grid direction, and the three canonical sources are distinct. These are route and position readouts, not a stated image count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Figure Sightline Classification.
+\end{proof}
+\begin{definition}[canonical Image Set]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-canonicalimageset}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.canonicalImageSet}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-floorplane, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup}
+  The three direction-indexed canonical virtual-source positions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of canonical Image Set.
+\end{proof}
+\begin{lemma}[visible Image Positions eq canonical Image Set]
+  \label{lem:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagepositions-eq-canonicalimageset}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.visibleImagePositions_eq_canonicalImageSet}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-visibleimagepositions, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-isvisiblemonster, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-satisfiesidealmirrormazeoptics, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hasfiguresightlineclassification, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-canonicalimageset}
+  Ideal reflection and the intended diagram's route classification identify the observed appearances with the canonical directional images
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of visible Image Positions eq canonical Image Set.
+\end{proof}
+\begin{lemma}[canonical Image Set ncard]
+  \label{lem:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-canonicalimageset-ncard}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.canonicalImageSet_ncard}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-monsterlabel, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-mirrormazesetup, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-hasfiguresightlineclassification, def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-canonicalimageset}
+  The injectively direction-indexed canonical image set has cardinality 3
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of canonical Image Set ncard.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.AnswerChoice}
+  Labels of the four printed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Appearance Count]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-answerappearancecount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.answerAppearanceCount}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-answerchoice}
+  Appearance count printed beside each answer label in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Appearance Count.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0164.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0164:phyxminiproblems-problemphyxmini0164-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

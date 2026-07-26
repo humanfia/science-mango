@@ -1,0 +1,331 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0318.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0318.source.json
+
+\chapter{Physics problem phyx\_mini\_0318}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0318}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, \$S\$ is a small loudspeaker driven by an audio oscillator with a frequency that is varied from \$1000\$ Hz to \$2000\$ Hz, and \$D\$ is a cylindrical pipe with two open ends and a length of \$45.7\$ cm. The speed of sound in the air-filled pipe is \$344\$ m/s.
+
+\#\# Question
+
+What is the second lowest frequencies at which resonance occurs?
+
+\#\# Answer choices
+
+- A: A: 1424 Hz
+
+- B: B: 1468 Hz
+
+- C: C: 1488 Hz
+
+- D: D: 1506 Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two main objects: a cone and a cylinder. The cone is on the left side, shaded to suggest a three-dimensional shape, with a narrow opening facing the cylinder. It is labeled with the letter "S."
+
+On the right is the cylinder, also shaded to show three dimensions, with its circular base facing the viewer. It is labeled with the letter "D."
+
+There is no explicit interaction or implied connection between the two objects, but they are positioned closely, suggesting a possible relationship or sequence. The background is plain, without any additional details.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1506 Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/318.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0318.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0318:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0318.problem_phyx_mini_0318}
+\uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-matchessuppliedopenpipeproblem, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-hasphysicalopenpipeparameters, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-satisfiesopenopenpiperesonancelaws, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-issecondlowestresonanceinsweep, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-recordeddatasetanswer, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-roundstowholehertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-agreeswithdisplayedfrequencychoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.FrequencyQuantity}
+  A nonnegative cyclic frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.SpeedQuantity}
+  A nonnegative physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.lengthReadout}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.frequencyReadout}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.speedReadout}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedquantity}
+  Read a speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthreadout}
+  Centimeter readout used for the stated pipe length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.lengthInMeters}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthreadout}
+  Meter readout used in the SI resonance calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedreadout}
+  Meter-per-second readout of the speed of sound
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.FigureLabel}
+  The two literal labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Apparatus Kind]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-apparatuskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.ApparatusKind}
+  Physical roles of the two drawn objects
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Apparatus Kind.
+\end{proof}
+\begin{definition}[Source Drive Kind]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-sourcedrivekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.SourceDriveKind}
+  The kind of oscillator driving loudspeaker S
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Drive Kind.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.AcousticMedium}
+  The material through which the longitudinal sound wave propagates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Pipe End]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-pipeend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.PipeEnd}
+  The two axial ends of pipe D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipe End.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.AcousticBoundaryCondition}
+  Acoustic boundary behavior at an end of the pipe
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Source Pipe Placement]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-sourcepipeplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.SourcePipePlacement}
+  Qualitative relative placement visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Pipe Placement.
+\end{proof}
+\begin{definition}[Open Pipe Resonance Setup]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.OpenPipeResonanceSetup}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-figurelabel, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-apparatuskind, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-sourcedrivekind, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-acousticmedium, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-pipeend, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-acousticboundarycondition, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-sourcepipeplacement}
+  The physical setup. modeFrequency n is the frequency assigned to harmonic index n; only positive indices represent physical modes. isResonant is an independent physical predicate, later characterized by the governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Open Pipe Resonance Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Open Pipe Problem]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-matchessuppliedopenpipeproblem}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.MatchesSuppliedOpenPipeProblem}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthincentimeters, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedinmeterspersecond, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup}
+  Data read from the problem statement and primary figure. The exact decimal 45.7 cm is represented by 457 / 10, while the source sweep and sound speed are recorded in their stated SI-derived units. No mode index, resonant frequency, or answer choice appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Open Pipe Problem.
+\end{proof}
+\begin{definition}[Has Physical Open Pipe Parameters]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-hasphysicalopenpipeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.HasPhysicalOpenPipeParameters}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthinmeters, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedinmeterspersecond, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup}
+  Positivity and nondegeneracy conditions for the modeled apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Open Pipe Parameters.
+\end{proof}
+\begin{definition}[Satisfies Open Open Pipe Resonance Laws]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-satisfiesopenopenpiperesonancelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.SatisfiesOpenOpenPipeResonanceLaws}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthreadout, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyreadout, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-speedreadout, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup}
+  Governing acoustic laws For a pipe open at both ends, the positive resonant modes fit n half-wavelengths into the doubled pipe length. Combining this geometry with v = f lambda gives the dimensionally compatible scalar identity 2 * L * f\_n = n * v. The second field states that these positive integer modes exhaust the physical resonances. Both statements describe the entire open-pipe spectrum; neither selects the requested second resonance in the oscillator sweep
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Open Open Pipe Resonance Laws.
+\end{proof}
+\begin{definition}[Is In Oscillator Sweep]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-isinoscillatorsweep}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.IsInOscillatorSweep}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup}
+  A physical frequency lies in the oscillator's inclusive sweep interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is In Oscillator Sweep.
+\end{proof}
+\begin{definition}[Is Resonance In Oscillator Sweep]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-isresonanceinoscillatorsweep}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.IsResonanceInOscillatorSweep}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-isinoscillatorsweep}
+  A physical resonance that can be reached during the stated sweep
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Resonance In Oscillator Sweep.
+\end{proof}
+\begin{definition}[Is Second Lowest Resonance In Sweep]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-issecondlowestresonanceinsweep}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.IsSecondLowestResonanceInSweep}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-isresonanceinoscillatorsweep}
+  frequency is the second-lowest in-sweep resonance when it is resonant and there is an in-sweep resonance below it such that every in-sweep resonance below it has that same hertz readout. This definition is generic: it contains neither mode 4 nor any of the numerical answer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Second Lowest Resonance In Sweep.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.AnswerChoice}
+  Labels of the four frequency choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice}
+  Whole-hertz number displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Whole Hertz]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-roundstowholehertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.RoundsToWholeHertz}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz}
+  A physical frequency rounds to a displayed whole-hertz value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Whole Hertz.
+\end{proof}
+\begin{definition}[Agrees With Displayed Frequency Choice]
+  \label{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-agreeswithdisplayedfrequencychoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.AgreesWithDisplayedFrequencyChoice}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyquantity, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-answerchoice, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-roundstowholehertz}
+  A displayed choice is the whole-hertz rounding of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Displayed Frequency Choice.
+\end{proof}
+\begin{lemma}[pipe Length In Meters eq 457 div 1000]
+  \label{lem:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-pipelengthinmeters-eq-457-div-1000}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.pipeLengthInMeters_eq_457_div_1000}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-lengthinmeters, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-matchessuppliedopenpipeproblem}
+  Converting the stated 45.7 cm pipe length to meters gives 457/1000 m. This helper uses only the figure/problem readout and unit conversion, not a resonance conclusion
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pipe Length In Meters eq 457 div 1000.
+\end{proof}
+\begin{lemma}[fourth Mode frequency In Hertz]
+  \label{lem:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-fourthmode-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0318.fourthMode_frequencyInHertz}
+  \uses{def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-frequencyinhertz, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-openpiperesonancesetup, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-matchessuppliedopenpipeproblem, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-hasphysicalopenpipeparameters, def:physics:phyx-mini-0318:phyxminiproblems-problemphyxmini0318-satisfiesopenopenpiperesonancelaws}
+  The general open-open harmonic law specialized to the fourth mode gives the exact unrounded physical frequency 688000/457 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of fourth Mode frequency In Hertz.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

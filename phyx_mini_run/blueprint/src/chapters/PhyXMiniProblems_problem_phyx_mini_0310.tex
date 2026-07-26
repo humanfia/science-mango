@@ -1,0 +1,336 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0310.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0310.source.json
+
+\chapter{Physics problem phyx\_mini\_0310}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0310}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A handclap on stage in an amphitheater sends out sound waves that scatter from terraces of width \$w = 0.75\$ m. The sound returns to the stage as a periodic series of pulses, one from each terrace; the parade of pulses sounds like a played note.
+
+\#\# Question
+
+Assuming that all the rays in figure are horizontal, find the frequency at which the pulses return (that is, the frequency of the perceived note).
+
+\#\# Answer choices
+
+- A: A: 200 Hz
+
+- B: B: 210 Hz
+
+- C: C: 220 Hz
+
+- D: D: 230 Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a person standing on a wooden platform next to a blue surface, holding a light source. Black arrows represent rays of light spreading out from the source towards a stepped terrace. The terrace has a series of steps, each with a width labeled as "w". The text "Terrace" identifies the stepped structure. The arrows and the light source suggest the path and reflection of light off the terrace.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 230 Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/310.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0310.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0310:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0310.problem_phyx_mini_0310}
+\uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyinhertz, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-matchesproblemandprimaryfigure, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-usesstandardairsoundspeed, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-hasphysicalechoparameters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-satisfiesterraceecholaws, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-recordeddatasetanswer, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AcousticLength}
+  A nonnegative physical path length or terrace width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AxialPosition}
+  A signed axial position along the horizontal stage-to-terrace direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Acoustic Duration]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AcousticDuration}
+  A nonnegative physical propagation duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Duration.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AcousticFrequency}
+  A nonnegative physical pulse-return frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AcousticSpeed}
+  Physlib's nonnegative dimensionful speed type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.lengthReadout}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticlength}
+  Read a nonnegative length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.positionReadout}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialposition}
+  Read a signed axial position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.durationReadout}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticduration}
+  Read a physical duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.frequencyReadout}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticfrequency}
+  Read a physical frequency in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.speedReadout}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticspeed}
+  Read a physical speed in selected coherent length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.lengthInMeters}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticlength, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthreadout}
+  Meter readout of a physical path length or terrace width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.positionInMeters}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialposition, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positionreadout}
+  Meter readout of a signed horizontal position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.durationInSeconds}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticduration, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationreadout}
+  Second readout of an acoustic duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticfrequency, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyreadout}
+  Hertz readout of a pulse-return frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticspeed, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedreadout}
+  Meter-per-second readout of the propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.FigureObject}
+  Named physical objects appearing in the problem and its primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.FigureLabel}
+  Textual and symbolic labels visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Echo Leg]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-echoleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.EchoLeg}
+  The two legs of an echo path from the stage to a riser and back
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echo Leg.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AxialDirection}
+  Axial directions for the outbound and returning sound rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Ray Orientation]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-rayorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.RayOrientation}
+  Orientations admitted by the diagram before imposing the question's idealization
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Orientation.
+\end{proof}
+\begin{definition}[Amphitheater Echo Setup]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AmphitheaterEchoSetup}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticlength, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialposition, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticduration, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticfrequency, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-acousticspeed, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-figureobject, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-figurelabel, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-echoleg, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-axialdirection, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-rayorientation}
+  The unknown physical quantities and figure observables of the amphitheater echo experiment. Riser index n + 1 denotes the next reflecting face farther from the stage than riser n. No field assigns a numerical value to pulsePeriod or perceivedFrequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amphitheater Echo Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positionreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthinmeters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positioninmeters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup}
+  Problem-statement and primary-image readouts. The image identifies the stage, person, stepped terrace, reflecting vertical risers, and the labels w and Terrace. The problem supplies w = 0.75 m, states one return pulse from each terrace, and asks us to impose the horizontal-ray idealization. The adjacent-face equation is the geometric content of a common terrace width: as the index increases, the reflecting face is one width farther to the left of the source. No pulse period, frequency, or answer label is fixed here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-usesstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.UsesStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedinmeterspersecond, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup}
+  The separate standard room-temperature speed calibration needed to evaluate the multiple-choice answer. The source problem itself does not print a speed, so this datum is not classified as a source or figure readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Has Physical Echo Parameters]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-hasphysicalechoparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.HasPhysicalEchoParameters}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthinmeters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationinseconds, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyinhertz, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedinmeterspersecond, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup}
+  Positivity and nondegeneracy conditions for the idealized echo train
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Echo Parameters.
+\end{proof}
+\begin{definition}[Satisfies Terrace Echo Laws]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-satisfiesterraceecholaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.SatisfiesTerraceEchoLaws}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-positionreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-speedreadout, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-echoleg, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup}
+  Governing geometry and propagation laws for the echo train. For every coherent unit choice, each horizontal leg has length equal to the stage-to-riser separation, propagation obeys distance = speed * time, the return time is the sum of the two leg times, adjacent returns differ by the common pulse period, and frequency is reciprocal to that period. These laws contain no numerical conclusion for the requested period or frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Terrace Echo Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-answerchoice}
+  Frequency in hertz printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-answerchoice}
+  A displayed answer is uniquely closest to an exact model frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{lemma}[adjacent Round Trip Path Increment In Meters eq twice Width]
+  \label{lem:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-adjacentroundtrippathincrementinmeters-eq-twicewidth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.adjacentRoundTripPathIncrementInMeters_eq_twiceWidth}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-lengthinmeters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-matchesproblemandprimaryfigure, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-satisfiesterraceecholaws}
+  Horizontal out-and-back propagation makes the path to riser n + 1 exactly 2w longer than the path to riser n
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of adjacent Round Trip Path Increment In Meters eq twice Width.
+\end{proof}
+\begin{lemma}[pulse Period In Seconds eq]
+  \label{lem:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-pulseperiodinseconds-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.pulsePeriodInSeconds_eq}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-durationinseconds, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-matchesproblemandprimaryfigure, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-usesstandardairsoundspeed, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-hasphysicalechoparameters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-satisfiesterraceecholaws}
+  With w = 3/4 m and sound speed 343 m/s, adjacent return pulses are separated by 2w/v = 3/686 s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pulse Period In Seconds eq.
+\end{proof}
+\begin{lemma}[perceived Frequency In Hertz eq]
+  \label{lem:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-perceivedfrequencyinhertz-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0310.perceivedFrequencyInHertz_eq}
+  \uses{def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-frequencyinhertz, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-amphitheaterechosetup, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-matchesproblemandprimaryfigure, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-usesstandardairsoundspeed, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-hasphysicalechoparameters, def:physics:phyx-mini-0310:phyxminiproblems-problemphyxmini0310-satisfiesterraceecholaws}
+  The reciprocal of the adjacent-pulse period is the exact model frequency 686/3 Hz, approximately 228.67 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of perceived Frequency In Hertz eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,272 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0625.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0625.source.json
+
+\chapter{Physics problem phyx\_mini\_0625}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0625}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider a monatomic solid with a weakly bound cubic lattice, with each atom connected to six neighbors, each bond having a binding energy of \textbackslash{}(3.4 \textbackslash{}times 10\textasciicircum{}\{-3\}\textbackslash{},\textbackslash{}mathrm\{eV\}\textbackslash{}). When this solid melts, its latent heat of fusion goes directly into breaking the bonds between the atoms.[Hint: Show that in a simple cubic lattice (figure), there are *three* times as many bonds as there are atoms, when the number of atoms is large.]
+
+\#\# Question
+
+Estimate the latent heat of fusion for this solid, in \textbackslash{}(\textbackslash{}mathrm\{J/mol\}\textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: 960J/mol
+
+- B: B: 970J/mol
+
+- C: C: 990J/mol
+
+- D: D: 980J/mol
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a 3D lattice structure composed of uniformly spaced yellow spheres connected by black lines. The spheres are arranged in a grid-like pattern forming layers, and the lines represent bonds between adjacent spheres. There are no additional elements, text, or objects present in the image. The structure resembles a crystal lattice model commonly used to represent atomic or molecular arrangements in solid-state physics or chemistry.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 980J/mol
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/625.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0625.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0625:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0625.problem_phyx_mini_0625}
+\uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-matchesweaklyboundsimplecubicscenario, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-matchessuppliedcubiclatticefigure, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-hasstatedbondandmolecalibrations, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-hasphysicalcubicsolidparameters, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-satisfiesfusionbondbreakinglaw, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Molar Energy Scale]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.MolarEnergyScale}
+  An abstract carrier for molar energies, together with its scalar readout in joules per mole. A molar energy is therefore not identified with ℝ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Scale.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.energyInJoules}
+  Read a dimensionful energy in coherent-SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[electron Volt In Joules]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-electronvoltinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.electronVoltInJoules}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules}
+  The coherent-SI joule value of Physlib's exact electron volt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electron Volt In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-electronvoltinjoules}
+  Read a physical energy in electron volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[Solid Composition]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-solidcomposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.SolidComposition}
+  Physical composition of the solid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solid Composition.
+\end{proof}
+\begin{definition}[Lattice Kind]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-latticekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.LatticeKind}
+  Crystal-lattice class used by the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lattice Kind.
+\end{proof}
+\begin{definition}[Binding Regime]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-bindingregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.BindingRegime}
+  Qualitative binding regime stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Binding Regime.
+\end{proof}
+\begin{definition}[Fusion Energy Destination]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-fusionenergydestination}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.FusionEnergyDestination}
+  Where the latent heat supplied during fusion is deposited
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fusion Energy Destination.
+\end{proof}
+\begin{definition}[Figure Arrangement]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-figurearrangement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.FigureArrangement}
+  Geometric arrangement visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrangement.
+\end{proof}
+\begin{definition}[Site Glyph]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-siteglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.SiteGlyph}
+  Glyph used to depict an atom site
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Site Glyph.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.FigureColor}
+  Colors occurring in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Bond Stroke]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-bondstroke}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.BondStroke}
+  Stroke used to depict a bond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bond Stroke.
+\end{proof}
+\begin{definition}[Cubic Lattice Figure]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-cubiclatticefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.CubicLatticeFigure}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-figurearrangement, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-siteglyph, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-figurecolor, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-bondstroke}
+  Literal qualitative data in the primary raster. The Boolean fields record visible presentation facts, not numerical bond counts or thermodynamic conclusions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cubic Lattice Figure.
+\end{proof}
+\begin{definition}[Monatomic Cubic Solid Setup]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.MonatomicCubicSolidSetup}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-solidcomposition, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-latticekind, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-bindingregime, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-fusionenergydestination, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-cubiclatticefigure}
+  Independent physical data for the solid. Atom indexes a representative finite bulk sample, and latticeBondGraph is its loopless undirected bond network. The latent heat is an independent quantity, not a definition made from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Monatomic Cubic Solid Setup.
+\end{proof}
+\begin{definition}[Matches Weakly Bound Simple Cubic Scenario]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-matchesweaklyboundsimplecubicscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.MatchesWeaklyBoundSimpleCubicScenario}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  The prose-level physical scenario. Six-regularity is the bulk nearest-neighbour idealization. Since SimpleGraph is loopless and undirected, one bond joins two distinct sites and is not double-oriented
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Weakly Bound Simple Cubic Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Cubic Lattice Figure]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-matchessuppliedcubiclatticefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.MatchesSuppliedCubicLatticeFigure}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  Facts read from the primary raster. In particular, the image has no text, numeric answer, or thermodynamic annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Cubic Lattice Figure.
+\end{proof}
+\begin{definition}[Has Stated Bond And Mole Calibrations]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-hasstatedbondandmolecalibrations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.HasStatedBondAndMoleCalibrations}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinelectronvolts, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  Stated numerical inputs at explicit unit-readout boundaries. The bond energy is 3.4 * 10⁻³ eV, and the second field is the exact number of atoms per mole. Neither field mentions the requested latent heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Bond And Mole Calibrations.
+\end{proof}
+\begin{definition}[Has Physical Cubic Solid Parameters]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-hasphysicalcubicsolidparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.HasPhysicalCubicSolidParameters}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  Positivity and non-vacuity conditions for a physical bulk sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cubic Solid Parameters.
+\end{proof}
+\begin{definition}[Satisfies Fusion Bond Breaking Law]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-satisfiesfusionbondbreakinglaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.SatisfiesFusionBondBreakingLaw}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup}
+  General bond-breaking energy accounting for one mole. Multiplication by the number of atoms in the representative bulk sample avoids assuming the desired three-bonds-per-atom conclusion; that relation must be derived from six-regularity by the handshaking lemma
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fusion Bond Breaking Law.
+\end{proof}
+\begin{lemma}[bulk Bond Count eq three mul atom Count]
+  \label{lem:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-bulkbondcount-eq-three-mul-atomcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.bulkBondCount_eq_three_mul_atomCount}
+  The hint's bond-count conclusion: a finite six-regular bulk model has three times as many undirected bonds as atom sites
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bulk Bond Count eq three mul atom Count.
+\end{proof}
+\begin{lemma}[latent Heat eq three bonds per atom]
+  \label{lem:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-latentheat-eq-three-bonds-per-atom}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.latentHeat_eq_three_bonds_per_atom}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-energyinjoules, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-monatomiccubicsolidsetup, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-matchesweaklyboundsimplecubicscenario, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-hasphysicalcubicsolidparameters, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-satisfiesfusionbondbreakinglaw}
+  The energy balance and derived bond count express molar latent heat as three bond energies per atom times the number of atoms in one mole
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of latent Heat eq three bonds per atom.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Latent Heat In Joules Per Mole]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-displayedlatentheatinjoulespermole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.displayedLatentHeatInJoulesPerMole}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-answerchoice}
+  Displayed latent heats of fusion, read in joules per mole
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Latent Heat In Joules Per Mole.
+\end{proof}
+\begin{definition}[recorded Answer]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-recordedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.recordedAnswer}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-answerchoice}
+  The source dataset records choice D; this metadata is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0625.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-molarenergyscale, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-answerchoice, def:physics:phyx-mini-0625:phyxminiproblems-problemphyxmini0625-displayedlatentheatinjoulespermole}
+  A displayed choice is uniquely closest to the physical molar-latent-heat readout. Strict comparison is required only against different labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,421 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0888.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0888.source.json
+
+\chapter{Physics problem phyx\_mini\_0888}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0888}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+analyze the RL circuit of figure.
+
+\#\# Question
+
+What is \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}) in the limits \textbackslash{}( \textbackslash{}omega \textbackslash{}to 0 \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}to 2 \textbackslash{})
+
+- B: B: \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}to 0 \textbackslash{})
+
+- C: C: \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}to \textbackslash{}mathcal\{E\}\_0 \textbackslash{})
+
+- D: D: \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}to 3\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic of an R-L (resistor-inductor) AC circuit. 
+
+- **Components and Labels:**
+  - There's an AC voltage source on the left, represented by a circle with a sine wave symbol inside it.
+  - The voltage source is labeled with \textbackslash{}( \textbackslash{}mathcal\{E\}\_0 \textbackslash{}cos \textbackslash{}omega t \textbackslash{}), indicating an alternating current voltage of amplitude \textbackslash{}( \textbackslash{}mathcal\{E\}\_0 \textbackslash{}), angular frequency \textbackslash{}( \textbackslash{}omega \textbackslash{}), and time \textbackslash{}( t \textbackslash{}).
+  - A resistor is depicted at the top right, represented by a zigzag line, and labeled \textbackslash{}( R \textbackslash{}).
+  - An inductor is shown below the resistor, represented by a coiled line, and labeled \textbackslash{}( L \textbackslash{}).
+
+- **Connections:**
+  - These components are connected in series: the voltage source connects to the resistor, which is then connected to the inductor, completing the circuit back to the voltage source. 
+
+This image represents a basic R-L circuit driven by an AC source.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( V\_\textbackslash{}text\{R\} \textbackslash{}to \textbackslash{}mathcal\{E\}\_0 \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/888.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0888.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0888:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0888.problem_phyx_mini_0888}
+\uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-matchessuppliedseriesrlcircuitfigure, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-calibratesangularfrequencyparameter, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-hasphysicalseriesrlparameters, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-satisfiescosinesourcelaw, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-satisfiesseriesrlcircuitlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.electricCurrentDimension}
+  Electric current has physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.electricPotentialDimension}
+  Electric potential has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentdimension, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialdimension}
+  Electrical resistance, and hence impedance magnitude, is voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.inductanceDimension}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentdimension, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialdimension}
+  Inductance is voltage times time per current, as in V\_L = L dI/dt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[angular Frequency Dimension]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.angularFrequencyDimension}
+  Angular frequency has inverse-time dimension; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency Dimension.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.TimeQuantity}
+  A signed, unit-independent physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.AngularFrequencyQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencydimension}
+  A nonnegative, unit-independent angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Electric Current Amplitude Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.ElectricCurrentAmplitudeQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Amplitude Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialdimension}
+  A signed, unit-independent instantaneous electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Amplitude Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.ElectricPotentialAmplitudeQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialdimension}
+  A nonnegative, unit-independent electric-potential amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Amplitude Quantity.
+\end{proof}
+\begin{definition}[Electrical Resistance Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.ElectricalResistanceQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Resistance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductancedimension}
+  A nonnegative, unit-independent inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Electrical Impedance Magnitude Quantity]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalimpedancemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.ElectricalImpedanceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancedimension}
+  A nonnegative, unit-independent impedance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Impedance Magnitude Quantity.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.signedSIReadout}
+  Coherent-SI readout of a signed dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.timeInSeconds}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-timequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-signedsireadout}
+  Read time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read angular frequency in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[current Amplitude In Amperes]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-currentamplitudeinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.currentAmplitudeInAmperes}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentamplitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read an electric-current amplitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Amplitude In Amperes.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.potentialInVolts}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-signedsireadout}
+  Read a signed instantaneous electric potential in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[potential Amplitude In Volts]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.potentialAmplitudeInVolts}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialamplitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read an electric-potential amplitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Amplitude In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductancequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read an inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[impedance Magnitude In Ohms]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-impedancemagnitudeinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.impedanceMagnitudeInOhms}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalimpedancemagnitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-nonnegativesireadout}
+  Read an impedance magnitude in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of impedance Magnitude In Ohms.
+\end{proof}
+\begin{definition}[Source Waveform Shape]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sourcewaveformshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SourceWaveformShape}
+  The waveform name printed beside the source symbol
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Waveform Shape.
+\end{proof}
+\begin{definition}[Source Formula Label]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sourceformulalabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SourceFormulaLabel}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sourcewaveformshape}
+  Typed presentation data for the source label ℰ₀ cos(ω t)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Formula Label.
+\end{proof}
+\begin{definition}[Sinusoidal Voltage Source]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sinusoidalvoltagesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SinusoidalVoltageSource}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-timequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialamplitudequantity}
+  The sinusoidal source and its independent voltage waveform
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sinusoidal Voltage Source.
+\end{proof}
+\begin{definition}[Resistor]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.Resistor}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricpotentialamplitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalresistancequantity}
+  The resistor marked R, including its independent voltage response
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistor.
+\end{proof}
+\begin{definition}[Inductor]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.Inductor}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductancequantity}
+  The inductor marked L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductor.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.CircuitComponent}
+  The three component identities encountered in one traversal of the loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Series RLCircuit Figure]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SeriesRLCircuitFigure}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sourceformulalabel, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-circuitcomponent}
+  Literal topology and annotations transcribed from image 888.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCircuit Figure.
+\end{proof}
+\begin{definition}[Series RLCircuit Setup]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SeriesRLCircuitSetup}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyquantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electriccurrentamplitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-electricalimpedancemagnitudequantity, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-sinusoidalvoltagesource, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistor, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductor, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitfigure}
+  The complete physical setup. The frequency-indexed current, impedance, and resistor voltage are observables, not definitions made from the answer. physicalFrequencyAt associates the nonnegative scalar used in the limit with a genuine dimensionful angular frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RLCircuit Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Series RLCircuit Figure]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-matchessuppliedseriesrlcircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.MatchesSuppliedSeriesRLCircuitFigure}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  The topology and printed annotations visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Series RLCircuit Figure.
+\end{proof}
+\begin{definition}[Calibrates Angular Frequency Parameter]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-calibratesangularfrequencyparameter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.CalibratesAngularFrequencyParameter}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyinradianspersecond, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  The scalar limit parameter is the coherent-SI readout of physical ω
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Calibrates Angular Frequency Parameter.
+\end{proof}
+\begin{definition}[Has Physical Series RLParameters]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-hasphysicalseriesrlparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.HasPhysicalSeriesRLParameters}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistanceinohms, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductanceinhenries, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  Positivity and nonnegativity conditions for a physical passive RL circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Series RLParameters.
+\end{proof}
+\begin{definition}[Satisfies Cosine Source Law]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-satisfiescosinesourcelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SatisfiesCosineSourceLaw}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-timeinseconds, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyinradianspersecond, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  The source formula shown in the figure: its instantaneous potential is ℰ₀ cos(ω t) for every physical frequency and time. This general waveform law does not constrain the requested resistor voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cosine Source Law.
+\end{proof}
+\begin{definition}[Satisfies Series RLCircuit Laws]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-satisfiesseriesrlcircuitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.SatisfiesSeriesRLCircuitLaws}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-angularfrequencyinradianspersecond, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-currentamplitudeinamperes, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistanceinohms, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductanceinhenries, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-impedancemagnitudeinohms, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup}
+  Standard steady-state amplitude laws for a series RL circuit. The impedance magnitude is sqrt (R² + (ωL)²), the source amplitude is I₀ |Z|, and the resistor amplitude is I₀ R. These are governing relations at every physical frequency, not the low-frequency limit asked for in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Series RLCircuit Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Limit In Volts]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-answerchoice-displayedlimitinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.AnswerChoice.displayedLimitInVolts}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-answerchoice}
+  Scalar voltage-limit expressions printed beside the choices. The unitless numbers in A and D are retained exactly as printed and interpreted as volt readouts; choice C repeats the source-amplitude symbol ℰ₀
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Limit In Volts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[resistor Voltage Amplitude eq series RLFormula]
+  \label{lem:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistorvoltageamplitude-eq-seriesrlformula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0888.resistorVoltageAmplitude_eq_seriesRLFormula}
+  \uses{def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-potentialamplitudeinvolts, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-resistanceinohms, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-inductanceinhenries, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-seriesrlcircuitsetup, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-calibratesangularfrequencyparameter, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-hasphysicalseriesrlparameters, def:physics:phyx-mini-0888:phyxminiproblems-problemphyxmini0888-satisfiesseriesrlcircuitlaws}
+  At a calibrated angular-frequency readout ω, the governing amplitude laws give the usual closed form for V\_R. This is an intermediate general-frequency relation, not the requested low-frequency answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of resistor Voltage Amplitude eq series RLFormula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

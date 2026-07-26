@@ -1,0 +1,426 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0432.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0432.source.json
+
+\chapter{Physics problem phyx\_mini\_0432}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0432}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A heat engine using 120 \$\textbackslash{}text\{mg\}\$ of helium as the working substance follows the cycle shown in figure.
+
+\#\# Question
+
+What is the engine's thermal efficiency?
+
+\#\# Answer choices
+
+- A: A: 0.800
+
+- B: B: 0.202
+
+- C: C: 0.427
+
+- D: D: 0.290
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graphical representation of a thermodynamic cycle on a pressure-volume (p-V) diagram. The axes are labeled: the y-axis is pressure (p) in atmospheres (atm), and the x-axis is volume (V) in cubic centimeters (cm³). 
+
+There are three main points in the cycle labeled as 1, 2, and 3. The graph depicts:
+
+1. **Segment 1 to 2**: A vertical line representing an increase in pressure from 1 atm to 5 atm at constant volume.
+2. **Segment 2 to 3**: A downward curve labeled "Isotherm," indicating a process where pressure decreases and volume increases, following an isothermal path.
+3. **Segment 3 to 1**: A horizontal line showing a decrease in volume back to the initial state at constant pressure (1 atm).
+
+The volume axis includes a special mark labeled \textbackslash{}( V\_\{\textbackslash{}text\{max\}\} \textbackslash{}), indicating the maximum volume in the cycle. Arrows along each segment indicate the direction of the process.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.290
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/432.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0432.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0432:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0432.thermalEfficiency_eq_exactValue_and_selectsAnswerD}
+\uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesproblemscenario, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-hasphysicalheatengineparameters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-satisfiesidealmonatomicheliumcyclelaws, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-recordeddatasetanswer, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-isclosestdisplayedefficiency}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.MassQuantity}
+  A nonnegative physical mass carrying Physlib's mass dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.VolumeQuantity}
+  A nonnegative physical gas volume carrying dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.PressureQuantity}
+  A signed physical pressure. Positivity is imposed on physical states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.EnergyQuantity}
+  A signed heat, work, or internal-energy quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.massInKilograms}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massquantity}
+  Coherent-SI mass readout, in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Milligrams]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massinmilligrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.massInMilligrams}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massquantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massinkilograms}
+  Milligram readout used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Milligrams.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.pressureInPascals}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurequantity}
+  Coherent-SI pressure readout, in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurequantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinpascals}
+  Pressure as a dimensionless multiple of one standard atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumequantity}
+  Coherent-SI volume readout, in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumequantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubicmeters}
+  Cubic-centimetre readout used on the horizontal figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.energyInJoules}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyquantity}
+  Coherent-SI energy readout, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.temperatureInKelvins}
+  Kelvin readout of Physlib's nonnegative absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.GasSpecies}
+  The working-gas species stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.GasModel}
+  Molecular model needed for the textbook heat-capacity law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Working Sample]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-workingsample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.WorkingSample}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massquantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-gasspecies, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-gasmodel}
+  The physical sample used as the engine's working substance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Working Sample.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.StateLabel}
+  The three numbered equilibrium states printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.CycleLeg}
+  The three directed legs, listed in the arrow order shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.CycleLeg.initialState}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-statelabel, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg}
+  Initial state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.CycleLeg.finalState}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-statelabel, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg}
+  Final state of each directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.ProcessKind}
+  Thermodynamic classification of each process in the cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Cycle Orientation]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.CycleOrientation}
+  Clockwise orientation of the engine cycle, or its reverse
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Orientation.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumequantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurequantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyquantity}
+  Pressure, volume, temperature, and internal energy at one state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.FigureAxis}
+  The two axes of the supplied pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.AxisQuantity}
+  Physical quantity assigned to a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.AxisDisplayUnit}
+  Unit text printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.AxisSymbol}
+  Mathematical symbol printed beside a figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Path Shape]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pathshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.PathShape}
+  Geometric appearance of each directed path in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Shape.
+\end{proof}
+\begin{definition}[Arrow Direction]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-arrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.ArrowDirection}
+  Direction in which the visible arrowhead points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arrow Direction.
+\end{proof}
+\begin{definition}[Figure Annotation]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-figureannotation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.FigureAnnotation}
+  Text annotation attached to the curved path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Annotation.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-statelabel, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-figureaxis, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axisquantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axisdisplayunit, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-axissymbol, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pathshape, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-arrowdirection, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-figureannotation}
+  Literal labels, ticks, paths, and arrowheads in image 432.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Helium Heat Engine Cycle]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.HeliumHeatEngineCycle}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumequantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyquantity, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-workingsample, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-statelabel, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleleg, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-processkind, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-cycleorientation, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-thermodynamicstate, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressurevolumefigure}
+  Independent observables of the physical cycle. Heat is positive into the gas and work is positive when done by the gas. The maximum volume and all energy transfers are fields of the physical setup, not definitions made from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Helium Heat Engine Cycle.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massinmilligrams, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  Problem prose together with the standard ideal-monatomic helium model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinatmospheres, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubiccentimeters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  Exact transcription of the primary bitmap. The V\_max field is identified with state 3's volume, but receives no numerical value in this premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Has Physical Heat Engine Parameters]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-hasphysicalheatengineparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.HasPhysicalHeatEngineParameters}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-massinkilograms, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinpascals, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubicmeters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyinjoules, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-temperatureinkelvins, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  Positivity and heat-flow conditions selecting a functioning heat engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Heat Engine Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Monatomic Helium Cycle Laws]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-satisfiesidealmonatomicheliumcyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.SatisfiesIdealMonatomicHeliumCycleLaws}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinpascals, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubicmeters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyinjoules, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-temperatureinkelvins, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  General governing laws for the fixed sample of ideal monatomic helium: pV = nRT and U = (3/2)nRT at every equilibrium state; the first law ΔU = Q - W\_by on each directed leg; zero isochoric work, logarithmic isothermal work, and p ΔV isobaric work; net-work and positive-heat bookkeeping over the closed cycle; and the definition η = W\_net / Q\_in when the heat input is nonzero. No field contains V\_max = 5000 cm³, the exact efficiency formula, 0.290, or answer label D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Monatomic Helium Cycle Laws.
+\end{proof}
+\begin{definition}[base Pressure Volume Scale In Joules]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-basepressurevolumescaleinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.basePressureVolumeScaleInJoules}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-pressureinpascals, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubicmeters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle}
+  The pV energy scale at state 1, expressed in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of base Pressure Volume Scale In Joules.
+\end{proof}
+\begin{lemma}[maximum Volume In Cubic Centimeters eq five Thousand]
+  \label{lem:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-maximumvolumeincubiccentimeters-eq-fivethousand}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.maximumVolumeInCubicCentimeters_eq_fiveThousand}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-volumeincubiccentimeters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesproblemscenario, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-hasphysicalheatengineparameters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-satisfiesidealmonatomicheliumcyclelaws}
+  The isotherm obeys p₂V₂ = p₃V₃; the displayed pressure ratio is 5 : 1 and V₂ = 1000 cm³, so the previously unnumbered V\_max is derived as 5000 cm³
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Volume In Cubic Centimeters eq five Thousand.
+\end{proof}
+\begin{lemma}[net Work and heat Input readouts]
+  \label{lem:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-network-and-heatinput-readouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.netWork_and_heatInput_readouts}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-energyinjoules, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-heliumheatenginecycle, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesproblemscenario, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-hasphysicalheatengineparameters, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-satisfiesidealmonatomicheliumcyclelaws, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-basepressurevolumescaleinjoules}
+  After deriving V\_max, the net work is the isothermal expansion work 5 E₀ log 5 plus the isobaric compression work -4 E₀. Heat enters on the isochoric leg by 6 E₀ and on the isothermal leg by 5 E₀ log 5, where E₀ = p₁V₁. These are consequences of the governing laws, not premises
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net Work and heat Input readouts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.AnswerChoice}
+  Labels of the four efficiencies displayed by the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Efficiency]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-displayedefficiency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.displayedEfficiency}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-answerchoice}
+  Dimensionless efficiency printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Efficiency.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Efficiency]
+  \label{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-isclosestdisplayedefficiency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0432.IsClosestDisplayedEfficiency}
+  \uses{def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-answerchoice, def:physics:phyx-mini-0432:phyxminiproblems-problemphyxmini0432-displayedefficiency}
+  A displayed choice is at least as close as every other displayed value to the calculated efficiency. This avoids falsely asserting that the exact logarithmic value is literally the coarse decimal 0.290
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Efficiency.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

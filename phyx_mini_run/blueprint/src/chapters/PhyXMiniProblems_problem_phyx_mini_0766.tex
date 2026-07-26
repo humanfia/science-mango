@@ -1,0 +1,327 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0766.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0766.source.json
+
+\chapter{Physics problem phyx\_mini\_0766}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0766}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A movie stuntman (mass 80.0 kg) stands on a window ledge 5.0 m above the floor as shown in figure. Grabbing a rope attached to a chandelier, he swings down to grapple with the movie's villain (mass 70.0 kg), who is standing directly under the chandelier. (Assume that the stuntman's center of mass moves downward 5.0 m. He releases the rope just as he reaches the villain.)
+
+\#\# Question
+
+If the coefficient of kinetic friction of their bodies with the floor is \textbackslash{}(\textbackslash{}mu\_k = 0.250\textbackslash{}), how far do they slide?
+
+\#\# Answer choices
+
+- A: A: 4.6m
+
+- B: B: 5.7m
+
+- C: C: 4.2m
+
+- D: D: 4.8m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a superhero scenario where a figure dressed in green is swinging on a rope from a ceiling fixture. The rope forms an arc, marked by a dashed blue line showing the path of motion. The green figure has a mass labeled as \textbackslash{}( m = 80.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}) and is swinging towards another figure dressed in red. This red figure has a mass labeled as \textbackslash{}( m = 70.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}). The distance from the ceiling to the start of the arc is indicated as \textbackslash{}( 5.0 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}). The scene is set in a corner of a room, with the green figure moving in the direction of the red figure, who appears to be bracing for impact or getting ready to catch the green figure. The gray beam or fixture from which the rope is hung is just below the ceiling.
+
+\#\# Dataset metadata
+
+Work and Energy; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 5.7m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/766.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0766.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0766:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0766.slideDistance_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesproblemandfigure, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesboundaryconditions, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-hasphysicalparameters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesswingenergyconservation, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesgrapplemomentumconservation, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesfrictionworkenergylaw, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-recordedanswerchoice, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.SpeedQuantity}
+  A nonnegative speed magnitude, with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.massReadout}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.lengthReadout}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.speedReadout}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedquantity}
+  Read a speed in a coherent selected length-per-time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.accelerationReadout}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationquantity}
+  Read an acceleration in a coherent selected length-per-time-squared unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.massInKilograms}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massreadout}
+  Kilogram readout for the two people
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.lengthInMeters}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthreadout}
+  Metre readout for the center-of-mass drop and the slide distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedreadout}
+  Metres-per-second readout for all speeds in the one-dimensional model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationreadout}
+  Metres-per-second-squared readout for the gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Rope Support]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-ropesupport}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.RopeSupport}
+  The support to which the swing rope is attached in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rope Support.
+\end{proof}
+\begin{definition}[Floor Condition]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-floorcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.FloorCondition}
+  The horizontal surface on which the grappled pair come to rest
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Floor Condition.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.CollisionOutcome}
+  The physical outcome of the grapple at the bottom of the swing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Rope Release Event]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-ropereleaseevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.RopeReleaseEvent}
+  The instant at which the stuntman lets go of the rope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rope Release Event.
+\end{proof}
+\begin{definition}[Swing Direction]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-swingdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.SwingDirection}
+  Direction of the dashed trajectory arrow in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Swing Direction.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.FigureFeature}
+  Visual elements distinguished in the supplied one-panel figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Stunt Swing Figure]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntswingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.StuntSwingFigure}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-swingdirection, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-figurefeature}
+  Primary-image data. The three printed numerical labels remain physical quantities and are tied to the setup by MatchesProblemAndFigure; the image contains no label for the requested slide distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stunt Swing Figure.
+\end{proof}
+\begin{definition}[Stunt Grapple Slide Setup]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.StuntGrappleSlideSetup}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-ropesupport, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-floorcondition, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-collisionoutcome, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-ropereleaseevent, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntswingfigure}
+  All independent quantities required by the three-stage model. In particular, slideDistance is unconstrained until the governing laws are supplied; no field assigns it an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stunt Grapple Slide Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massinkilograms, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  Numerical and qualitative data read from the prose and primary figure. The friction coefficient is dimensionless. This predicate contains neither a slide-distance value nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Matches Boundary Conditions]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesboundaryconditions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.MatchesBoundaryConditions}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedinmeterspersecond, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  Initial and terminal boundary conditions stated or implied by “stands,” the stationary villain, and “how far do they slide.” These conditions do not fix the requested distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Boundary Conditions.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massinkilograms, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  Positivity and nondegeneracy conditions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Swing Energy Conservation]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesswingenergyconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.SatisfiesSwingEnergyConservation}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  Conservation of mechanical energy from the ledge to rope release. The equation is multiplied by two and is stated for every coherent selection of mass, length, and time units. It relates the vertical center-of-mass drop to the release speed without mentioning the later slide distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Swing Energy Conservation.
+\end{proof}
+\begin{definition}[Satisfies Grapple Momentum Conservation]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesgrapplemomentumconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.SatisfiesGrappleMomentumConservation}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  One-dimensional momentum conservation during the short perfectly inelastic grapple. Both incoming momentum terms are retained, and the outgoing mass is the combined mass because the two people move together
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Grapple Momentum Conservation.
+\end{proof}
+\begin{definition}[Satisfies Friction Work Energy Law]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesfrictionworkenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.SatisfiesFrictionWorkEnergyLaw}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-speedreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-accelerationreadout, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup}
+  Work-energy balance during the horizontal slide. On a horizontal floor the normal-force magnitude is the combined weight, so the kinetic-friction work has magnitude mu\_k * (m\_stuntman + m\_villain) * g * distance. Multiplying the usual work-energy equation by two gives the relation below. This is the general friction law, not the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Friction Work Energy Law.
+\end{proof}
+\begin{lemma}[slide Distance mass Ratio Relation]
+  \label{lem:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-slidedistance-massratiorelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.slideDistance_massRatioRelation}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-massinkilograms, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-stuntgrappleslidesetup, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesboundaryconditions, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-hasphysicalparameters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesswingenergyconservation, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesgrapplemomentumconservation, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-satisfiesfrictionworkenergylaw}
+  Eliminating both intermediate speeds and the gravitational acceleration gives the generic mass-ratio relation. This is derived from the three governing laws and is not included in any premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of slide Distance mass Ratio Relation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.AnswerChoice}
+  Labels attached to the four distances printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-answerchoice-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.AnswerChoice.meters}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-answerchoice}
+  Metres printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0766.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthquantity, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-lengthinmeters, def:physics:phyx-mini-0766:phyxminiproblems-problemphyxmini0766-answerchoice}
+  Agreement with a displayed distance after rounding to the nearest tenth metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

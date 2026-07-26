@@ -1,0 +1,392 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0802.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0802.source.json
+
+\chapter{Physics problem phyx\_mini\_0802}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0802}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An elevator and its load have a combined mass of \textbackslash{}( 800 \textbackslash{}mathrm\{kg\} \textbackslash{}) as shown in figure. The elevator is initially moving downward at \textbackslash{}( 10.0 \textbackslash{}mathrm\{m/s\} \textbackslash{}); it slows to a stop with constant acceleration in a distance of \textbackslash{}( 25.0 \textbackslash{}mathrm\{m\} \textbackslash{}).
+
+\#\# Question
+
+What is the tension \textbackslash{}( T \textbackslash{}) in the supporting cable while the elevator is being brought to rest?
+
+\#\# Answer choices
+
+- A: A: 8760N
+
+- B: B: 9440N
+
+- C: C: 9380N
+
+- D: D: 8540N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows an elevator scenario on the left and a force diagram on the right. 
+
+**Elevator Scene:**
+- The elevator is enclosed within a shaft.
+- It is depicted with an arrow pointing downward, labeled "Moving down with decreasing speed," indicating deceleration.
+- The elevator doors are visible, along with an interface panel with buttons.
+
+**Force Diagram:**
+- The diagram illustrates a vertical axis with two main forces.
+- The upward force is labeled "T" (tension).
+- The downward force is labeled "w = mg" (weight).
+- There is an upward arrow labeled "a\_y" indicating acceleration, pointing opposite to the direction of movement, consistent with deceleration.
+  
+The elements convey that the elevator is slowing down as it moves downward due to the net force being upward.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 9440N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/802.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0802.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0802:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0802.elevatorCableTension_is_answerB}
+\uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forceinnewtons, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesproblemdescription, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesprimaryfigure, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesconstantaccelerationkinematics, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesverticaldynamics, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-recordedanswerchoice, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.velocityDimension}
+  The physical dimension of velocity, L T\textasciicircum{}-1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.accelerationDimension}
+  The physical dimension of acceleration, L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.forceDimension}
+  The physical dimension of force, M L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Magnitude Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-lengthmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.LengthMagnitudeQuantity}
+  A nonnegative physical length, used for the distance travelled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude Quantity.
+\end{proof}
+\begin{definition}[Vertical Displacement Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticaldisplacementquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.VerticalDisplacementQuantity}
+  A signed component of displacement along the pictured Y axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Displacement Quantity.
+\end{proof}
+\begin{definition}[Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.SpeedMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-velocitydimension}
+  A nonnegative physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Vertical Velocity Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.VerticalVelocityQuantity}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-velocitydimension}
+  A signed component of velocity along the pictured Y axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Velocity Quantity.
+\end{proof}
+\begin{definition}[Vertical Acceleration Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.VerticalAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationdimension}
+  A signed component of acceleration along the pictured Y axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Acceleration Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationdimension}
+  A nonnegative magnitude of gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forcedimension}
+  A nonnegative force magnitude, used for both tension and weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.nonnegativeReadout}
+  Read a nonnegative dimensionful quantity in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[signed Readout]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.signedReadout}
+  Read a signed dimensionful quantity in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.massInKilograms}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-massquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.distanceInMeters}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-lengthmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  Metre readout of a nonnegative distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[displacement YIn Meters]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-displacementyinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.displacementYInMeters}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticaldisplacementquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout}
+  Metre readout of a signed vertical displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement YIn Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  Metres-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity YIn Meters Per Second]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-velocityyinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.velocityYInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalvelocityquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout}
+  Metres-per-second readout of a signed vertical velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity YIn Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration YIn Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationyinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.accelerationYInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalaccelerationquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout}
+  Metres-per-second-squared readout of signed vertical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration YIn Meters Per Second Squared.
+\end{proof}
+\begin{definition}[acceleration Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationmagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.accelerationMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.forceInNewtons}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forcemagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout}
+  Newton readout of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.VerticalDirection}
+  Qualitative vertical directions used by the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Speed Trend]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedtrend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.SpeedTrend}
+  Whether the magnitude of the elevator's velocity is increasing or decreasing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Trend.
+\end{proof}
+\begin{definition}[Mechanical System Kind]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-mechanicalsystemkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.MechanicalSystemKind}
+  The object whose combined mass is specified in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mechanical System Kind.
+\end{proof}
+\begin{definition}[Acceleration Regime]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.AccelerationRegime}
+  The acceleration regime stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Regime.
+\end{proof}
+\begin{definition}[Elevator Figure]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.ElevatorFigure}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticaldirection, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedtrend}
+  Literal categorical information retained from the primary raster. The question's unknown tension magnitude does not occur as a numerical figure field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Elevator Figure.
+\end{proof}
+\begin{definition}[Elevator Braking Setup]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.ElevatorBrakingSetup}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-massquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-lengthmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticaldisplacementquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalvelocityquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-verticalaccelerationquantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationmagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forcemagnitudequantity, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-mechanicalsystemkind, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationregime, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorfigure}
+  Independent physical quantities for the stopping interval. In particular, cableTension is not defined from an answer choice or from 9440
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Elevator Braking Setup.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-massinkilograms, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-distanceinmeters, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-displacementyinmeters, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-speedinmeterspersecond, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-velocityyinmeterspersecond, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup}
+  The prose data expressed as SI readouts. Upward is positive, so the initial velocity and stopping displacement are the negatives of their stated magnitudes. The standard near-Earth value g = 9.8 m/s\textasciicircum{}2 is the convention used by the recorded answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup}
+  Primary-image evidence. The label w = mg is recorded here only as a graphical fact; the corresponding physical law is stated independently in SatisfiesVerticalDynamics
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Constant Acceleration Kinematics]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesconstantaccelerationkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.SatisfiesConstantAccelerationKinematics}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup}
+  The constant-acceleration relation v\_f\textasciicircum{}2 = v\_i\textasciicircum{}2 + 2 a\_y Δy, stated in every coherent unit system. It contains no numerical value for the unknown acceleration or tension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Constant Acceleration Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Vertical Dynamics]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesverticaldynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.SatisfiesVerticalDynamics}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-nonnegativereadout, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-signedreadout, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup}
+  The downward weight has magnitude mg, while the upward-positive force balance is T - w = m a\_y. These general dynamics laws contain neither the requested tension nor any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Vertical Dynamics.
+\end{proof}
+\begin{lemma}[braking Acceleration Y eq two]
+  \label{lem:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-brakingaccelerationy-eq-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.brakingAccelerationY_eq_two}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-accelerationyinmeterspersecondsquared, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesproblemdescription, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesconstantaccelerationkinematics}
+  The stopping data and constant-acceleration law imply a\_y = 2 m/s\textasciicircum{}2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of braking Acceleration Y eq two.
+\end{proof}
+\begin{lemma}[elevator Weight eq 7840]
+  \label{lem:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorweight-eq-7840}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.elevatorWeight_eq_7840}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forceinnewtons, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesproblemdescription, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-satisfiesverticaldynamics}
+  The stated mass and standard gravity give a weight magnitude of 7840 N
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of elevator Weight eq 7840.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.AnswerChoice}
+  Labels of the four answers printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[tension In Newtons]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-answerchoice-tensioninnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.AnswerChoice.tensionInNewtons}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-answerchoice}
+  Cable-tension value printed beside each answer label, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tension In Newtons.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0802.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-forceinnewtons, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-elevatorbrakingsetup, def:physics:phyx-mini-0802:phyxminiproblems-problemphyxmini0802-answerchoice}
+  A displayed answer agrees exactly with the modeled cable-tension readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

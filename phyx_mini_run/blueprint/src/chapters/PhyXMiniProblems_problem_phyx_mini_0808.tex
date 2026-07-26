@@ -1,0 +1,362 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0808.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0808.source.json
+
+\chapter{Physics problem phyx\_mini\_0808}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0808}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The 200 kg steel hammerhead of a pile driver is lifted 3.00 m above the top of a vertical I-beam being driven into the ground as shown in figure. The hammerhead is then dropped, driving the I-beam 7.4 cm deeper into the ground. The vertical guide rails exert a constant 60 N friction force on the hammerhead.
+
+\#\# Question
+
+Find the average force the hammerhead exerts on the I-beam. Ignore the effects of the air.
+
+\#\# Answer choices
+
+- A: A: 39000N
+
+- B: B: 79000N
+
+- C: C: 46000N
+
+- D: D: 35000N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a framework structure with a vertical setup, including a suspended object labeled as "Point 1" at the top. This object is positioned at a height of 3.00 meters above another section. Below this section, there are two marked points: "Point 2" and "Point 3," with a distance of 7.4 cm between them.
+
+A person wearing protective gear, such as a hard hat and goggles, is shown holding a hose or similar equipment on the left side of the structure. The image suggests a context related to construction, safety, or measurement. Arrows and lines indicate distances between points, emphasizing spatial relationships.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 79000N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/808.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0808.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0808:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0808.averageForceHammerheadExertsOnBeam}
+\uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forceinnewtons, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchespiledriverscenario, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchespiledriverproblemreadouts, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-usesstandardterrestrialgravity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchesprimarypiledriverfigure, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hasphysicalpiledriverparameters, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-satisfiespiledriverworkenergylaws, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-isuniqueclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.accelerationDimension}
+  Acceleration has dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.forceDimension}
+  Force has dimension mass times length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.LengthQuantity}
+  A nonnegative physical distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationdimension}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcedimension}
+  A nonnegative force magnitude. Signed effects are represented as work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.EnergyQuantity}
+  Signed physical work and kinetic energy have Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.massInKilograms}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-nonnegativesireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.lengthInMeters}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthinmeters}
+  Centimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.forceInNewtons}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcemagnitudequantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-nonnegativesireadout}
+  Newton readout of a physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.energyInJoules}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-energyquantity}
+  Joule readout of signed physical work or kinetic energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Pile Driver Point]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.PileDriverPoint}
+  The three labels printed beside the pile-driver motion in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pile Driver Point.
+\end{proof}
+\begin{definition}[Motion Leg]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MotionLeg}
+  The fall to the beam and the subsequent beam-driving motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Leg.
+\end{proof}
+\begin{definition}[start Point]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg-startpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MotionLeg.startPoint}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverpoint, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg}
+  Initial point of each motion leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Point.
+\end{proof}
+\begin{definition}[end Point]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MotionLeg.endPoint}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverpoint, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg}
+  Final point of each motion leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of end Point.
+\end{proof}
+\begin{definition}[Force Source]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.ForceSource}
+  The three force agents whose work enters the hammerhead energy balance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Source.
+\end{proof}
+\begin{definition}[Hammerhead Motion State]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hammerheadmotionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.HammerheadMotionState}
+  The qualitative instantaneous motion state at a labeled point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hammerhead Motion State.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.VerticalDirection}
+  Vertical directions used for motion and force arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Hammerhead Material]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hammerheadmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.HammerheadMaterial}
+  Material model stated for the hammerhead
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hammerhead Material.
+\end{proof}
+\begin{definition}[Apparatus Orientation]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-apparatusorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.ApparatusOrientation}
+  Orientation of the I-beam and guide rails
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Apparatus Orientation.
+\end{proof}
+\begin{definition}[Pile Driver Figure]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.PileDriverFigure}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverpoint}
+  Literal information transcribed from the primary raster. The physical distances attached to the printed markers remain independent of their numerical readouts in MatchesPrimaryPileDriverFigure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pile Driver Figure.
+\end{proof}
+\begin{definition}[Pile Driver Setup]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.PileDriverSetup}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcemagnitudequantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-energyquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverpoint, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forcesource, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hammerheadmotionstate, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-verticaldirection, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hammerheadmaterial, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-apparatusorientation, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriverfigure}
+  All unknown observables, especially the two average contact-force magnitudes, are independent fields. Work and kinetic energy are likewise not defined from the requested answer; the governing-law predicate below relates them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pile Driver Setup.
+\end{proof}
+\begin{definition}[travel Distance]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup-traveldistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.PileDriverSetup.travelDistance}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthquantity, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-motionleg, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Physical distance traveled by the hammerhead on either motion leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of travel Distance.
+\end{proof}
+\begin{definition}[Matches Pile Driver Scenario]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchespiledriverscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MatchesPileDriverScenario}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Qualitative apparatus, motion, and force information stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pile Driver Scenario.
+\end{proof}
+\begin{definition}[Matches Pile Driver Problem Readouts]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchespiledriverproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MatchesPileDriverProblemReadouts}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massinkilograms, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forceinnewtons, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Scalar readouts supplied in the prose, excluding the two figure distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pile Driver Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Standard terrestrial gravitational acceleration used by the answer data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Matches Primary Pile Driver Figure]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-matchesprimarypiledriverfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.MatchesPrimaryPileDriverFigure}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthinmeters, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthincentimeters, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Labels, alignments, and distance readouts visible in image 808.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pile Driver Figure.
+\end{proof}
+\begin{definition}[Has Physical Pile Driver Parameters]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-hasphysicalpiledriverparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.HasPhysicalPileDriverParameters}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massinkilograms, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthinmeters, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forceinnewtons, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Positivity and nondegeneracy of the supplied physical magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pile Driver Parameters.
+\end{proof}
+\begin{definition}[Satisfies Pile Driver Work Energy Laws]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-satisfiespiledriverworkenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.SatisfiesPileDriverWorkEnergyLaws}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-massinkilograms, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-lengthinmeters, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-forceinnewtons, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-energyinjoules, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-piledriversetup}
+  Governing mechanics laws for the hammerhead: at-rest states have zero kinetic energy; gravity does positive work m g s on each downward leg; constant guide-rail friction does negative work -f s; the I-beam does no work before contact and average work -F d while it is driven downward; the net work on each leg equals the change in hammerhead kinetic energy; Newton's third law gives equal magnitudes for the beam-on-hammer and hammer-on-beam average contact forces.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pile Driver Work Energy Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.AnswerChoice}
+  The answer-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Force In Newtons]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-displayedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.displayedForceInNewtons}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-answerchoice}
+  The four displayed force magnitudes, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Force In Newtons.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-isuniqueclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0808.IsUniqueClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-answerchoice, def:physics:phyx-mini-0808:phyxminiproblems-problemphyxmini0808-displayedforceinnewtons}
+  A choice is strictly closer than every other displayed force value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

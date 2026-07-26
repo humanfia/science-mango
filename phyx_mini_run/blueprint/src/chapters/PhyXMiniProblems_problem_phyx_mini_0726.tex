@@ -1,0 +1,331 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0726.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0726.source.json
+
+\chapter{Physics problem phyx\_mini\_0726}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0726}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Believe it or not, you can estimate the radius of the Earth without having to go into space. If you have ever been on the shore of a large lake, you may have noticed that you cannot see the beaches, piers, or rocks at water level across the lake on the opposite shore. The lake seems to bulge out between you and the opposite shore--a good clue that the Earth is round. Suppose you climb a stepladder and discover that when your eyes are \$10\$ \$ft\$ (\$3.0\$ \$m\$) above the water, you can just see the rocks at water level on the opposite shore. From a map, you estimate the distance to the opposite shore as \$d \textbackslash{}approx 6.1\$ \$km\$.
+
+\#\# Question
+
+Use figure with \$h = 3.0\$ \$m\$ to estimate the radius \$R\$ of the Earth.
+
+\#\# Answer choices
+
+- A: A: 6000 km
+
+- B: B: 6100 km
+
+- C: C: 6200 km
+
+- D: D: 6380 km
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional diagram illustrating the geometry of sight over a curved Earth. 
+
+- **Objects and Labels:**
+  - A person stands at a height \textbackslash{}( h \textbackslash{}) above the surface on a raised platform, presumably an observer looking out across a lake.
+  - The surface is labeled "Lake," and the larger circle represents the "Earth."
+  - Two radial lines extend from the "Center of Earth" to two points: one directly below the observer and the other where the line of sight intersects the Earth's surface. Both are labeled \textbackslash{}( R \textbackslash{}), the Earth's radius.
+  
+- **Lines and Measurements:**
+  - A horizontal line of sight from the observer points towards the horizon.
+  - The horizontal distance from the observer to the point where the line of sight tangentially meets the Earth's surface is labeled \textbackslash{}( d \textbackslash{}).
+
+- **Scene Description:**
+  - The diagram shows the curvature of the Earth's surface, highlighting the concept of the horizon and how distance (\textbackslash{}( d \textbackslash{})) is calculated based on the observer's height \textbackslash{}( h \textbackslash{}) above the Earth's surface.
+
+This diagram is typically used to illustrate concepts in physics and geography related to Earth's curvature and horizon calculation.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 6200 km
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/726.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0726.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0726:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0726.problem_phyx_mini_0726}
+\uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasstatedobservationdata, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-matchesprimaryfigure, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasphysicallengths, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-obeyssphericalearthhorizonlaw, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-isclosestdisplayedradius}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.LengthQuantity}
+  A genuine physical quantity with the dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.lengthReadout}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity}
+  Read a physical length as a scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.lengthInMeters}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthreadout}
+  SI-metre readout used for the Euclidean diagram and exact calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthreadout}
+  Kilometre readout used by the map estimate and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[length In Feet]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinfeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.lengthInFeet}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthreadout}
+  Foot readout appearing in the prose as a rounded alternative to 3.0 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Feet.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.DiagramPlane}
+  The plane of the circular-Earth cross-section, in SI-metre coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.FigurePoint}
+  Named points needed by the horizon construction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Segment]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.FigureSegment}
+  The four length-bearing segments visible in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Segment.
+\end{proof}
+\begin{definition}[Figure Length Label]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurelengthlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.FigureLengthLabel}
+  Literal mathematical labels printed beside figure segments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Length Label.
+\end{proof}
+\begin{definition}[figure Segment Label]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegmentlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.figureSegmentLabel}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegment, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurelengthlabel}
+  The diagram prints R twice, and prints h and d once each
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Segment Label.
+\end{proof}
+\begin{definition}[figure Segment Endpoints]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegmentendpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.figureSegmentEndpoints}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurepoint, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegment}
+  Endpoints of each named segment in the cross-sectional figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Segment Endpoints.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.FigureRegion}
+  Semantic regions carrying the visible Earth and Lake information
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Earth Model]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.EarthModel}
+  The spherical cross-sectional model drawn in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earth Model.
+\end{proof}
+\begin{definition}[Observer Support]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-observersupport}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.ObserverSupport}
+  The raised support explicitly named in the prose and drawn at the left
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observer Support.
+\end{proof}
+\begin{definition}[Sight Target]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-sighttarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.SightTarget}
+  The object that becomes visible at the far water-level point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sight Target.
+\end{proof}
+\begin{definition}[Visibility Status]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-visibilitystatus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.VisibilityStatus}
+  The limiting observation described by “can just see”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Visibility Status.
+\end{proof}
+\begin{definition}[Distance Source]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-distancesource}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.DistanceSource}
+  Provenance of the supplied value d ≈ 6.1 km
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Distance Source.
+\end{proof}
+\begin{definition}[Earth Horizon Setup]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.EarthHorizonSetup}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthquantity, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-diagramplane, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurepoint, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figureregion, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthmodel, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-observersupport, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-sighttarget, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-visibilitystatus, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-distancesource}
+  The physical and diagrammatic state of the horizon observation. earthRadius is an independent unknown physical length. In particular, it is not defined from an answer choice or from the requested radius formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Earth Horizon Setup.
+\end{proof}
+\begin{definition}[earth Sphere]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthsphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.earthSphere}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-diagramplane, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  The circular Earth boundary with the independent physical radius read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of earth Sphere.
+\end{proof}
+\begin{definition}[diagram Segment Length Meters]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-diagramsegmentlengthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.diagramSegmentLengthMeters}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegment, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figuresegmentendpoints, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  Length of a displayed segment, computed from its metre-coordinate endpoints
+\end{definition}
+\begin{proof}
+  This is the declared model definition of diagram Segment Length Meters.
+\end{proof}
+\begin{definition}[figure X]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.figureX}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurepoint, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  Horizontal coordinate in the orientation used by the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure X.
+\end{proof}
+\begin{definition}[figure Y]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurey}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.figureY}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurepoint, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  Vertical coordinate in the orientation used by the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Y.
+\end{proof}
+\begin{definition}[Has Stated Observation Data]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasstatedobservationdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.HasStatedObservationData}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinkilometers, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinfeet, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  The numerical and qualitative observations supplied by the prose. The foot value is explicitly treated as a rounded report, while h = 3.0 m is the metric value requested by the question. The map value is retained as an estimate whose displayed readout is 6.1 km
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Observation Data.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-diagramsegmentlengthmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurex, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-figurey}
+  Transcription of the primary bitmap. It records the two equal radial segments, the radial eye-height segment, the eye-to-rock segment d, the placement of the named points, and the visible orientation of the far radius and dashed line of sight. It does not assign a numerical value to R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Lengths]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasphysicallengths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.HasPhysicalLengths}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup}
+  Positivity conditions for the three independent physical lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Lengths.
+\end{proof}
+\begin{definition}[Obeys Spherical Earth Horizon Law]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-obeyssphericalearthhorizonlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.ObeysSphericalEarthHorizonLaw}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthsphere}
+  The governing horizon law: a straight limiting line of sight to a surface target is tangent to a spherical Earth, hence perpendicular to the radius at the point of tangency. This is a reusable geometric law, not the requested formula or numerical radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Spherical Earth Horizon Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radius Kilometers]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-answerchoice-radiuskilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.AnswerChoice.radiusKilometers}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-answerchoice}
+  Radius readout in kilometres printed beside an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radius Kilometers.
+\end{proof}
+\begin{definition}[Is Closest Displayed Radius]
+  \label{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-isclosestdisplayedradius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.IsClosestDisplayedRadius}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinkilometers, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-answerchoice}
+  A choice is selected by proximity to the radius obtained from the physical model. This definition does not privilege choice C and does not make any choice correct by unfolding alone
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Radius.
+\end{proof}
+\begin{lemma}[earth Radius from tangent geometry]
+  \label{lem:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthradius-from-tangent-geometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0726.earthRadius_from_tangent_geometry}
+  \uses{def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-lengthinmeters, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-earthhorizonsetup, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasstatedobservationdata, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-matchesprimaryfigure, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-hasphysicallengths, def:physics:phyx-mini-0726:phyxminiproblems-problemphyxmini0726-obeyssphericalearthhorizonlaw}
+  The right triangle with legs R and d and hypotenuse R + h gives R = (d\textasciicircum{}2 - h\textasciicircum{}2) / (2 h). This is an intermediate derived conclusion, not a premise of the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Radius from tangent geometry.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

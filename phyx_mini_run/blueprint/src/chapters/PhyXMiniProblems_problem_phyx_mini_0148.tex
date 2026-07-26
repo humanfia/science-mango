@@ -1,0 +1,309 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0148.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0148.source.json
+
+\chapter{Physics problem phyx\_mini\_0148}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0148}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A small object is \textbackslash{}(25.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) from a diverging lens as shown in figure. A converging lens with a focal length of \textbackslash{}(12.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) is \textbackslash{}(30.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) to the right of the diverging lens. The two-lens system forms a real inverted image \textbackslash{}(17.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) to the right of the converging lens.
+
+\#\# Question
+
+What is the focal length of the diverging lens?
+
+\#\# Answer choices
+
+- A: A: -23.0cm
+
+- B: B: -21.0cm
+
+- C: C: -19.0cm
+
+- D: D: -17.0cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an optical setup with two lenses and an object. Here's a breakdown of the elements:
+
+- **Object**: Represented as an upright arrow on the left side. It’s located 25.0 cm to the left of the first lens.
+
+- **First Lens**: A concave (diverging) lens is situated on the principal axis. It's positioned 25.0 cm to the right of the object.
+
+- **Distance Between Lenses**: There is a 30.0 cm distance between the first (concave) lens and the second (convex) lens. 
+
+- **Second Lens**: A convex (converging) lens is placed to the right of the first lens on the same principal axis.
+
+- **Image**: A dashed line representing an inverted arrow is located 17.0 cm to the right of the second lens.
+
+- **Text and Measurements**:
+  - "25.0 cm" indicates the distance between the object and the first lens.
+  - "30.0 cm" represents the distance between the first and second lenses.
+  - "17.0 cm" denotes the distance from the second lens to the image.
+
+These elements collectively illustrate a two-lens optical system with a diverging-converging lens setup.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Multi-Formula Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -19.0cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/148.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0148.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0148:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0148.problem_phyx_mini_0148}
+\uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-hasphysicaltwolensconfiguration, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesproblemandfigurereadouts, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-satisfiesparaxialtwolenslaws, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.SignedLengthQuantity}
+  A signed physical length, independent of the unit chosen to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[signed Length In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.signedLengthInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthquantity}
+  The signed scalar readout of an axial position or focal length in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length In Centimeters.
+\end{proof}
+\begin{definition}[Lens Label]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-lenslabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.LensLabel}
+  Labels for the two lenses, in their left-to-right order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lens Label.
+\end{proof}
+\begin{definition}[Thin Lens Kind]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlenskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.ThinLensKind}
+  The optical classification of a thin lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thin Lens Kind.
+\end{proof}
+\begin{definition}[Optical Axis Point]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalaxispoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.OpticalAxisPoint}
+  Named points on the common principal axis, including the derived conjugate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Axis Point.
+\end{proof}
+\begin{definition}[Axial Propagation Direction]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpropagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.AxialPropagationDirection}
+  Direction in which light propagates through the pictured system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Propagation Direction.
+\end{proof}
+\begin{definition}[Optical Approximation]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.OpticalApproximation}
+  The approximation regime under which the Gaussian thin-lens law is used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Approximation.
+\end{proof}
+\begin{definition}[Object Size Regime]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-objectsizeregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.ObjectSizeRegime}
+  The qualitative size regime assigned to the source object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Object Size Regime.
+\end{proof}
+\begin{definition}[Image Nature]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-imagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.ImageNature}
+  Whether an optical image is real or virtual
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Nature.
+\end{proof}
+\begin{definition}[Transverse Orientation]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-transverseorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.TransverseOrientation}
+  Transverse orientation of the object or image arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transverse Orientation.
+\end{proof}
+\begin{definition}[Thin Lens]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlens}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.ThinLens}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthquantity, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-lenslabel, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlenskind, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalaxispoint}
+  A labeled thin lens with its center and signed physical focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thin Lens.
+\end{proof}
+\begin{definition}[Two Lens Imaging Setup]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.TwoLensImagingSetup}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthquantity, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-lenslabel, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalaxispoint, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpropagationdirection, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalapproximation, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-objectsizeregime, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-imagenature, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-transverseorientation, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlens}
+  This structure records the Two Lens Imaging Setup component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Lens Imaging Setup.
+\end{proof}
+\begin{definition}[axial Position In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.axialPositionInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-opticalaxispoint, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup}
+  Centimeter coordinate of a named point on the optical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Position In Centimeters.
+\end{proof}
+\begin{definition}[focal Length In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.focalLengthInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-signedlengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlens}
+  Signed focal-length readout of a lens in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of focal Length In Centimeters.
+\end{proof}
+\begin{definition}[first Lens Object Distance In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensobjectdistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.firstLensObjectDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters}
+  Positive object distance presented to the first lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of first Lens Object Distance In Centimeters.
+\end{proof}
+\begin{definition}[first Lens Image Distance In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensimagedistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.firstLensImageDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters}
+  Signed image distance made by the first lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of first Lens Image Distance In Centimeters.
+\end{proof}
+\begin{definition}[second Lens Object Distance In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensobjectdistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.secondLensObjectDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters}
+  Object distance presented by the shared intermediate image to the second lens
+\end{definition}
+\begin{proof}
+  This is the declared model definition of second Lens Object Distance In Centimeters.
+\end{proof}
+\begin{definition}[second Lens Image Distance In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensimagedistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.secondLensImageDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters}
+  Signed distance from the second lens to the final image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of second Lens Image Distance In Centimeters.
+\end{proof}
+\begin{definition}[Has Focal Sign Consistent With Kind]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-hasfocalsignconsistentwithkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.HasFocalSignConsistentWithKind}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-thinlens, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters}
+  The Gaussian sign of a focal length agrees with its lens classification
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Focal Sign Consistent With Kind.
+\end{proof}
+\begin{definition}[Has Physical Two Lens Configuration]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-hasphysicaltwolensconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.HasPhysicalTwoLensConfiguration}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-hasfocalsignconsistentwithkind}
+  This def records the Has Physical Two Lens Configuration component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Two Lens Configuration.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-axialpositionincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensobjectdistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensimagedistanceincentimeters}
+  This def records the Matches Problem And Figure Readouts component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Satisfies Paraxial Two Lens Laws]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-satisfiesparaxialtwolenslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.SatisfiesParaxialTwoLensLaws}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensobjectdistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensimagedistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensobjectdistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensimagedistanceincentimeters}
+  This structure records the Satisfies Paraxial Two Lens Laws component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Paraxial Two Lens Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.AnswerChoice}
+  Labels of the four displayed focal-length choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[focal Length In Centimeters]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-answerchoice-focallengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.AnswerChoice.focalLengthInCentimeters}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-answerchoice}
+  Signed focal-length readout printed beside each answer choice, in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of focal Length In Centimeters.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-focallengthincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-answerchoice}
+  This def records the Matches Answer To Nearest Tenth component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{lemma}[second Lens Object Distance eq two hundred four fifths]
+  \label{lem:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensobjectdistance-eq-two-hundred-four-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.secondLensObjectDistance_eq_two_hundred_four_fifths}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-secondlensobjectdistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesproblemandfigurereadouts, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-satisfiesparaxialtwolenslaws}
+  This lemma records the second Lens Object Distance eq two hundred four fifths component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of second Lens Object Distance eq two hundred four fifths.
+\end{proof}
+\begin{lemma}[first Lens Image Distance eq negative fifty four fifths]
+  \label{lem:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensimagedistance-eq-negative-fifty-four-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0148.firstLensImageDistance_eq_negative_fifty_four_fifths}
+  \uses{def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-twolensimagingsetup, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-firstlensimagedistanceincentimeters, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-matchesproblemandfigurereadouts, def:physics:phyx-mini-0148:phyxminiproblems-problemphyxmini0148-satisfiesparaxialtwolenslaws}
+  This lemma records the first Lens Image Distance eq negative fifty four fifths component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first Lens Image Distance eq negative fifty four fifths.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

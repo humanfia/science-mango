@@ -1,0 +1,231 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0843.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0843.source.json
+
+\chapter{Physics problem phyx\_mini\_0843}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0843}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the electric flux through the surface?
+
+\#\# Answer choices
+
+- A: A: 1.2N m\textasciicircum{}2/C
+
+- B: B: 10N m\textasciicircum{}2/C
+
+- C: C: 2N m\textasciicircum{}2/C
+
+- D: D: 1N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a rectangular plane with dimensions labeled as "10 cm × 10 cm." Several parallel arrows in magenta are shown passing through the plane at an angle. These arrows represent an electric field, labeled as \textbackslash{}( \textbackslash{}vec\{E\} \textbackslash{}), with a magnitude of "200 N/C."
+
+A single black arrow labeled as \textbackslash{}( \textbackslash{}hat\{n\} \textbackslash{}) is perpendicular to the plane, indicating the normal vector of the surface. The angle between the plane and the direction of the electric field is marked as "30°."
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/843.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0843.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0843:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0843.problem_phyx_mini_0843}
+\uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxinnewtonmetressquaredpercoulomb, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-rectangularsurfacefluxsetup, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-matchessuppliedfigure, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-satisfiesfieldplaneanglegeometry, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-satisfiesuniformrectangularelectricfluxlaw, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-displayedelectricfluxinnewtonmetressquaredpercoulomb}
+The electric flux through the \(10\,\mathrm{cm}\times10\,\mathrm{cm}\)
+surface is \(1\,\mathrm{N\,m^2/C}\), answer D.
+\end{theorem}
+\begin{proof}
+The field makes \(30^\circ\) with the plane, so its normal component is
+\(E\sin30^\circ=200/2=100\,\mathrm{N/C}\).  The area is
+\((0.10\,\mathrm m)^2=0.01\,\mathrm{m^2}\).  The uniform-field flux law gives
+\[
+ \Phi_E=0.01(100)=1\,\mathrm{N\,m^2/C},
+\]
+which is the value displayed by D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Dimension]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfielddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFieldDimension}
+  The MLTQ dimension of force per charge, hence of an electric field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFluxDimension}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfielddimension}
+  Electric flux has dimension electric field times area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Field Vector Quantity]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.ElectricFieldVectorQuantity}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfielddimension}
+  A unit-independent three-dimensional electric-field vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Vector Quantity.
+\end{proof}
+\begin{definition}[Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.ElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxdimension}
+  Signed electric flux through an oriented surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.lengthReadout}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthquantity}
+  Scalar readout of a physical length in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[electric Field Vector Readout]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFieldVectorReadout}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorquantity}
+  Vector readout of an electric field in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Vector Readout.
+\end{proof}
+\begin{definition}[electric Flux Readout]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFluxReadout}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxquantity}
+  Scalar readout of electric flux in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthquantity, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthreadout}
+  Length readout in centimetres, matching the surface labels in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[electric Field Vector In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFieldVectorInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorquantity, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorreadout}
+  Electric-field vector readout in SI units, i.e. newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Vector In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Flux In Newton Metres Squared Per Coulomb]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxinnewtonmetressquaredpercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.electricFluxInNewtonMetresSquaredPerCoulomb}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxquantity, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxreadout}
+  Electric-flux readout in SI units, i.e. newton-metres squared per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Metres Squared Per Coulomb.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.degreesToRadians}
+  Convert a numerical angle in degrees to its radian readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Oriented Rectangular Surface]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-orientedrectangularsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.OrientedRectangularSurface}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthquantity}
+  An oriented rectangular plane. The two physical side lengths determine its area, while unitNormal is the direction denoted by n-hat in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oriented Rectangular Surface.
+\end{proof}
+\begin{definition}[Rectangular Surface Flux Setup]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-rectangularsurfacefluxsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.RectangularSurfaceFluxSetup}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorquantity, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxquantity, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-orientedrectangularsurface}
+  The physical quantities appearing in the diagram. electricFlux is an independent signed physical quantity; its relation to the other fields is imposed only by the governing flux law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Surface Flux Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthincentimeters, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-degreestoradians, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-rectangularsurfacefluxsetup}
+  Direct transcription of the primary image: both side labels are 10 cm, the field-magnitude label is 200 N/C, the field-plane angle is 30 degrees, and the hatted normal is a unit vector. No electric-flux value or answer choice occurs in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Field Plane Angle Geometry]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-satisfiesfieldplaneanglegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.SatisfiesFieldPlaneAngleGeometry}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorreadout, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-rectangularsurfacefluxsetup}
+  For the acute, positively oriented angle shown between the field and the plane, the field component along the surface normal is |E| sin(theta). This is stated in every coherent unit choice and contains no numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Field Plane Angle Geometry.
+\end{proof}
+\begin{definition}[Satisfies Uniform Rectangular Electric Flux Law]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-satisfiesuniformrectangularelectricfluxlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.SatisfiesUniformRectangularElectricFluxLaw}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-lengthreadout, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfieldvectorreadout, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-electricfluxreadout, def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-rectangularsurfacefluxsetup}
+  The uniform-field electric-flux law for an oriented rectangular plane: Phi\_E = area * (E dot n-hat). It is quantified over coherent unit choices, so the equality retains its dimensional meaning and mentions no answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Rectangular Electric Flux Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Electric Flux In Newton Metres Squared Per Coulomb]
+  \label{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-displayedelectricfluxinnewtonmetressquaredpercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0843.displayedElectricFluxInNewtonMetresSquaredPerCoulomb}
+  \uses{def:physics:phyx-mini-0843:phyxminiproblems-problemphyxmini0843-answerchoice}
+  Numerical SI electric-flux readout printed beside an answer choice, in newton-metres squared per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Electric Flux In Newton Metres Squared Per Coulomb.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,419 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0261.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0261.source.json
+
+\chapter{Physics problem phyx\_mini\_0261}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0261}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, block 2 of mass \$2.0\textbackslash{} kg\$ oscillates on the end of a spring in SHM with a period of \$20\textbackslash{} ms\$. The block's position is given by \$x = (1.0\textbackslash{} cm) \textbackslash{}cos(\textbackslash{}omega t + \textbackslash{}pi/2)\$. Block 1 of mass \$4.0\textbackslash{} kg\$ slides toward block 2 with a velocity of magnitude \$6.0\textbackslash{} m/s\$, directed along the spring's length. The two blocks undergo a completely inelastic collision at time \$t = 5.0\textbackslash{} ms\$. (The duration of the collision is much less than the period of motion.)
+
+\#\# Question
+
+What is the amplitude of the SHM after the collision?
+
+\#\# Answer choices
+
+- A: A: 0.016 m
+
+- B: B: 0.020 m
+
+- C: C: 0.024 m
+
+- D: D: 0.028 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a physics setup featuring two blocks and a spring. 
+
+- Block 1 is on the left, colored cyan, and is labeled "1." It has an arrow pointing right, indicating its direction of motion.
+- Block 2 is in the center, colored pink, and is labeled "2." It has arrows on both sides, indicating it can move in both directions.
+- A spring is attached to block 2 on the right side, connected to a vertical wall. The spring is labeled "k" to represent its spring constant.
+- The scene is set on a flat horizontal surface.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.024 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/261.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0261.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0261:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0261.problem_phyx_mini_0261}
+\uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesproblemandfigure, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesprecollisionshm, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesimpulsivecollision, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiespostcollisionshm, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-recordedanswerchoice, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.LengthQuantity}
+  A nonnegative physical length, used for oscillation amplitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Displacement Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signeddisplacementquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SignedDisplacementQuantity}
+  A signed displacement along the horizontal spring axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Displacement Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.DurationQuantity}
+  A nonnegative physical duration or elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SignedVelocityQuantity}
+  A signed one-dimensional velocity along the spring axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SpringStiffnessQuantity}
+  Spring stiffness, with dimension mass divided by time squared (N/m)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.massReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massquantity}
+  Read a physical mass in the selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.lengthReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity}
+  Read a nonnegative physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[displacement Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.displacementReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signeddisplacementquantity}
+  Read a signed displacement in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.durationReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationquantity}
+  Read a physical duration in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.velocityReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signedvelocityquantity}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[stiffness Readout]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-stiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.stiffnessReadout}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springstiffnessquantity}
+  Read spring stiffness in coherent selected mass and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.massInKilograms}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massreadout}
+  Kilogram readout used in the oscillator models
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.lengthInMeters}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthreadout}
+  Metre readout of a physical amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthreadout}
+  Centimetre readout used for the supplied initial amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[displacement In Meters]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.displacementInMeters}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signeddisplacementquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementreadout}
+  Metre readout of a signed axial displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.durationInSeconds}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationreadout}
+  Second readout used in the harmonic-motion laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Milliseconds]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.durationInMilliseconds}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationreadout}
+  Millisecond readout used for the period and collision time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Milliseconds.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signedvelocityquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityreadout}
+  Metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springstiffnessquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-stiffnessreadout}
+  Newton-per-metre readout of the spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Block Label]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-blocklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.BlockLabel}
+  The numerical block labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.HorizontalDirection}
+  Horizontal directions along the spring axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.FigureLabel}
+  Mathematical labels visible in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.CollisionOutcome}
+  Qualitative outcomes of the collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Collision Time Scale]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-collisiontimescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.CollisionTimeScale}
+  Comparison between the impact duration and the pre-impact oscillator period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Time Scale.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.OscillationRegime}
+  Mechanical regimes relevant to the two intervals of motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.Orientation}
+  Orientations used for the spring, velocity, and support surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Spring Collision Figure]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SpringCollisionFigure}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-blocklabel, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-horizontaldirection, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-figurelabel, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-orientation}
+  Qualitative facts transcribed from the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Collision Figure.
+\end{proof}
+\begin{definition}[Spring Collision Setup]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SpringCollisionSetup}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signeddisplacementquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-signedvelocityquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springstiffnessquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-blocklabel, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-horizontaldirection, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-collisionoutcome, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-collisiontimescale, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-oscillationregime, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-orientation, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionfigure}
+  All physical quantities and intermediate states used by the model. postCollisionAmplitude is deliberately an unconstrained physical length in this structure. Its connection to the post-impact initial state is supplied only by the general harmonic-oscillator law below; no answer-choice value is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Collision Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massinkilograms, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthincentimeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationinmilliseconds, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup}
+  The numerical givens and qualitative facts stated by the problem and shown in the primary image. In Physlib's amplitude-phase convention the trajectory is A cos (omega t - phi), so the source's + pi/2 becomes phi = -pi/2 in SatisfiesPreCollisionSHM, rather than being treated as a requested result. No field below constrains the post-collision amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Satisfies Pre Collision SHM]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesprecollisionshm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SatisfiesPreCollisionSHM}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massinkilograms, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-durationinseconds, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-stiffnessinnewtonspermeter, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup}
+  The supplied pre-collision simple harmonic motion. Physlib gives omega = sqrt (k/m) and period = 2 pi / omega. The final two fields evaluate the given cosine trajectory and its derivative at the stated collision time. They determine only the state immediately before impact, not the amplitude after impact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pre Collision SHM.
+\end{proof}
+\begin{definition}[Satisfies Impulsive Collision]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesimpulsivecollision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SatisfiesImpulsiveCollision}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massreadout, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityreadout, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup}
+  The short, completely inelastic impact law. Linear momentum is conserved in every coherent choice of mass, length, and time units. The stuck pair starts its post-impact motion at the collision displacement and with the common velocity produced by impact. This law does not mention the amplitude of the later SHM
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Impulsive Collision.
+\end{proof}
+\begin{definition}[Satisfies Post Collision SHM]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiespostcollisionshm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.SatisfiesPostCollisionSHM}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-massinkilograms, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-stiffnessinnewtonspermeter, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup}
+  The stuck blocks undergo SHM on the same spring. Their combined mass and the unchanged spring stiffness form the second Physlib harmonic oscillator. The physical amplitude is the norm recovered by Physlib from its general initial position and velocity; this is a governing amplitude definition, not the numerical answer requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Post Collision SHM.
+\end{proof}
+\begin{lemma}[block2 state at collision]
+  \label{lem:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-block2-state-at-collision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.block2_state_at_collision}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-displacementinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesproblemandfigure, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesprecollisionshm}
+  At t = 5 ms = T/4, the phase in the supplied trajectory is pi. Thus block 2 is at the negative turning point and instantaneously at rest. This is an intermediate conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of block2 state at collision.
+\end{proof}
+\begin{lemma}[common velocity immediately after collision]
+  \label{lem:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-common-velocity-immediately-after-collision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.common_velocity_immediately_after_collision}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-velocityinmeterspersecond, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesproblemandfigure, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesprecollisionshm, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesimpulsivecollision}
+  Momentum conservation for the sticking collision gives the common speed (4 kg * 6 m/s + 2 kg * 0 m/s) / 6 kg = 4 m/s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of common velocity immediately after collision.
+\end{proof}
+\begin{lemma}[post collision amplitude exact]
+  \label{lem:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-post-collision-amplitude-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.post_collision_amplitude_exact}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthinmeters, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-springcollisionsetup, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesproblemandfigure, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesprecollisionshm, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiesimpulsivecollision, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-satisfiespostcollisionshm}
+  For a harmonic oscillator with collision-time initial state (x\_c, v\_c), the amplitude is sqrt (x\_c\textasciicircum{}2 + (v\_c/omega\_after)\textasciicircum{}2). Substitution of the two derived collision-state readouts gives this exact relation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of post collision amplitude exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.AnswerChoice}
+  Labels of the four amplitudes printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[amplitude In Meters]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-answerchoice-amplitudeinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.AnswerChoice.amplitudeInMeters}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-answerchoice}
+  Amplitude in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of amplitude In Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Millimeter]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-roundstonearestmillimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.RoundsToNearestMillimeter}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthinmeters}
+  Agreement with a displayed amplitude after rounding to the nearest millimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Millimeter.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0261.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-lengthquantity, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-answerchoice, def:physics:phyx-mini-0261:phyxminiproblems-problemphyxmini0261-roundstonearestmillimeter}
+  The physical post-collision amplitude agrees with the selected displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,317 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0190.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0190.source.json
+
+\chapter{Physics problem phyx\_mini\_0190}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0190}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A ship uses a sonar system (figure) to locate underwater objects.
+
+\#\# Question
+
+Find the wavelength of a \textbackslash{}( 262 \textbackslash{}, \textbackslash{}mathrm\{Hz\} \textbackslash{}) wave.
+
+\#\# Answer choices
+
+- A: A: 5.64m
+
+- B: B: 6.45m
+
+- C: C: 5.46m
+
+- D: D: 6.54m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene involving wave interactions, possibly illustrating the Doppler effect. Key elements include:
+
+1. **Objects**:
+   - A ship at the bottom left with visible masts and sails, seemingly at rest on water or a surface.
+   - An airplane or similar flying object at the top right with a pointed nose.
+
+2. **Waves**:
+   - Blue and black wave pattern radiating from the aircraft towards the ship.
+   - The black waves are compressed nearer to the airplane and spread out toward the ship, representing wave propagation.
+
+3. **Text and Symbols**:
+   - A black arrow labeled "λ" (for wavelength) points between two black wavefronts.
+   - A green arrow labeled "v" (for velocity) is oriented from the airplane, likely indicating motion direction. 
+
+4. **Scene**:
+   - The waves appear to originate from the airplane and travel towards the ship, demonstrating a relationship between the objects through wave interactions.
+
+This setup suggests a demonstration or explanation of the Doppler effect, where the frequency of waves changes due to the relative motion between source and observer.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 5.64m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/190.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0190.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0190:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0190.problem_phyx_mini_0190}
+\uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthinmeters, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-matchesproblemstatement, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-matchessuppliedfigure, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-hasphysicalsonarwaveparameters, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-usesstandardwatersoundspeed, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-satisfiesacousticwavekinematics, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-recordeddatasetanswer, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-isclosestdisplayedwavelengthchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.FrequencyQuantity}
+  A nonnegative acoustic frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.LengthQuantity}
+  A nonnegative wavelength, with length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.SpeedQuantity}
+  A nonnegative propagation speed, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.frequencyReadout}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.lengthReadout}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity}
+  Read a physical length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.lengthInMeters}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthreadout}
+  Meter readout of a wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.speedReadout}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedquantity}
+  Read a speed in the selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedreadout}
+  Meter-per-second readout of the acoustic propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Locating System Kind]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-locatingsystemkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.LocatingSystemKind}
+  The physical locating system described in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Locating System Kind.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.AcousticMedium}
+  Propagation medium relevant to the requested acoustic wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Acoustic Wave Kind]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-acousticwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.AcousticWaveKind}
+  Qualitative wave type used by the locating system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Wave Kind.
+\end{proof}
+\begin{definition}[Sonar Endpoint Role]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarendpointrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.SonarEndpointRole}
+  Source and target roles in the prose's sonar scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonar Endpoint Role.
+\end{proof}
+\begin{definition}[Figure Object Icon]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figureobjecticon}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.FigureObjectIcon}
+  Object silhouettes actually visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object Icon.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.FigureQuantityLabel}
+  Mathematical symbols printed in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Figure Propagation Direction]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figurepropagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.FigurePropagationDirection}
+  Direction of the wave pattern and green arrow in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Propagation Direction.
+\end{proof}
+\begin{definition}[Sonar Wave Figure]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.SonarWaveFigure}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figureobjecticon, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figurequantitylabel, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-figurepropagationdirection}
+  The figure-derived objects and labeled quantities. wavefrontSpacing and velocityArrowMagnitude are physical quantities, not scalar placeholders
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonar Wave Figure.
+\end{proof}
+\begin{definition}[Sonar Wave Setup]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.SonarWaveSetup}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-locatingsystemkind, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-acousticmedium, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-acousticwavekind, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarendpointrole, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavefigure}
+  The physical wave together with the prose roles and associated diagram. The wavelength is an independent unknown field and is not defined to be an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sonar Wave Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyinhertz, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  Facts stated in the prose. This predicate contains the given 262 Hz frequency but no numerical wavelength or answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  Readout of the primary bitmap: an aircraft-like source icon faces a ship, the wavefront spacing is marked λ, and a green velocity arrow is marked v. The equalities identify the two pictured quantities with the modeled wave quantities but assign neither one a requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Sonar Wave Parameters]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-hasphysicalsonarwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.HasPhysicalSonarWaveParameters}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyinhertz, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthinmeters, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedinmeterspersecond, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  Positivity conditions selecting an ordinary propagating acoustic wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Sonar Wave Parameters.
+\end{proof}
+\begin{definition}[Uses Standard Water Sound Speed]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-usesstandardwatersoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.UsesStandardWaterSoundSpeed}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedinmeterspersecond, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  The standard textbook calibration used for the speed of sonar in water. The source does not print a speed, so this auxiliary environmental datum is kept separate from both the problem/figure observations and the wave law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Water Sound Speed.
+\end{proof}
+\begin{definition}[Satisfies Acoustic Wave Kinematics]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-satisfiesacousticwavekinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.SatisfiesAcousticWaveKinematics}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-frequencyreadout, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthreadout, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-speedreadout, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup}
+  Wave kinematics v = f λ, expressed in every compatible choice of length and time units. It contains no problem-specific wavelength or answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Acoustic Wave Kinematics.
+\end{proof}
+\begin{lemma}[sonar Wavelength In Meters eq seven Hundred Forty div one Hundred Thirty One]
+  \label{lem:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavelengthinmeters-eq-sevenhundredforty-div-onehundredthirtyone}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.sonarWavelengthInMeters_eq_sevenHundredForty_div_oneHundredThirtyOne}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthinmeters, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-sonarwavesetup, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-matchesproblemstatement, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-usesstandardwatersoundspeed, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-satisfiesacousticwavekinematics}
+  At 262 Hz and 1480 m/s, the wave law gives the exact modeled wavelength 1480 / 262 = 740 / 131 meters. This is derived rather than included in any setup, figure, calibration, or law premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of sonar Wavelength In Meters eq seven Hundred Forty div one Hundred Thirty One.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.AnswerChoice}
+  Labels of the four wavelength choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Wavelength Meters]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-displayedanswerwavelengthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.displayedAnswerWavelengthMeters}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-answerchoice}
+  Wavelength printed beside an answer label, measured in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Wavelength Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Wavelength Choice]
+  \label{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-isclosestdisplayedwavelengthchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0190.IsClosestDisplayedWavelengthChoice}
+  \uses{def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthquantity, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-lengthinmeters, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-answerchoice, def:physics:phyx-mini-0190:phyxminiproblems-problemphyxmini0190-displayedanswerwavelengthmeters}
+  A displayed option is a closest listed approximation to the modeled physical wavelength. This compares all four supplied values and does not define the unknown wavelength to equal any option
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Wavelength Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

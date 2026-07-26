@@ -1,0 +1,445 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0237.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0237.source.json
+
+\chapter{Physics problem phyx\_mini\_0237}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0237}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A block of mass \textbackslash{}( M \textbackslash{}) is connected to a spring of mass \textbackslash{}( m \textbackslash{}) and oscillates in simple harmonic motion on a frictionless, horizontal track (figure). The force constant of the spring is \textbackslash{}( k \textbackslash{}), and the equilibrium length is \textbackslash{}( \textbackslash{}ell \textbackslash{}). Assume all portions of the spring oscillate in phase and the velocity of a segment of the spring of length \textbackslash{}( dx \textbackslash{}) is proportional to the distance \textbackslash{}( x \textbackslash{}) from the fixed end; that is, \textbackslash{}( v\_x = (x/\textbackslash{}ell)v \textbackslash{}). Also, notice that the mass of a segment of the spring is \textbackslash{}( dm = (m/\textbackslash{}ell)dx \textbackslash{}).
+
+\#\# Question
+
+Find the period of oscillation.
+
+\#\# Answer choices
+
+- A: A: \$2\textbackslash{}pi \textbackslash{}sqrt\{\textbackslash{}frac\{M + 3m\}\{k\}\}\$
+
+- B: B: \$2\textbackslash{}pi \textbackslash{}sqrt\{\textbackslash{}frac\{M + m/2\}\{k\}\}\$
+
+- C: C: \$2\textbackslash{}pi \textbackslash{}sqrt\{\textbackslash{}frac\{M + m\}\{k\}\}\$
+
+- D: D: \$2\textbackslash{}pi \textbackslash{}sqrt\{\textbackslash{}frac\{M + m/3\}\{k\}\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics diagram involving a spring-mass system:
+
+1. **Objects**:
+   - A coiled spring is attached horizontally to a vertical wall on the left side.
+   - A block with mass labeled "M" is placed on the right side of the spring.
+
+2. **Relationships**:
+   - The spring is compressed with the block pushing against it.
+   - The system illustrates displacement and motion.
+
+3. **Text and Labels**:
+   - The variable "x" denotes the initial displacement of the spring from its equilibrium.
+   - "dx" represents an additional small displacement from position "x."
+   - An arrow labeled with "v" above it, pointing to the right, signifies the velocity vector of the block.
+
+This setup is typical for discussing topics like Hooke's Law, spring force, and dynamics in physics.
+
+\#\# Dataset metadata
+
+Wave Properties; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$2\textbackslash{}pi \textbackslash{}sqrt\{\textbackslash{}frac\{M + m/3\}\{k\}\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/237.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0237.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0237:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0237.oscillationPeriod_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesprimaryfigure, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesproblemdescription, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-hasphysicalparameters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-satisfiesmassivespringlaws, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-recordedanswerchoice, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.MassQuantity}
+  A nonnegative physical mass, used for M, m, dm, and effective mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.LengthQuantity}
+  A nonnegative physical length, used for ℓ, x, and dx
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.SignedVelocityQuantity}
+  A signed one-dimensional velocity component along the horizontal track
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.SpringStiffnessQuantity}
+  Spring force constant, with dimension force per length, or mass/time²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[Linear Mass Density Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.LinearMassDensityQuantity}
+  Uniform spring mass per unit equilibrium length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Mass Density Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.EnergyQuantity}
+  Mechanical energy, with dimension mass·length²/time²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.TimeQuantity}
+  A nonnegative physical duration, used for the oscillation period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.massReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massquantity}
+  Scalar mass readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.lengthReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity}
+  Scalar length readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.velocityReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity}
+  Signed scalar velocity component in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[stiffness Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.stiffnessReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springstiffnessquantity}
+  Scalar spring-stiffness readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness Readout.
+\end{proof}
+\begin{definition}[linear Mass Density Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.linearMassDensityReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityquantity}
+  Scalar linear-mass-density readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Mass Density Readout.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.energyReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyquantity}
+  Scalar energy readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.timeReadout}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timequantity}
+  Scalar duration readout in a chosen coherent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.massInKilograms}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.lengthInMeters}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityreadout}
+  Metres-per-second readout of a signed velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springstiffnessquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessreadout}
+  Newton-per-metre readout of the spring force constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[linear Mass Density In Kilograms Per Meter]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityinkilogramspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.linearMassDensityInKilogramsPerMeter}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityreadout}
+  Kilogram-per-metre readout of the spring's linear mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Mass Density In Kilograms Per Meter.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.energyInJoules}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyreadout}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.timeInSeconds}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timequantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timereadout}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.HorizontalDirection}
+  Horizontal directions in the coordinate convention used by the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Spring End]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.SpringEnd}
+  The two ends of the spring shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring End.
+\end{proof}
+\begin{definition}[Track Friction]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-trackfriction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.TrackFriction}
+  Friction model for the horizontal support under the block
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Track Friction.
+\end{proof}
+\begin{definition}[Track Orientation]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-trackorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.TrackOrientation}
+  Spatial orientation of the track supporting the block
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Track Orientation.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.OscillationRegime}
+  Dynamical regime specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Spring Phase Relation]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springphaserelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.SpringPhaseRelation}
+  Phase relation among material points of the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Phase Relation.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.FigureLabel}
+  Text labels visible in the supplied spring--block diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.FigureFeature}
+  Physical or graphical features to which the visible labels refer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Massive Spring Oscillator Setup]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.MassiveSpringOscillatorSetup}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springstiffnessquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timequantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-horizontaldirection, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springend, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-trackfriction, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-trackorientation, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-oscillationregime, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springphaserelation, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-figurelabel, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-figurefeature}
+  The distributed spring--block system and the auxiliary quantities needed to state its continuum kinetic-energy model. illustratedPositionX, illustratedSegmentLengthDx, and illustratedBlockVelocityV are the quantities marked x, dx, and v in the primary figure. The functions springVelocityAt and springSegmentMass describe arbitrary points and short segments, not only the illustrated one. Neither springEffectiveMass nor oscillationPeriod is assigned its requested value by this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Massive Spring Oscillator Setup.
+\end{proof}
+\begin{definition}[Is Spring Coordinate]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-isspringcoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.IsSpringCoordinate}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthinmeters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup}
+  A point coordinate lies on the spring between the fixed and moving ends
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Spring Coordinate.
+\end{proof}
+\begin{definition}[Is Contained Spring Segment]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-iscontainedspringsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.IsContainedSpringSegment}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthinmeters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup}
+  The segment beginning at x with length dx lies inside the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Contained Spring Segment.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityinmeterspersecond, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-iscontainedspringsegment}
+  Qualitative and labeled information read from the primary bitmap. The image contains no numerical scale for x, dx, or v, so this predicate supplies no requested period or effective-mass value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup}
+  Problem-statement data that specify the idealized regime. Positivity is separated below. In particular, no value of the effective spring mass or oscillation period appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthinmeters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessinnewtonspermeter, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup}
+  Positivity and nondegeneracy of the physical spring--block parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Massive Spring Laws]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-satisfiesmassivespringlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.SatisfiesMassiveSpringLaws}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massreadout, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-lengthreadout, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityreadout, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-linearmassdensityreadout, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyreadout, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessinnewtonspermeter, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timeinseconds, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-isspringcoordinate, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-iscontainedspringsegment}
+  The model laws for a uniform finite-mass spring. uniformLinearMassDensity and shortSegmentMassLaw encode dm = (m / ℓ) dx. linearInPhaseVelocityProfile encodes vₓ = (x / ℓ) v. continuumSpringKineticEnergy is the integral of ½ vₓ² dm. effectiveMassKineticEquivalence defines effective mass by equality of kinetic energies, without assigning it the value m / 3. The last three fields connect the dimensionful system to Physlib's scalar harmonic-oscillator model in coherent SI units.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Massive Spring Laws.
+\end{proof}
+\begin{lemma}[spring Kinetic Energy eq one Half one Third Mass v sq]
+  \label{lem:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springkineticenergy-eq-onehalf-onethirdmass-v-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.springKineticEnergy_eq_oneHalf_oneThirdMass_v_sq}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-signedvelocityquantity, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-velocityinmeterspersecond, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-energyinjoules, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-hasphysicalparameters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-satisfiesmassivespringlaws}
+  Integrating the continuum energy density with the linear velocity profile gives K\_spring = ½ (m/3) v² in SI units. This is a derived intermediate result, not a field of SatisfiesMassiveSpringLaws
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of spring Kinetic Energy eq one Half one Third Mass v sq.
+\end{proof}
+\begin{lemma}[spring Effective Mass eq one Third Spring Mass]
+  \label{lem:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-springeffectivemass-eq-onethirdspringmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.springEffectiveMass_eq_oneThirdSpringMass}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesprimaryfigure, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-hasphysicalparameters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-satisfiesmassivespringlaws}
+  The distributed spring has effective inertial mass m/3 when its pointwise speed grows linearly from zero at the wall to the block speed at the free end
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of spring Effective Mass eq one Third Spring Mass.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.AnswerChoice}
+  Labels of the four periods printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[period In Seconds]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-answerchoice-periodinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.AnswerChoice.periodInSeconds}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessinnewtonspermeter, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-answerchoice}
+  The period in seconds printed beside an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of period In Seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timeinseconds, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-answerchoice}
+  A displayed choice agrees with the physical period readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{theorem}[problem phyx mini 0237]
+  \label{thm:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-problem-phyx-mini-0237}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0237.problem_phyx_mini_0237}
+  \uses{def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massinkilograms, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-stiffnessinnewtonspermeter, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-timeinseconds, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-massivespringoscillatorsetup, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesprimaryfigure, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-matchesproblemdescription, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-hasphysicalparameters, def:physics:phyx-mini-0237:phyxminiproblems-problemphyxmini0237-satisfiesmassivespringlaws}
+  The block and one third of the spring mass supply the effective inertia. Consequently T = 2π √((M + m/3) / k), which is the formula printed as answer D
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of problem phyx mini 0237.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

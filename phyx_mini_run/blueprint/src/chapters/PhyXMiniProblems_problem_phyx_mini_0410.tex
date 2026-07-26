@@ -1,0 +1,340 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0410.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0410.source.json
+
+\chapter{Physics problem phyx\_mini\_0410}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0410}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+0.10 mol of nitrogen gas follow the two processes shown in figure.
+
+\#\# Question
+
+How much heat is required for the isothermal process?
+
+\#\# Answer choices
+
+- A: A: 330 J
+
+- B: B: 0 J
+
+- C: C: -330 J
+
+- D: D: -660 J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with pressure (p in atm) on the vertical axis and volume (V in cm³) on the horizontal axis. The graph displays two curves representing different thermodynamic processes:
+
+1. **Isotherm**: This curve shows a process at a constant temperature. It starts at point 'f' and transitions smoothly towards the point 'i,' with an arrow indicating the direction of change.
+
+2. **Adiabat**: This curve represents an adiabatic process, which occurs without heat transfer. It also starts at point 'f' and moves toward another point labeled 'i,' which is slightly higher on the volume axis than the isothermal curve.
+
+Both curves originate from the same starting point labeled 'f' and end at points labeled 'i'. The curves are labeled with text "Isotherm" and "Adiabatic" indicating the types of processes they represent.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -330 J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/410.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0410.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0410:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0410.problem_phyx_mini_0410}
+\uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-matchesproblemstatement, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesidealgasisothermallaws, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesadiabaticheatlaw, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesclosedsystemfirstlaw, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-answerchoice, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-displayedheatjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-roundstonearesttenjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-isothermalheatexpressioninjoules}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.VolumeQuantity}
+  A signed physical gas volume, carrying the dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.PressureQuantity}
+  A physical pressure, grounded by Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.EnergyQuantity}
+  A signed physical energy, used for heat, work, and internal energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Metres]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubicmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.volumeInCubicMetres}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Metres.
+\end{proof}
+\begin{definition}[volume In Cubic Centimetres]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubiccentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.volumeInCubicCentimetres}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumequantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubicmetres}
+  Read a physical volume in cubic centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimetres.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.pressureInPascals}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurequantity}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurequantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinpascals}
+  Read a physical pressure in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.energyInJoules}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyquantity}
+  Read heat, work, or internal-energy change in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[joules Per Cubic Centimetre Atmosphere]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-joulespercubiccentimetreatmosphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.joulesPerCubicCentimetreAtmosphere}
+  The exact number of joules represented by one atm cm³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Cubic Centimetre Atmosphere.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.GasSpecies}
+  Chemical species named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.GasSample}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasspecies}
+  A fixed gas sample; its amount is an explicitly named mole readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[Process Path]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.ProcessPath}
+  The two thermodynamic paths named in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Path.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.StateLabel}
+  The raster contains two distinct points printed i, one on each curve, and one common point printed f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[initial State]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath-initialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.ProcessPath.initialState}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-statelabel}
+  Initial state selected by a displayed path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial State.
+\end{proof}
+\begin{definition}[final State]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath-finalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.ProcessPath.finalState}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-statelabel}
+  Both displayed paths finish at the common point f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final State.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.AxisQuantity}
+  The two physical quantities assigned to the diagram axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Pressure Axis Unit]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.PressureAxisUnit}
+  Unit label printed on the pressure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Axis Unit.
+\end{proof}
+\begin{definition}[Volume Axis Unit]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.VolumeAxisUnit}
+  Unit label printed on the volume axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Axis Unit.
+\end{proof}
+\begin{definition}[Process Regime]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.ProcessRegime}
+  Thermodynamic regime implicit in the smooth equilibrium paths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Regime.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-statelabel, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-axisquantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureaxisunit, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeaxisunit}
+  Qualitative content of the supplied bitmap. Coordinates and physical quantities live in GasProcessSetup; this structure retains axes, unit labels, curve labels, points, arrows, and the ordering of the two curves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Gas Process Setup]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.GasProcessSetup}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumequantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurequantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyquantity, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gassample, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processpath, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-statelabel, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-processregime, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressurevolumefigure}
+  Independent thermodynamic quantities for the two processes. In particular, the requested heat is a field, not a definition of the displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Process Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Problem-text data: a 0.10 mol sample of nitrogen
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubiccentimetres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinatmospheres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Exact and qualitative readouts from the primary raster. The isothermal point i is (3000 cm³, 1 atm) and the common point f is (1000 cm³, 3 atm). The lower adiabatic i is visibly at the same volume and between 0 and 1 atm; no unsupported exact pressure is assigned to it. No heat, work, or internal-energy value appears in this figure predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubiccentimetres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinatmospheres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Isothermal Laws]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesidealgasisothermallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.SatisfiesIdealGasIsothermalLaws}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubiccentimetres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinatmospheres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-joulespercubiccentimetreatmosphere, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Ideal-gas laws specialized to the displayed quasistatic isotherm. For a fixed amount of ideal gas, constant temperature gives constant pV, zero internal-energy change, and boundary work W\_by = p\_i V\_i log (V\_f / V\_i). The conversion factor turns the diagram's atm cm³ into joules. This law contains no heat value or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Isothermal Laws.
+\end{proof}
+\begin{definition}[Satisfies Adiabatic Heat Law]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesadiabaticheatlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.SatisfiesAdiabaticHeatLaw}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Definition of the displayed adiabatic comparison process: no heat crosses the system boundary. This setup law is retained even though the current question asks for heat on the other path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Adiabatic Heat Law.
+\end{proof}
+\begin{definition}[Satisfies Closed System First Law]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesclosedsystemfirstlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.SatisfiesClosedSystemFirstLaw}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  Closed-system first law for either path, with heat into the gas and work done by the gas positive: ΔU = Q\_in - W\_by. It relates independent energy fields and does not prescribe the requested heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed System First Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.AnswerChoice}
+  The four answer labels printed with the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Joules]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-displayedheatjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.displayedHeatJoules}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-answerchoice}
+  Joule readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Joules.
+\end{proof}
+\begin{definition}[Rounds To Nearest Ten Joules]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-roundstonearesttenjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.RoundsToNearestTenJoules}
+  The choices are stated to the nearest ten joules. A strict half-unit window also makes the selected displayed value unambiguous
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Ten Joules.
+\end{proof}
+\begin{definition}[isothermal Heat Expression In Joules]
+  \label{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-isothermalheatexpressioninjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.isothermalHeatExpressionInJoules}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-volumeincubiccentimetres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-pressureinatmospheres, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-joulespercubiccentimetreatmosphere, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup}
+  The exact logarithmic heat expression determined by the isothermal path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of isothermal Heat Expression In Joules.
+\end{proof}
+\begin{lemma}[isothermal Heat Equals Boundary Work]
+  \label{lem:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-isothermalheatequalsboundarywork}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0410.isothermalHeatEqualsBoundaryWork}
+  \uses{def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-energyinjoules, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-gasprocesssetup, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesidealgasisothermallaws, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-satisfiesclosedsystemfirstlaw, def:physics:phyx-mini-0410:phyxminiproblems-problemphyxmini0410-isothermalheatexpressioninjoules}
+  The first law and zero isothermal internal-energy change make heat into the gas equal the (negative) work done by the gas during this compression
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of isothermal Heat Equals Boundary Work.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

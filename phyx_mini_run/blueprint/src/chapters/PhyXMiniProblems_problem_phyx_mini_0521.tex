@@ -1,0 +1,259 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0521.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0521.source.json
+
+\chapter{Physics problem phyx\_mini\_0521}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0521}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider a potential well defined as \textbackslash{}( U(x) = \textbackslash{}infty \textbackslash{}) for \textbackslash{}( x < 0 \textbackslash{}), \textbackslash{}( U(x) = 0 \textbackslash{}) for \textbackslash{}( 0 < x < L \textbackslash{}), and \textbackslash{}( U(x) = U\_0 > 0 \textbackslash{}) for \textbackslash{}( x > L \textbackslash{}) as shown in figure. Consider a particle with mass \textbackslash{}( m \textbackslash{}) and kinetic energy \textbackslash{}( E < U\_0 \textbackslash{}) that is trapped in the well.
+
+\#\# Question
+
+The wave function must remain finite as \textbackslash{}( x \textbackslash{}to \textbackslash{}infty \textbackslash{}). What must the form of the function \textbackslash{}( \textbackslash{}psi(x) \textbackslash{}) for \textbackslash{}( x > L \textbackslash{}) be in order to satisfy both the Schrödinger equation and this boundary condition at infinity?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( \textbackslash{}kappa\textasciicircum{}2 = m(U\_0 + E)/\textbackslash{}hbar
+
+- B: B: \textbackslash{}( \textbackslash{}kappa\textasciicircum{}2 = m(U\_0 - E)/\textbackslash{}hbar
+
+- C: C: \textbackslash{}( \textbackslash{}kappa\textasciicircum{}2 = 2m(U\_0 + E)/\textbackslash{}hbar
+
+- D: D: \textbackslash{}\textbackslash{}( \textbackslash{}kappa\textasciicircum{}2 = 2m(U\_0 - E)/\textbackslash{}hbar
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph illustrating a potential well, labeled with axes \textbackslash{}( U(x) \textbackslash{}) (vertical) and \textbackslash{}( x \textbackslash{}) (horizontal). Here's a detailed description:
+
+- The vertical axis \textbackslash{}( U(x) \textbackslash{}) represents potential energy.
+- The horizontal axis \textbackslash{}( x \textbackslash{}) represents position.
+- At \textbackslash{}( x = 0 \textbackslash{}), the potential energy is infinite, indicated by an upward arrow.
+- From \textbackslash{}( x = 0 \textbackslash{}) to \textbackslash{}( x = L \textbackslash{}), there is a constant potential denoted by \textbackslash{}( U\_0 \textbackslash{}). It is marked by a horizontal line extending to \textbackslash{}( x = L \textbackslash{}).
+- Beyond \textbackslash{}( x = L \textbackslash{}), the potential drops to zero, depicted by a horizontal line at the bottom.
+- There is a dashed horizontal line across from \textbackslash{}( 0 \textbackslash{}) to \textbackslash{}( L \textbackslash{}) at the level of \textbackslash{}( U\_0 \textbackslash{}).
+- The region from \textbackslash{}( 0 \textbackslash{}) to \textbackslash{}( L \textbackslash{}) is shaded, highlighting the width of the potential well.
+
+This graph is a typical representation of a finite potential well in quantum mechanics.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}\textbackslash{}( \textbackslash{}kappa\textasciicircum{}2 = 2m(U\_0 - E)/\textbackslash{}hbar
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/521.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0521.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0521:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0521.exterior_waveFunction_has_decaying_exponential_form}
+\uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-wavenumberquantity, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massinkilograms, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-energyinjoules, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actioninjouleseconds, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-wavenumberininversemeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-matchesfinitestepwellscenario, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-matchessuppliedstepwellfigure, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-hasphysicalfinitestepwellparameters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-usesstandardreducedplanckconstant, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-satisfiesexteriorstationaryschrodingerequation, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-satisfiesfiniteboundaryconditionatinfinity}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[action Dimension]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actiondimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.actionDimension}
+  The physical dimension of action, mass * length² / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action Dimension.
+\end{proof}
+\begin{definition}[Action Quantity]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.ActionQuantity}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actiondimension}
+  A nonnegative, unit-independent physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Action Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.WaveNumberQuantity}
+  A nonnegative, unit-independent inverse length (wave number)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.lengthInMeters}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.massInKilograms}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.energyInJoules}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[action In Joule Seconds]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actioninjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.actionInJouleSeconds}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actionquantity}
+  Joule-second readout of a physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action In Joule Seconds.
+\end{proof}
+\begin{definition}[wave Number In Inverse Meters]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-wavenumberininversemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.waveNumberInInverseMeters}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-wavenumberquantity}
+  Inverse-metre readout of a physical wave number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number In Inverse Meters.
+\end{proof}
+\begin{definition}[zero Potential Energy]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-zeropotentialenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.zeroPotentialEnergy}
+  The unit-independent physical zero of energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of zero Potential Energy.
+\end{proof}
+\begin{definition}[Potential Value]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-potentialvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.PotentialValue}
+  A potential value is either a finite physical energy or an infinite wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Value.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.FigureLabel}
+  Literal labels visible in the supplied potential-energy graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Supplied Step Well Figure]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-suppliedstepwellfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.SuppliedStepWellFigure}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-figurelabel}
+  Qualitative and textual facts read from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Step Well Figure.
+\end{proof}
+\begin{definition}[Finite Step Well Setup]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.FiniteStepWellSetup}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthquantity, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massquantity, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actionquantity, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-potentialvalue, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-suppliedstepwellfigure}
+  The independent physical quantities in the problem. The coordinate argument of potentialAtMeterCoordinate and waveFunctionAmplitude is a metre readout. The energy called E in the source is kinetic energy in the zero-potential interior, hence also the stationary state's total-energy readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Finite Step Well Setup.
+\end{proof}
+\begin{definition}[Matches Finite Step Well Scenario]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-matchesfinitestepwellscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.MatchesFiniteStepWellScenario}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-zeropotentialenergy, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  The piecewise potential and trapped-state description stated in the prose and confirmed by the primary image. No exterior wave-function form or decay rate occurs in this premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Finite Step Well Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Step Well Figure]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-matchessuppliedstepwellfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.MatchesSuppliedStepWellFigure}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  Every label and qualitative feature visible in image 521
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Step Well Figure.
+\end{proof}
+\begin{definition}[Has Physical Finite Step Well Parameters]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-hasphysicalfinitestepwellparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.HasPhysicalFiniteStepWellParameters}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massinkilograms, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-energyinjoules, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actioninjouleseconds, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  Positivity and ordering conditions on the physical parameters. In particular, E < U₀ is source data, not the requested formula for κ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Finite Step Well Parameters.
+\end{proof}
+\begin{definition}[Uses Standard Reduced Planck Constant]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-usesstandardreducedplanckconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.UsesStandardReducedPlanckConstant}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actioninjouleseconds, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  Physlib's Constants.ℏ is the standard reduced Planck constant in joule-seconds. This calibration does not constrain the requested decay rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Reduced Planck Constant.
+\end{proof}
+\begin{definition}[exterior Schrodinger Left Hand Side]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-exteriorschrodingerlefthandside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.exteriorSchrodingerLeftHandSide}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-massinkilograms, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-energyinjoules, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-actioninjouleseconds, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  The kinetic-plus-potential side of the one-dimensional stationary Schrödinger equation in the exterior constant-potential region
+\end{definition}
+\begin{proof}
+  This is the declared model definition of exterior Schrodinger Left Hand Side.
+\end{proof}
+\begin{definition}[Satisfies Exterior Stationary Schrodinger Equation]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-satisfiesexteriorstationaryschrodingerequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.SatisfiesExteriorStationarySchrodingerEquation}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-energyinjoules, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-exteriorschrodingerlefthandside}
+  Twice-continuous differentiability and the stationary Schrödinger equation on x > L. This is the governing law; it does not state an exponential ansatz or a formula for its decay constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exterior Stationary Schrodinger Equation.
+\end{proof}
+\begin{definition}[Satisfies Finite Boundary Condition At Infinity]
+  \label{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-satisfiesfiniteboundaryconditionatinfinity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0521.SatisfiesFiniteBoundaryConditionAtInfinity}
+  \uses{def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-lengthinmeters, def:physics:phyx-mini-0521:phyxminiproblems-problemphyxmini0521-finitestepwellsetup}
+  The wave function remains finite at positive infinity: beyond some exterior cutoff its norm has a finite uniform bound. This excludes a growing mode but does not assume the requested decaying-exponential form or a zero limit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Finite Boundary Condition At Infinity.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

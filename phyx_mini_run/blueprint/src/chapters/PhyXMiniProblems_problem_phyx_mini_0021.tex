@@ -1,0 +1,234 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0021.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0021.source.json
+
+\chapter{Physics problem phyx\_mini\_0021}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0021}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the path of a light beam through several slabs with different indices of refraction.
+
+\#\# Question
+
+What the minimum incident angle \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) be to have total internal reflection at the surface between the medium with \textbackslash{}( n = 1.20 \textbackslash{}) and the medium with \textbackslash{}( n = 1.00 \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 30.6\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- B: B: \textbackslash{}( 26.2\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- C: C: \textbackslash{}( 38.7\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- D: D: \textbackslash{}( 36.1\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates the refraction of light through four horizontal layers, each representing a different medium with varying refractive indices. 
+
+1. **Layers and Refractive Indices:**
+   - **Top Layer:** Light blue with a refractive index of \textbackslash{}( n = 1.60 \textbackslash{}).
+   - **Second Layer:** Gray with a refractive index of \textbackslash{}( n = 1.40 \textbackslash{}).
+   - **Third Layer:** Beige with a refractive index of \textbackslash{}( n = 1.20 \textbackslash{}).
+   - **Bottom Layer:** White with a refractive index of \textbackslash{}( n = 1.00 \textbackslash{}).
+
+2. **Light Path:**
+   - The light path is shown as a blue arrow entering the top layer with an angle \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) relative to the normal (a dotted line is present to indicate this angle).
+   - As it passes through each layer, the angle changes, illustrating the bending of light. Another angle, \textbackslash{}( \textbackslash{}theta\_2 \textbackslash{}), is marked where light exits the third layer and enters the fourth.
+
+3. **Arrows and Angles:**
+   - Blue arrows depict the direction of the light ray bending at each interface.
+   - Dotted lines perpendicular to the boundary layers show normals, along with angles \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) and \textbackslash{}( \textbackslash{}theta\_2 \textbackslash{}).
+
+Overall, the diagram visually represents Snell's Law, showing how light refracts as it passes through varying media with decreasing refractive indices.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 38.7\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/21.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0021.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0021:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0021.problem_phyx_mini_0021}
+\uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-incidentanglesproducingfinaltir, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-matchesproblemfigure, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-matchesanswertonearesttenth}
+For the four parallel layers of indices $1.60$, $1.40$, $1.20$, and $1.00$,
+model the set of top-layer incidence angles producing strict total internal
+reflection at the final interface. Its infimum is $\arcsin(5/8)$, which is
+approximately $38.7^\circ$, answer C. Strict total internal reflection does
+not hold at the critical angle itself, so the formal target must use an
+infimum rather than a least member. Layers and ray stages must be typed,
+while refractive indices are named dimensionless projections.
+\end{theorem}
+\begin{proof}
+Across parallel interfaces, repeated Snell laws preserve $n\sin\theta$.
+At the final critical configuration,
+$1.20\sin\theta_{1.20}=1.00$, so the invariant equals one. In the top layer
+this gives $1.60\sin\theta_1=1$, hence
+$\sin\theta_1=5/8$. Principal-branch monotonicity shows that larger angles
+produce strict total internal reflection and smaller ones do not, making
+$\arcsin(5/8)$ the infimum. Its degree value rounds to $38.7$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Layer]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-opticallayer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.OpticalLayer}
+  The four physical media, ordered from the top of the figure downward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Layer.
+\end{proof}
+\begin{definition}[Parallel Layer Stack]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.ParallelLayerStack}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-opticallayer}
+  The material and geometry data of the slab stack. refractiveIndex is a dimensionless measurement for each physical layer. Parallel horizontal interfaces give all three dashed normals in the figure a common direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Layer Stack.
+\end{proof}
+\begin{definition}[refractive Index Readout]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-refractiveindexreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.refractiveIndexReadout}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-opticallayer, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack}
+  The real, dimensionless scalar projection of a layer's refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of refractive Index Readout.
+\end{proof}
+\begin{definition}[Upper Stack Ray]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.UpperStackRay}
+  The part of a ray that reaches the final 1.20--1.00 interface through the three upper layers. thetaOneRadians is the figure label θ₁
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Upper Stack Ray.
+\end{proof}
+\begin{definition}[Transmitted Extension]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-transmittedextension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.TransmittedExtension}
+  A possible continuation into the bottom n = 1.00 medium. Its angle is the figure label θ₂. Under strict total internal reflection no physically admissible extension of this kind satisfies Snell's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transmitted Extension.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.radiansToDegrees}
+  Convert a scalar radian angle readout to degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Is Physical Ray Angle]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-isphysicalrayangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.IsPhysicalRayAngle}
+  A normal-relative angle on the physical incident/transmitted branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Ray Angle.
+\end{proof}
+\begin{definition}[Has Physical Upper Angles]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-hasphysicalupperangles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.HasPhysicalUpperAngles}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-isphysicalrayangle}
+  All three angles of a ray reaching the final interface are physical
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Upper Angles.
+\end{proof}
+\begin{definition}[Satisfies Upper Interface Snell Laws]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-satisfiesupperinterfacesnelllaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.SatisfiesUpperInterfaceSnellLaws}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-refractiveindexreadout, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray}
+  Snell's law at the first two interfaces. Since the interfaces are parallel, the refracted angle at one face is the incidence angle at the next face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Upper Interface Snell Laws.
+\end{proof}
+\begin{definition}[Satisfies Final Interface Snell Law]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-satisfiesfinalinterfacesnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.SatisfiesFinalInterfaceSnellLaw}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-refractiveindexreadout, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-transmittedextension}
+  Snell's law for a proposed transmitted ray at the final interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Final Interface Snell Law.
+\end{proof}
+\begin{definition}[Has Total Internal Reflection At Final Interface]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-hastotalinternalreflectionatfinalinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.HasTotalInternalReflectionAtFinalInterface}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-transmittedextension, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-isphysicalrayangle, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-satisfiesfinalinterfacesnelllaw}
+  This def records the Has Total Internal Reflection At Final Interface component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Total Internal Reflection At Final Interface.
+\end{proof}
+\begin{definition}[Incident Angles Producing Final TIR]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-incidentanglesproducingfinaltir}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.IncidentAnglesProducingFinalTIR}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-hasphysicalupperangles, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-satisfiesupperinterfacesnelllaws, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-hastotalinternalreflectionatfinalinterface}
+  This def records the Incident Angles Producing Final TIR component of the problem-specific physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Incident Angles Producing Final TIR.
+\end{proof}
+\begin{definition}[Matches Problem Figure]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-matchesproblemfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.MatchesProblemFigure}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-refractiveindexreadout}
+  Exact material and geometry readouts shown in the four-layer figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.AnswerChoice}
+  The four multiple-choice labels printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-answerchoice}
+  The degree readout displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-radianstodegrees, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-answerchoice, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-answerangledegrees}
+  Agreement with a one-decimal-place answer to the nearest tenth degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{lemma}[upper stack snell invariant]
+  \label{lem:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upper-stack-snell-invariant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0021.upper_stack_snell_invariant}
+  \uses{def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-parallellayerstack, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-refractiveindexreadout, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-upperstackray, def:physics:phyx-mini-0021:phyxminiproblems-problemphyxmini0021-satisfiesupperinterfacesnelllaws}
+  This lemma records the upper stack snell invariant component of the problem-specific physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of upper stack snell invariant.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

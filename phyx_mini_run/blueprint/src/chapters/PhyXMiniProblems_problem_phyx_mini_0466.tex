@@ -1,0 +1,320 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0466.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0466.source.json
+
+\chapter{Physics problem phyx\_mini\_0466}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0466}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A Styrofoam cooler (figure) has total wall area (including the lid) of 0.80 \textbackslash{}, \textbackslash{}mathrm\{m\textasciicircum{}2\} and wall thickness 2.0 \textbackslash{}, \textbackslash{}mathrm\{cm\}. It is filled with ice, water, and cans of Omni-Cola, all at 0\textasciicircum{}\textbackslash{}circ \textbackslash{}mathrm\{C\}.The temperature of the outside wall is 30\textasciicircum{}\textbackslash{}circ \textbackslash{}mathrm\{C\}.
+
+\#\# Question
+
+What is the rate of heat flow into the cooler?
+
+\#\# Answer choices
+
+- A: A: 33.5J/s
+
+- B: B: 32.4J/s
+
+- C: C: 34.8J/s
+
+- D: D: 37.2J/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a beach setting with a cooler filled with ice cubes and cans, suggesting it is used to keep drinks cold. The cooler is partially open, displaying the contents. Beside the cooler, there is a bottle labeled "15," likely indicating sunscreen. A pair of folded flippers lies next to the cooler, suggesting a swimming or diving activity. There are three purple wavy lines pointing downwards toward the cooler, likely representing heat or sunlight, emphasizing the cooler's role in keeping the contents cool despite the warm environment. The background features sand and a pale blue area, representing the beach and sea.
+
+\#\# Dataset metadata
+
+Temperature and Heat Transfer; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 32.4J/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/466.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0466.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0466:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0466.problem_phyx_mini_0466}
+\uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinjoulespersecond, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchesstyrofoamcoolerscenario, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchescoolermeasurementdata, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchesstyrofoamconductivitytable, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchessuppliedcoolerfigure, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-hasphysicalcoolerparameters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-satisfiessteadyplanewallconduction, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-isuniquematchingdisplayedheatflow}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.LengthQuantity}
+  A nonnegative wall thickness, with physical dimension length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.powerDimension}
+  The physical dimension of power, mass * length² / time³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[thermal Conductivity Dimension]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.thermalConductivityDimension}
+  The dimension of thermal conductivity, power / (length * temperature)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Conductivity Dimension.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.PowerQuantity}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerdimension}
+  A nonnegative rate of energy transfer, whose coherent SI unit is the watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[Thermal Conductivity Quantity]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.ThermalConductivityQuantity}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivitydimension}
+  A nonnegative thermal conductivity, with SI unit watt per metre-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Conductivity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.lengthReadout}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity}
+  Read a physical length using a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.lengthInMeters}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthreadout}
+  Metre readout of the cooler-wall thickness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthreadout}
+  Centimetre readout used by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.areaInSquareMeters}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[thermal Conductivity In Watts Per Meter Kelvin]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityinwattspermeterkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.thermalConductivityInWattsPerMeterKelvin}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityquantity}
+  Coherent-SI readout in watts per metre-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Conductivity In Watts Per Meter Kelvin.
+\end{proof}
+\begin{definition}[heat Flow Rate In Watts]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.heatFlowRateInWatts}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerquantity}
+  Coherent-SI watt readout of an energy-transfer rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Flow Rate In Watts.
+\end{proof}
+\begin{definition}[heat Flow Rate In Joules Per Second]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinjoulespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.heatFlowRateInJoulesPerSecond}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinwatts}
+  A watt is one joule per second, the unit printed in the answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat Flow Rate In Joules Per Second.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.temperatureInKelvin}
+  Read absolute temperature in kelvins from its zero-preserving storage unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureinkelvin}
+  Celsius is an affine scalar readout of a physical absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{lemma}[length In Meters eq centimeters div hundred]
+  \label{lem:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthinmeters-eq-centimeters-div-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.lengthInMeters_eq_centimeters_div_hundred}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthinmeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthincentimeters}
+  Conversion between the two length readouts used in the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of length In Meters eq centimeters div hundred.
+\end{proof}
+\begin{definition}[Cooler Wall Material]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolerwallmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.CoolerWallMaterial}
+  The wall material named by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cooler Wall Material.
+\end{proof}
+\begin{definition}[Cooler Content]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolercontent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.CoolerContent}
+  The three classes of contents explicitly listed in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cooler Content.
+\end{proof}
+\begin{definition}[Figure Arrow Meaning]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-figurearrowmeaning}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.FigureArrowMeaning}
+  Physical interpretation of the purple arrows in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow Meaning.
+\end{proof}
+\begin{definition}[Cooler Figure]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.CoolerFigure}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-figurearrowmeaning}
+  Primary-image evidence. The picture provides qualitative context and an arrow count/direction, but no geometric or material numerical readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cooler Figure.
+\end{proof}
+\begin{definition}[Styrofoam Cooler Setup]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.StyrofoamCoolerSetup}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolerwallmaterial, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolercontent, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-coolerfigure}
+  Independent physical quantities describing the cooler experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Styrofoam Cooler Setup.
+\end{proof}
+\begin{definition}[Matches Styrofoam Cooler Scenario]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchesstyrofoamcoolerscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.MatchesStyrofoamCoolerScenario}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  Qualitative setup stated in the prose, independent of the requested rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Styrofoam Cooler Scenario.
+\end{proof}
+\begin{definition}[Matches Cooler Measurement Data]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchescoolermeasurementdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.MatchesCoolerMeasurementData}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthincentimeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-areainsquaremeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureindegreescelsius, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  Exact scalar measurements printed in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Cooler Measurement Data.
+\end{proof}
+\begin{definition}[Matches Styrofoam Conductivity Table]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchesstyrofoamconductivitytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.MatchesStyrofoamConductivityTable}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  The material-table datum required by the recorded numerical answer. The problem image itself does not print this value; it is kept separate from both the source measurements and the governing conduction law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Styrofoam Conductivity Table.
+\end{proof}
+\begin{definition}[Matches Supplied Cooler Figure]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-matchessuppliedcoolerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.MatchesSuppliedCoolerFigure}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  Qualitative facts read from the supplied cooler image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Cooler Figure.
+\end{proof}
+\begin{definition}[Has Physical Cooler Parameters]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-hasphysicalcoolerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.HasPhysicalCoolerParameters}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthinmeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-areainsquaremeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureinkelvin, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureindegreescelsius, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  Positivity and hot-outside/cold-inside conditions for inward conduction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cooler Parameters.
+\end{proof}
+\begin{definition}[Satisfies Steady Plane Wall Conduction]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-satisfiessteadyplanewallconduction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.SatisfiesSteadyPlaneWallConduction}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-lengthinmeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-areainsquaremeters, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-thermalconductivityinwattspermeterkelvin, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinwatts, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-temperatureindegreescelsius, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-styrofoamcoolersetup}
+  The contents are equilibrated with the cooler interior, and the inward heat rate is the magnitude supplied by Fourier's steady plane-wall law Q̇ = k A (T\_out - T\_in) / L. This field is a general physical relation; it contains no numerical answer or answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Steady Plane Wall Conduction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Flow In Joules Per Second]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-displayedheatflowinjoulespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.displayedHeatFlowInJoulesPerSecond}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-answerchoice}
+  Joule-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Flow In Joules Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-answerchoice}
+  Dataset answer-label metadata; it does not determine the physical rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Heat Flow]
+  \label{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-isuniquematchingdisplayedheatflow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0466.IsUniqueMatchingDisplayedHeatFlow}
+  \uses{def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-powerquantity, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-heatflowrateinjoulespersecond, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-answerchoice, def:physics:phyx-mini-0466:phyxminiproblems-problemphyxmini0466-displayedheatflowinjoulespersecond}
+  The selected value exactly matches the physical rate and no other does
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Heat Flow.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

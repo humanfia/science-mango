@@ -1,0 +1,311 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0179.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0179.source.json
+
+\chapter{Physics problem phyx\_mini\_0179}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0179}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a standing sound wave in an \$80 \textbackslash{}, \textbackslash{}text\{cm\}\$-long tube. The tube is filled with an unknown gas.
+
+\#\# Question
+
+What is the speed of sound in this gas?
+
+\#\# Answer choices
+
+- A: A: 600 m/s
+
+- B: B: 200 m/s
+
+- C: C: 160 m/s
+
+- D: D: 400 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a horizontal tube with parallel lines, representing its boundaries, and includes several elements:
+
+1. **Molecules**: Represented by black dots positioned inside the tube.
+
+2. **Arrows**: Blue arrows point in opposite directions (left and right) near the molecules, indicating movement or force applied to the molecules.
+
+3. **Labels**:
+   - The word "Molecule" is pointing to one of the black dots.
+   - The frequency "f = 500 Hz" is written above the tube.
+   - The distance "80 cm" is noted below the tube with a horizontal arrow beneath it, indicating the length of the space where the molecules and arrows are located.
+
+This diagram likely illustrates the behavior of molecules in a tube subjected to a wave or sound frequency.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 400 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/179.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0179.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0179:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0179.problem_phyx_mini_0179}
+\uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedinmeterspersecond, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-matchessuppliedopentubefigure, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-hasphysicalacousticparameters, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-satisfiesopentubestandingwavelaws, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-agreeswithdisplayedspeedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.SpeedQuantity}
+  A nonnegative physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.lengthReadout}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity}
+  Read a physical length as a scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.frequencyReadout}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyquantity}
+  Read a frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.speedReadout}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedquantity}
+  Read a speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthreadout}
+  Centimeter readout used by the dimension arrow in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.lengthInMeters}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthreadout}
+  Meter readout used in the SI wave-speed calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedreadout}
+  Meter-per-second readout of the sound propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.AcousticMedium}
+  The gas is physically present but is not identified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Tube Endpoint]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-tubeendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.TubeEndpoint}
+  The two axial ends of the horizontal tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Endpoint.
+\end{proof}
+\begin{definition}[Acoustic Boundary Condition]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.AcousticBoundaryCondition}
+  Acoustic boundary behavior relevant to longitudinal displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Boundary Condition.
+\end{proof}
+\begin{definition}[Acoustic Wave Kind]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticwavekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.AcousticWaveKind}
+  Qualitative kind of disturbance represented by the molecule arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Wave Kind.
+\end{proof}
+\begin{definition}[Tube Point Label]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-tubepointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.TubePointLabel}
+  Five equally spaced axial locations distinguished in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Point Label.
+\end{proof}
+\begin{definition}[Displacement Role]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-displacementrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.DisplacementRole}
+  Displacement-amplitude role of a point in the standing mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Displacement Role.
+\end{proof}
+\begin{definition}[Molecule Motion Mark]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-moleculemotionmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.MoleculeMotionMark}
+  Whether the picture draws opposed horizontal arrows at a molecule pair
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecule Motion Mark.
+\end{proof}
+\begin{definition}[Standing Sound Wave Figure]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-standingsoundwavefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.StandingSoundWaveFigure}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-tubepointlabel, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-displacementrole, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-moleculemotionmark}
+  Figure-derived geometry and molecule-motion annotations. Positions are physical axial distances from the left end, not dimensionless placeholders
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Sound Wave Figure.
+\end{proof}
+\begin{definition}[Open Tube Acoustic Setup]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.OpenTubeAcousticSetup}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedquantity, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticmedium, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-tubeendpoint, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticboundarycondition, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-acousticwavekind, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-standingsoundwavefigure}
+  Physical quantities and qualitative data for the unknown-gas experiment. The wavelength and sound speed are deliberately independent fields: neither is assigned its requested numerical value in this setup structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Open Tube Acoustic Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Open Tube Figure]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-matchessuppliedopentubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.MatchesSuppliedOpenTubeFigure}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthincentimeters, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyinhertz, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup}
+  Data read directly from the problem statement and primary figure. The tube is open at both ends, its dimension arrow reads 80 cm, and the frequency label reads 500 Hz. Arrows occur at the endpoint and midpoint antinodes; the quarter-point molecule pairs have no arrows and are displacement nodes. The five axial positions only record the evenly spaced molecule columns in the figure. No wavelength or sound-speed value occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Open Tube Figure.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthinmeters, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyinhertz, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedinmeterspersecond, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup}
+  Positivity and nondegeneracy conditions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Open Tube Standing Wave Laws]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-satisfiesopentubestandingwavelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.SatisfiesOpenTubeStandingWaveLaws}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthreadout, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-frequencyreadout, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedreadout, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup}
+  Governing laws for the pictured nondispersive acoustic standing wave. In an open-open tube, each interval between adjacent displacement antinodes is one half-wavelength, so 2 L = n lambda for the visible count n of such intervals. Sound propagation obeys v = f lambda in compatible selected units. These relations contain neither the inferred 0.8 m wavelength nor the requested 400 m/s sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Open Tube Standing Wave Laws.
+\end{proof}
+\begin{lemma}[tube Length In Meters eq four Fifths]
+  \label{lem:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-tubelengthinmeters-eq-fourfifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.tubeLengthInMeters_eq_fourFifths}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthinmeters, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-matchessuppliedopentubefigure}
+  Converting the 80 cm dimension arrow to SI units gives a tube length of 4/5 m. This is a unit-conversion consequence of the figure readout, not a sound-speed assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tube Length In Meters eq four Fifths.
+\end{proof}
+\begin{lemma}[pictured Mode wavelength In Meters eq four Fifths]
+  \label{lem:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-picturedmode-wavelengthinmeters-eq-fourfifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.picturedMode_wavelengthInMeters_eq_fourFifths}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-lengthinmeters, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-matchessuppliedopentubefigure, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-satisfiesopentubestandingwavelaws}
+  The three displacement antinodes delimit two half-wavelength segments across the tube. The open-tube harmonic geometry therefore makes the wavelength equal to the 0.8 m tube length
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pictured Mode wavelength In Meters eq four Fifths.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.AnswerChoice}
+  Labels of the four sound-speed choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed Meters Per Second]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-displayedanswerspeedmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.displayedAnswerSpeedMetersPerSecond}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-answerchoice}
+  Displayed speed beside an answer label, in meters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Agrees With Displayed Speed Choice]
+  \label{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-agreeswithdisplayedspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0179.AgreesWithDisplayedSpeedChoice}
+  \uses{def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-speedinmeterspersecond, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-opentubeacousticsetup, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-answerchoice, def:physics:phyx-mini-0179:phyxminiproblems-problemphyxmini0179-displayedanswerspeedmeterspersecond}
+  A displayed answer agrees with the modeled physical sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Displayed Speed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,317 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0091.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0091.source.json
+
+\chapter{Physics problem phyx\_mini\_0091}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0091}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+As shown in figure, a layer of water covers a slab of material X in a beaker. A ray of light traveling upward follows the path indicated. Using the information on the figure.
+
+\#\# Question
+
+Find the angle the light makes with the normal in the air.
+
+\#\# Answer choices
+
+- A: A: 82°
+
+- B: B: 83°
+
+- C: C: 81°
+
+- D: D: 84°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a vertical cross-section of a cylindrical container with three layers: air, water, and an unidentified substance labeled "X." 
+
+- **Air**: The topmost section with no additional details.
+- **Water**: The middle section is depicted in light blue. A purple line, representing a ray of light, travels through this section.
+- **Layer X**: The bottom section with the label "X."
+
+The purple ray extends from the air, through the water, and into the layer labeled "X." 
+
+Two angles are indicated along the ray:
+- **48°**: The angle between the ray and the normal line within the water.
+- **65°**: The angle between the ray and the normal line within layer "X."
+
+Vertical dashed lines represent normal lines at the points where the ray changes direction.
+
+The relationships illustrate the refraction of the ray as it passes from one medium to another.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 82°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/91.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0091.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0091:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0091.airAngleRoundsToAnswerA}
+\uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-degreestoradians, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-modelsrefractiveindexfromphasespeed, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-matchesproblemdata, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-hasphysicalopticalparameters, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-satisfieslayeredfiguregeometry, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-obeyssnellslaw, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-angularerrorradians}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.degreesToRadians}
+  Convert a degree readout to the radian scalar used by Real.sin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.DiagramPlane}
+  The two-dimensional plane of the beaker cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Ray Direction]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raydirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.RayDirection}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-diagramplane}
+  A propagation direction is represented by a nonzero vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Direction.
+\end{proof}
+\begin{definition}[Optical Speed]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.OpticalSpeed}
+  A light phase speed with its length-per-time dimension retained
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Speed.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalspeed}
+  The numerical value of a dimensionful speed in SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.OpticalMedium}
+  The three homogeneous optical media, in upward propagation order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Layer Interface]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.LayerInterface}
+  The two horizontal interfaces crossed by the ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Layer Interface.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.RaySegment}
+  The three directed portions of the same upward-traveling light ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[segment Medium]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-segmentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.segmentMedium}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  The optical medium containing each ray segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of segment Medium.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.incidentMedium}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface}
+  The incident medium at each interface, following the upward ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.transmittedMedium}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface}
+  The transmitted medium at each interface, following the upward ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[incident Segment]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-incidentsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.incidentSegment}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  The incident ray segment at each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Segment.
+\end{proof}
+\begin{definition}[transmitted Segment]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-transmittedsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.transmittedSegment}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  The transmitted ray segment at each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Segment.
+\end{proof}
+\begin{definition}[reference Interface]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-referenceinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.referenceInterface}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  A reference interface whose upward normal is used for each segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reference Interface.
+\end{proof}
+\begin{definition}[Layered Refraction Diagram]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.LayeredRefractionDiagram}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raydirection, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalspeed, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-opticalmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raysegment}
+  Physical quantities and labelled directions in the layered ray diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Layered Refraction Diagram.
+\end{proof}
+\begin{definition}[angle Between Directions]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-anglebetweendirections}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.angleBetweenDirections}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-raydirection}
+  The undirected radian angle between two nonzero diagram directions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Between Directions.
+\end{proof}
+\begin{definition}[Is Physical Acute Angle]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-isphysicalacuteangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.IsPhysicalAcuteAngle}
+  The principal geometrical-optics branch for an upward-traveling ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Acute Angle.
+\end{proof}
+\begin{definition}[Models Refractive Index From Phase Speed]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-modelsrefractiveindexfromphasespeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.ModelsRefractiveIndexFromPhaseSpeed}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-speedinmeterspersecond, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram}
+  The refractive-index readout is the vacuum light speed divided by the phase speed in the medium. The equality is stated after taking SI scalar readouts; both speeds themselves retain Physlib's length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Models Refractive Index From Phase Speed.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-degreestoradians, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram}
+  The two angle labels in the source image and the standard idealized indices of water and air. The unknown refractive index of material X is deliberately not assigned a value, and no air-angle answer occurs in these data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-isphysicalacuteangle}
+  Positivity and principal-branch conditions for the optical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Layered Figure Geometry]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-satisfieslayeredfiguregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.SatisfiesLayeredFigureGeometry}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-referenceinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-anglebetweendirections}
+  Geometric relations represented by the horizontal interfaces, vertical dashed normals, and the three piecewise-linear portions of the refracted ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Layered Figure Geometry.
+\end{proof}
+\begin{definition}[Satisfies Snells Law At]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-satisfiessnellslawat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.SatisfiesSnellsLawAt}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layerinterface, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-incidentmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-transmittedmedium, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-incidentsegment, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-transmittedsegment, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram}
+  Snell's law n₁ sin θ₁ = n₂ sin θ₂ at one horizontal interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snells Law At.
+\end{proof}
+\begin{definition}[Obeys Snells Law]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-obeyssnellslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.ObeysSnellsLaw}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-satisfiessnellslawat}
+  The upward-traveling light ray obeys Snell's law at both interfaces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Snells Law.
+\end{proof}
+\begin{lemma}[material XNormal Angle Is Twenty Five Degrees]
+  \label{lem:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-materialxnormalangleistwentyfivedegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.materialXNormalAngleIsTwentyFiveDegrees}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-degreestoradians, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-matchesproblemdata, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-satisfieslayeredfiguregeometry}
+  The 65° surface-referenced label in material X corresponds to a 25° normal-referenced angle because the surface and its normal are perpendicular
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of material XNormal Angle Is Twenty Five Degrees.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.AnswerChoice}
+  The four displayed answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[angle Degrees]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice-angledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.AnswerChoice.angleDegrees}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice}
+  Air-angle readout in degrees printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice}
+  Dataset metadata: the recorded answer label, not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[angular Error Radians]
+  \label{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-angularerrorradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0091.angularErrorRadians}
+  \uses{def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-degreestoradians, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-layeredrefractiondiagram, def:physics:phyx-mini-0091:phyxminiproblems-problemphyxmini0091-answerchoice}
+  Absolute radian error between the physical air angle and one choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Error Radians.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

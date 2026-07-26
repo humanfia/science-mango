@@ -1,0 +1,250 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0620.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0620.source.json
+
+\chapter{Physics problem phyx\_mini\_0620}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0620}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+\textbackslash{}(E\textbackslash{}) and \textbackslash{}(L\textbackslash{}) for \textbackslash{}(n=3\textbackslash{}).
+
+\#\# Question
+
+Determine the energy.
+
+\#\# Answer choices
+
+- A: A: -1.50eV
+
+- B: B: -1.52eV
+
+- C: C: -1.54eV
+
+- D: D: -1.56eV
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image contains three subfigures, labeled (a), (b), and (c). Each subfigure illustrates different atomic orbitals with respect to the nucleus, shown as a red dot.
+
+(a) Shows a spherical distribution of dots around the nucleus, indicating the \textbackslash{}(n=2\textbackslash{}), \textbackslash{}(\textbackslash{}ell=0\textbackslash{}), \textbackslash{}(m\_\textbackslash{}ell=0\textbackslash{}) orbital. The dots are concentrated in a circular shell around the nucleus.
+
+(b) Depicts a two-lobed shape along the z-axis, representing the \textbackslash{}(n=2\textbackslash{}), \textbackslash{}(\textbackslash{}ell=1\textbackslash{}), \textbackslash{}(m\_\textbackslash{}ell=0\textbackslash{}) orbital. The lobes are symmetrically placed above and below the nucleus. The axes \textbackslash{}(x\textbackslash{}), \textbackslash{}(y\textbackslash{}), and \textbackslash{}(z\textbackslash{}) are labeled.
+
+(c) Illustrates a donut-shaped distribution in the x-y plane, corresponding to the \textbackslash{}(n=2\textbackslash{}), \textbackslash{}(\textbackslash{}ell=1\textbackslash{}), \textbackslash{}(m\_\textbackslash{}ell=\textbackslash{}pm1\textbackslash{}) orbital. The axes \textbackslash{}(x\textbackslash{}), \textbackslash{}(y\textbackslash{}), and \textbackslash{}(z\textbackslash{}) are labeled, with the nucleus at the center.
+
+Each subfigure includes a label for the nucleus and annotations describing the quantum numbers.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -1.54eV
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/620.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0620.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0620:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0620.hydrogenNThreeEnergy_and_answerKeyAudit}
+\uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matchessuppliedatomicorbitalfigure, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matcheshydrogennthreescenario, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-usesstandardhydrogenreferencedata, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hasphysicalhydrogennthreeparameters, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-satisfieshydrogenlevelandangularmomentumlaws, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-recordeddatasetanswer, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-isuniqueclosestdisplayedenergy}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.energyInJoules}
+  Read a unit-independent energy in coherent-SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinjoules}
+  Read an energy in electron volts using Physlib's calibrated unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[angular Momentum Dimension]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentumdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.angularMomentumDimension}
+  The dimension of orbital angular momentum, equivalently joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Dimension.
+\end{proof}
+\begin{definition}[Angular Momentum Quantity]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentumquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.AngularMomentumQuantity}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentumdimension}
+  A nonnegative, unit-independent orbital-angular-momentum magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Momentum Quantity.
+\end{proof}
+\begin{definition}[angular Momentum In Joule Seconds]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentuminjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.angularMomentumInJouleSeconds}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentumquantity}
+  Read an angular-momentum magnitude in coherent-SI joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum In Joule Seconds.
+\end{proof}
+\begin{definition}[Orbital Panel]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-orbitalpanel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.OrbitalPanel}
+  Labels of the three subfigures in image 620.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orbital Panel.
+\end{proof}
+\begin{definition}[Coordinate Axis]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-coordinateaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.CoordinateAxis}
+  Coordinate axes that are explicitly drawn in panels (b) and (c)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis.
+\end{proof}
+\begin{definition}[Orbital Cloud Shape]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-orbitalcloudshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.OrbitalCloudShape}
+  Qualitative shapes of the orbital probability clouds in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orbital Cloud Shape.
+\end{proof}
+\begin{definition}[Atomic Orbital Figure]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-atomicorbitalfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.AtomicOrbitalFigure}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-orbitalpanel, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-coordinateaxis, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-orbitalcloudshape}
+  Literal presentation data for the orbital figure. The integer collection in the last field is a displayed magnetic-quantum-number annotation, not an angular-momentum magnitude or an energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atomic Orbital Figure.
+\end{proof}
+\begin{definition}[Matches Supplied Atomic Orbital Figure]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matchessuppliedatomicorbitalfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.MatchesSuppliedAtomicOrbitalFigure}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-atomicorbitalfigure}
+  Facts read from the primary raster: all panels show the nucleus and have n = 2; panel (a) is the ℓ = 0, m\_ℓ = 0 spherical cloud, panel (b) is the ℓ = 1, m\_ℓ = 0 two-lobed cloud along z, and panel (c) is the ℓ = 1, m\_ℓ = ±1 toroidal cloud in the x-y plane. No field states an n = 3 energy or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Atomic Orbital Figure.
+\end{proof}
+\begin{definition}[Hydrogen NThree Setup]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.HydrogenNThreeSetup}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentumquantity, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-atomicorbitalfigure}
+  The independent quantities for the elementary hydrogen-level model. Physlib's QuantumMechanics.HydrogenAtom preserves the Coulomb-system role of the atom. The discrete level energies and angular-momentum magnitudes remain independent fields constrained below by generic spectrum laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydrogen NThree Setup.
+\end{proof}
+\begin{definition}[Matches Hydrogen NThree Scenario]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matcheshydrogennthreescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.MatchesHydrogenNThreeScenario}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup}
+  The prose scenario specifies a three-dimensional hydrogen atom at n = 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Hydrogen NThree Scenario.
+\end{proof}
+\begin{definition}[Uses Standard Hydrogen Reference Data]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-usesstandardhydrogenreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.UsesStandardHydrogenReferenceData}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentuminjouleseconds, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup}
+  Textbook reference calibrations. The ground-state energy is the conventional -13.6 eV, and reduced Planck angular momentum is calibrated by Physlib's Constants.ℏ in joule-seconds. Neither calibration states the requested n = 3 energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Hydrogen Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Hydrogen NThree Parameters]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hasphysicalhydrogennthreeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.HasPhysicalHydrogenNThreeParameters}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentuminjouleseconds, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup}
+  Positivity and bound-state conditions for the elementary physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Hydrogen NThree Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hydrogen Level And Angular Momentum Laws]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-satisfieshydrogenlevelandangularmomentumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.SatisfiesHydrogenLevelAndAngularMomentumLaws}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-angularmomentuminjouleseconds, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup}
+  The elementary hydrogenic spectrum and angular-momentum quantization laws: E\_n = E\_1 / n² for positive principal quantum number n; the allowed orbital numbers satisfy 0 ≤ ℓ < n (the lower bound is automatic for ℕ); |L\_ℓ| = ℏ √(ℓ(ℓ+1)). Physlib models the Coulomb Hamiltonian and angular-momentum operators, but does not currently supply these discrete textbook spectrum statements. They are therefore explicit governing laws here, uniform in n and ℓ;
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrogen Level And Angular Momentum Laws.
+\end{proof}
+\begin{lemma}[allowed Orbital Quantum Numbers At NThree]
+  \label{lem:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-allowedorbitalquantumnumbersatnthree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.allowedOrbitalQuantumNumbersAtNThree}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matcheshydrogennthreescenario, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-satisfieshydrogenlevelandangularmomentumlaws}
+  At n = 3, the possible orbital angular-momentum numbers are 0, 1, 2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of allowed Orbital Quantum Numbers At NThree.
+\end{proof}
+\begin{lemma}[hydrogen NThree Energy Electron Volts]
+  \label{lem:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreeenergyelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.hydrogenNThreeEnergyElectronVolts}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-matcheshydrogennthreescenario, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-usesstandardhydrogenreferencedata, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-satisfieshydrogenlevelandangularmomentumlaws}
+  The standard Bohr spectrum gives E₃ = -13.6/3² = -68/45 eV. This is a derived conclusion, not a calibration or governing-law field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of hydrogen NThree Energy Electron Volts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.AnswerChoice}
+  Labels of the four energy choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[energy Electron Volts]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-answerchoice-energyelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.AnswerChoice.energyElectronVolts}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-answerchoice}
+  Energy printed beside each answer choice, in electron volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Electron Volts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Energy]
+  \label{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-isuniqueclosestdisplayedenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0620.IsUniqueClosestDisplayedEnergy}
+  \uses{def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-energyinelectronvolts, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-hydrogennthreesetup, def:physics:phyx-mini-0620:phyxminiproblems-problemphyxmini0620-answerchoice}
+  One displayed value is strictly nearer to the physical energy than all others
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Energy.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

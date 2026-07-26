@@ -1,0 +1,335 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0721.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0721.source.json
+
+\chapter{Physics problem phyx\_mini\_0721}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0721}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Water fills the tube shown in figure.
+
+\#\# Question
+
+What is the pressure at the top of the closed tube?
+
+\#\# Answer choices
+
+- A: A: 1.02atm
+
+- B: B: 1.12atm
+
+- C: C: 1.06atm
+
+- D: D: 1.14atm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a U-shaped container filled with liquid. The left side of the container is taller and open at the top, with a height labeled as 100 cm. The right side is shorter, with a height labeled as 40 cm, and has a closed end. The liquid level is higher on the left side than the right. There is a dashed line across the middle, indicating the liquid's level difference. The text "Closed" points to the closed end on the right side. The image employs a blue color to represent the liquid.
+
+\#\# Dataset metadata
+
+Statics; Physical Model Grounding Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.06atm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/721.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0721.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0721:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0721.problem_phyx_mini_0721}
+\uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinatmospheres, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matchesprimaryfigure, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matcheswaterfilledstaticscenario, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-usesstandardwatergravityandatmosphere, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-hasphysicalparameters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfiesopensurfaceboundarycondition, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfieshydrostaticequilibrium, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-isuniqueclosestdisplayedpressure}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[mass Density Dimension]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-massdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.massDensityDimension}
+  The physical dimension of mass density, M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Density Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.accelerationDimension}
+  The physical dimension of acceleration magnitude, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.MassDensityQuantity}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-massdensitydimension}
+  A nonnegative, unit-independent physical mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.lengthInMeters}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthquantity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals}
+  Read a pressure as a multiple of one standard atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-massdensityquantity}
+  Read mass density in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationquantity}
+  Read acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Tube Location]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.TubeLocation}
+  The three water locations needed to interpret the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Location.
+\end{proof}
+\begin{definition}[Figure Height Label]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-figureheightlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.FigureHeightLabel}
+  The two vertical dimensions printed beside the tube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Height Label.
+\end{proof}
+\begin{definition}[Tube Boundary Condition]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubeboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.TubeBoundaryCondition}
+  Boundary types distinguished by the open and closed arm tops
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Boundary Condition.
+\end{proof}
+\begin{definition}[Tube Shape]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubeshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.TubeShape}
+  The qualitative shape visible in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Shape.
+\end{proof}
+\begin{definition}[Tube Fluid]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubefluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.TubeFluid}
+  The fluid named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Fluid.
+\end{proof}
+\begin{definition}[Fluid Regime]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-fluidregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.FluidRegime}
+  The mechanical regime used for the pressure calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fluid Regime.
+\end{proof}
+\begin{definition}[Column Connectivity]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-columnconnectivity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.ColumnConnectivity}
+  Whether the water in the two arms belongs to one connected column
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Column Connectivity.
+\end{proof}
+\begin{definition}[UTube Figure]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-utubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.UTubeFigure}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthquantity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-figureheightlabel, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubeboundarycondition, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubeshape}
+  Figure-only information: height marks and endpoints, open/closed boundary labels, the water fill, the U-shape, and the dashed reference level. This structure contains no pressure formula and no answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of UTube Figure.
+\end{proof}
+\begin{definition}[Closed UTube Setup]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.ClosedUTubeSetup}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthquantity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-massdensityquantity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationquantity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubefluid, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-fluidregime, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-columnconnectivity, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-utubefigure}
+  The independent physical data for the problem. Most importantly, pressureAt .rightClosedTop is the unknown requested by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Closed UTube Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthincentimeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  Evidence read from the primary raster: both arrows start at the common bottom, the left free surface is at 100 cm, the sealed right top is at 40 cm, the left arm is open, and water reaches the closed right end. None of these fields constrains the requested pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Water Filled Static Scenario]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matcheswaterfilledstaticscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.MatchesWaterFilledStaticScenario}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  Written-scenario and modeling information that is not a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Water Filled Static Scenario.
+\end{proof}
+\begin{definition}[Uses Standard Water Gravity And Atmosphere]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-usesstandardwatergravityandatmosphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.UsesStandardWaterGravityAndAtmosphere}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  Standard textbook calibrations used to interpret the answer choices: ρ\_water = 1000 kg/m³, g = 9.8 m/s², and ambient absolute pressure is one standard atmosphere. These are physical data, not the closed-end answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Water Gravity And Atmosphere.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  Positivity conditions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Open Surface Boundary Condition]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfiesopensurfaceboundarycondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.SatisfiesOpenSurfaceBoundaryCondition}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  The open water surface is exposed to ambient absolute pressure. This is a boundary condition at the left surface, not a statement about the unknown pressure at the closed right top
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Open Surface Boundary Condition.
+\end{proof}
+\begin{definition}[Satisfies Hydrostatic Equilibrium]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfieshydrostaticequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.SatisfiesHydrostaticEquilibrium}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-tubelocation, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup}
+  General hydrostatic equilibrium for any two named points in the connected water column. Pressure plus ρ g times elevation is constant. The law is uniform over all point pairs and does not single out a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrostatic Equilibrium.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.AnswerChoice}
+  Labels of the four pressure answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-displayedpressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.displayedPressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-answerchoice}
+  The absolute pressure, in atmospheres, displayed beside each answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Atmospheres.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Pressure]
+  \label{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-isuniqueclosestdisplayedpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.IsUniqueClosestDisplayedPressure}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinatmospheres, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-answerchoice, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-displayedpressureinatmospheres}
+  A displayed answer is uniquely closest to the independently modeled closed-end pressure. This accommodates the two-decimal rounding in the printed choices without identifying the unknown pressure by definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Pressure.
+\end{proof}
+\begin{lemma}[open Surface minus closed Top elevation eq three fifths]
+  \label{lem:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-opensurface-minus-closedtop-elevation-eq-three-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.openSurface_minus_closedTop_elevation_eq_three_fifths}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matchesprimaryfigure}
+  The two height marks put the open surface 3/5 m above the closed right top. This is a geometry consequence only; it contains no pressure conclusion
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of open Surface minus closed Top elevation eq three fifths.
+\end{proof}
+\begin{lemma}[closed Top Pressure eq ambient add water Head]
+  \label{lem:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedtoppressure-eq-ambient-add-waterhead}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0721.closedTopPressure_eq_ambient_add_waterHead}
+  \uses{def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-lengthinmeters, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-pressureinpascals, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-densityinkilogramspercubicmeter, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-closedutubesetup, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matchesprimaryfigure, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-matcheswaterfilledstaticscenario, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfiesopensurfaceboundarycondition, def:physics:phyx-mini-0721:phyxminiproblems-problemphyxmini0721-satisfieshydrostaticequilibrium}
+  The open-surface boundary condition and the general hydrostatic law give the closed-top pressure as ambient pressure plus the 60 cm water head. The requested pressure remains on the conclusion side of this lemma
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of closed Top Pressure eq ambient add water Head.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

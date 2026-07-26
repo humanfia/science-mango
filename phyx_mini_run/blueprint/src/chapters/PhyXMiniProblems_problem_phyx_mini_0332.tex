@@ -1,0 +1,290 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0332.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0332.source.json
+
+\chapter{Physics problem phyx\_mini\_0332}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0332}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The African bombardier beetle (\textbackslash{}textit\{Stenaptinus insignis\}) can emit a jet of defensive spray from the movable tip of its abdomen. The beetle’s body has reservoirs containing two chemicals; when the beetle is disturbed, these chemicals combine in a reaction chamber, producing a compound that is warmed from 20\textbackslash{},\textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\} to 100\textbackslash{},\textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\} by the heat of reaction. The high pressure produced allows the compound to be sprayed out at speeds up to 19\textbackslash{},\textbackslash{}text\{m/s\} (68\textbackslash{},\textbackslash{}text\{km/h\}), scaring away predators of all kinds. (The beetle shown in \textbackslash{}textbf\{figure\} is 2\textbackslash{},\textbackslash{}text\{cm\} long.) Assume that the specific heat of the chemicals and of the spray is the same as that of water, 4.19 \textbackslash{}times 10\textasciicircum{}3\textbackslash{},\textbackslash{}text\{J/kg·K\}, and that the initial temperature of the chemicals is 20\textbackslash{},\textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}.
+
+\#\# Question
+
+Calculate the heat of reaction of the two chemicals (in J/kg).
+
+\#\# Answer choices
+
+- A: A: 3.4 \textbackslash{}times 10\textasciicircum{}5J/kg
+
+- B: B: 3.12 \textbackslash{}times 10\textasciicircum{}5J/kg
+
+- C: C: 3.22 \textbackslash{}times 10\textasciicircum{}5J/kg
+
+- D: D: 2.02 \textbackslash{}times 10\textasciicircum{}5J/kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a close-up of a person's fingertip interacting with an insect, specifically a beetle. The beetle is releasing a cloud of what appears to be vapor or gas from its body. The release creates a dramatic effect, suggesting a defensive mechanism. The beetle is standing on a surface, while the person's finger is pressing down slightly on its back. The background is dark, highlighting the contrast between the finger, beetle, and the vapor. There is no text present in the image.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 3.4 \textbackslash{}times 10\textasciicircum{}5J/kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/332.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0332.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0332:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0332.problem_phyx_mini_0332}
+\uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyinjoulesperkilogram, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-matchesbombardierbeetleproblemdata, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-satisfiesbombardierbeetlecalorimetrylaw, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-isuniqueclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.SpeedQuantity}
+  Physlib's nonnegative, unit-independent physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Specific Energy Quantity]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.SpecificEnergyQuantity}
+  Energy per unit mass, with dimension L² T⁻², read in J/kg in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Energy Quantity.
+\end{proof}
+\begin{definition}[Specific Heat Capacity Quantity]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatcapacityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.SpecificHeatCapacityQuantity}
+  Specific heat capacity, with dimension L² T⁻² Θ⁻¹, read in J/(kg K) in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Heat Capacity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.lengthReadout}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthquantity}
+  Read a physical length in the selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthreadout}
+  Read the beetle's body length in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.speedReadout}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedquantity}
+  Read a physical speed in the selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedreadout}
+  Read a speed in meters per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.speedInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedreadout}
+  Read a speed in kilometers per hour
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[specific Energy In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.specificEnergyInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyquantity}
+  Read a specific energy in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Heat In Joules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatinjoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.specificHeatInJoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatcapacityquantity}
+  Read a specific heat capacity in joules per kilogram-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Heat In Joules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.temperatureInDegreesCelsius}
+  The Temperature values in this problem are consistently read in kelvins. Subtracting 273.15 supplies the corresponding absolute Celsius readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Reaction Material]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.ReactionMaterial}
+  The three material roles named in the reaction narrative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaction Material.
+\end{proof}
+\begin{definition}[Reaction Stage]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.ReactionStage}
+  The two thermal stages relevant to the calorimetry calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaction Stage.
+\end{proof}
+\begin{definition}[Reaction Location]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.ReactionLocation}
+  Location of the chemical reaction in the beetle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reaction Location.
+\end{proof}
+\begin{definition}[Spray Outlet]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-sprayoutlet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.SprayOutlet}
+  Location from which the defensive spray leaves the beetle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spray Outlet.
+\end{proof}
+\begin{definition}[Chamber Pressure Regime]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-chamberpressureregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.ChamberPressureRegime}
+  Qualitative pressure regime described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chamber Pressure Regime.
+\end{proof}
+\begin{definition}[Bombardier Beetle Figure]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.BombardierBeetleFigure}
+  Qualitative facts visible in the supplied image. The numerical body length is given by the prose accompanying the image rather than by a printed scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bombardier Beetle Figure.
+\end{proof}
+\begin{definition}[Bombardier Beetle Calorimetry Setup]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.BombardierBeetleCalorimetrySetup}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatcapacityquantity, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionmaterial, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionstage, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-reactionlocation, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-sprayoutlet, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-chamberpressureregime, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlefigure}
+  The physical quantities in the bombardier-beetle calorimetry model. The heat of reaction is an independent dimensionful field. In particular, it is not defined to be the requested numerical answer; only the governing calorimetry law below relates it to the temperature rise and specific heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bombardier Beetle Calorimetry Setup.
+\end{proof}
+\begin{definition}[temperature Rise In Kelvins]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureriseinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.temperatureRiseInKelvins}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureindegreescelsius, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup}
+  The temperature increase expressed in Celsius degrees. A Celsius interval and a kelvin interval have the same scale, so this is also the kelvin rise used by the SI calorimetry relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature Rise In Kelvins.
+\end{proof}
+\begin{definition}[Matches Bombardier Beetle Problem Data]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-matchesbombardierbeetleproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.MatchesBombardierBeetleProblemData}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-lengthincentimeters, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedinmeterspersecond, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-speedinkilometersperhour, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureindegreescelsius, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup}
+  Measurements stated in the prose and qualitative readouts from the primary image. 68 km/h is the source's rounded parenthetical conversion of 19 m/s, so it is recorded with a half-kilometer-per-hour tolerance. No value of the heat of reaction appears in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Bombardier Beetle Problem Data.
+\end{proof}
+\begin{definition}[Satisfies Bombardier Beetle Calorimetry Law]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-satisfiesbombardierbeetlecalorimetrylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.SatisfiesBombardierBeetleCalorimetryLaw}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyinjoulesperkilogram, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificheatinjoulesperkilogramkelvin, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureriseinkelvins}
+  The governing constant-specific-heat calorimetry relation per unit mass, q / m = c ΔT. This is a general physical law instantiated with the reacted spray's specific heat and the observed temperature rise. It does not contain the simplified numeric heat or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bombardier Beetle Calorimetry Law.
+\end{proof}
+\begin{lemma}[temperature Rise In Kelvins eq eighty]
+  \label{lem:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureriseinkelvins-eq-eighty}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.temperatureRiseInKelvins_eq_eighty}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-temperatureriseinkelvins, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-matchesbombardierbeetleproblemdata}
+  The stated initial and final temperatures give an 80 K temperature rise. This is a derived result, not a field of either premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of temperature Rise In Kelvins eq eighty.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Heat Of Reaction Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerheatofreactionjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.answerHeatOfReactionJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerchoice}
+  Joule-per-kilogram value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Heat Of Reaction Joules Per Kilogram.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerchoice}
+  Dataset metadata records answer A; this definition is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-isuniqueclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0332.IsUniqueClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-specificenergyinjoulesperkilogram, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-bombardierbeetlecalorimetrysetup, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerchoice, def:physics:phyx-mini-0332:phyxminiproblems-problemphyxmini0332-answerheatofreactionjoulesperkilogram}
+  A displayed choice is uniquely closest to the derived specific energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

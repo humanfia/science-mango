@@ -1,0 +1,393 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0903.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0903.source.json
+
+\chapter{Physics problem phyx\_mini\_0903}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0903}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the magnitude of the electric fields at point 1?
+
+\#\# Answer choices
+
+- A: A: 1.25 \textbackslash{}times 10\textasciicircum{}\{3\}N/C
+
+- B: B: 1.35 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+- C: C: 1.8 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+- D: D: 5.33 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a geometric arrangement of three points forming a triangle. Here's a detailed description:
+
+1. **Objects and Layout:**
+   - There are three distinct points forming a triangle.
+   - The top point is marked by a teal circle with a negative sign inside, labeled as "-2.0 nC" indicating a negative charge of 2.0 nanocoulombs.
+   - The bottom two points are black dots labeled as "1" and "2."
+
+2. **Distances and Connections:**
+   - The triangle is equilateral with each side measuring 1.0 cm. 
+   - The lines between the points are dashed, indicating the connections or distances between them.
+
+3. **Text:**
+   - The measurements "1.0 cm" are labeled on each side of the triangle.
+   - The charge "-2.0 nC" is noted above the teal circle.
+
+The triangle outlines the relationships among the charged point at the top and the bottom two points labeled "1" and "2."
+
+\#\# Dataset metadata
+
+Electrostatics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.8 \textbackslash{}times 10\textasciicircum{}\{5\}N/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/903.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0903.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0903:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0903.problem_phyx_mini_0903}
+\uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldmagnitudeinnewtonspercoulomb, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessinglepointchargescenario, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessuppliedelectricfieldtrianglefigure, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-usesschoolcoulombconstant, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-hasphysicalpointchargetriangleparameters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-satisfiesplanarpointchargecoulomblaw}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Dimension]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfielddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.electricFieldDimension}
+  The physical dimension M L T⁻² C⁻¹ of an electric field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Dimension.
+\end{proof}
+\begin{definition}[Plane Vector]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.PlaneVector}
+  Vectors in the two-dimensional plane of the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Vector.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.SignedChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Plane Position Quantity]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planepositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.PlanePositionQuantity}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector}
+  A unit-independent planar position, expressed relative to a chosen origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Position Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Plane Electric Field Quantity]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planeelectricfieldquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.PlaneElectricFieldQuantity}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfielddimension, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector}
+  A unit-independent planar electric-field vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Electric Field Quantity.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-signedchargequantity}
+  Coherent-SI readout of a signed charge in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Nanocoulombs]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeinnanocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.chargeInNanocoulombs}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-signedchargequantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeincoulombs}
+  Nanocoulomb readout used by the charge label in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Nanocoulombs.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.positionInMeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planepositionquantity}
+  Coherent-SI coordinate vector of a planar position, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.lengthInMeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthquantity}
+  Coherent-SI readout of a nonnegative length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthquantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthinmeters}
+  Centimetre readout used by the three side labels in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[electric Field Vector In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldvectorinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.electricFieldVectorInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planeelectricfieldquantity}
+  Coherent-SI readout of an electric-field vector, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Vector In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Field Magnitude In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldmagnitudeinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.electricFieldMagnitudeInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planeelectricfieldquantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldvectorinnewtonspercoulomb}
+  Magnitude of the coherent-SI electric-field readout, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Magnitude In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[Observation Point]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.ObservationPoint}
+  The two observation points printed at the lower vertices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observation Point.
+\end{proof}
+\begin{definition}[Diagram Vertex]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.DiagramVertex}
+  The three vertices of the triangular diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Vertex.
+\end{proof}
+\begin{definition}[Diagram Edge]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.DiagramEdge}
+  The three dashed sides of the triangle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Edge.
+\end{proof}
+\begin{definition}[endpoints]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge-endpoints}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.DiagramEdge.endpoints}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramvertex, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge}
+  Endpoints assigned to each named side of the triangle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of endpoints.
+\end{proof}
+\begin{definition}[vertex]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint-vertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.ObservationPoint.vertex}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramvertex}
+  Vertex corresponding to a printed observation-point label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertex.
+\end{proof}
+\begin{definition}[expected Point Label]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-expectedpointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.expectedPointLabel}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint}
+  Text printed beside each lower observation point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Point Label.
+\end{proof}
+\begin{definition}[Figure Charge Sign]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-figurechargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.FigureChargeSign}
+  The sign glyph drawn inside the source circle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Charge Sign.
+\end{proof}
+\begin{definition}[Charge Source Kind]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargesourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.ChargeSourceKind}
+  Physical classification of the displayed charge source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Source Kind.
+\end{proof}
+\begin{definition}[Electric Field Triangle Figure]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldtrianglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.ElectricFieldTriangleFigure}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-figurechargesign}
+  Literal and idealized presentation data transcribed from image 903.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Triangle Figure.
+\end{proof}
+\begin{definition}[Point Charge Triangle Setup]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.PointChargeTriangleSetup}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-signedchargequantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planepositionquantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthquantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planeelectricfieldquantity, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramvertex, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargesourcekind, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldtrianglefigure}
+  The independent physical quantities represented by the image. In particular, electricFieldAt is an observable and is not defined from an answer choice or from the requested 1.8 * 10\textasciicircum{}5 N/C value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Point Charge Triangle Setup.
+\end{proof}
+\begin{definition}[displacement From Source In Meters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-displacementfromsourceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.displacementFromSourceInMeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-planevector, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-positioninmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup}
+  Metre displacement vector from the source to an observation point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From Source In Meters.
+\end{proof}
+\begin{definition}[edge Length In Meters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.edgeLengthInMeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-positioninmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup}
+  Distance in metres between the endpoints of a displayed triangle edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of edge Length In Meters.
+\end{proof}
+\begin{definition}[edge Length In Centimeters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.edgeLengthInCentimeters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthinmeters}
+  Distance in centimetres between the endpoints of a displayed edge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of edge Length In Centimeters.
+\end{proof}
+\begin{definition}[Matches Single Point Charge Scenario]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessinglepointchargescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.MatchesSinglePointChargeScenario}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup}
+  The displayed upper object has the point-charge role used by Coulomb's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Single Point Charge Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Electric Field Triangle Figure]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessuppliedelectricfieldtrianglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.MatchesSuppliedElectricFieldTriangleFigure}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeinnanocoulombs, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthinmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthincentimeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-expectedpointlabel, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthinmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthincentimeters}
+  The labels, dashed geometry, and charge read directly from the primary image, together with their association to the independent physical quantities. No electric-field value appears in this evidence structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Electric Field Triangle Figure.
+\end{proof}
+\begin{definition}[Uses School Coulomb Constant]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-usesschoolcoulombconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.UsesSchoolCoulombConstant}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup}
+  The rounded coherent-SI value of Coulomb's constant used in the elementary multiple-choice calculation. The scalar itself is Physlib's Electromagnetism.EMSystem.coulombConstant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses School Coulomb Constant.
+\end{proof}
+\begin{definition}[Has Physical Point Charge Triangle Parameters]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-hasphysicalpointchargetriangleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.HasPhysicalPointChargeTriangleParameters}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeincoulombs, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-lengthinmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-observationpoint, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-diagramedge, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthinmeters}
+  Positivity and source-separation conditions for the intended geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Point Charge Triangle Parameters.
+\end{proof}
+\begin{definition}[Satisfies Planar Point Charge Coulomb Law]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-satisfiesplanarpointchargecoulomblaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.SatisfiesPlanarPointChargeCoulombLaw}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeincoulombs, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-displacementfromsourceinmeters}
+  For a source charge q at r₀, the static vector field at r ≠ r₀ is E(r) = k q (r - r₀) / ‖r - r₀‖³. This is a general governing law at both labelled observation points and does not contain the requested numerical magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Planar Point Charge Coulomb Law.
+\end{proof}
+\begin{lemma}[point1 source distance readout]
+  \label{lem:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-point1-source-distance-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.point1_source_distance_readout}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-edgelengthincentimeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessuppliedelectricfieldtrianglefigure}
+  The figure places point 1 exactly 1.0 cm from the source charge
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of point1 source distance readout.
+\end{proof}
+\begin{lemma}[source charge readout]
+  \label{lem:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-source-charge-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.source_charge_readout}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeinnanocoulombs, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-matchessuppliedelectricfieldtrianglefigure}
+  The physical source-charge readout is the displayed -2.0 nC
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of source charge readout.
+\end{proof}
+\begin{lemma}[field At Point1 eq coulomb Vector]
+  \label{lem:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-fieldatpoint1-eq-coulombvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.fieldAtPoint1_eq_coulombVector}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-chargeincoulombs, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-electricfieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-pointchargetrianglesetup, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-displacementfromsourceinmeters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-hasphysicalpointchargetriangleparameters, def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-satisfiesplanarpointchargecoulomblaw}
+  Specializing the governing law at point 1 gives the vector expression from which the requested magnitude is later calculated
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of field At Point1 eq coulomb Vector.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.AnswerChoice}
+  Labels attached to the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[field Magnitude In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-answerchoice-fieldmagnitudeinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.AnswerChoice.fieldMagnitudeInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-answerchoice}
+  Field magnitude in N/C printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Magnitude In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0903.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0903:phyxminiproblems-problemphyxmini0903-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

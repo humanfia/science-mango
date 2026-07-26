@@ -1,0 +1,240 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0150.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0150.source.json
+
+\chapter{Physics problem phyx\_mini\_0150}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0150}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A parallel beam of light containing two wavelengths, \textbackslash{}(\textbackslash{}lambda\_1 = 455\textbackslash{},\textbackslash{}mathrm\{nm\}\textbackslash{}) and \textbackslash{}(\textbackslash{}lambda\_2 = 642\textbackslash{},\textbackslash{}mathrm\{nm\}\textbackslash{}), enters the silicate flint glass of an equilateral prism as shown in figure.(give angle with normal to the face)
+
+\#\# Question
+
+At what angles\textbackslash{}(\textbackslash{}theta\_1\textbackslash{})does each beam leave the prism?
+
+\#\# Answer choices
+
+- A: A: 67.3°
+
+- B: B: 69.2°
+
+- C: C: 68.1°
+
+- D: D: 66.1°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an equilateral triangle where each interior angle is labeled as \textbackslash{}(60\textasciicircum{}\textbackslash{}circ\textbackslash{}). There is a line representing an incoming arrow at a \textbackslash{}(45.0\textasciicircum{}\textbackslash{}circ\textbackslash{}) angle to one of the triangle's sides. This arrow continues inside the triangle and then exits. 
+
+Upon exiting, the path of the arrow is extended outside the triangle by dashed lines, creating two labeled angles with respect to the normal line: \textbackslash{}(\textbackslash{}theta\_2\textbackslash{}) where the arrow exits and \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}), which is the angle made by the refracted arrow line with respect to the surface. The angles inside the triangle and markings outside suggest a study or demonstration related to the refraction of light through a prism.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 68.1°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/150.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0150.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0150:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0150.both_exit_angles_from_normal}
+\uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-hasstatedreadouts, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-hassilicateflintcalibration, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-satisfiesprismraylaws, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesshownexitlabels, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesdegreereadouttonearesttenth, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.LengthQuantity}
+  A physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.lengthValueIn}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthquantity}
+  Read a physical length as a scalar in the requested length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.nanometersValue}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthquantity, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthvaluein}
+  The scalar nanometre readout used for the two stated wavelengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.degrees}
+  Interpret a numerical degree readout as a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.degreeReadout}
+  Express the principal representative of an angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Beam Label]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-beamlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.BeamLabel}
+  The two monochromatic components of the incident parallel beam
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beam Label.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.OpticalMedium}
+  The homogeneous media on the two sides of each prism face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Prism Vertex]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.PrismVertex}
+  The three 60° vertex labels explicitly shown on the triangular prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Vertex.
+\end{proof}
+\begin{definition}[Exit Angle Label]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-exitanglelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.ExitAngleLabel}
+  The two angles printed beside the emerging rays in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exit Angle Label.
+\end{proof}
+\begin{definition}[Prism Ray Angles]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismrayangles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.PrismRayAngles}
+  The three normal-based angles used to trace one beam through the prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Ray Angles.
+\end{proof}
+\begin{definition}[Prism Experiment]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.PrismExperiment}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-lengthquantity, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-beamlabel, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-opticalmedium, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismvertex, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-exitanglelabel, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismrayangles}
+  Physical and figure-derived data for the two-wavelength prism experiment. The refractive index is a dimensionless material readout depending on both medium and wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Experiment.
+\end{proof}
+\begin{definition}[Has Stated Readouts]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-hasstatedreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.HasStatedReadouts}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-nanometersvalue, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-degrees, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment}
+  The dimensional and angular values printed in the problem and figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Readouts.
+\end{proof}
+\begin{definition}[Has Silicate Flint Calibration]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-hassilicateflintcalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.HasSilicateFlintCalibration}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment}
+  Empirical refractive-index calibration for the silicate flint glass at the two stated wavelengths. The source does not reproduce its material table, so the calibration is an explicit premise rather than hidden numerical data. None of these fields states a requested exit angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Silicate Flint Calibration.
+\end{proof}
+\begin{definition}[Is Physical Normal Angle]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-isphysicalnormalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.IsPhysicalNormalAngle}
+  The acute principal branch for an angle measured from a face normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Normal Angle.
+\end{proof}
+\begin{definition}[Satisfies Prism Ray Laws]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-satisfiesprismraylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.SatisfiesPrismRayLaws}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-beamlabel, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-isphysicalnormalangle}
+  Snell's law at both faces together with the geometry of an equilateral prism. No requested numerical emergence angle occurs in these governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Prism Ray Laws.
+\end{proof}
+\begin{definition}[Matches Shown Exit Labels]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesshownexitlabels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.MatchesShownExitLabels}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment}
+  The two figure labels denote the emergence angles of λ₁ and λ₂
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Shown Exit Labels.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.AnswerChoice}
+  The four one-decimal degree values printed as answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-answerchoice}
+  Degree readout associated with each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[Matches Degree Readout To Nearest Tenth]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesdegreereadouttonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.MatchesDegreeReadoutToNearestTenth}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-degreereadout}
+  Agreement of an angle with a decimal-degree readout to the nearest tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Degree Readout To Nearest Tenth.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-answerchoice, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-answerangledegrees, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-matchesdegreereadouttonearesttenth}
+  Agreement with a displayed multiple-choice answer to the nearest tenth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{definition}[Snell-predicted emergence angle]
+  \label{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-snellpredictedemergenceradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0150.snellPredictedEmergenceRadians}
+  \uses{def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-prismexperiment, def:physics:phyx-mini-0150:phyxminiproblems-problemphyxmini0150-beamlabel}
+  For each beam, this is the emergence angle predicted symbolically by the experiment's refractive indices and internal ray angle through Snell's law.
+\end{definition}
+\begin{proof}
+  This is the source-supported symbolic Snell expression, with no inserted wavelength calibration.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

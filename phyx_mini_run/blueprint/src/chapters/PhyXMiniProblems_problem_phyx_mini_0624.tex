@@ -1,0 +1,265 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0624.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0624.source.json
+
+\chapter{Physics problem phyx\_mini\_0624}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0624}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An observer on Earth sees an alien vessel approach at a speed of \textbackslash{}(0.60c\textbackslash{}). The fictional starship *Enterprise* comes to the rescue (figure), overtaking the aliens while moving directly toward Earth at a speed of \textbackslash{}(0.90c\textbackslash{}) relative to Earth.
+
+\#\# Question
+
+What is the relative speed of one vessel as seen by the other?
+
+\#\# Answer choices
+
+- A: A: 0.85c
+
+- B: B: 0.75c
+
+- C: C: 0.65c
+
+- D: D: 0.55c
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a space scene with a portion of Earth visible on the left side. There are two spacecraft, each labeled with velocities relative to the direction they are moving:
+
+1. The spacecraft on the right, labeled "Enterprise," is moving to the left with a velocity \textbackslash{}(v = 0.90c\textbackslash{}), where \textbackslash{}(c\textbackslash{}) is the speed of light. 
+
+2. Another spacecraft is located between Earth and the Enterprise, also moving to the left, with a velocity \textbackslash{}(v = 0.60c\textbackslash{}).
+
+Green arrows indicate the direction of motion for both spacecraft. The velocities are shown using mathematical notation adjacent to each spacecraft.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.65c
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/624.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0624.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0624:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0624.problem_phyx_mini_0624}
+\uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesprimaryfigure, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesproblemdata, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-hasphysicalinputparameters, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-satisfiesreciprocaleinsteinvelocitytransformations, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-relativevelocityfraction, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-recordeddatasetanswer, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-isuniquematchinganswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.SignedVelocityQuantity}
+  A signed one-dimensional physical velocity component. The real carrier is needed because Physlib's DimSpeed represents a nonnegative speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityquantity}
+  Read a signed velocity component in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[signed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.signedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityquantity, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityreadout}
+  Metres-per-second readout of a signed physical velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[vacuum Light Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vacuumlightspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.vacuumLightSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityinmeterspersecond}
+  Physlib's exact dimensionful vacuum speed of light, read in SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Light Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity Fraction Of Light]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-velocityfractionoflight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.velocityFractionOfLight}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityquantity, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityinmeterspersecond, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vacuumlightspeedinmeterspersecond}
+  A signed axial velocity expressed as a dimensionless fraction of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Fraction Of Light.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.FigureObject}
+  The three physical objects visible in image 624.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Vessel Label]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vessellabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.VesselLabel}
+  The two spacecraft whose relative speed is requested
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vessel Label.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.InertialFrameLabel}
+  The inertial frames needed to interpret all four velocity measurements
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.HorizontalDirection}
+  Horizontal direction relative to the orientation of the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Enterprise Rescue Figure]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterpriserescuefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.EnterpriseRescueFigure}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-figureobject, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vessellabel, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-horizontaldirection}
+  Typed qualitative evidence present in the primary bitmap. Horizontal coordinates encode only the visual left-to-right ordering; they are not physical distances or simultaneous spacetime positions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Enterprise Rescue Figure.
+\end{proof}
+\begin{definition}[Enterprise Alien Relative Speed Setup]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.EnterpriseAlienRelativeSpeedSetup}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-signedvelocityquantity, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-inertialframelabel, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-horizontaldirection, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterpriserescuefigure}
+  The four physical velocity components and their observer frames. The two requested relative velocities are independent dimensionful fields, rather than definitions containing an answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Enterprise Alien Relative Speed Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  Facts read from image 624.png: Earth is leftmost, the alien vessel lies between Earth and the Enterprise, both green velocity arrows point left, and the displayed velocity annotations are 0.60c and 0.90c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-velocityfractionoflight, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  Frame assignments, sign convention, directions, and the two numerical Earth-frame velocity readouts stated in the question. The positive axis is chosen leftward, toward Earth, so both signed fractions are positive. No inter-vessel velocity is supplied here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Input Parameters]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-hasphysicalinputparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.HasPhysicalInputParameters}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vacuumlightspeedinmeterspersecond, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-velocityfractionoflight, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  Physical-domain conditions on the supplied Earth-frame inputs. They select the same-direction, subluminal overtaking branch without assigning either unknown inter-vessel velocity a numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Input Parameters.
+\end{proof}
+\begin{definition}[Satisfies Reciprocal Einstein Velocity Transformations]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-satisfiesreciprocaleinsteinvelocitytransformations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.SatisfiesReciprocalEinsteinVelocityTransformations}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-velocityfractionoflight, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  The one-dimensional Einstein velocity transformation is applied in both directions. If βa and βb are signed Earth-frame velocity fractions, then the velocity of a in b's rest frame is (βa - βb) / (1 - βa * βb). These are governing relations among independent physical quantities. They contain neither the derived fraction 15/23, the rounded value 0.65, nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Reciprocal Einstein Velocity Transformations.
+\end{proof}
+\begin{definition}[relative Velocity Fraction]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-relativevelocityfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.relativeVelocityFraction}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-velocityfractionoflight, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vessellabel, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup}
+  The requested signed velocity fraction for each named moving vessel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of relative Velocity Fraction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.AnswerChoice}
+  Labels of the four relative-speed choices printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Relative Speed Fraction]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-displayedrelativespeedfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.displayedRelativeSpeedFraction}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-answerchoice}
+  The positive coefficient of c printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Relative Speed Fraction.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-answerchoice}
+  The answer label recorded by the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.RoundsToNearestHundredth}
+  Agreement with a positive speed coefficient printed to two decimal places
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-vessellabel, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-relativevelocityfraction, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-answerchoice, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-displayedrelativespeedfraction, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-roundstonearesthundredth}
+  A displayed choice matches when it is the two-decimal rounding of the speed magnitude of each vessel relative to the other
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer Choice]
+  \label{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-isuniquematchinganswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.IsUniqueMatchingAnswerChoice}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-answerchoice, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesanswerchoice}
+  The selected choice is the unique displayed match for both vessels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer Choice.
+\end{proof}
+\begin{lemma}[reciprocal relative velocities exact]
+  \label{lem:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-reciprocal-relative-velocities-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0624.reciprocal_relative_velocities_exact}
+  \uses{def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-enterprisealienrelativespeedsetup, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-matchesproblemdata, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-satisfiesreciprocaleinsteinvelocitytransformations, def:physics:phyx-mini-0624:phyxminiproblems-problemphyxmini0624-relativevelocityfraction}
+  Substitution of the two Earth-frame speed fractions into the reciprocal Einstein transformations gives equal-and-opposite signed velocities: the aliens move at -15/23 c in the Enterprise frame, while the Enterprise moves at 15/23 c in the alien-vessel frame
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reciprocal relative velocities exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

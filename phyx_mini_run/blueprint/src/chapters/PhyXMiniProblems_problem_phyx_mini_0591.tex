@@ -1,0 +1,286 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0591.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0591.source.json
+
+\chapter{Physics problem phyx\_mini\_0591}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0591}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+One cosmic-ray particle approaches Earth along Earth's north-south axis with a speed of \textbackslash{}( 0.80c \textbackslash{}) toward the geographic north pole, and another approaches with a speed of \textbackslash{}( 0.60c \textbackslash{}) toward the geographic south pole.
+
+\#\# Question
+
+What is the relative speed of approach of one particle with respect to the other?
+
+\#\# Answer choices
+
+- A: A: 0.35c
+
+- B: B: 0.60c
+
+- C: C: 0.95c
+
+- D: D: 0.65c
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of the Earth with geographic labels and a rotational axis. The Earth is shown with the continents in green and oceans in blue. 
+
+- At the top, "Geographic north pole" is labeled.
+- At the bottom, "Geographic south pole" is labeled.
+- A black vertical line represents the Earth's axis, passing through both poles.
+- Two magenta triangles are fixed on the axis, one near each pole.
+- Above the north pole, there's a black circle with the text "0.80c" next to it.
+- Below the south pole, there's another black circle with the text "0.60c" next to it.
+- An arrow encircling the axis near the north pole indicates rotation.
+
+The diagram suggests a visual representation of the Earth's rotation with varying speeds indicated by the text values.
+
+\#\# Dataset metadata
+
+Relativity; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.95c
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/591.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0591.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0591:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0591.problem_phyx_mini_0591}
+\uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesprimaryfigure, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesearthframevelocityreadouts, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-hasphysicalcosmicrayparameters, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-obeyscollinearlorentzvelocitytransformation, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-relativeapproachspeedismagnitude, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-recordeddatasetanswer, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-isuniquematchinganswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Axial Velocity]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedaxialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.SignedAxialVelocity}
+  A signed one-dimensional physical velocity along Earth's rotation axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Axial Velocity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.SpeedQuantity}
+  A nonnegative physical speed, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedaxialvelocity}
+  Read a signed axial velocity in selected units of length and time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.speedReadout}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedquantity}
+  Read a nonnegative speed in selected units of length and time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.vacuumSpeedOfLightReadout}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedvelocityreadout}
+  Read Physlib's exact dimensionful vacuum speed of light in named units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[velocity In Light Speed Units]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.velocityInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedaxialvelocity, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedvelocityreadout, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-vacuumspeedoflightreadout}
+  A signed axial velocity as the dimensionless ratio beta = v / c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Light Speed Units.
+\end{proof}
+\begin{definition}[speed In Light Speed Units]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.speedInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedquantity, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedreadout, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-vacuumspeedoflightreadout}
+  A nonnegative speed as a dimensionless multiple of vacuum c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Light Speed Units.
+\end{proof}
+\begin{definition}[Reference Frame Label]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-referenceframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.ReferenceFrameLabel}
+  The inertial frames used for the Earth-frame data and requested speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reference Frame Label.
+\end{proof}
+\begin{definition}[Geographic Pole]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-geographicpole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.GeographicPole}
+  The two geographic pole labels printed beside the Earth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Geographic Pole.
+\end{proof}
+\begin{definition}[Cosmic Ray Particle]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayparticle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.CosmicRayParticle}
+  The two particles distinguished by the pole through which each approaches
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cosmic Ray Particle.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.AxialDirection}
+  Signed directions along the geographic north--south axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Cosmic Ray Axis Figure]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayaxisfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.CosmicRayAxisFigure}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-geographicpole, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayparticle, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-axialdirection}
+  Typed evidence carried by the primary image. The vertical coordinates encode only the top-to-bottom order in the drawing and are not physical distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cosmic Ray Axis Figure.
+\end{proof}
+\begin{definition}[Cosmic Ray Approach Setup]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.CosmicRayApproachSetup}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-signedaxialvelocity, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedquantity, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-referenceframelabel, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayaxisfigure}
+  All physical quantities in the scenario. The transformed north-entry particle velocity and the relative approach speed are independent unknown observables; neither is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cosmic Ray Approach Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  The Earth, axial rotation marker, pole labels, inward velocity arrows, and their 0.80c and 0.60c magnitudes as read from the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Earth Frame Velocity Readouts]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesearthframevelocityreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.MatchesEarthFrameVelocityReadouts}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  Earth-frame velocity readouts. Positive is chosen northward, so the particle above the north pole has velocity -0.80c and the particle below the south pole has velocity +0.60c. No relative velocity or relative speed is given
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Earth Frame Velocity Readouts.
+\end{proof}
+\begin{definition}[Has Physical Cosmic Ray Parameters]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-hasphysicalcosmicrayparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.HasPhysicalCosmicRayParameters}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-vacuumspeedoflightreadout, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  Physical domain conditions for the given velocities and the unknown relative speed. These impose signs and subluminality but no solved numerical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cosmic Ray Parameters.
+\end{proof}
+\begin{definition}[Obeys Collinear Lorentz Velocity Transformation]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-obeyscollinearlorentzvelocitytransformation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.ObeysCollinearLorentzVelocityTransformation}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  The one-dimensional Lorentz velocity transformation from Earth's frame E to the south-entry particle's rest frame S: beta\_(N|S) = (beta\_(N|E) - beta\_(S|E)) / (1 - beta\_(S|E) * beta\_(N|E)). The law relates an unknown transformed velocity to the two observations. It contains neither the solved fraction -35/37 nor an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Collinear Lorentz Velocity Transformation.
+\end{proof}
+\begin{definition}[Relative Approach Speed Is Magnitude]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-relativeapproachspeedismagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.RelativeApproachSpeedIsMagnitude}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup}
+  Operational meaning of the requested nonnegative approach speed: it is the magnitude of the north-entry particle's signed velocity in the other particle's rest frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relative Approach Speed Is Magnitude.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed In Light Speed Units]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-displayedspeedinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.displayedSpeedInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-answerchoice}
+  Displayed candidate approach speeds, as dimensionless multiples of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed In Light Speed Units.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-answerchoice}
+  The answer label recorded by the source dataset; it is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.RoundsToNearestHundredth}
+  Nearest-hundredth agreement, with a half-open convention at exact ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-speedinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-answerchoice, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-displayedspeedinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-roundstonearesthundredth}
+  A displayed choice agrees with the modeled relative approach speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer Choice]
+  \label{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-isuniquematchinganswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.IsUniqueMatchingAnswerChoice}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-answerchoice, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesanswerchoice}
+  The selected choice is the unique displayed rounded value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer Choice.
+\end{proof}
+\begin{lemma}[north Entry Velocity In South Entry Frame exact]
+  \label{lem:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-northentryvelocityinsouthentryframe-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0591.northEntryVelocityInSouthEntryFrame_exact}
+  \uses{def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-velocityinlightspeedunits, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-cosmicrayapproachsetup, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-matchesearthframevelocityreadouts, def:physics:phyx-mini-0591:phyxminiproblems-problemphyxmini0591-obeyscollinearlorentzvelocitytransformation}
+  Substitution of the two Earth-frame readouts into the Lorentz transformation gives the north-entry particle's exact signed velocity (-35/37)c in the south-entry particle's rest frame. This is a derived result, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of north Entry Velocity In South Entry Frame exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

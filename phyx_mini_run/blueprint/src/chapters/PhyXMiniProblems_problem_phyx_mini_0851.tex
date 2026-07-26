@@ -1,0 +1,325 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0851.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0851.source.json
+
+\chapter{Physics problem phyx\_mini\_0851}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0851}
+
+\paragraph{Problem source.}
+\#\# Question
+
+Find the electric fluxe through surface 3.
+
+\#\# Answer choices
+
+- A: A: 80N m\textasciicircum{}2/C
+
+- B: B: 10N m\textasciicircum{}2/C
+
+- C: C: 20N m\textasciicircum{}2/C
+
+- D: D: 0N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a trapezoidal figure with dimensions and angles labeled. It appears to represent a physical or mathematical concept involving vectors and forces. Here's a detailed breakdown:
+
+- The figure is a trapezoid with a base labeled as 4.0 m and a height of 2.0 m.
+- The trapezoid is divided into four numbered sections (1, 2, 3, 4, and 5).
+- A vector \textbackslash{}(\textbackslash{}vec\{E\}\textbackslash{}) is shown as a pink arrow pointing to the right, outside and parallel to the top line of the trapezoid. This vector is labeled \textbackslash{}(400 \textbackslash{}, \textbackslash{}text\{N/C\}\textbackslash{}).
+- Another pink vector is drawn on the inside, along a diagonal line, also pointing to the right.
+- A 30° angle is marked at the bottom right corner between two sides of the trapezoid.
+- The interior sections are numbered with circles (from 1 to 5), potentially indicating different areas of interest or division.
+
+\#\# Dataset metadata
+
+Electrostatics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/851.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0851.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0851:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0851.problem_phyx_mini_0851}
+\uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-matchesproblemandprimaryfigure, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiestriangularprismgeometry, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldalignedwithprismaxis, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiesuniformelectricfieldmodel, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiesplanarelectricfluxlaw, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-answerfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.electricFieldStrengthDimension}
+  The physical dimension M L T\textasciicircum{}-2 C\textasciicircum{}-1 of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[area Dimension]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.areaDimension}
+  The physical dimension L\textasciicircum{}2 of an oriented surface-area vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.electricFluxDimension}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthdimension, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areadimension}
+  The physical dimension M L\textasciicircum{}3 T\textasciicircum{}-2 C\textasciicircum{}-1 of electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Spatial Vector]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SpatialVector}
+  Three-dimensional Cartesian vectors used for directions and SI components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spatial Vector.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Electric Field Vector Quantity]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldvectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.ElectricFieldVectorQuantity}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthdimension, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector}
+  A unit-independent physical electric-field vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Vector Quantity.
+\end{proof}
+\begin{definition}[Area Vector Quantity]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.AreaVectorQuantity}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areadimension, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector}
+  A unit-independent oriented physical area vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Vector Quantity.
+\end{proof}
+\begin{definition}[Signed Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-signedelectricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SignedElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxdimension}
+  A signed, unit-independent electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Electric Flux Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.lengthInMeters}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthquantity}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.fieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthquantity}
+  Read an electric-field strength in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[field Vector In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvectorinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.fieldVectorInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldvectorquantity}
+  Read Cartesian electric-field components in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Vector In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[area Vector In Square Meters]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorinsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.areaVectorInSquareMeters}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorquantity}
+  Read an oriented area vector in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Vector In Square Meters.
+\end{proof}
+\begin{definition}[electric Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.electricFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-signedelectricfluxquantity}
+  Read signed electric flux in newton-square-metres per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[Surface Label]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SurfaceLabel}
+  The five numbered surfaces of the closed triangular prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Label.
+\end{proof}
+\begin{definition}[number]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel-number}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SurfaceLabel.number}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel}
+  The printed natural number associated with a surface label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of number.
+\end{proof}
+\begin{definition}[Prism Face Role]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-prismfacerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.PrismFaceRole}
+  Geometric role of a face in a triangular prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Face Role.
+\end{proof}
+\begin{definition}[depicted Role]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel-depictedrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SurfaceLabel.depictedRole}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-prismfacerole}
+  The role of each face identified from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of depicted Role.
+\end{proof}
+\begin{definition}[Triangular Prism Figure]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.TriangularPrismFigure}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel}
+  Literal visual and dimensionful label content of image 851.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Prism Figure.
+\end{proof}
+\begin{definition}[Triangular Prism Flux Setup]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.TriangularPrismFluxSetup}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-spatialvector, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldstrengthquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldvectorquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-signedelectricfluxquantity, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-surfacelabel, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfigure}
+  The physical apparatus and its independent observables. In particular, electricFluxThrough is not defined from an answer choice or from zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Prism Flux Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-lengthinmeters, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  All directly readable information from the problem and primary image. The angle is represented in radians, so the displayed 30° becomes pi / 6. No electric-flux value or answer choice occurs in these data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Triangular Prism Geometry]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiestriangularprismgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SatisfiesTriangularPrismGeometry}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorinsquaremeters, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  Coordinate-free triangular-prism geometry. A lateral face contains the prism axis, while each outward area vector spans a line orthogonal to its face tangent plane. This states geometry for every face rather than the requested flux value for face 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Triangular Prism Geometry.
+\end{proof}
+\begin{definition}[Electric Field Aligned With Prism Axis]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldalignedwithprismaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.ElectricFieldAlignedWithPrismAxis}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  The arrows in the raster show the electric field parallel to the prism axis and in its positive direction. The positive scalar is not fixed to a target flux and the field vector itself remains an independent physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Aligned With Prism Axis.
+\end{proof}
+\begin{definition}[Satisfies Uniform Electric Field Model]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiesuniformelectricfieldmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SatisfiesUniformElectricFieldModel}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  The unit-aware vector calibrates Physlib's electric field at every spacetime point, and its norm calibrates the independent physical strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Electric Field Model.
+\end{proof}
+\begin{definition}[Satisfies Planar Electric Flux Law]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiesplanarelectricfluxlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.SatisfiesPlanarElectricFluxLaw}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-areavectorinsquaremeters, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup}
+  The planar, uniform-field flux law Phi = E dot A, imposed on every face of the prism. This governing law does not single out surface 3 or assert zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Planar Electric Flux Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.AnswerChoice}
+  Labels of the four electric-flux choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-answerfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.answerFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-answerchoice}
+  Displayed flux in N m\textasciicircum{}2/C associated with each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-answerchoice}
+  The answer label recorded by the dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[field Vector mem surface Three Tangent Plane]
+  \label{lem:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvector-mem-surfacethreetangentplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.fieldVector_mem_surfaceThreeTangentPlane}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-fieldvectorinnewtonspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiestriangularprismgeometry, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldalignedwithprismaxis}
+  Because surface 3 is lateral and the depicted field is axial, its field vector belongs to the surface-3 tangent plane. This is a geometric intermediate result and does not mention electric flux
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of field Vector mem surface Three Tangent Plane.
+\end{proof}
+\begin{lemma}[electric Flux Through Surface Three eq zero]
+  \label{lem:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxthroughsurfacethree-eq-zero}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0851.electricFluxThroughSurfaceThree_eq_zero}
+  \uses{def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-triangularprismfluxsetup, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiestriangularprismgeometry, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-electricfieldalignedwithprismaxis, def:physics:phyx-mini-0851:phyxminiproblems-problemphyxmini0851-satisfiesplanarelectricfluxlaw}
+  The tangent field is orthogonal to surface 3's outward area vector, so the planar flux law gives zero signed electric flux
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of electric Flux Through Surface Three eq zero.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

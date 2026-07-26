@@ -1,0 +1,334 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0850.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0850.source.json
+
+\chapter{Physics problem phyx\_mini\_0850}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0850}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows four sides of a \textbackslash{}( 3.0\textbackslash{},\textbackslash{}mathrm\{cm\} 	imes 3.0\textbackslash{},\textbackslash{}mathrm\{cm\} 	imes 3.0\textbackslash{},\textbackslash{}mathrm\{cm\} \textbackslash{}) cube.
+
+\#\# Question
+
+What is the net flux through these four sides?
+
+\#\# Answer choices
+
+- A: A: 80N m\textasciicircum{}2/C
+
+- B: B: 10N m\textasciicircum{}2/C
+
+- C: C: 20N m\textasciicircum{}2/C
+
+- D: D: 0N m\textasciicircum{}2/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows the top view of a 3.0 cm × 3.0 cm × 3.0 cm cube with several elements:
+
+1. **Electric Field Lines**: There are multiple magenta arrows representing electric field lines entering and exiting the square plane of the cube. These lines are parallel and uniformly spaced.
+
+2. **Labeling**: The lines are labeled with circled numbers (1 through 4), indicating specific positions of the field lines.
+
+3. **Text**: 
+   - Top left: "Top view of a 3.0 cm × 3.0 cm × 3.0 cm cube"
+   - Center of the cube: "E" with an arrow over it, indicating it is a vector.
+   - Near the lower right field line: "500 N/C," indicating the magnitude of the electric field.
+
+4. **Angle**: An angle of 30° is noted between one of the field lines and a horizontal line, indicating the inclination of these lines.
+
+This visual suggests a representation of the electric field through and around the cube.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0N m\textasciicircum{}2/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/850.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0850.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0850:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0850.problem_phyx_mini_0850}
+\uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-matchessuppliedtopviewfigure, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isphysicalfoursidecubegeometry, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isuniformtopviewelectricfield, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-satisfiesfoursideplanarfluxlaws, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-recordeddatasetanswer, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answermatchesnetfoursideflux}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.electricFieldStrengthDimension}
+  The dimension M L T⁻² C⁻¹ of electric-field strength (N/C)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[area Dimension]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.areaDimension}
+  The physical dimension L² of one square side of the cube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.electricFluxDimension}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthdimension, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areadimension}
+  Electric flux has dimension M L³ T⁻² C⁻¹, equivalently N m²/C in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.AreaQuantity}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areadimension}
+  A nonnegative, unit-independent physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthdimension}
+  A nonnegative, unit-independent electric-field magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.ElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxdimension}
+  A signed, unit-independent electric flux. Its sign is determined by the outward orientation of the relevant cube side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Flux Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.lengthInMeters}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthquantity}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areaquantity}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[electric Field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.electricFieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthquantity}
+  Read electric-field strength in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.electricFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxquantity}
+  Read signed electric flux in newton-square-metres per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[Lateral Face]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.LateralFace}
+  The four vertical cube faces visible in the top view. The constructors retain the circled labels 1 through 4 printed around the square in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lateral Face.
+\end{proof}
+\begin{definition}[Top View Side]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-topviewside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.TopViewSide}
+  The callouts identify side 1 as the left face, side 2 as the upper face, side 3 as the right face, and side 4 as the lower face in the top view
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Top View Side.
+\end{proof}
+\begin{definition}[figure Side Placement]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-figuresideplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.figureSidePlacement}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-topviewside}
+  Placement of each numbered callout in the supplied top view
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Side Placement.
+\end{proof}
+\begin{definition}[figure Outward Unit Normal]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-figureoutwardunitnormal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.figureOutwardUnitNormal}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface}
+  Dimensionless outward unit normals in top-view coordinates (x,y,z). The third coordinate is perpendicular to the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Outward Unit Normal.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.degrees}
+  Convert a numerical degree readout into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[top View Direction]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-topviewdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.topViewDirection}
+  The dimensionless direction in the top-view plane making angle with the positive horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of top View Direction.
+\end{proof}
+\begin{definition}[Cube Geometry]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-cubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.CubeGeometry}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areaquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface}
+  The cubical geometry relevant to the requested four lateral faces. The side regions and sample points keep the flux law tied to actual subsets and points of Physlib's three-dimensional space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cube Geometry.
+\end{proof}
+\begin{definition}[Supplied Top View Figure]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-suppliedtopviewfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.SuppliedTopViewFigure}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-topviewside}
+  Typed evidence transcribed from the primary raster. The length and field labels are physical quantities rather than bare scalar aliases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Top View Figure.
+\end{proof}
+\begin{definition}[Uniform Field Cube Setup]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.UniformFieldCubeSetup}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxquantity, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-cubegeometry, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-suppliedtopviewfigure}
+  The physical setup and its independent observables. electricField is the full Physlib field. Its vector components below are interpreted as coherent SI N/C readouts, while electricFieldStrength supplies the corresponding dimensionful magnitude. Neither fluxThrough nor netFourSideFlux is defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Field Cube Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Top View Figure]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-matchessuppliedtopviewfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.MatchesSuppliedTopViewFigure}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthincentimeters, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-figuresideplacement, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-degrees, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup}
+  Facts read from 850.png: a 3.0 cm cube, four numbered side callouts, a uniform-looking family of parallel arrows labeled 500 N/C, and a 30° angle. The image contains no numerical flux readout, so no requested answer is introduced here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Top View Figure.
+\end{proof}
+\begin{definition}[Is Physical Four Side Cube Geometry]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isphysicalfoursidecubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.IsPhysicalFourSideCubeGeometry}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lengthinmeters, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areainsquaremeters, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-figureoutwardunitnormal, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup}
+  Geometric facts about the four congruent square faces. Their common area is the square of the positive cube edge; each representative point lies on its face; and the outward normals agree with the numbered top-view callouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Four Side Cube Geometry.
+\end{proof}
+\begin{definition}[Is Uniform Top View Electric Field]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isuniformtopviewelectricfield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.IsUniformTopViewElectricField}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-topviewdirection, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup}
+  The field is spatially uniform at the observation time and has the magnitude and in-plane direction recorded by the setup. This is a governing property of the depicted field, not a statement about electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Uniform Top View Electric Field.
+\end{proof}
+\begin{definition}[Satisfies Four Side Planar Flux Laws]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-satisfiesfoursideplanarfluxlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.SatisfiesFourSidePlanarFluxLaws}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-areainsquaremeters, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-lateralface, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup}
+  For a constant field on a planar side, oriented flux is A * inner(E,n\_out). The second field is additivity over the four-side boundary partition. Both are general physical laws and neither asserts the requested zero value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Four Side Planar Flux Laws.
+\end{proof}
+\begin{lemma}[opposite Side Flux Contributions cancel]
+  \label{lem:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-oppositesidefluxcontributions-cancel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.oppositeSideFluxContributions_cancel}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isphysicalfoursidecubegeometry, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-isuniformtopviewelectricfield, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-satisfiesfoursideplanarfluxlaws}
+  Opposite side normals are negatives of one another. Uniformity and the planar-face flux law therefore make the side 1/3 and side 2/4 contributions cancel pairwise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of opposite Side Flux Contributions cancel.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.AnswerChoice}
+  Labels of the four electric-flux choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.answerFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerchoice}
+  Flux readout in N m²/C printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Answer Matches Net Four Side Flux]
+  \label{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answermatchesnetfoursideflux}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0850.AnswerMatchesNetFourSideFlux}
+  \uses{def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-uniformfieldcubesetup, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerchoice, def:physics:phyx-mini-0850:phyxminiproblems-problemphyxmini0850-answerfluxinnewtonsquaremeterspercoulomb}
+  A displayed choice agrees with the independently modeled net four-side flux. This relation does not define the net flux from the choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Matches Net Four Side Flux.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

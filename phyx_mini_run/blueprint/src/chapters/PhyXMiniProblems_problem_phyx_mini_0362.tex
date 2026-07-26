@@ -1,0 +1,299 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0362.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0362.source.json
+
+\chapter{Physics problem phyx\_mini\_0362}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0362}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gas with an initial tempreture of 900\textbackslash{}circ C\textbackslash{} undergoes the process shown in the figure.
+
+\#\# Question
+
+What is the final temperature?
+
+\#\# Answer choices
+
+- A: A: 3246\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 1856\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 1596\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 2556\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a pressure-volume (p-V) diagram. The x-axis is labeled "V (cm³)" and ranges from 0 to 300, while the y-axis is labeled "p (atm)" and ranges from 0 to 3. The graph shows a horizontal line at 2 atm, indicating a constant pressure process from volume 100 cm³ to 200 cm³. This line is marked with two points: "1" at 100 cm³ and "2" at 200 cm³, with an arrow pointing from point 1 to point 2, indicating the direction of the process.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 3246\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/362.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0362.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0362:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0362.finalTemperature_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureindegreescelsius, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesproblemstatement, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-hasphysicalidealgasparameters, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-satisfiesfixedsampleidealgaslaws, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.VolumeQuantity}
+  Physical gas volume, carrying dimension L³ and a nonnegative value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.PressureQuantity}
+  Physical gas pressure, represented by Physlib's dimensionful type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.TemperatureQuantity}
+  Absolute thermodynamic temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.pressureInPascals}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurequantity}
+  Coherent-SI pressure readout in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurequantity, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinpascals}
+  Pressure readout in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumequantity}
+  Volume readout in cubic centimetres; 1 m³ = 10⁶ cm³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperaturequantity}
+  Read a stored absolute temperature in kelvins. Physlib's Temperature stores an absolute nonnegative value, while the ratio of temperature units converts the storage scale to TemperatureUnit.kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[textbook Celsius Offset]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-textbookcelsiusoffset}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.textbookCelsiusOffset}
+  The whole-degree Celsius-to-kelvin offset used by the supplied textbook answer choices. This convention is made explicit because using 273.15 would give 3246.30 °C rather than the displayed whole-number answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of textbook Celsius Offset.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperaturequantity, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureinkelvins, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-textbookcelsiusoffset}
+  Celsius readout under the whole-degree textbook convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Diagram Point]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.DiagramPoint}
+  The two numerical labels printed beside the process endpoints
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Point.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.AxisQuantity}
+  Physical quantities assigned to the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Volume Display Unit]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumedisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.VolumeDisplayUnit}
+  Unit printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Display Unit.
+\end{proof}
+\begin{definition}[Pressure Display Unit]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressuredisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.PressureDisplayUnit}
+  Unit printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Display Unit.
+\end{proof}
+\begin{definition}[Segment Shape]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-segmentshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.SegmentShape}
+  Qualitative shape of the directed segment in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Shape.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.ProcessKind}
+  Thermodynamic process classification
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Equation Of State Model]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-equationofstatemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.EquationOfStateModel}
+  Equation-of-state model for the gas sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equation Of State Model.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumequantity, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurequantity, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperaturequantity}
+  Pressure, volume, and absolute temperature at one endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.GasSample}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-equationofstatemodel}
+  A fixed gas sample. The numerical nR field is a readout in atm·cm³/K; it is not used as a replacement type for the gas itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-axisquantity, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumedisplayunit, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressuredisplayunit, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-segmentshape}
+  Raw labels, coordinate scales, point coordinates, and arrow from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Ideal Gas Expansion Setup]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.IdealGasExpansionSetup}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-processkind, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-thermodynamicstate, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-gassample, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressurevolumediagram}
+  The fixed gas, its endpoint states, process type, and supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Expansion Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureindegreescelsius, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup}
+  Information stated in the prose. The initial temperature occurs here, while the requested final temperature deliberately does not
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesprimarypressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.MatchesPrimaryPressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinatmospheres, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumeincubiccentimeters, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup}
+  Primary-image evidence. The fields record the printed axes and ranges, both point coordinates, the horizontal segment, and its direction. State 2 is at 300 cm³, as shown by the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Has Physical Ideal Gas Parameters]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-hasphysicalidealgasparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.HasPhysicalIdealGasParameters}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinatmospheres, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumeincubiccentimeters, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureinkelvins, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ideal Gas Parameters.
+\end{proof}
+\begin{definition}[Satisfies Fixed Sample Ideal Gas Laws]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-satisfiesfixedsampleidealgaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.SatisfiesFixedSampleIdealGasLaws}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-pressureinatmospheres, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-volumeincubiccentimeters, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureinkelvins, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-diagrampoint, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup}
+  The molar ideal-gas equation pV = (nR)T at every labelled state, together with the physical meaning of an isobaric endpoint process. These are general governing relations and contain no numerical final temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fixed Sample Ideal Gas Laws.
+\end{proof}
+\begin{lemma}[final Absolute Temperature In Kelvins eq 3519]
+  \label{lem:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-finalabsolutetemperatureinkelvins-eq-3519}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.finalAbsoluteTemperatureInKelvins_eq_3519}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-temperatureinkelvins, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-idealgasexpansionsetup, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesproblemstatement, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-hasphysicalidealgasparameters, def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-satisfiesfixedsampleidealgaslaws}
+  The constant pressure and threefold volume increase make the absolute final temperature 3519 K, since the initial 900 °C is 1173 K under the stated textbook convention
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Absolute Temperature In Kelvins eq 3519.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.AnswerChoice}
+  Labels printed beside the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[celsius Value]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-answerchoice-celsiusvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.AnswerChoice.celsiusValue}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-answerchoice}
+  Celsius value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of celsius Value.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0362.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0362:phyxminiproblems-problemphyxmini0362-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

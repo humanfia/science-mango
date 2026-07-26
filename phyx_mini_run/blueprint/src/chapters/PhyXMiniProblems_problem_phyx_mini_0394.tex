@@ -1,0 +1,343 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0394.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0394.source.json
+
+\chapter{Physics problem phyx\_mini\_0394}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0394}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The main waterline into a tall building has a pressure of 600 kPa at 5-m elevation below ground level. The building is shown in the figure.
+
+\#\# Question
+
+How much extra pressure does a pump need to add to ensure a waterline pressure of 200 kPa at the top floor 150 m aboveground?
+
+\#\# Answer choices
+
+- A: A: 490kPa
+
+- B: B: 1116kPa
+
+- C: C: 154kPa
+
+- D: D: 10.2kPa
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a building with the following elements:
+
+- A tall building with multiple floors.
+- Text labeling the "Top floor" and "Ground."
+- A vertical pipe running from below ground level to the top floor of the building.
+- At the bottom of the image, an underground "Pump" is shown connected to a "Water main."
+- The diagram indicates that the building is 150 meters tall, and the water main is positioned 5 meters below ground.
+- There is water flowing from the water main into the pump, and then upwards through the building.
+- The letter "H" is marked at the top of the building on the pipe.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 1116kPa
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/394.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0394.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0394:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0394.problem_phyx_mini_0394}
+\uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesstatedproblemdata, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesprimarybuildingfigure, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-usesstandardwaterandgravity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-hasphysicalwaterlineparameters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesfigureliftgeometry, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesidealpumppressureriselaw, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfieshydrostaticriserlaw, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-displayedpressurekilopascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-recordedanswerchoice, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-roundstonearestkilopascal}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Elevation Quantity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.ElevationQuantity}
+  A signed physical elevation relative to the ground datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Elevation Quantity.
+\end{proof}
+\begin{definition}[Mass Density Quantity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-massdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.MassDensityQuantity}
+  A nonnegative mass density, with dimension mass per volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.AccelerationQuantity}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.PressureQuantity}
+  A physical pressure, using Physlib's pressure dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.lengthInMeters}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthquantity}
+  Coherent-SI metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[elevation In Meters]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.elevationInMeters}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationquantity}
+  Coherent-SI metre readout of a signed elevation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of elevation In Meters.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-massdensityquantity}
+  Coherent-SI kilogram-per-cubic-metre readout of a mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationquantity}
+  Coherent-SI metre-per-second-squared readout of an acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.pressureInPascals}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurequantity}
+  Coherent-SI pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurequantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals}
+  Kilopascal readout used by the prose and displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Pipeline Fluid]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pipelinefluid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.PipelineFluid}
+  Fluid transported from the main to the top-floor outlet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipeline Fluid.
+\end{proof}
+\begin{definition}[Pressure Reference]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurereference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.PressureReference}
+  Common reference convention for every line-pressure readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Reference.
+\end{proof}
+\begin{definition}[Hydraulic Location]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-hydrauliclocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.HydraulicLocation}
+  Hydraulic locations distinguished by the supplied building diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydraulic Location.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.FigureLabel}
+  Text and symbol labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Pipe Segment]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pipesegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.PipeSegment}
+  The two visible pipe connections in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pipe Segment.
+\end{proof}
+\begin{definition}[Tall Building Waterline Figure]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.TallBuildingWaterlineFigure}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthquantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationquantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-hydrauliclocation, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-figurelabel, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pipesegment}
+  Structured transcription of image 394.png. Elevations and dimensioned markers are physical quantities; the Boolean fields retain qualitative visual evidence that is not needed in the final arithmetic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tall Building Waterline Figure.
+\end{proof}
+\begin{definition}[Waterline Regime]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-waterlineregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.WaterlineRegime}
+  Idealization used for the school-level pump calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Waterline Regime.
+\end{proof}
+\begin{definition}[Tall Building Waterline Setup]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.TallBuildingWaterlineSetup}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthquantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-massdensityquantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationquantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurequantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pipelinefluid, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurereference, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinefigure, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-waterlineregime}
+  The building waterline and its independent physical observables. In particular, pumpAddedPressure is an independent pressure increment. It is not defined to be any answer-choice value; the governing laws below relate it to the main, discharge, and top-floor pressures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tall Building Waterline Setup.
+\end{proof}
+\begin{definition}[Matches Stated Problem Data]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesstatedproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.MatchesStatedProblemData}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinkilopascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  Pressure values stated in the prose and the named working fluid
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Building Figure]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesprimarybuildingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.MatchesPrimaryBuildingFigure}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  Primary-image evidence: ground is the zero datum, the water main and pump are 5 m below it, and the outlet marked H is 150 m above it. The pipe runs from the main through the pump and upward to H
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Building Figure.
+\end{proof}
+\begin{definition}[Uses Standard Water And Gravity]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-usesstandardwaterandgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.UsesStandardWaterAndGravity}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-densityinkilogramspercubicmeter, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  The standard room-temperature water density and school-level terrestrial gravity calibration that reproduce the precision of the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Water And Gravity.
+\end{proof}
+\begin{definition}[Has Physical Waterline Parameters]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-hasphysicalwaterlineparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.HasPhysicalWaterlineParameters}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-densityinkilogramspercubicmeter, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  Positivity conditions expressing that the pump adds, rather than removes, pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Waterline Parameters.
+\end{proof}
+\begin{definition}[Satisfies Figure Lift Geometry]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesfigureliftgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.SatisfiesFigureLiftGeometry}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-elevationinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  The stored lift is the elevation difference from the main to outlet H
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Figure Lift Geometry.
+\end{proof}
+\begin{definition}[Satisfies Ideal Pump Pressure Rise Law]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesidealpumppressureriselaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.SatisfiesIdealPumpPressureRiseLaw}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  The pump discharge pressure is the supply pressure plus the pump increment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Pump Pressure Rise Law.
+\end{proof}
+\begin{definition}[Satisfies Hydrostatic Riser Law]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfieshydrostaticriserlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.SatisfiesHydrostaticRiserLaw}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-densityinkilogramspercubicmeter, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup}
+  Hydrostatic pressure balance along the lossless vertical riser: pressure at the top equals discharge pressure minus rho * g * Δz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrostatic Riser Law.
+\end{proof}
+\begin{lemma}[total Vertical Lift In Meters]
+  \label{lem:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-totalverticalliftinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.totalVerticalLiftInMeters}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-lengthinmeters, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesprimarybuildingfigure, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesfigureliftgeometry}
+  The figure geometry gives a total rise of 150 - (-5) = 155 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total Vertical Lift In Meters.
+\end{proof}
+\begin{lemma}[required Pump Added Pressure In Pascals]
+  \label{lem:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-requiredpumpaddedpressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.requiredPumpAddedPressureInPascals}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinpascals, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-tallbuildingwaterlinesetup, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesstatedproblemdata, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-matchesprimarybuildingfigure, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-usesstandardwaterandgravity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesfigureliftgeometry, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfiesidealpumppressureriselaw, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-satisfieshydrostaticriserlaw}
+  Substitution in the two pressure-balance laws gives the unrounded pump increment 1,115,962 Pa = 1,115.962 kPa
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of required Pump Added Pressure In Pascals.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure Kilopascals]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-displayedpressurekilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.displayedPressureKilopascals}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-answerchoice}
+  Kilopascal value printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure Kilopascals.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-answerchoice}
+  Answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Kilopascal]
+  \label{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-roundstonearestkilopascal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0394.RoundsToNearestKilopascal}
+  \uses{def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressurequantity, def:physics:phyx-mini-0394:phyxminiproblems-problemphyxmini0394-pressureinkilopascals}
+  A pressure readout rounds to a displayed whole-kilopascal value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Kilopascal.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,366 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0840.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0840.source.json
+
+\chapter{Physics problem phyx\_mini\_0840}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0840}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The cube contains negative charge. The electric field is constant over each face of the cube.
+
+\#\# Question
+
+What strength must this field exceed?
+
+\#\# Answer choices
+
+- A: A: 4N/C
+
+- B: B: 15N/C
+
+- C: C: 5.6N/C
+
+- D: D: 5N/C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a cube with arrows representing field strengths in Newtons per Coulomb (N/C). Six arrows are emanating from the cube’s faces, indicating the direction and magnitude of electric fields:
+
+- An arrow pointing upward from the top face with a magnitude of 15 N/C.
+- An arrow pointing downward from the bottom face with a magnitude of 10 N/C.
+- An arrow pointing left from the left face with a magnitude of 10 N/C.
+- An arrow pointing right from the right face with a magnitude of 20 N/C.
+- An arrow pointing toward the viewer from the front face with a magnitude of 20 N/C.
+- An arrow pointing away from the viewer from the back face with a magnitude of 20 N/C.
+
+The text "Field strengths in N/C" is present in the bottom right of the image. The arrows are color-coded in pink to highlight the field vectors.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 5N/C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/840.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0840.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0840:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0840.problem_phyx_mini_0840}
+\uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesnegativechargescenario, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesprimarycubefigure, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiescubegeometry, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldisconstantoneachface, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facestrengthscalibrateelectricfield, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiesgausslawforcube, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-hasphysicalcubeparameters, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-answerthresholdinnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.electricFieldStrengthDimension}
+  The dimension M L T\textasciicircum{}-2 C\textasciicircum{}-1 of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[electric Flux Dimension]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfluxdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.electricFluxDimension}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthdimension}
+  The dimension M L\textasciicircum{}3 T\textasciicircum{}-2 C\textasciicircum{}-1 of electric flux E * area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux Dimension.
+\end{proof}
+\begin{definition}[electric Permittivity Dimension]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.electricPermittivityDimension}
+  The dimension C\textasciicircum{}2 T\textasciicircum{}2 M\textasciicircum{}-1 L\textasciicircum{}-3 of electric permittivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Permittivity Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.AreaQuantity}
+  A nonnegative, unit-independent physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.SignedChargeQuantity}
+  A signed, unit-independent enclosed electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Electric Field Strength Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.ElectricFieldStrengthQuantity}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthdimension}
+  A nonnegative electric-field magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Strength Quantity.
+\end{proof}
+\begin{definition}[Signed Electric Flux Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedelectricfluxquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.SignedElectricFluxQuantity}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfluxdimension}
+  A signed outward electric flux
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Electric Flux Quantity.
+\end{proof}
+\begin{definition}[Electric Permittivity Quantity]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.ElectricPermittivityQuantity}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivitydimension}
+  A nonnegative electric permittivity, used for epsilon0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Permittivity Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.lengthInMeters}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-lengthquantity}
+  SI readout of a physical length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areaquantity}
+  SI readout of a physical area, in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedchargequantity}
+  SI readout of signed electric charge, in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[field Strength In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-fieldstrengthinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.fieldStrengthInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthquantity}
+  SI readout of electric-field strength, in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of field Strength In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[electric Flux In Newton Square Meters Per Coulomb]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfluxinnewtonsquaremeterspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.electricFluxInNewtonSquareMetersPerCoulomb}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedelectricfluxquantity}
+  SI readout of signed electric flux, in newton-square-metres per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Flux In Newton Square Meters Per Coulomb.
+\end{proof}
+\begin{definition}[electric Permittivity In SI]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.electricPermittivityInSI}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityquantity}
+  SI readout of electric permittivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Permittivity In SI.
+\end{proof}
+\begin{definition}[Cube Face]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.CubeFace}
+  The six geometrically distinct faces of the Gaussian cube
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cube Face.
+\end{proof}
+\begin{definition}[Face Normal Orientation]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facenormalorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.FaceNormalOrientation}
+  Orientation of a field arrow relative to a face's outward unit normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Face Normal Orientation.
+\end{proof}
+\begin{definition}[orientation Sign]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-orientationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.orientationSign}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facenormalorientation}
+  Sign of a face-normal component in the outward-positive convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of orientation Sign.
+\end{proof}
+\begin{definition}[Cube Electric Field Figure]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeelectricfieldfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.CubeElectricFieldFigure}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeface, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facenormalorientation}
+  Typed content of the supplied raster. The strength-label field is physical, not a scalar placeholder. Its front entry is intentionally unconstrained because arrowShown front = false
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cube Electric Field Figure.
+\end{proof}
+\begin{definition}[Charged Cube Setup]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.ChargedCubeSetup}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-lengthquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areaquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedchargequantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldstrengthquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signedelectricfluxquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityquantity, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeface, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facenormalorientation, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeelectricfieldfigure}
+  The independent physical setup. In particular, neither the front-face strength nor its orientation is defined from 5, answer D, or the other face values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Cube Setup.
+\end{proof}
+\begin{definition}[signed Normal Field In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signednormalfieldinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.signedNormalFieldInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeface, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-orientationsign, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  Signed outward normal component of a face field, in N/C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Normal Field In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[known Face Normal Component Sum In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-knownfacenormalcomponentsuminnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.knownFaceNormalComponentSumInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signednormalfieldinnewtonspercoulomb}
+  The algebraic sum of the five components printed in the raster. The missing front face is deliberately excluded and no numerical answer occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of known Face Normal Component Sum In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[Matches Negative Charge Scenario]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesnegativechargescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.MatchesNegativeChargeScenario}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargeincoulombs, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  The prose assertion that the cube encloses a strictly negative charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Negative Charge Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Cube Figure]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesprimarycubefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.MatchesPrimaryCubeFigure}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  Primary-image evidence. There are five arrows, not the six asserted by the auxiliary caption. Every displayed label is tied to the corresponding independent physical face strength before its numerical readout is stated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Cube Figure.
+\end{proof}
+\begin{definition}[Satisfies Cube Geometry]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiescubegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.SatisfiesCubeGeometry}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-lengthinmeters, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areainsquaremeters, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  Cube geometry needed by the flux argument: every face has the square of the same positive side length, representative points lie on their faces, and the chosen face normals are outward unit normals in opposite pairs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Cube Geometry.
+\end{proof}
+\begin{definition}[Electric Field Is Constant On Each Face]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfieldisconstantoneachface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.ElectricFieldIsConstantOnEachFace}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  The stated electric field is constant at every time over each cube face
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Field Is Constant On Each Face.
+\end{proof}
+\begin{definition}[Face Strengths Calibrate Electric Field]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-facestrengthscalibrateelectricfield}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.FaceStrengthsCalibrateElectricField}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signednormalfieldinnewtonspercoulomb}
+  The dimensionful scalar face data calibrate the outward normal components of the Physlib vector field in SI units. This is a measurement relation, not a claim about the unknown numerical threshold
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Face Strengths Calibrate Electric Field.
+\end{proof}
+\begin{definition}[Satisfies Gauss Law For Cube]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiesgausslawforcube}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.SatisfiesGaussLawForCube}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areainsquaremeters, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargeincoulombs, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricfluxinnewtonsquaremeterspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityinsi, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-cubeface, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-signednormalfieldinnewtonspercoulomb}
+  Finite-face electric flux and Gauss's law. The first field is surface-flux additivity for constant normal components; the second is the integral law epsilon0 * Phi\_E = Q\_enclosed. Neither field states the requested bound
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Gauss Law For Cube.
+\end{proof}
+\begin{definition}[Has Physical Cube Parameters]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-hasphysicalcubeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.HasPhysicalCubeParameters}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-areainsquaremeters, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-electricpermittivityinsi, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup}
+  Positivity conditions for the physical areas and vacuum permittivity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cube Parameters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.AnswerChoice}
+  Labels of the four threshold choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Threshold In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-answerthresholdinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.answerThresholdInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-answerchoice}
+  Threshold in N/C printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Threshold In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-answerchoice}
+  The answer label recorded in the dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[known Face Normal Component Sum eq five]
+  \label{lem:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-knownfacenormalcomponentsum-eq-five}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.knownFaceNormalComponentSum_eq_five}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-knownfacenormalcomponentsuminnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesprimarycubefigure}
+  The five shown normal components have outward-positive sum -15 + 10 + 10 - 20 + 20 = 5 N/C
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of known Face Normal Component Sum eq five.
+\end{proof}
+\begin{lemma}[front Face Field points Inward and exceeds five]
+  \label{lem:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-frontfacefield-pointsinward-and-exceeds-five}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0840.frontFaceField_pointsInward_and_exceeds_five}
+  \uses{def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-fieldstrengthinnewtonspercoulomb, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-chargedcubesetup, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesnegativechargescenario, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-matchesprimarycubefigure, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiescubegeometry, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-satisfiesgausslawforcube, def:physics:phyx-mini-0840:phyxminiproblems-problemphyxmini0840-hasphysicalcubeparameters}
+  Negative enclosed charge makes the total outward flux negative. Since the five displayed faces contribute +5 times the common face area, the missing front-face component must be inward and have magnitude greater than 5 N/C
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of front Face Field points Inward and exceeds five.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

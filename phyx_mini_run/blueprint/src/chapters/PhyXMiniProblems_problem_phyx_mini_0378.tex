@@ -1,0 +1,221 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0378.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0378.source.json
+
+\chapter{Physics problem phyx\_mini\_0378}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0378}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure is a histogram showing the speeds of the molecules in a very small gas.
+
+\#\# Question
+
+Calculate and the rms speed v\_\{\textbackslash{}text\{rms\}\}.
+
+\#\# Answer choices
+
+- A: A: 4.9m/s
+
+- B: B: 12.5m/s
+
+- C: C: 18.2m/s
+
+- D: D: 10.2m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a bar graph with the following features:
+
+- **Axes**: 
+  - The vertical axis is labeled "N," with values ranging from 0 to 4.
+  - The horizontal axis is labeled "v (m/s)," with values represented at 2, 4, 6, and 8 meters per second.
+
+- **Bars**:
+  - There are four bars corresponding to the values on the x-axis.
+  - The bar at 2 m/s reaches a height of 2 on the vertical axis.
+  - The bar at 4 m/s reaches a height of 4 on the vertical axis.
+  - The bar at 6 m/s reaches a height of 3 on the vertical axis.
+  - The bar at 8 m/s reaches a height of 1 on the vertical axis.
+
+- **Appearance**:
+  - Bars are shaded in gray and evenly spaced apart.
+
+The graph appears to represent the distribution of a variable, possibly frequency or count, measured against velocity in meters per second.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Numerical Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 4.9m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/378.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0378.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0378:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0378.rmsSpeed_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedinmeterspersecond, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-moleculargassample, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-matchesprimarymolecularspeedhistogram, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-satisfiesdiscretemolecularrmslaw, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-hasnonemptymolecularsample, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-recordeddatasetanswer, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-matchesdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.SpeedQuantity}
+  A nonnegative physical molecular speed, independent of unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.speedReadout}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity}
+  Read a physical speed in the selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedreadout}
+  The metres-per-second readout used on the histogram's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Histogram Axis]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-histogramaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.HistogramAxis}
+  The two coordinate axes drawn in the supplied histogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Histogram Axis.
+\end{proof}
+\begin{definition}[Histogram Axis Quantity]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-histogramaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.HistogramAxisQuantity}
+  Physical/statistical quantity denoted by each printed axis label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Histogram Axis Quantity.
+\end{proof}
+\begin{definition}[Speed Bin]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedbin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.SpeedBin}
+  The four speed locations at which the supplied figure displays bars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Bin.
+\end{proof}
+\begin{definition}[Bar Shade]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-barshade}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.BarShade}
+  The visible fill shade of each bar in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bar Shade.
+\end{proof}
+\begin{definition}[Molecular Speed Histogram]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-molecularspeedhistogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.MolecularSpeedHistogram}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-histogramaxis, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-histogramaxisquantity, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedbin, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-barshade}
+  The independently represented labels, unit choices, and bar data of the histogram. The fields do not build in any RMS calculation or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Speed Histogram.
+\end{proof}
+\begin{definition}[Gas Sample Size]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-gassamplesize}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.GasSampleSize}
+  The qualitative size description used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample Size.
+\end{proof}
+\begin{definition}[Molecular Gas Sample]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-moleculargassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.MolecularGasSample}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-molecularspeedhistogram, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-gassamplesize}
+  The physical gas sample and the RMS-speed observable to be calculated. totalMoleculeCount and rmsSpeed are independent fields; the governing laws below, rather than these field declarations, relate them to the histogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Gas Sample.
+\end{proof}
+\begin{definition}[Matches Primary Molecular Speed Histogram]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-matchesprimarymolecularspeedhistogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.MatchesPrimaryMolecularSpeedHistogram}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedinmeterspersecond, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-moleculargassample}
+  Qualitative scenario information and calibrated numerical evidence read from the primary bitmap. In particular, the bar heights are molecule counts, not probability weights or continuous density values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Molecular Speed Histogram.
+\end{proof}
+\begin{definition}[Satisfies Discrete Molecular Rms Law]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-satisfiesdiscretemolecularrmslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.SatisfiesDiscreteMolecularRmsLaw}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedreadout, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedbin, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-moleculargassample}
+  For a finite molecular sample, the total count is the sum of the histogram bar heights and the RMS speed is the square root of the count-weighted mean of the squared speeds. The law is stated in every coherent choice of length and time units and contains no numerical result or displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Discrete Molecular Rms Law.
+\end{proof}
+\begin{definition}[Has Nonempty Molecular Sample]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-hasnonemptymolecularsample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.HasNonemptyMolecularSample}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-moleculargassample}
+  The histogram must contain at least one molecule so that the mean-square denominator has its intended physical meaning
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Nonempty Molecular Sample.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.AnswerChoice}
+  Labels of the four alternatives printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-answerchoice}
+  Metres-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Choice]
+  \label{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-matchesdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0378.MatchesDisplayedChoice}
+  \uses{def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedquantity, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-speedinmeterspersecond, def:physics:phyx-mini-0378:phyxminiproblems-problemphyxmini0378-answerchoice}
+  A computed speed matches a one-decimal-place displayed choice when its SI readout is within half of 0.1 m/s of the printed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

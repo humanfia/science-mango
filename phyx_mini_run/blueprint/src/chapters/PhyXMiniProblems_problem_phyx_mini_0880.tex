@@ -1,0 +1,287 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0880.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0880.source.json
+
+\chapter{Physics problem phyx\_mini\_0880}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0880}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the equal charge on the \textbackslash{}( C\_3 \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 2.5\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{C\}
+
+- B: B: 15\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{C\}
+
+- C: C: 55\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{C\}
+
+- D: D: 16\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{C\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit diagram consisting of a battery and capacitors. 
+
+- **Battery:** The circuit contains a 9-volt battery, represented by a rectangle with the positive (+) and negative (-) terminals labeled.
+  
+- **Capacitors:** There are three capacitors in the circuit.
+  - \textbackslash{}( C\_1 \textbackslash{}): A 4 microfarad (\textbackslash{}( \textbackslash{}mu \textbackslash{})F) capacitor.
+  - \textbackslash{}( C\_2 \textbackslash{}): A 12 microfarad (\textbackslash{}( \textbackslash{}mu \textbackslash{})F) capacitor.
+  - \textbackslash{}( C\_3 \textbackslash{}): A 2 microfarad (\textbackslash{}( \textbackslash{}mu \textbackslash{})F) capacitor.
+
+- **Connections:**
+  - \textbackslash{}( C\_1 \textbackslash{}) and \textbackslash{}( C\_2 \textbackslash{}) are connected in parallel to each other.
+  - \textbackslash{}( C\_3 \textbackslash{}) is connected in series with the parallel combination of \textbackslash{}( C\_1 \textbackslash{}) and \textbackslash{}( C\_2 \textbackslash{}).
+  - The positive terminal of the battery is connected to \textbackslash{}( C\_1 \textbackslash{}), and the circuit loops back to the negative terminal through \textbackslash{}( C\_3 \textbackslash{}).
+
+This setup creates a mixed series and parallel capacitor circuit connected to a 9 V power source.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 16\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{C\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/880.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0880.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0880:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0880.charge_on_c3_matches_recorded_choice}
+\uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeinmicrocoulombs, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-matchessuppliedmixedcapacitorfigure, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-hasphysicalmixedcapacitorparameters, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-satisfiesidealmixedcapacitorcircuitlaws, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[potential Difference Dimension]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferencedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.potentialDifferenceDimension}
+  The dimension M L² T⁻² C⁻¹ of electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.capacitanceDimension}
+  The dimension C² T² M⁻¹ L⁻² of capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancedimension}
+  A nonnegative, unit-independent physical capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[Charge Magnitude Quantity]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.ChargeMagnitudeQuantity}
+  A nonnegative, unit-independent capacitor charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude Quantity.
+\end{proof}
+\begin{definition}[Potential Difference Quantity]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferencequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.PotentialDifferenceQuantity}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferencedimension}
+  A nonnegative, unit-independent potential-difference magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Difference Quantity.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancequantity}
+  Coherent-SI readout of a capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancequantity, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinfarads}
+  Microfarad readout used by the three labels in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargemagnitudequantity}
+  Coherent-SI readout of a charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[charge In Microcoulombs]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeinmicrocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.chargeInMicrocoulombs}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargemagnitudequantity, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeincoulombs}
+  Microcoulomb readout used by the question and its displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Microcoulombs.
+\end{proof}
+\begin{definition}[potential Difference In Volts]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.potentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferencequantity}
+  Coherent-SI readout of a potential-difference magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference In Volts.
+\end{proof}
+\begin{definition}[Capacitor Id]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitorid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.CapacitorId}
+  The three capacitor labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitor Id.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.CircuitNode}
+  The three equipotential conductor nodes visible in the circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Battery Terminal]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-batteryterminal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.BatteryTerminal}
+  The two polarity-marked terminals of the battery symbol
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Battery Terminal.
+\end{proof}
+\begin{definition}[expected Capacitor Label]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-expectedcapacitorlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.expectedCapacitorLabel}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitorid}
+  The literal capacitor name printed for each indexed component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Capacitor Label.
+\end{proof}
+\begin{definition}[expected Capacitance Label Microfarads]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-expectedcapacitancelabelmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.expectedCapacitanceLabelMicrofarads}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitorid}
+  The capacitance number, in microfarads, printed beside each capacitor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Capacitance Label Microfarads.
+\end{proof}
+\begin{definition}[Mixed Capacitor Circuit Figure]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.MixedCapacitorCircuitFigure}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitorid, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-circuitnode, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-batteryterminal}
+  Literal presentation and connectivity data transcribed from image 880.png. The two plate-node maps retain the diagram's topology rather than replacing the circuit by a precomputed equivalent capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mixed Capacitor Circuit Figure.
+\end{proof}
+\begin{definition}[Mixed Capacitor Circuit Setup]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.MixedCapacitorCircuitSetup}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitancequantity, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargemagnitudequantity, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferencequantity, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitorid, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitfigure}
+  The independent physical quantities associated with the circuit. In particular, chargeMagnitude is an observable assigned to each capacitor; it is not defined from the desired answer or from a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mixed Capacitor Circuit Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Mixed Capacitor Figure]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-matchessuppliedmixedcapacitorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.MatchesSuppliedMixedCapacitorFigure}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinmicrofarads, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferenceinvolts, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-expectedcapacitorlabel, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-expectedcapacitancelabelmicrofarads, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup}
+  All numeric and connectivity information read from the supplied image. The physical quantities are calibrated to their printed labels. No capacitor charge occurs numerically in this premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Mixed Capacitor Figure.
+\end{proof}
+\begin{definition}[Has Physical Mixed Capacitor Parameters]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-hasphysicalmixedcapacitorparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.HasPhysicalMixedCapacitorParameters}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinfarads, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeincoulombs, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferenceinvolts, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup}
+  Positivity conditions selecting the ordinary passive-capacitor branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Mixed Capacitor Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Mixed Capacitor Circuit Laws]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-satisfiesidealmixedcapacitorcircuitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.SatisfiesIdealMixedCapacitorCircuitLaws}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinfarads, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeincoulombs, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-potentialdifferenceinvolts, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup}
+  The governing relations for ideal capacitors after the figure topology has identified C₁ and C₂ as a parallel branch and C₃ as its series partner. The final field is charge conservation at their isolated common junction: the charge magnitude on C₃ equals the sum stored on the two parallel plates. These are general circuit laws and contain no numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Mixed Capacitor Circuit Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.AnswerChoice}
+  Labels of the four answer choices displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[charge In Microcoulombs]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-answerchoice-chargeinmicrocoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.AnswerChoice.chargeInMicrocoulombs}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeinmicrocoulombs, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-answerchoice}
+  Charge magnitude in microcoulombs printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Microcoulombs.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[parallel branch capacitance readout]
+  \label{lem:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-parallel-branch-capacitance-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.parallel_branch_capacitance_readout}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-capacitanceinmicrofarads, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-matchessuppliedmixedcapacitorfigure}
+  For the 4 μF and 12 μF capacitors in parallel, the branch capacitance is their sum, 16 μF. This is a derived relation, not a figure premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of parallel branch capacitance readout.
+\end{proof}
+\begin{lemma}[charge on c3 eq sixteen microcoulombs]
+  \label{lem:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-charge-on-c3-eq-sixteen-microcoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0880.charge_on_c3_eq_sixteen_microcoulombs}
+  \uses{def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-chargeinmicrocoulombs, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-mixedcapacitorcircuitsetup, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-matchessuppliedmixedcapacitorfigure, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-hasphysicalmixedcapacitorparameters, def:physics:phyx-mini-0880:phyxminiproblems-problemphyxmini0880-satisfiesidealmixedcapacitorcircuitlaws}
+  The ideal circuit laws and the supplied component data determine the charge magnitude on C₃ to be 16 μC
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of charge on c3 eq sixteen microcoulombs.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

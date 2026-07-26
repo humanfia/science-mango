@@ -1,0 +1,316 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0637.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0637.source.json
+
+\chapter{Physics problem phyx\_mini\_0637}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0637}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Fluorescence is the absorption of light at one wavelength followed by emission at a longer wavelength. Suppose a hydrogen atom in its ground state absorbs an ultraviolet photon with a wavelength of \$95.10\textbackslash{};nm\$. Immediately after the absorption, the atom undergoes a quantum jump with \$\textbackslash{}Delta n = 3\$.
+
+\#\# Question
+
+What is the wavelength of the photon emitted in this quantum jump?
+
+\#\# Answer choices
+
+- A: A: 424 nm
+
+- B: B: 434 nm
+
+- C: C: 444 nm
+
+- D: D: 454 nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an energy level diagram often used in quantum mechanics to illustrate electron transitions in an atom. 
+
+- **Horizontal Lines**: Multiple horizontal lines represent different energy levels, labeled with "n" and the "Ground state" at the bottom. The top is labeled "Ionization limit" with a dashed line.
+  
+- **Vertical Arrows**: 
+  - An upward arrow labeled "Absorption" indicates the process where an electron absorbs energy and moves to a higher energy level.
+  - A downward arrow labeled "Emission" shows the process where an electron releases energy and returns to a lower energy level.
+
+- **Wavy Arrows**: Associated with both absorption and emission, these wavy lines represent the energy (or photons) involved in the transitions.
+
+Overall, this diagram explains the basic principles of electron excitation and relaxation in atomic physics.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 434 nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/637.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0637.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0637:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0637.emittedPhotonWavelength_is_recordedChoiceB}
+\uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchessuppliedfluorescencefigure, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matcheshydrogenfluorescencescenario, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchesabsorbedphotonmeasurement, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesstandardhydrogenreferencedata, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hasphysicalhydrogenfluorescenceparameters, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-satisfieshydrogenfluorescencelaws, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesroundedabsorptionlevelidentification, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-recordeddatasetanswer, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-roundstodisplayedwavelength, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-isuniqueclosestdisplayedwavelength}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Wavelength Quantity]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.WavelengthQuantity}
+  A nonnegative, unit-independent physical length used as a photon wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavelength Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.energyInJoules}
+  Read a unit-independent energy in coherent-SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinjoules}
+  Read an energy in electron volts using Physlib's calibrated electron volt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[wavelength Readout]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.wavelengthReadout}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity}
+  Read a physical wavelength in a selected unit of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wavelength Readout.
+\end{proof}
+\begin{definition}[wavelength In Meters]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.wavelengthInMeters}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthreadout}
+  Metre readout of a photon wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wavelength In Meters.
+\end{proof}
+\begin{definition}[wavelength In Nanometers]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.wavelengthInNanometers}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthreadout}
+  Nanometre readout used for the measured and displayed wavelengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wavelength In Nanometers.
+\end{proof}
+\begin{definition}[planck Times Light In Electron Volt Nanometers]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-plancktimeslightinelectronvoltnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.planckTimesLightInElectronVoltNanometers}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinjoules}
+  The product h c in electron-volt nanometres. Physlib supplies the reduced Planck constant ℏ, the SI speed of light, and the electron-volt calibration; 2π converts ℏ to h, while 10\textasciicircum{}9 converts metres to nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of planck Times Light In Electron Volt Nanometers.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.FigureTextLabel}
+  Text labels visibly printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Transition Arrow]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-transitionarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.TransitionArrow}
+  The two straight transition arrows in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Transition Arrow.
+\end{proof}
+\begin{definition}[Hydrogen Fluorescence Figure]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.HydrogenFluorescenceFigure}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-figuretextlabel, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-transitionarrow}
+  Presentation data extracted from image 637.png. It deliberately records no numerical emitted wavelength and does not identify either endpoint of the emission arrow with a particular principal quantum number
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydrogen Fluorescence Figure.
+\end{proof}
+\begin{definition}[Matches Supplied Fluorescence Figure]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchessuppliedfluorescencefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.MatchesSuppliedFluorescenceFigure}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencefigure}
+  Literal readouts from the primary raster. The image shows six solid upper level lines in addition to the ground line, a dashed ionization limit, an upward absorption arrow, and a downward emission arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Fluorescence Figure.
+\end{proof}
+\begin{definition}[Hydrogen Fluorescence Setup]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.HydrogenFluorescenceSetup}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencefigure}
+  The physical observables and state labels for the experiment. In particular, the emitted wavelength is an independent dimensionful field; it is not defined from an answer choice or from the requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydrogen Fluorescence Setup.
+\end{proof}
+\begin{definition}[Matches Hydrogen Fluorescence Scenario]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matcheshydrogenfluorescencescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.MatchesHydrogenFluorescenceScenario}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  Qualitative facts stated in the problem, including the downward Δn = 3 jump
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Hydrogen Fluorescence Scenario.
+\end{proof}
+\begin{definition}[Matches Absorbed Photon Measurement]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchesabsorbedphotonmeasurement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.MatchesAbsorbedPhotonMeasurement}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  The ultraviolet wavelength reported in the prose, as a nanometre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Absorbed Photon Measurement.
+\end{proof}
+\begin{definition}[Uses Standard Hydrogen Reference Data]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesstandardhydrogenreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.UsesStandardHydrogenReferenceData}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  Standard ground-level calibration used by the elementary Bohr spectrum. This states E₁ = -13.6 eV; it does not state the excited level, emission endpoint, or emitted wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Hydrogen Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Hydrogen Fluorescence Parameters]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hasphysicalhydrogenfluorescenceparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.HasPhysicalHydrogenFluorescenceParameters}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinmeters, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  Positivity and bound-state conditions for the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Hydrogen Fluorescence Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hydrogen Fluorescence Laws]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-satisfieshydrogenfluorescencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.SatisfiesHydrogenFluorescenceLaws}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-plancktimeslightinelectronvoltnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  The elementary hydrogen spectrum, Planck--Einstein photon relations, and emission energy balance. Each law is uniform or relates independent physical quantities; no field contains n = 5, n = 2, 434 nm, or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hydrogen Fluorescence Laws.
+\end{proof}
+\begin{definition}[post Absorption Energy Estimate Electron Volts]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-postabsorptionenergyestimateelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.postAbsorptionEnergyEstimateElectronVolts}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup}
+  Energy obtained by adding the absorbed photon energy to the initial atomic energy. It is a scalar electron-volt readout used only to interpret the rounded wavelength datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of post Absorption Energy Estimate Electron Volts.
+\end{proof}
+\begin{definition}[Is Unique Closest Post Absorption Level]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-isuniqueclosestpostabsorptionlevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.IsUniqueClosestPostAbsorptionLevel}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-postabsorptionenergyestimateelectronvolts}
+  A positive principal level is the unique closest discrete hydrogen level to the energy estimate inferred from the rounded 95.10 nm datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Post Absorption Level.
+\end{proof}
+\begin{definition}[Uses Rounded Absorption Level Identification]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesroundedabsorptionlevelidentification}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.UsesRoundedAbsorptionLevelIdentification}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-isuniqueclosestpostabsorptionlevel}
+  Interpretation rule for the rounded absorption measurement. It selects the closest positive stationary level without naming which level that is
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Absorption Level Identification.
+\end{proof}
+\begin{lemma}[absorbed Photon identifies excited Level Five]
+  \label{lem:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-absorbedphoton-identifies-excitedlevelfive}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.absorbedPhoton_identifies_excitedLevelFive}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matcheshydrogenfluorescencescenario, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchesabsorbedphotonmeasurement, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesstandardhydrogenreferencedata, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hasphysicalhydrogenfluorescenceparameters, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-satisfieshydrogenfluorescencelaws, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesroundedabsorptionlevelidentification}
+  The rounded absorption datum and standard spectrum identify the excited level
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of absorbed Photon identifies excited Level Five.
+\end{proof}
+\begin{lemma}[emission Transition is five To Two]
+  \label{lem:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-emissiontransition-is-fivetotwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.emissionTransition_is_fiveToTwo}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matcheshydrogenfluorescencescenario, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-matchesabsorbedphotonmeasurement, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesstandardhydrogenreferencedata, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hasphysicalhydrogenfluorescenceparameters, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-satisfieshydrogenfluorescencelaws, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-usesroundedabsorptionlevelidentification}
+  Combining the identified excited state with Δn = 3 gives the 5 → 2 jump
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of emission Transition is five To Two.
+\end{proof}
+\begin{lemma}[emitted Photon Wavelength eq planck Times Light div level Gap]
+  \label{lem:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-emittedphotonwavelength-eq-plancktimeslight-div-levelgap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.emittedPhotonWavelength_eq_planckTimesLight_div_levelGap}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-energyinelectronvolts, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-plancktimeslightinelectronvoltnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hydrogenfluorescencesetup, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-hasphysicalhydrogenfluorescenceparameters, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-satisfieshydrogenfluorescencelaws}
+  Solving the emission photon law expresses its wavelength through the physical level-energy gap. This helper does not assign a displayed numeric answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of emitted Photon Wavelength eq planck Times Light div level Gap.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[wavelength Nanometers]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice-wavelengthnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.AnswerChoice.wavelengthNanometers}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice}
+  Wavelength printed next to each answer label, in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wavelength Nanometers.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Wavelength]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-roundstodisplayedwavelength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.RoundsToDisplayedWavelength}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice}
+  A physical wavelength rounds to the displayed whole-nanometre value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Wavelength.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Wavelength]
+  \label{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-isuniqueclosestdisplayedwavelength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0637.IsUniqueClosestDisplayedWavelength}
+  \uses{def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthquantity, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-wavelengthinnanometers, def:physics:phyx-mini-0637:phyxminiproblems-problemphyxmini0637-answerchoice}
+  A displayed answer is strictly nearer to the physical wavelength than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Wavelength.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

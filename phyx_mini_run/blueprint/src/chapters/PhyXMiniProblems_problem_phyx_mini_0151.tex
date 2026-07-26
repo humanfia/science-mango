@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0151.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0151.source.json
+
+\chapter{Physics problem phyx\_mini\_0151}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0151}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thin film of oil \textbackslash{}((n\_o = 1.50)\textbackslash{}) with varying thickness floats on water \textbackslash{}((n\_w = 1.33)\textbackslash{}). When it is illuminated from above by white light, the reflected colors are as shown in figure. In air, the wavelength of yellow light is \textbackslash{}(580\textbackslash{},\textbackslash{}mathrm\{nm\}\textbackslash{}).
+
+\#\# Question
+
+What is the oil's thickness \textbackslash{}(t\textbackslash{}) at point B?
+
+\#\# Answer choices
+
+- A: A: 270nm
+
+- B: B: 280nm
+
+- C: C: 290nm
+
+- D: D: 300nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a cross-section of oil floating above water, with air above the oil. The scene shows three layers:
+
+1. **Air Layer:** At the top, labeled as "Air."
+
+2. **Oil Layer:** Below the air, there is a layer labeled "Oil" with a refractive index \textbackslash{}( n\_o = 1.50 \textbackslash{}). The layer is depicted in a light tan color.
+
+3. **Water Layer:** Below the oil is a layer labeled "Water," with a refractive index \textbackslash{}( n\_w = 1.33 \textbackslash{}), shown in light blue.
+
+**Points of Interest:**
+
+- **Curve at Interface:** The interface between the oil and water is curved.
+- **Labeled Points:**
+  - **A** on the left side at the interface between oil and water, described as "Dark."
+  - **B** on the right side at the interface.
+- **Vertical Line:** Extends downward from the oil-water interface and is labeled \textbackslash{}( t \textbackslash{}).
+  
+**Color Labels:**
+- Along the curve of the oil-water interface, there are color labels: Blue, Yellow, Red (from left to right), and then Blue, Yellow above near the oil-air interface.
+
+The image seems to relate to concepts of light refraction or interference, indicated by the mention of refractive indices and color zones.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 290nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/151.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0151.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0151:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0151.oilThicknessAtPointB_eq_290nm}
+\uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasproblemreadouts, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-matchesoilfilmfigure, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasphysicalopticalparameters, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-satisfiesreflectedthinfilminterference, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-matchesdisplayedthickness, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.LengthQuantity}
+  A physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.lengthValueIn}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthquantity}
+  Read a physical length as a scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.nanometersValue}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthquantity, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthvaluein}
+  The nanometre readout used for the stated wavelength and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.OpticalMedium}
+  Optical media in top-to-bottom order in the supplied cross section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Film Interface]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.FilmInterface}
+  The two interfaces which produce the reflected rays that interfere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Film Interface.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.FilmInterface.incidentMedium}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-opticalmedium, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface}
+  The medium from which the incident ray reaches each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.FilmInterface.transmittedMedium}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-opticalmedium, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface}
+  The medium on the transmitted side of each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[Film Location]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filmlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.FilmLocation}
+  Named locations encountered from the dark region near A to point B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Film Location.
+\end{proof}
+\begin{definition}[Reflected Appearance]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-reflectedappearance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.ReflectedAppearance}
+  Qualitative reflected-light labels printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Appearance.
+\end{proof}
+\begin{definition}[Illumination Kind]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-illuminationkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.IlluminationKind}
+  The broadband illumination specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Illumination Kind.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.VerticalDirection}
+  Vertical directions singled out by illumination and observation from above
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Oil Film Setup]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.OilFilmSetup}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthquantity, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-opticalmedium, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filmlocation, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-reflectedappearance, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-illuminationkind, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-verticaldirection}
+  The physical quantities, optical data, and figure-labelled observations. reflectionPhaseHalfTurns records an interface reflection phase in integral multiples of π. roundTripOpticalPathAt is the optical path accumulated by the ray which traverses the oil inward and outward. The predicate constructiveReflectionAt location wavelength order records that the named location is a constructive reflected band of that incident wavelength and order. None of these fields fixes the requested thickness at B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oil Film Setup.
+\end{proof}
+\begin{definition}[Has Problem Readouts]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.HasProblemReadouts}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup}
+  Numerical and directional data stated or implicit in the normal-incidence problem setup. Refractive indices are dimensionless, while 580 is a nanometre readout of the yellow wavelength in air. No thickness readout occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Oil Film Figure]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-matchesoilfilmfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.MatchesOilFilmFigure}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup}
+  Data read from the supplied figure. The inequalities retain the increasing position and thickness branch of the curved oil surface. On that branch the pictured first and second yellow bands are interpreted as the first two constructive yellow fringes, of orders zero and one. This ordinal fringe identification does not assign any numerical value to the thickness at B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Oil Film Figure.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filmlocation, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup}
+  Positivity conditions selecting the physical branch of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Reflected Thin Film Interference]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-satisfiesreflectedthinfilminterference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.SatisfiesReflectedThinFilmInterference}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-lengthquantity, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filminterface, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-filmlocation, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup}
+  Governing laws for normal-incidence reflected thin-film interference. Reflection toward a larger refractive index contributes one half-turn (π). The round-trip optical path at a location is 2 n\_o t. In half-turn units, constructive reflected order m obeys 2 * opticalPath + (lowerPhase - upperPhase) * wavelength = 2 * m * wavelength. For the air--oil--water indices here, only the upper reflection reverses phase, so this general law yields 4 n\_o t = (2m+1) λ.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Reflected Thin Film Interference.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.AnswerChoice}
+  Labels of the four thickness choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Thickness Nanometers]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-displayedthicknessnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.displayedThicknessNanometers}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-answerchoice}
+  Thickness in nanometres displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Thickness Nanometers.
+\end{proof}
+\begin{definition}[Matches Displayed Thickness]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-matchesdisplayedthickness}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.MatchesDisplayedThickness}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-answerchoice, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-displayedthicknessnanometers}
+  A displayed choice agrees with the derived nanometre thickness at B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Thickness.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[reflected Interface Phase Difference eq neg one]
+  \label{lem:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-reflectedinterfacephasedifference-eq-neg-one}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.reflectedInterfacePhaseDifference_eq_neg_one}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasproblemreadouts, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-satisfiesreflectedthinfilminterference}
+  The index ordering makes the air--oil reflection acquire a half-turn while the oil--water reflection does not, so the lower-minus-upper phase contribution is -1 half-turn
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflected Interface Phase Difference eq neg one.
+\end{proof}
+\begin{lemma}[point B second Yellow constructive condition]
+  \label{lem:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-pointb-secondyellow-constructive-condition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0151.pointB_secondYellow_constructive_condition}
+  \uses{def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-nanometersvalue, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-oilfilmsetup, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-hasproblemreadouts, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-matchesoilfilmfigure, def:physics:phyx-mini-0151:phyxminiproblems-problemphyxmini0151-satisfiesreflectedthinfilminterference}
+  At point B, the figure selects the second yellow band, constructive order m = 1. Thus 4 n\_o t\_B = 3 λ\_yellow
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of point B second Yellow constructive condition.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

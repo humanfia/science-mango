@@ -1,0 +1,334 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0828.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0828.source.json
+
+\chapter{Physics problem phyx\_mini\_0828}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0828}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Cleveland is \textbackslash{}(300\textbackslash{},\textbackslash{}mathrm\{miles\}\textbackslash{}) east of Chicago. A plane leaves Chicago flying due east at \textbackslash{}(500\textbackslash{},\textbackslash{}mathrm\{mph\}\textbackslash{}). The pilot forgot to check the weather and doesn't know that the wind is blowing to the south at \textbackslash{}(50\textbackslash{},\textbackslash{}mathrm\{mph\}\textbackslash{})
+
+\#\# Question
+
+What is the plane's ground speed?
+
+\#\# Answer choices
+
+- A: A: 510pmh
+
+- B: B: 502mph
+
+- C: C: 490pmh
+
+- D: D: 498pmh
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a vector diagram illustrating motion with respect to air and ground. It involves two main locations: Chicago and Cleveland, indicated by black dots.
+
+There are three vectors:
+1. **\textbackslash{}(\textbackslash{}vec\{v\}\_\{PA\}\textbackslash{})**: Represents the velocity of the plane relative to the air. It is a horizontal arrow from Chicago towards a plane above the line connecting the two cities.
+2. **\textbackslash{}(\textbackslash{}vec\{v\}\_\{PG\}\textbackslash{})**: Represents the velocity of the plane relative to the ground. It connects Chicago to a plane on a diagonal path toward Cleveland.
+3. **\textbackslash{}(\textbackslash{}vec\{v\}\_\{AG\}\textbackslash{})**: Represents the velocity of the air. It forms a vertical line connected from the endpoint of \textbackslash{}(\textbackslash{}vec\{v\}\_\{PA\}\textbackslash{}) to the endpoint of \textbackslash{}(\textbackslash{}vec\{v\}\_\{PG\}\textbackslash{}).
+
+Two illustrations of planes indicate directions along \textbackslash{}(\textbackslash{}vec\{v\}\_\{PA\}\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{v\}\_\{PG\}\textbackslash{}).
+
+Text labels are present for each vector to describe what they represent, such as "of plane relative to air" or "of air."
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 502mph
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/828.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0828.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0828:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0828.problem_phyx_mini_0828}
+\uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedinmilesperhour, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindsetup, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-matchesscenarioandsuppliedfigure, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-statedplanewinddata, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindkinematicslaws, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-answerchoicemilesperhour}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.velocityDimension}
+  Velocity has physical dimension length divided by time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[Plane Readout]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PlaneReadout}
+  The Euclidean plane in which the city positions and velocity components are read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Readout.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.LengthQuantity}
+  A nonnegative, unit-independent physical distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.SpeedQuantity}
+  A nonnegative, unit-independent speed magnitude supplied by Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PlanarPositionQuantity}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout}
+  A unit-independent signed planar position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Planar Velocity Quantity]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PlanarVelocityQuantity}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-velocitydimension, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout}
+  A unit-independent signed planar velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.lengthReadout}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthquantity}
+  Read a physical distance in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.speedReadout}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedquantity}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[planar Position Readout]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.planarPositionReadout}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionquantity}
+  Read a planar position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of planar Position Readout.
+\end{proof}
+\begin{definition}[planar Velocity Readout]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.planarVelocityReadout}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityquantity}
+  Read a planar velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of planar Velocity Readout.
+\end{proof}
+\begin{definition}[length In Miles]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthinmiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.lengthInMiles}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthreadout}
+  Mile readout used for the Chicago--Cleveland separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Miles.
+\end{proof}
+\begin{definition}[speed In Miles Per Hour]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedinmilesperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.speedInMilesPerHour}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedreadout}
+  Mile-per-hour readout used for all speeds in the problem and choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Miles Per Hour.
+\end{proof}
+\begin{definition}[position In Miles]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-positioninmiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.positionInMiles}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionreadout}
+  Planar position read in miles, with east as positive x and north as positive y
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Miles.
+\end{proof}
+\begin{definition}[velocity In Miles Per Hour]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-velocityinmilesperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.velocityInMilesPerHour}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planereadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityreadout}
+  Planar velocity read in miles per hour in the same east/north coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Miles Per Hour.
+\end{proof}
+\begin{definition}[City Label]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-citylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.CityLabel}
+  The two cities named in the written scenario and drawn as black dots
+\end{definition}
+\begin{proof}
+  This is the declared model definition of City Label.
+\end{proof}
+\begin{definition}[Physical Body]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-physicalbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PhysicalBody}
+  Bodies used to interpret the two-letter subscripts on relative velocities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Physical Body.
+\end{proof}
+\begin{definition}[Relative Velocity Label]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-relativevelocitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.RelativeVelocityLabel}
+  The three literal vector labels printed in primary image 828.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relative Velocity Label.
+\end{proof}
+\begin{definition}[moving Body]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-movingbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.movingBody}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-physicalbody, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-relativevelocitylabel}
+  The moving body denoted by the first letter of each velocity subscript
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moving Body.
+\end{proof}
+\begin{definition}[reference Body]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-referencebody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.referenceBody}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-physicalbody, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-relativevelocitylabel}
+  The reference body denoted by the second letter of each velocity subscript
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reference Body.
+\end{proof}
+\begin{definition}[Cardinal Direction]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-cardinaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.CardinalDirection}
+  Cardinal directions needed to transcribe the prose data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cardinal Direction.
+\end{proof}
+\begin{definition}[Pilot Wind Knowledge]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-pilotwindknowledge}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PilotWindKnowledge}
+  The pilot's stated knowledge of the wind before departure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pilot Wind Knowledge.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.FigurePoint}
+  Distinguished endpoints in the head-to-tail vector diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.FigureObject}
+  Physical and graphical objects visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Text Label]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figuretextlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.FigureTextLabel}
+  Literal city and vector-description text printed in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Text Label.
+\end{proof}
+\begin{definition}[Supplied Velocity Diagram]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-suppliedvelocitydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.SuppliedVelocityDiagram}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-relativevelocitylabel, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figurepoint, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figureobject, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-figuretextlabel}
+  Typed primary-image data. The diagram's three vector values remain physical planar velocities. Arrow endpoints record the head-to-tail geometry without postulating any numerical value for vPG
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Velocity Diagram.
+\end{proof}
+\begin{definition}[Plane Wind Setup]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PlaneWindSetup}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityquantity, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-citylabel, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-cardinaldirection, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-pilotwindknowledge, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-suppliedvelocitydiagram}
+  Independent physical observables in the written problem. In particular, planeVelocityRelativeToGround and planeGroundSpeed are unconstrained here; their relation to the given velocities is supplied only by governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Wind Setup.
+\end{proof}
+\begin{definition}[Matches Scenario And Supplied Figure]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-matchesscenarioandsuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.MatchesScenarioAndSuppliedFigure}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindsetup}
+  Qualitative prose and primary-image facts. These fields identify the three pictured velocity vectors but do not give the magnitude of vPG or the plane's ground speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Supplied Figure.
+\end{proof}
+\begin{definition}[Stated Plane Wind Data]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-statedplanewinddata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.StatedPlaneWindData}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthinmiles, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedinmilesperhour, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-positioninmiles, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-velocityinmilesperhour, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindsetup}
+  The numerical values and directions explicitly given in the prose. East is positive x and north is positive y, so a southward component is negative. No field assigns a component or magnitude to the ground-relative velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stated Plane Wind Data.
+\end{proof}
+\begin{definition}[Plane Wind Kinematics Laws]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindkinematicslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.PlaneWindKinematicsLaws}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-lengthreadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-speedreadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarpositionreadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planarvelocityreadout, def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-planewindsetup}
+  Governing geometry and Galilean kinematics. Each law is stated for every coherent choice of length and time units. The final numerical ground speed is not a law field: it must be derived by adding vPA and vAG and taking the Euclidean norm of vPG
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Wind Kinematics Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.AnswerChoice}
+  The four answer-choice labels from the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Miles Per Hour]
+  \label{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-answerchoicemilesperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0828.answerChoiceMilesPerHour}
+  \uses{def:physics:phyx-mini-0828:phyxminiproblems-problemphyxmini0828-answerchoice}
+  The numerical mile-per-hour values printed beside the choices. The source's pmh spellings in choices A and C are interpreted as the evident mph typo
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Miles Per Hour.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

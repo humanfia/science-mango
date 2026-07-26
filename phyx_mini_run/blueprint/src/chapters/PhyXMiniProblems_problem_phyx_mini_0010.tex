@@ -1,0 +1,191 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0010.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0010.source.json
+
+\chapter{Physics problem phyx\_mini\_0010}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0010}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Assume a transparent rod of diameter \textbackslash{}( d = 2.00 \textbackslash{}, \textbackslash{}mu\textbackslash{}text\{m\} \textbackslash{}) has an index of refraction of 1.36.
+
+\#\# Question
+
+Determine the maximum angle \textbackslash{}( \textbackslash{}theta \textbackslash{}) for which the light rays incident on the end of the rod in figure are subject to total internal reflection along the walls of the rod.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 72.2\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 65.4\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 67.2\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a cylindrical object oriented horizontally. The cylinder is depicted with a light blue color and a transparent appearance. 
+
+- A dashed line runs horizontally through the center of the cylinder, indicating its axis.
+- A vertical line is drawn across this central axis, with an arrowhead pointing downward, labeled with the letter "d."
+- On the left side, an arrow approaches the cylinder at an angle, labeled with the angle symbol "θ."
+- The arrangement suggests an analysis of forces, flow, or another physical concept involving the cylinder and the approaching angle.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 67.2\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/10.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0010.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0010:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0010.problem_phyx_mini_0010}
+\uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodfigurereadouts, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-ismaximumguidedangle, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-matchesanswertonearesttenth}
+For a transparent cylindrical rod of index \(1.36\) in air, the largest
+external acute angle guided by total internal reflection is
+\[
+\arcsin\!\left(\frac{\sqrt{n_{\rm rod}^2-n_{\rm out}^2}}
+ {n_{\rm in}}\right),
+\]
+and its degree readout rounds to \(67.2^\circ\), answer C.
+\end{theorem}
+\begin{proof}
+If \(\alpha\) is the internal angle to the rod axis, the wall incidence angle
+is \(\pi/2-\alpha\).  At the limiting guided ray,
+\(n_{\rm rod}\cos\alpha=n_{\rm out}\).  Entry Snell refraction gives
+\(n_{\rm in}\sin\theta=n_{\rm rod}\sin\alpha\); squaring and using
+\(\sin^2\alpha+\cos^2\alpha=1\) yields the displayed numerical-aperture
+formula.  Sine monotonicity on both acute branches shows that every guided
+\(\theta\) is at most this value, while equality supplies a guided witness,
+so it is the maximum.  Substituting \(n_{\rm rod}=1.36\) and both air indices
+equal to one, certified square-root and inverse-sine bounds give a degree
+readout in \([67.15,67.25]\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Region]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-opticalregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.OpticalRegion}
+  The three optical roles in the figure. The two air regions are kept distinct because one borders the flat end face and the other borders the cylindrical wall, even though their refractive-index readouts are equal in this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Region.
+\end{proof}
+\begin{definition}[Cylindrical Rod Setup]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.CylindricalRodSetup}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-opticalregion}
+  The physical data carried by the horizontal cylindrical rod in the figure. The figure label d is represented by a unit-independent dimensionful length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylindrical Rod Setup.
+\end{proof}
+\begin{definition}[two Micrometers]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-twomicrometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.twoMicrometers}
+  The dimensionful length whose source readout is 2.00 in micrometers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of two Micrometers.
+\end{proof}
+\begin{definition}[Cylindrical Rod Figure Readouts]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.CylindricalRodFigureReadouts}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-twomicrometers}
+  Problem and figure readouts: a transparent 2.00 μm rod of refractive index 1.36, with air (index one) at both the flat entrance and the side wall
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylindrical Rod Figure Readouts.
+\end{proof}
+\begin{definition}[Satisfies End Face Snell Law]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-satisfiesendfacesnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.SatisfiesEndFaceSnellLaw}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup}
+  Snell's law at the flat end face. Both angles are measured from the dashed rod axis, which is also the end-face normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies End Face Snell Law.
+\end{proof}
+\begin{definition}[wall Incidence Angle Radians]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-wallincidenceangleradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.wallIncidenceAngleRadians}
+  In the axial cross-section, the normal to a cylindrical side wall is perpendicular to the dashed rod axis. Thus these two incidence angles are complementary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wall Incidence Angle Radians.
+\end{proof}
+\begin{definition}[Meets Wall Total Internal Reflection Threshold]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-meetswalltotalinternalreflectionthreshold}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.MeetsWallTotalInternalReflectionThreshold}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-wallincidenceangleradians}
+  The critical-angle threshold for total internal reflection at the rod--air wall. The non-strict inequality includes the limiting critical ray used to define the largest geometrical-optics acceptance angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Meets Wall Total Internal Reflection Threshold.
+\end{proof}
+\begin{definition}[Can Be Guided By Total Internal Reflection]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-canbeguidedbytotalinternalreflection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.CanBeGuidedByTotalInternalReflection}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-satisfiesendfacesnelllaw, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-meetswalltotalinternalreflectionthreshold}
+  An external ray is guided along the rod when it has an acute refracted ray which obeys Snell's law and reaches every cylindrical wall at or above the TIR threshold. The angle shown as θ in the figure is externalAngleRadians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Be Guided By Total Internal Reflection.
+\end{proof}
+\begin{definition}[Is Maximum Guided Angle]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-ismaximumguidedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.IsMaximumGuidedAngle}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-cylindricalrodsetup, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-canbeguidedbytotalinternalreflection}
+  A guided angle which is at least every other guided external angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Maximum Guided Angle.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.degreeReadout}
+  Convert a radian readout to a degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.AnswerChoice}
+  The four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-answerchoice}
+  Degree readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0010.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-degreereadout, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-answerchoice, def:physics:phyx-mini-0010:phyxminiproblems-problemphyxmini0010-answerangledegrees}
+  Agreement with a displayed one-decimal-place answer after rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

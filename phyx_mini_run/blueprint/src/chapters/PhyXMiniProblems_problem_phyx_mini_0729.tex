@@ -1,0 +1,272 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0729.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0729.source.json
+
+\chapter{Physics problem phyx\_mini\_0729}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0729}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An abrupt slowdown in concentrated traffic can travel as a pulse, termed a shock wave, along the line of cars, either downstream (in the traffic direction) or upstream, or it can be stationary. Figure shows a uniformly spaced line of cars moving at speed \$v = 25.0\textbackslash{} m/s\$ toward a uniformly spaced line of slow cars moving at speed \$v\_s = 5.00\textbackslash{} m/s\$. Assume that each faster car adds length \$L = 12.0\textbackslash{} m\$ (car length plus buffer zone) to the line of slow cars when it joins the line, and assume it slows abruptly at the last instant.
+
+\#\# Question
+
+If the separation is twice that amount, what is the speed of the shock wave?
+
+\#\# Answer choices
+
+- A: A: 1.5 m/s
+
+- B: B: 2.0 m/s
+
+- C: C: 2.5 m/s
+
+- D: D: 3.0 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic of vehicles moving along a road.
+
+\#\#\# Key Elements:
+1. **Cars:**
+   - There are several cars shown in different colors: blue, red, green, yellow, and a lighter blue.
+   - The cars appear in a sequential arrangement along a horizontal line, resembling a road.
+
+2. **Text Labels:**
+   - "Car" is labeled next to the green vehicle.
+   - "Buffer" is labeled next to spaces between some of the vehicles.
+
+3. **Distances and Measurements:**
+   - Distances between cars are marked as \textbackslash{}(L\textbackslash{}) and \textbackslash{}(d\textbackslash{}).
+   - The length \textbackslash{}(L\textbackslash{}) appears multiple times along the road, indicating regular spacing.
+
+4. **Arrows and Speed:**
+   - Two magenta arrows indicate direction and possibly speed.
+   - The arrow on the left is labeled \textbackslash{}(v\textbackslash{}), presumably the speed of the car.
+   - The arrow on the right is labeled \textbackslash{}(v\_s\textbackslash{}), indicating another speed, possibly of a different group or system.
+
+5. **Dashed Lines:**
+   - Surround some of the vehicles to possibly highlight groups or clusters.
+
+This visual likely demonstrates some principles of traffic flow, vehicle spacing, or movement dynamics on a roadway.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 2.5 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/729.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0729.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0729:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0729.trafficShockWave_speed}
+\uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-shockspeedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchesprimarytrafficshockfigure, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchestrafficshockproblemdata, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasphysicaltrafficshockparameters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasstationaryshockpreviouspart, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-satisfiesvehiclenumberconservationacrossshock, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-answerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.velocityDimension}
+  The physical dimension of a signed one-dimensional velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[Signed Road Velocity]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-signedroadvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.SignedRoadVelocity}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocitydimension}
+  A signed, unit-independent velocity along the road. Positive values point downstream, in the direction of the two magenta velocity arrows in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Road Velocity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.lengthInMeters}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.speedInMetersPerSecond}
+  Read a nonnegative physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-signedroadvelocity}
+  Read a signed road velocity in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Shock Regime]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-shockregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.ShockRegime}
+  The preceding stationary case and the present twice-separated case
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Shock Regime.
+\end{proof}
+\begin{definition}[Road Direction]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-roaddirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.RoadDirection}
+  The two orientations along the one-dimensional road
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road Direction.
+\end{proof}
+\begin{definition}[Vehicle Color]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-vehiclecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.VehicleColor}
+  Vehicle colors visible from left to right in image 729.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vehicle Color.
+\end{proof}
+\begin{definition}[Traffic Figure Label]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.TrafficFigureLabel}
+  Text and symbol labels printed in the supplied traffic diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traffic Figure Label.
+\end{proof}
+\begin{definition}[Traffic Shock Figure]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshockfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.TrafficShockFigure}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-roaddirection, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-vehiclecolor, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficfigurelabel}
+  Qualitative and schematic evidence transcribed from the primary image. Coordinates are drawing coordinates, not physical positions or lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traffic Shock Figure.
+\end{proof}
+\begin{definition}[Traffic Shock Setup]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.TrafficShockSetup}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthquantity, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-signedroadvelocity, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-shockregime, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshockfigure}
+  The independent physical quantities in the two traffic configurations. addedLengthPerJoiningCar is the pictured car-plus-buffer length L and also the spacing of the packed slow stream. fastCarGap is the pictured empty distance d between consecutive length-L cells in the fast stream. The shock velocity in each regime is an unknown observable. In particular, the current velocity is not defined from the answer choice or the conservation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traffic Shock Setup.
+\end{proof}
+\begin{definition}[shock Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-shockspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.shockSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocityinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-shockregime, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  The nonnegative speed of a shock is the magnitude of its signed downstream velocity. This definition only forgets direction; it does not impose a value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of shock Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Matches Primary Traffic Shock Figure]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchesprimarytrafficshockfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.MatchesPrimaryTrafficShockFigure}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  Facts read from the primary image rather than inferred from its scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Traffic Shock Figure.
+\end{proof}
+\begin{definition}[Matches Traffic Shock Problem Data]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchestrafficshockproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.MatchesTrafficShockProblemData}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  Numerical and qualitative data stated in the problem. The current gap is twice the stationary-reference gap, not twice L; this records the antecedent of "twice that amount" from the preceding stationary subproblem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Traffic Shock Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Traffic Shock Parameters]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasphysicaltrafficshockparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.HasPhysicalTrafficShockParameters}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  Positivity and ordering conditions for the depicted physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Traffic Shock Parameters.
+\end{proof}
+\begin{definition}[Has Stationary Shock Previous Part]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasstationaryshockpreviouspart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.HasStationaryShockPreviousPart}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocityinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  The preceding subproblem identifies the reference separation by requiring the shock to remain stationary. This is a permitted previous-part result; it says nothing about the current shock velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stationary Shock Previous Part.
+\end{proof}
+\begin{definition}[Satisfies Vehicle Number Conservation Across Shock]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-satisfiesvehiclenumberconservationacrossshock}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.SatisfiesVehicleNumberConservationAcrossShock}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-velocityinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup}
+  Conservation of vehicle number across a shock moving at signed velocity w. Relative to the shock, fast cars arrive with speed v - w and occupy one cell of length L + d, while slow cars leave with speed v\_s - w and occupy one packed cell of length L. Equality of the two number fluxes, (v - w) / (L + d) = (v\_s - w) / L, is stated below in a denominator-free but dimensionally equivalent form for both regimes. No numerical value of the current wave speed occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Vehicle Number Conservation Across Shock.
+\end{proof}
+\begin{lemma}[stationary Gap eq four times added Length]
+  \label{lem:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-stationarygap-eq-four-times-addedlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.stationaryGap_eq_four_times_addedLength}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchestrafficshockproblemdata, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasphysicaltrafficshockparameters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasstationaryshockpreviouspart, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-satisfiesvehiclenumberconservationacrossshock}
+  With v = 25 m/s and v\_s = 5 m/s, the separation that makes the shock stationary is four times the added car-plus-buffer length
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of stationary Gap eq four times added Length.
+\end{proof}
+\begin{lemma}[current Gap eq ninety Six Meters]
+  \label{lem:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-currentgap-eq-ninetysixmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.currentGap_eq_ninetySixMeters}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-lengthinmeters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-trafficshocksetup, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-matchestrafficshockproblemdata, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasphysicaltrafficshockparameters, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-hasstationaryshockpreviouspart, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-satisfiesvehiclenumberconservationacrossshock}
+  The current gap is twice the stationary gap, hence eight times L and numerically 96 m for L = 12 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of current Gap eq ninety Six Meters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.AnswerChoice}
+  The speed values printed beside answer labels A--D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-answerchoice-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0729.AnswerChoice.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-speedinmeterspersecond, def:physics:phyx-mini-0729:phyxminiproblems-problemphyxmini0729-answerchoice}
+  Displayed answer-choice speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

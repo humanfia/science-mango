@@ -1,0 +1,308 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0671.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0671.source.json
+
+\chapter{Physics problem phyx\_mini\_0671}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0671}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A student drives a moped along a straight road as described by the velocity--time graph in figure
+
+\#\# Question
+
+What is the moped's final position at \textbackslash{}( t = 9.00 \textbackslash{}text\{ s\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 16m
+
+- B: B: 14m
+
+- C: C: 28m
+
+- D: D: 32m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph plotting velocity against time. The horizontal axis represents time \textbackslash{}( t \textbackslash{}) in seconds, labeled as \textbackslash{}( t \textbackslash{}, (\textbackslash{}text\{s\}) \textbackslash{}), ranging from 0 to 10 seconds. The vertical axis represents velocity \textbackslash{}( v\_x \textbackslash{}) in meters per second, labeled as \textbackslash{}( v\_x \textbackslash{}, (\textbackslash{}text\{m/s\}) \textbackslash{}), ranging from -8 to 8 m/s.
+
+The plot is a piecewise linear graph:
+
+1. From \textbackslash{}( t = 0 \textbackslash{}) to \textbackslash{}( t = 2 \textbackslash{}) seconds, the velocity increases linearly from 0 to 8 m/s.
+2. From \textbackslash{}( t = 2 \textbackslash{}) to \textbackslash{}( t = 6 \textbackslash{}) seconds, the velocity remains constant at 8 m/s.
+3. From \textbackslash{}( t = 6 \textbackslash{}) to \textbackslash{}( t = 10 \textbackslash{}) seconds, the velocity decreases linearly from 8 m/s to -8 m/s.
+
+There is a grid in the background of the graph, aiding in better visualization of the data.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 28m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/671.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0671.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0671:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0671.problem_phyx_mini_0671}
+\uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positioninmeters, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-matchesmopedscenario, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-matchesprimaryvelocitytimefigure, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocityreadoutmatchesfigure, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-startsatspatialorigin, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-satisfiespositionvelocitylaw, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-answerchoice, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-displayedfinalpositioninmeters}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.TimeQuantity}
+  A unit-independent physical time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.PositionQuantity}
+  A signed physical position along the straight road
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.SignedVelocityQuantity}
+  A signed physical velocity component along the road's x-axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.timeReadout}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timequantity}
+  Numerical coordinate of a physical time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.positionReadout}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionquantity}
+  Numerical coordinate of a signed physical position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityquantity}
+  Numerical signed-velocity component in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[time From Readout]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.timeFromReadout}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timequantity}
+  Construct a physical time coordinate from a readout in a selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time From Readout.
+\end{proof}
+\begin{definition}[time From Seconds]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.timeFromSeconds}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timequantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromreadout}
+  SI-second time coordinate used by the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time From Seconds.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.positionInMeters}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionquantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionreadout}
+  SI-metre readout of a signed physical position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[signed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.signedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityquantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityreadout}
+  SI metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Driver Kind]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-driverkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.DriverKind}
+  Kind of driver stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Driver Kind.
+\end{proof}
+\begin{definition}[Vehicle Kind]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-vehiclekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.VehicleKind}
+  Kind of road vehicle stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vehicle Kind.
+\end{proof}
+\begin{definition}[Road Geometry]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-roadgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.RoadGeometry}
+  Geometry of the road on which the vehicle moves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road Geometry.
+\end{proof}
+\begin{definition}[Motion Axis]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-motionaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.MotionAxis}
+  The longitudinal spatial axis named by the velocity label vₓ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Axis.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.FigureAxis}
+  The two labelled axes in the supplied plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Curve Vertex]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-curvevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.CurveVertex}
+  Named vertices of the piecewise-linear curve, in chronological order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Vertex.
+\end{proof}
+\begin{definition}[Velocity Time Point]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocitytimepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.VelocityTimePoint}
+  A scalar coordinate read directly from the velocity--time graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Time Point.
+\end{proof}
+\begin{definition}[Velocity Time Figure]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocitytimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.VelocityTimeFigure}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-figureaxis, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-curvevertex, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocitytimepoint}
+  Labels, ranges, vertices, and presentation facts visible in image 671.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Time Figure.
+\end{proof}
+\begin{definition}[Straight Road Moped Setup]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.StraightRoadMopedSetup}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timequantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positionquantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityquantity, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-driverkind, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-vehiclekind, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-roadgeometry, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-motionaxis, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocitytimefigure}
+  The physical motion. Position and velocity are independent dimensionful observables; neither is defined from a solved formula or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Straight Road Moped Setup.
+\end{proof}
+\begin{definition}[Matches Moped Scenario]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-matchesmopedscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.MatchesMopedScenario}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  Categorical facts explicitly stated in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Moped Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Velocity Time Figure]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-matchesprimaryvelocitytimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.MatchesPrimaryVelocityTimeFigure}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  Facts transcribed from the primary raster. In particular, the graph's actual breakpoints are 3 s and 5 s, and the drawn curve ends at 9 s, although the horizontal plot axis continues to 10 s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Velocity Time Figure.
+\end{proof}
+\begin{definition}[Velocity Readout Matches Figure]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocityreadoutmatchesfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.VelocityReadoutMatchesFigure}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityinmeterspersecond, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  Interpretation of the three line segments as calibrated signed-velocity measurements. This contains the graph data but no displacement, position, or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Readout Matches Figure.
+\end{proof}
+\begin{definition}[Starts At Spatial Origin]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-startsatspatialorigin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.StartsAtSpatialOrigin}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positioninmeters, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  The implicit origin convention required for the question to have an absolute position answer rather than only a displacement answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Starts At Spatial Origin.
+\end{proof}
+\begin{definition}[Satisfies Position Velocity Law]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-satisfiespositionvelocitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.SatisfiesPositionVelocityLaw}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positioninmeters, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-signedvelocityinmeterspersecond, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup}
+  For every ordered pair of displayed time readouts, signed displacement equals the interval integral of signed velocity. This is a general physical law and does not contain the requested final position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Position Velocity Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Final Position In Meters]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-displayedfinalpositioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.displayedFinalPositionInMeters}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-answerchoice}
+  Position in metres printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Final Position In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-answerchoice}
+  The answer label recorded by the source dataset; it is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[displacement at nine seconds]
+  \label{lem:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-displacement-at-nine-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0671.displacement_at_nine_seconds}
+  \uses{def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-timefromseconds, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-positioninmeters, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-straightroadmopedsetup, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-velocityreadoutmatchesfigure, def:physics:phyx-mini-0671:phyxminiproblems-problemphyxmini0671-satisfiespositionvelocitylaw}
+  The signed area under the graph through 9 s is 28 m: the initial triangle contributes 12, the plateau 16, and the positive and negative triangles under the final segment cancel
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of displacement at nine seconds.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

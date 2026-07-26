@@ -1,0 +1,370 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0533.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0533.source.json
+
+\chapter{Physics problem phyx\_mini\_0533}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0533}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An electron with kinetic energy \textbackslash{}( E = 5.00 \textbackslash{}text\{ eV\} \textbackslash{}) is incident on a barrier of width \textbackslash{}( L = 0.200 \textbackslash{}text\{ nm\} \textbackslash{}) and height \textbackslash{}( U = 10.0 \textbackslash{}text\{ eV\} \textbackslash{}) as shown in figure.
+
+\#\# Question
+
+What is the probability that the electron tunnels through the barrier?
+
+\#\# Answer choices
+
+- A: A: 0.0111
+
+- B: B: 0.0076
+
+- C: C: 0.0225
+
+- D: D: 0.0103
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graphical representation of a potential energy barrier in physics. 
+
+- The graph is plotted with energy on the vertical axis and position \textbackslash{}(x\textbackslash{}) on the horizontal axis.
+- There is a solid orange line representing the potential energy, forming a rectangular barrier.
+- The height of the barrier is labeled as \textbackslash{}(U\textbackslash{}), and its width is labeled as \textbackslash{}(L\textbackslash{}).
+- To the left of the barrier, there is a horizontal line representing constant energy at a level marked \textbackslash{}(E\textbackslash{}).
+- An electron, depicted as a small blue sphere with a negative charge symbol \textbackslash{}(-e\textbackslash{}), is shown approaching the barrier from the left, indicated by a red arrow pointing towards the barrier.
+- Additional labels include \textbackslash{}(0\textbackslash{}) on the horizontal axis and "Energy" on the vertical axis, indicating the origin and the axis identifiers.
+
+This figure likely represents a scenario in quantum mechanics involving a particle encountering a potential energy barrier.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.0103
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/533.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0533.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0533:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0533.problem_phyx_mini_0533}
+\uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matcheselectronbarrierscenario, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchesproblemnumericalreadouts, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchessuppliedbarrierfigure, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesrectangularpotentialprofile, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-usesstandardelectronreferencedata, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-hasphysicaltunnelingparameters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesbarrierdecayrelation, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesexactrectangularbarriertransmissionlaw, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesfiniteerroropaquebarrierestimate, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-answerchoice, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchesdisplayedwithinonetenthousandth, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-isuniquenearestdisplayedprobability}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Inverse Length Quantity]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.InverseLengthQuantity}
+  A nonnegative inverse length, used for the under-barrier decay constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverse Length Quantity.
+\end{proof}
+\begin{definition}[action Dimension]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actiondimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.actionDimension}
+  The physical dimension of action, mass * length\textasciicircum{}2 / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action Dimension.
+\end{proof}
+\begin{definition}[Action Quantity]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.ActionQuantity}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actiondimension}
+  A nonnegative, unit-independent physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Action Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.lengthReadout}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthquantity}
+  Read a physical length as a real number in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.lengthInMeters}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthreadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthreadout}
+  Read a physical length in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.energyInJoules}
+  Read a physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinjoules}
+  Read a physical energy in electron volts by comparison with Physlib's dimensionful DimEnergy.electronVolt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.massInKilograms}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[action In Joule Seconds]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actioninjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.actionInJouleSeconds}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actionquantity}
+  Read a physical action in joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action In Joule Seconds.
+\end{proof}
+\begin{definition}[inverse Length In Inverse Meters]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthininversemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.inverseLengthInInverseMeters}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthquantity}
+  Read an inverse-length quantity in inverse metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inverse Length In Inverse Meters.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.ParticleSpecies}
+  Particle species distinguished in the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Barrier Region]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-barrierregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.BarrierRegion}
+  Regions of the one-dimensional potential shown in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Barrier Region.
+\end{proof}
+\begin{definition}[Potential Profile Shape]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-potentialprofileshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.PotentialProfileShape}
+  Shape of the potential-energy profile
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Profile Shape.
+\end{proof}
+\begin{definition}[Plot Axis Role]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-plotaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.PlotAxisRole}
+  Roles assigned to the two plotted axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis Role.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.FigureQuantityLabel}
+  The symbols printed next to quantities in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Particle Charge Label]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-particlechargelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.ParticleChargeLabel}
+  The charge mark printed beside the incident particle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Charge Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.HorizontalDirection}
+  Horizontal direction of the incident arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Rectangular Barrier Figure]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-rectangularbarrierfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.RectangularBarrierFigure}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-potentialprofileshape, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-plotaxisrole, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-figurequantitylabel, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-particlechargelabel, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-horizontaldirection}
+  Qualitative and labeled information read from image 533. It records the rectangular geometry and visible labels, but contains no tunneling probability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Barrier Figure.
+\end{proof}
+\begin{definition}[Electron Barrier Setup]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.ElectronBarrierSetup}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actionquantity, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-particlespecies, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-barrierregion, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-potentialprofileshape, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-horizontaldirection, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-rectangularbarrierfigure}
+  Independent physical data for the scattering experiment. In particular, the physical probability, the leading semiclassical estimate, and its remainder are fields rather than definitions from the source's recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electron Barrier Setup.
+\end{proof}
+\begin{definition}[Matches Electron Barrier Scenario]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matcheselectronbarrierscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.MatchesElectronBarrierScenario}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  The prose describes an electron incident from the left on the barrier
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Electron Barrier Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Numerical Readouts]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchesproblemnumericalreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.MatchesProblemNumericalReadouts}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinnanometers, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinelectronvolts, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  The calibrated numerical data stated in the problem. These fields constrain only the incident energy, barrier height, and barrier width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Numerical Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Barrier Figure]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchessuppliedbarrierfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.MatchesSuppliedBarrierFigure}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  Primary-raster evidence from image 533: the axes, origin, rectangular orange profile, shaded barrier, labels E, L, and U, and the -e particle moving to the right. No probability or answer-choice datum is included
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Barrier Figure.
+\end{proof}
+\begin{definition}[Satisfies Rectangular Potential Profile]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesrectangularpotentialprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.SatisfiesRectangularPotentialProfile}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinelectronvolts, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  The rectangular potential is zero outside the barrier and equal to the stated height inside it. This is the potential profile visible in the figure, not a statement about transmission
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rectangular Potential Profile.
+\end{proof}
+\begin{definition}[Uses Standard Electron Reference Data]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-usesstandardelectronreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.UsesStandardElectronReferenceData}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massinkilograms, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actioninjouleseconds, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  Standard electron and quantum reference data. Physlib supplies the coherent SI value Constants.ℏ; the electron rest mass has no matching Physlib dimensionful constant and is calibrated here explicitly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Electron Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Tunneling Parameters]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-hasphysicaltunnelingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.HasPhysicalTunnelingParameters}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinmeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinjoules, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massinkilograms, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actioninjouleseconds, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthininversemeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  Positivity, the classically forbidden inequality E < U, the opaque-barrier regime, and probability bounds select the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tunneling Parameters.
+\end{proof}
+\begin{definition}[Satisfies Barrier Decay Relation]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesbarrierdecayrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.SatisfiesBarrierDecayRelation}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinjoules, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-massinkilograms, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-actioninjouleseconds, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthininversemeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  For a constant barrier with E < U, the evanescent decay constant obeys κ = sqrt (2 m (U - E)) / ℏ. The equality is stated at coherent-SI readouts so that its two sides both have units of inverse metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Barrier Decay Relation.
+\end{proof}
+\begin{definition}[Satisfies Exact Rectangular Barrier Transmission Law]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesexactrectangularbarriertransmissionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.SatisfiesExactRectangularBarrierTransmissionLaw}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinmeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-energyinjoules, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthininversemeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  The exact one-dimensional transmission coefficient for a finite rectangular barrier with E < U: T = (1 + U\textasciicircum{}2 sinh\textasciicircum{}2 (κ L) / (4 E (U - E)))⁻¹. All energy occurrences use the same coherent-SI readout, and κ L is dimensionless. Unlike the bare exponential factor, this relation includes the interface-matching prefactor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Rectangular Barrier Transmission Law.
+\end{proof}
+\begin{definition}[Satisfies Finite Error Opaque Barrier Estimate]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-satisfiesfiniteerroropaquebarrierestimate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.SatisfiesFiniteErrorOpaqueBarrierEstimate}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-lengthinmeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-inverselengthininversemeters, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-electronbarriersetup}
+  Finite-parameter contract for the commonly used opaque-barrier estimate. The leading attenuation estimate is exp (-2 κ L), but the physical probability is the estimate plus an explicit remainder whose absolute value is bounded. Thus the approximation is not asserted as a globally exact law. No numerical value of the estimate, remainder, or answer choice is assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Finite Error Opaque Barrier Estimate.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.AnswerChoice}
+  Labels of the four probability choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Tunneling Probability]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-displayedtunnelingprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.displayedTunnelingProbability}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-answerchoice}
+  The dimensionless probability displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Tunneling Probability.
+\end{proof}
+\begin{definition}[Matches Displayed Within One Ten Thousandth]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-matchesdisplayedwithinonetenthousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.MatchesDisplayedWithinOneTenThousandth}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-answerchoice, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-displayedtunnelingprobability}
+  Agreement with a displayed probability to within 0.0001
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Within One Ten Thousandth.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Probability]
+  \label{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-isuniquenearestdisplayedprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0533.IsUniqueNearestDisplayedProbability}
+  \uses{def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-answerchoice, def:physics:phyx-mini-0533:phyxminiproblems-problemphyxmini0533-displayedtunnelingprobability}
+  A choice is strictly nearer to the physical probability than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Probability.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

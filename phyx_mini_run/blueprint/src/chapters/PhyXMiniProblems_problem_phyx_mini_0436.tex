@@ -1,0 +1,482 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0436.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0436.source.json
+
+\chapter{Physics problem phyx\_mini\_0436}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0436}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows two insulated compartments separated by a thin wall. The left side contains 0.060 \$	ext\{mol\}\$ of helium at an initial temperature of 600 \$	ext\{K\}\$ and the right side contains 0.030 \$	ext\{mol\}\$ of helium at an initial temperature of 300 \$	ext\{K\}\$. The compartment on the right is attached to a vertical cylinder, above which the air pressure is 1.0 \$	ext\{atm\}\$. A 10-\$	ext\{cm\}\$-diameter, 2.0 \$\textbackslash{}text\{kg\}\$ piston can slide without friction up and down the cylinder. Neither the cylinder diameter nor the volumes of the compartments are known.
+
+\#\# Question
+
+How high is the piston lifted due to this heat transfer?
+
+\#\# Answer choices
+
+- A: A: 0.150 m
+
+- B: B: 0.098 m
+
+- C: C: 0.020 m
+
+- D: D: 0.050 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two systems separated by a wall inside a container. 
+
+- **System 1** is on the left side, labeled with "0.060 mol He" and "600 K."
+- **System 2** is on the right side, labeled with "0.030 mol He" and "300 K."
+- A piston is situated above System 2, labeled "2.0 kg piston."
+- The systems are housed within a rectangular container, with the piston extending vertically from System 2. 
+
+The systems likely represent different conditions for helium gas, with the piston affecting pressure or volume in System 2.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.050 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/436.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0436.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0436:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0436.pistonLift_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthinmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-matchesproblemandprimaryfigure, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-usestextbookphysicalconstants, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-hasphysicalparameters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-obeystwocompartmentthermodynamics, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-obeysfrictionlesspistonmechanics, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-answerchoice, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-displayedliftinmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-agreestonearestmillimeter, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Amount Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.AmountQuantity}
+  Amount of gas. Physlib treats the mole count as dimension one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.VolumeQuantity}
+  A nonnegative physical volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.TemperatureQuantity}
+  A nonnegative absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.AccelerationQuantity}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.AreaQuantity}
+  Piston face or cylinder bore area, using Physlib's supplied area type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.PressureQuantity}
+  Thermodynamic pressure, using Physlib's supplied pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.EnergyQuantity}
+  Signed heat transferred to a gas, using Physlib's supplied energy type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[Molar Energy Per Temperature Quantity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.MolarEnergyPerTemperatureQuantity}
+  A molar gas constant or molar heat capacity has SI units J mol⁻¹ K⁻¹. Since the mole count is dimension one in the available Physlib dimension basis, its represented dimension is energy per temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Per Temperature Quantity.
+\end{proof}
+\begin{definition}[amount In Moles]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.amountInMoles}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountquantity}
+  Mole readout of an amount of gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of amount In Moles.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.lengthInMeters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthinmeters}
+  Centimetre readout used for the stated piston diameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumequantity}
+  Cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperaturequantity}
+  Kelvin readout of an absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.massInKilograms}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationquantity}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.areaInSquareMeters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areaquantity}
+  Square-metre readout of a physical area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.pressureInPascals}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressurequantity}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Standard Atmospheres]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinstandardatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.pressureInStandardAtmospheres}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressurequantity}
+  Standard-atmosphere readout used in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Standard Atmospheres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.energyInJoules}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-energyquantity}
+  Joule readout of signed heat
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[molar Energy Per Temperature In Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperatureinjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.molarEnergyPerTemperatureInJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperaturequantity}
+  J mol⁻¹ K⁻¹ readout of a gas constant or molar heat capacity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Energy Per Temperature In Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[Gas System]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassystem}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasSystem}
+  The two gas regions named in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas System.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.ProcessState}
+  The endpoints of the heat-transfer process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasSpecies}
+  Gas species specified in both figure labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Atomicity]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasatomicity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasAtomicity}
+  Atomicity relevant to helium's heat capacities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Atomicity.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasModel}
+  Equation-of-state model used in this textbook problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Boundary Constraint]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasboundaryconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasBoundaryConstraint}
+  Mechanical boundary condition of each gas region
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Boundary Constraint.
+\end{proof}
+\begin{definition}[Separating Wall Model]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-separatingwallmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.SeparatingWallModel}
+  Thermal behavior of the thin wall separating the gas regions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Separating Wall Model.
+\end{proof}
+\begin{definition}[Outer Boundary Model]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-outerboundarymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.OuterBoundaryModel}
+  Thermal behavior of the outside boundary of the combined apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Outer Boundary Model.
+\end{proof}
+\begin{definition}[Piston Guide]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pistonguide}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.PistonGuide}
+  Direction in which the cylinder guides the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Guide.
+\end{proof}
+\begin{definition}[Piston Friction Model]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pistonfrictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.PistonFrictionModel}
+  Contact model between the piston and its cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Friction Model.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.GasSample}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasspecies, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasatomicity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasmodel}
+  A physical helium sample, separate from its amount and state readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumequantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperaturequantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressurequantity}
+  Pressure, volume, and absolute temperature at one equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.FigureComponent}
+  Components visibly distinguished in primary image 436.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.FigureLabel}
+  Text labels visible in primary image 436.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Label Target]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurelabeltarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.FigureLabelTarget}
+  The physical object or region denoted by a visible label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label Target.
+\end{proof}
+\begin{definition}[Two Compartment Figure]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-twocompartmentfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.TwoCompartmentFigure}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurecomponent, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurelabel, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurelabeltarget}
+  Structured transcription of the labels and geometry in image 436.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Compartment Figure.
+\end{proof}
+\begin{definition}[Heat Transfer Piston Setup]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.HeatTransferPistonSetup}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areaquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressurequantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-energyquantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperaturequantity, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassystem, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-processstate, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gasboundaryconstraint, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-separatingwallmodel, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-outerboundarymodel, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pistonguide, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pistonfrictionmodel, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassample, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-thermodynamicstate, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-twocompartmentfigure}
+  The full experimental setup. In particular, pistonLift, all gas state variables, and the initially unknown volumes are independent physical fields; none is defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Transfer Piston Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountinmoles, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthincentimeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperatureinkelvins, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massinkilograms, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinstandardatmospheres, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassystem, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurecomponent, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-figurelabel, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  Exact transcription of the prose and primary bitmap. The false fields record that no numerical cylinder-diameter or compartment-volume readout is printed; the corresponding physical quantities remain present in the setup. No final temperature, final volume, or piston lift is recorded here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Physical Constants]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-usestextbookphysicalconstants}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.UsesTextbookPhysicalConstants}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperatureinjoulespermolekelvin, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  Standard textbook constants needed to evaluate the numerical multiple-choice answer. These do not mention the unknown piston lift
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Physical Constants.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountinmoles, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthinmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumeincubicmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperatureinkelvins, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massinkilograms, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areainsquaremeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinpascals, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperatureinjoulespermolekelvin, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassystem, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-processstate, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  Positivity and nondegeneracy conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Obeys Two Compartment Thermodynamics]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-obeystwocompartmentthermodynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.ObeysTwoCompartmentThermodynamics}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-amountinmoles, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumeincubicmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperatureinkelvins, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinpascals, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-energyinjoules, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-molarenergypertemperatureinjoulespermolekelvin, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-gassystem, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-processstate, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  Thermodynamic laws for the two helium samples. Heat is positive into a gas. Thus conservation across the internal wall says the two signed transfers sum to zero. The constant-volume and constant-pressure heat relations encode the appropriate monatomic molar heat capacities without assuming a final answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Two Compartment Thermodynamics.
+\end{proof}
+\begin{definition}[Obeys Frictionless Piston Mechanics]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-obeysfrictionlesspistonmechanics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.ObeysFrictionlessPistonMechanics}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-lengthinmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-volumeincubicmeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-massinkilograms, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-areainsquaremeters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-pressureinpascals, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-processstate, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup}
+  Geometry, statics, and swept-volume kinematics of the frictionless piston. The force balance is imposed at both equilibrium endpoints. The piston lift remains an unknown field related to, but not defined from, the volume change
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Frictionless Piston Mechanics.
+\end{proof}
+\begin{theorem}[final Equilibrium Temperature In Kelvins]
+  \label{thm:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-finalequilibriumtemperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.finalEquilibriumTemperatureInKelvins}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-temperatureinkelvins, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-heattransferpistonsetup, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-matchesproblemandprimaryfigure, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-usestextbookphysicalconstants, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-hasphysicalparameters, def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-obeystwocompartmentthermodynamics}
+  The equilibrium temperature derived from the heat-capacity balance
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Equilibrium Temperature In Kelvins.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.AnswerChoice}
+  The four lift values displayed in the problem, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Lift In Meters]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-displayedliftinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.displayedLiftInMeters}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-answerchoice}
+  Metre value printed beside each multiple-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Lift In Meters.
+\end{proof}
+\begin{definition}[agrees To Nearest Millimeter]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-agreestonearestmillimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.agreesToNearestMillimeter}
+  Agreement after rounding a metre value to the nearest millimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of agrees To Nearest Millimeter.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0436.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0436:phyxminiproblems-problemphyxmini0436-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

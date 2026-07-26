@@ -1,0 +1,258 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0011.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0011.source.json
+
+\chapter{Physics problem phyx\_mini\_0011}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0011}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider a light ray traveling between air and a diamond cut in the shape shown in figure
+
+\#\# Question
+
+If the light ray entering the diamond remains vertical as shown in figure, what angle of rotation should the diamond in the water be rotated about an axis perpendicular to the page through \textbackslash{}( O \textbackslash{}) so that light will first exit the diamond at \textbackslash{}( P \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 1.90\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 4.12\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 2.83\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 3.07\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a geometric figure similar to a diamond shape. 
+
+- There are two main points labeled \textbackslash{}( O \textbackslash{}) and \textbackslash{}( P \textbackslash{}). 
+- Point \textbackslash{}( O \textbackslash{}) is centered within the shape, while point \textbackslash{}( P \textbackslash{}) is located at the bottom right corner.
+- A dotted line connects points \textbackslash{}( O \textbackslash{}) and \textbackslash{}( P \textbackslash{}).
+- There are two blue arrows originating from point \textbackslash{}( P \textbackslash{}): 
+  - One points directly downward.
+  - The other forms an angle to the left with a downward direction.
+- The angle formed between the horizontal dashed line meeting at point \textbackslash{}( P \textbackslash{}) and the angled blue arrow is labeled \textbackslash{}( 35.0\textasciicircum{}\textbackslash{}circ \textbackslash{}).
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 2.83\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/11.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0011.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0011:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0011.rotation_angle_matches_choice_C}
+\uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-haspositiverefractiveindices, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasphysicalangleranges, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasfigurereadouts, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasmaterialreadouts, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasrotatedraygeometry, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatentry, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatp, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-isatfirstexitthresholdatp, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-isclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.OpticalMedium}
+  The optical media named in the scenario. The requested rotation occurs while the diamond is immersed in water; air records the other ambient medium mentioned in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.FigurePoint}
+  The labeled points in the diamond diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Planar Direction]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-planardirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.PlanarDirection}
+  Distinguished planar directions used by the figure readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Direction.
+\end{proof}
+\begin{definition}[Axis Orientation]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-axisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.AxisOrientation}
+  The orientation of a rotation axis relative to the printed page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Orientation.
+\end{proof}
+\begin{definition}[Rotation Axis]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-rotationaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.RotationAxis}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-figurepoint, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-axisorientation}
+  A physical rotation axis is specified by its point and spatial orientation, rather than by a bare scalar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Axis.
+\end{proof}
+\begin{definition}[Diamond Rotation Setup]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.DiamondRotationSetup}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-opticalmedium, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-figurepoint, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-planardirection, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-rotationaxis}
+  Scalar readouts and physical labels for one rotated-diamond configuration. Refractive indices are dimensionless. Fields ending in Radians are measured angle readouts in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diamond Rotation Setup.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.degreesToRadians}
+  Convert a numerical degree readout to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.radiansToDegrees}
+  Convert a radian readout to degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Has Positive Refractive Indices]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-haspositiverefractiveindices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.HasPositiveRefractiveIndices}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Refractive indices of every named medium are physically positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Refractive Indices.
+\end{proof}
+\begin{definition}[Has Physical Angle Ranges]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasphysicalangleranges}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.HasPhysicalAngleRanges}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Acute representatives are selected for the angles occurring in Snell's law and at the first-transmission threshold
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Angle Ranges.
+\end{proof}
+\begin{definition}[Has Figure Readouts]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.HasFigureReadouts}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-degreestoradians}
+  Figure readouts: rotation is about O perpendicular to the page, the incoming ray remains vertical, the unrotated entry facet is horizontal, both relevant exterior media are water, the exit point is P, and the displayed facet angle is 35.0°
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Figure Readouts.
+\end{proof}
+\begin{definition}[Has Material Readouts]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasmaterialreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.HasMaterialReadouts}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Standard refractive-index readouts used by the multiple-choice problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Material Readouts.
+\end{proof}
+\begin{definition}[Has Rotated Ray Geometry]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasrotatedraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.HasRotatedRayGeometry}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Co-rotation of the two facet normals gives the planar angle relations for the fixed vertical incident ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Rotated Ray Geometry.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At Entry]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatentry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.SatisfiesSnellLawAtEntry}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Snell's law at the water-to-diamond entry facet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At Entry.
+\end{proof}
+\begin{definition}[Satisfies Snell Law At P]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatp}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.SatisfiesSnellLawAtP}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Snell's law at the diamond-to-water facet through P
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law At P.
+\end{proof}
+\begin{definition}[Is At First Exit Threshold At P]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-isatfirstexitthresholdatp}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.IsAtFirstExitThresholdAtP}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  At first transmission through P, the ray has remained inside before P and the transmitted ray at P is tangent to the facet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is At First Exit Threshold At P.
+\end{proof}
+\begin{definition}[critical Angle At PRadians]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-criticalangleatpradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.criticalAngleAtPRadians}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup}
+  Critical incidence angle at the diamond-to-water interface through P
+\end{definition}
+\begin{proof}
+  This is the declared model definition of critical Angle At PRadians.
+\end{proof}
+\begin{definition}[required Rotation Radians]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-requiredrotationradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.requiredRotationRadians}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-criticalangleatpradians}
+  Closed-form rotation obtained by combining the facet geometry, critical angle, and Snell's law at the entry interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of required Rotation Radians.
+\end{proof}
+\begin{lemma}[rotation Angle eq required Rotation]
+  \label{lem:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-rotationangle-eq-requiredrotation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.rotationAngle_eq_requiredRotation}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-diamondrotationsetup, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-haspositiverefractiveindices, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasphysicalangleranges, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasfigurereadouts, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-hasrotatedraygeometry, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatentry, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-satisfiessnelllawatp, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-isatfirstexitthresholdatp, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-requiredrotationradians}
+  The governing optical laws determine the rotation by the physical closed form. This equality is a conclusion, not a setup field or premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotation Angle eq required Rotation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.AnswerChoice}
+  The four displayed answer labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[rotation Degrees]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-answerchoice-rotationdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.AnswerChoice.rotationDegrees}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-answerchoice}
+  Rotation angle printed beside each answer choice, in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotation Degrees.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0011.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-radianstodegrees, def:physics:phyx-mini-0011:phyxminiproblems-problemphyxmini0011-answerchoice}
+  A displayed answer is correct when it is at least as close to the physically calculated rotation as every other displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

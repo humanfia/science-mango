@@ -1,0 +1,149 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0014.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0014.source.json
+
+\chapter{Physics problem phyx\_mini\_0014}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0014}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+As shown in figure
+
+\#\# Question
+
+How many times will the incident beam shown in Figure be reflected by the left of the parallel mirrors?
+
+\#\# Answer choices
+
+- A: A: 7
+
+- B: B: 5
+
+- C: C: 6
+
+- D: D: 4
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram involving two parallel mirrors with a beam of light reflecting between them. Here's a detailed description:
+
+1. **Mirrors**: Two vertical parallel mirrors are positioned with one on the left and the other on the right.
+
+2. **Beam of Light**: 
+   - An incident beam strikes the left mirror and reflects off to the right mirror.
+   - The beam continues bouncing between the mirrors in a zigzag pattern, with each reflection marked by an arrow.
+
+3. **Angles and Distances**: 
+   - The angle of incidence/reflection is marked as 5.00°.
+   - The horizontal distance between the mirrors is indicated as 1.00 m.
+   
+4. **Labels**:
+   - The reflected beam is labeled with the text “reflected beam.”
+   - The vertical height is shown as 1.00 m.
+
+The diagram illustrates light behavior involving reflection and geometry between two mirrors.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 6
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/14.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0014.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0014:target}
+\lean{PhyXMiniProblems.Problem0014.leftMirrorReflectionCount_eq_six}
+\uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-parallelmirrorsetup, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-reflectedbeamtrace, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-hasfigurereadout, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-obeysspecularreflection}
+For two vertical mirrors of height $1\,\mathrm m$ separated by
+$1\,\mathrm m$, let the ray start at the lower endpoint of the right mirror
+at $5^\circ$ above the horizontal normal and obey specular reflection.
+Exactly six contacts occur on the left mirror before the ray rises above the
+finite mirror span, so the answer is C. Mirror positions and separations must
+use Physlib length quantities, or explicitly documented coordinate
+projections in a fixed metre chart, rather than treating a physical length as
+an unexplained real number.
+\end{theorem}
+\begin{proof}
+Unfolding alternating specular reflections makes the ray a straight line.
+Each crossing of the one-metre gap raises its contact height by
+$\tan 5^\circ$ metres. Left-mirror contacts therefore have heights
+$(2k+1)\tan 5^\circ$ metres for $k\geq0$. The values with
+$k=0,\ldots,5$ lie at or below one metre, since
+$11\tan 5^\circ<1$, whereas the next candidate satisfies
+$13\tan 5^\circ>1$. Thus there are exactly six left contacts.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-lengthquantity}
+  \lean{PhyXMiniProblems.Problem0014.LengthQuantity}
+  A physical length, represented independently of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[value In Meters]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-valueinmeters}
+  \lean{PhyXMiniProblems.Problem0014.valueInMeters}
+  \uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-lengthquantity}
+  The scalar coordinate of a physical length in the fixed SI metre chart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of value In Meters.
+\end{proof}
+\begin{definition}[angle Of Degrees]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-angleofdegrees}
+  \lean{PhyXMiniProblems.Problem0014.angleOfDegrees}
+  Convert a scalar angle read in degrees from the figure to Mathlib's angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Of Degrees.
+\end{proof}
+\begin{definition}[Parallel Mirror Setup]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-parallelmirrorsetup}
+  \lean{PhyXMiniProblems.Problem0014.ParallelMirrorSetup}
+  \uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-lengthquantity}
+  The two labelled mirrors are the vertical line segments at leftMirrorX and rightMirrorX, with their common vertical span running from lowerEdgeY to upperEdgeY. The last two coordinate fields locate the ray's initial contact. All six coordinates are dimensionful physical lengths; incidenceAngle is measured above the horizontal normal to the vertical mirrors
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Mirror Setup.
+\end{proof}
+\begin{definition}[Reflected Beam Trace]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-reflectedbeamtrace}
+  \lean{PhyXMiniProblems.Problem0014.ReflectedBeamTrace}
+  \uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-lengthquantity}
+  The unfolded candidate contact heights of the labelled reflected beam, together with the finite sets of indices at which the beam actually strikes each mirror. Index 0 is the initial contact with the right mirror, so positive odd indices belong to the left mirror and positive even indices return to the right mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflected Beam Trace.
+\end{proof}
+\begin{definition}[Has Figure Readout]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-hasfigurereadout}
+  \lean{PhyXMiniProblems.Problem0014.HasFigureReadout}
+  \uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-valueinmeters, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-angleofdegrees, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-parallelmirrorsetup}
+  The metric and angular data read directly from Figure 14: the mirrors have a one-metre gap and a one-metre common height, while the ray begins at the lower endpoint of the right mirror at five degrees above the horizontal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Figure Readout.
+\end{proof}
+\begin{definition}[Obeys Specular Reflection]
+  \label{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-obeysspecularreflection}
+  \lean{PhyXMiniProblems.Problem0014.ObeysSpecularReflection}
+  \uses{def:physics:phyx-mini-0014:phyxminiproblems-problem0014-valueinmeters, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-parallelmirrorsetup, def:physics:phyx-mini-0014:phyxminiproblems-problem0014-reflectedbeamtrace}
+  The specular-reflection and straight-line propagation law for the apparatus. Unfolding equal-angle reflections makes every crossing raise the ray by the mirror separation times the tangent of the incidence angle. The equation is stated in every unit system. A candidate contact is an actual reflection exactly when its SI height lies on the finite vertical segment; parity selects the left or right mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Specular Reflection.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

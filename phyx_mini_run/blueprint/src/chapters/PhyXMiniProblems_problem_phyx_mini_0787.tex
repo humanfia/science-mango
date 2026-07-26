@@ -1,0 +1,383 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0787.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0787.source.json
+
+\chapter{Physics problem phyx\_mini\_0787}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0787}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A basketball (which can be closely modeled as a hollow spherical shell) rolls down a mountainside into a valley and then up the opposite side, starting from rest at a height \textbackslash{}(H\_0\textbackslash{}) above the bottom. In figure, the rough part of the terrain prevents slipping while the smooth part has no friction. Neglect rolling friction and assume the system’s total mechanical energy is conserved.
+
+\#\# Question
+
+How high, in terms of \textbackslash{}(H\_0\textbackslash{}), will the ball go up the other side?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}(\textbackslash{}frac\{2\}\{5\} H\_0\textbackslash{})
+
+- B: B: \textbackslash{}(\textbackslash{}frac\{3\}\{5\} H\_0\textbackslash{})
+
+- C: C: \textbackslash{}(\textbackslash{}frac\{1\}\{3\} H\_0\textbackslash{})
+
+- D: D: \textbackslash{}(\textbackslash{}frac\{2\}\{3\} H\_0\textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a ball placed at the top of a slope. The slope is divided into two sections: the left side is labeled "Rough," and the right side is labeled "Smooth." 
+
+1. **Ball**: Positioned at the top left of the slope, on the "Rough" section.
+   
+2. **Slope**: Divided into two distinct surfaces. The left section (where the ball is located) is labeled "Rough," suggesting a surface with friction. The right section is labeled "Smooth," indicating a frictionless or low-friction surface.
+
+3. **Height**: The initial height \textbackslash{}( H\_0 \textbackslash{}) of the ball is marked with a vertical arrow extending from the ball to a dashed horizontal line at the bottom of the slope. This represents potential energy based on its height.
+
+This diagram likely illustrates a physics concept related to motion, friction, and energy.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}(\textbackslash{}frac\{3\}\{5\} H\_0\textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/787.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0787.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0787:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0787.problem_phyx_mini_0787}
+\uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesprimarybasketballvalleyfigure, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesrollingbasketballproblemdata, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-hasphysicalrollingbasketballparameters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesrollingbasketballenergylaws, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesroughandsmoothcontactlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.LengthQuantity}
+  A nonnegative physical length, used for radius and height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.SpeedQuantity}
+  A nonnegative speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.momentOfInertiaDimension}
+  The dimension of a moment of inertia, mass * length²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiadimension}
+  A nonnegative axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.accelerationDimension}
+  The dimension of an acceleration, length / time²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationdimension}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.EnergyQuantity}
+  A physical energy with dimension mass * length² / time²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.lengthInMeters}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.massInKilograms}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Metre-per-second readout of a speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Radian-per-second readout of an angular speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiaquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Kilogram-metre-squared readout of an axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-nonnegativesireadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.energyInJoules}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyquantity}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Motion Event]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-motionevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MotionEvent}
+  The three instants used in the energy comparison
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Event.
+\end{proof}
+\begin{definition}[Motion Phase]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-motionphase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MotionPhase}
+  The two terrain phases distinguished in the problem and image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Phase.
+\end{proof}
+\begin{definition}[Surface Finish]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-surfacefinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.SurfaceFinish}
+  Finish of the terrain under the ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Finish.
+\end{proof}
+\begin{definition}[Contact Regime]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-contactregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.ContactRegime}
+  Tangential contact behavior relevant to the two terrain phases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Contact Regime.
+\end{proof}
+\begin{definition}[Ball Shape]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-ballshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.BallShape}
+  Rigid-body shape used for the basketball approximation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball Shape.
+\end{proof}
+\begin{definition}[Figure Part]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-figurepart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.FigurePart}
+  Visible parts of the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Part.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.FigureLabel}
+  Literal semantic labels appearing in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Depicted Ball Location]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-depictedballlocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.DepictedBallLocation}
+  Qualitative location of the depicted ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Depicted Ball Location.
+\end{proof}
+\begin{definition}[Basketball Valley Figure]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-basketballvalleyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.BasketballValleyFigure}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-figurepart, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-figurelabel, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-depictedballlocation}
+  Qualitative evidence transcribed from image 787.png. No metric distance is inferred from pixel positions. The symbolic H₀ label is attached to the vertical arrow from the ball's initial center-of-mass level to the dashed valley datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Basketball Valley Figure.
+\end{proof}
+\begin{definition}[Rolling Basketball Setup]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.RollingBasketballSetup}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiaquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyquantity, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-motionevent, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-motionphase, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-surfacefinish, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-contactregime, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-ballshape, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-basketballvalleyfigure}
+  All observables, including the unknown height at the highest point, are stored independently. In particular, centerOfMassHeightAboveValleyDatum is not defined from an answer fraction or from the conservation laws. The RigidBody 3 and its angular-velocity vector use Physlib's existing three-dimensional SI-coordinate rotational-energy definition. Separate dimensionful fields record the physical quantities before taking SI readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Basketball Setup.
+\end{proof}
+\begin{definition}[Matches Primary Basketball Valley Figure]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesprimarybasketballvalleyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MatchesPrimaryBasketballValleyFigure}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  Labels, geometry, and placement read directly from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Basketball Valley Figure.
+\end{proof}
+\begin{definition}[Matches Rolling Basketball Problem Data]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesrollingbasketballproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.MatchesRollingBasketballProblemData}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedinmeterspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedinradianspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  Problem-text data and event meanings. The ball starts from rest at height H₀; the rough-to-smooth transition is at the valley datum; and the named highest point is a translational turning point, while the ball may still spin. These facts do not specify that highest point's height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Rolling Basketball Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Rolling Basketball Parameters]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-hasphysicalrollingbasketballparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.HasPhysicalRollingBasketballParameters}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massinkilograms, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyinjoules, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  Positivity and nonnegativity conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Rolling Basketball Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rolling Basketball Energy Laws]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesrollingbasketballenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.SatisfiesRollingBasketballEnergyLaws}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-massinkilograms, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedinmeterspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedinradianspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyinjoules, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-motionevent, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  The hollow-shell inertia, standard kinetic and potential energies, Physlib rotational-energy connection, and conservation of total mechanical energy. All equalities are stated in coherent SI readouts. None contains the unknown height as a solved multiple of H₀
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rolling Basketball Energy Laws.
+\end{proof}
+\begin{definition}[Satisfies Rough And Smooth Contact Laws]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesroughandsmoothcontactlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.SatisfiesRoughAndSmoothContactLaws}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-lengthinmeters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-speedinmeterspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-angularspeedinradianspersecond, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup}
+  At the end of the rough section, rolling without slipping gives v = R ω. On the smooth section there is no tangential contact force and hence no torque about the center, so the angular speed is unchanged during the ascent. The second equality is a phase law, not a statement about the attained height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rough And Smooth Contact Laws.
+\end{proof}
+\begin{lemma}[translational Energy At Transition eq three Fifths initial Potential Energy]
+  \label{lem:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-translationalenergyattransition-eq-threefifths-initialpotentialenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.translationalEnergyAtTransition_eq_threeFifths_initialPotentialEnergy}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyinjoules, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesrollingbasketballproblemdata, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-hasphysicalrollingbasketballparameters, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesrollingbasketballenergylaws, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesroughandsmoothcontactlaws}
+  For the hollow shell, the no-slip relation and I = (2/3) M R² imply that the translational kinetic energy at the bottom is three fifths of the initial gravitational potential energy. This is an intermediate energy statement, not the requested final height
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of translational Energy At Transition eq three Fifths initial Potential Energy.
+\end{proof}
+\begin{lemma}[potential Energy At Highest Point eq transition Translational Energy]
+  \label{lem:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-potentialenergyathighestpoint-eq-transitiontranslationalenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.potentialEnergyAtHighestPoint_eq_transitionTranslationalEnergy}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-energyinjoules, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-rollingbasketballsetup, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-matchesrollingbasketballproblemdata, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesrollingbasketballenergylaws, def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-satisfiesroughandsmoothcontactlaws}
+  During the frictionless ascent the rotational energy is retained, so the translational energy present at the transition becomes gravitational potential energy at the highest point
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of potential Energy At Highest Point eq transition Translational Energy.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[height Fraction]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-answerchoice-heightfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.AnswerChoice.heightFraction}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-answerchoice}
+  Dimensionless height multiplier displayed in each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height Fraction.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0787.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0787:phyxminiproblems-problemphyxmini0787-answerchoice}
+  Dataset metadata: the recorded answer is choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

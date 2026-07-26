@@ -1,0 +1,299 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0349.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0349.source.json
+
+\chapter{Physics problem phyx\_mini\_0349}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0349}
+
+\paragraph{Problem source.}
+\#\# Question
+
+What is the thermal efficiency of an engine that takes \$n\$ moles of diatomic ideal gas through the cycle \$1 \textbackslash{}rightarrow 2 \textbackslash{}rightarrow 3 \textbackslash{}rightarrow 4 \textbackslash{}rightarrow 1\$ shown in figure?
+
+\#\# Answer choices
+
+- A: A: 10\textbackslash{}\%
+
+- B: B: 10.5\textbackslash{}\%
+
+- C: C: 15.9\textbackslash{}\%
+
+- D: D: 12.3\textbackslash{}\%
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram depicting a thermodynamic cycle with a rectangular path.
+
+- **Axes**: 
+  - The vertical axis represents pressure (\textbackslash{}(p\textbackslash{})), starting from origin \textbackslash{}(O\textbackslash{}).
+  - The horizontal axis represents volume (\textbackslash{}(V\textbackslash{})).
+
+- **Key Points**:
+  - The diagram includes four points labeled as 1, 2, 3, and 4.
+  - Point 1 is at \textbackslash{}((V\_0, p\_0)\textbackslash{}).
+  - Point 2 is at \textbackslash{}((V\_0, 2p\_0)\textbackslash{}).
+  - Point 3 is at \textbackslash{}((2V\_0, 2p\_0)\textbackslash{}).
+  - Point 4 is at \textbackslash{}((2V\_0, p\_0)\textbackslash{}).
+
+- **Lines and Arrows**:
+  - Dashed horizontal lines connect from points 2 and 3 to the pressure axis at \textbackslash{}(2p\_0\textbackslash{}).
+  - Dashed vertical lines connect from points 1 and 4 to the volume axis at \textbackslash{}(V\_0\textbackslash{}) and \textbackslash{}(2V\_0\textbackslash{}).
+  - Solid blue lines connect the points in sequence: 1 to 2, 2 to 3, 3 to 4, and 4 back to 1, forming a rectangle.
+  - Arrows on the lines indicate the cycle direction (1 to 2 to 3 to 4 to 1).
+
+This diagram represents a cyclic process with constant pressure and volume changes, illustrating how the system moves through different states.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 10.5\textbackslash{}\%
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/349.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0349.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0349:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0349.problem_phyx_mini_0349}
+\uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-matchesproblemstatementandfigure, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-hasphysicalengineparameters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-satisfiesdiatomicidealgascyclelaws, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-efficiencymatcheschoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.GasVolume}
+  A nonnegative physical volume, carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[pressure Readout]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.pressureReadout}
+  Read a physical pressure in the units selected by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure Readout.
+\end{proof}
+\begin{definition}[volume Readout]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.volumeReadout}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-gasvolume}
+  Read a physical volume in the cubic length unit selected by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Readout.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.energyReadout}
+  Read a physical energy in the units selected by units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.temperatureInKelvins}
+  Kelvin readout of a Temperature; the ambient temperature units for this engine model are fixed to kelvin so that they match the stated SI molar gas constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.pressureInPascals}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressurereadout}
+  Pascal readout of a pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-gasvolume, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumereadout}
+  Cubic-meter readout of a volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.energyInJoules}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyreadout}
+  Joule readout of an internal energy, heat, or work quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Cycle Vertex]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cyclevertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.CycleVertex}
+  The four numbered equilibrium states shown in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Vertex.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.CycleLeg}
+  The four directed arrows shown in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[initial Vertex]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg-initialvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.CycleLeg.initialVertex}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cyclevertex, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg}
+  Initial vertex of each directed diagram leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Vertex.
+\end{proof}
+\begin{definition}[final Vertex]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg-finalvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.CycleLeg.finalVertex}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cyclevertex, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg}
+  Final vertex of each directed diagram leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Vertex.
+\end{proof}
+\begin{definition}[Process Constraint]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-processconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.ProcessConstraint}
+  Constant coordinate of a vertical or horizontal leg in the p-V plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Constraint.
+\end{proof}
+\begin{definition}[depicted Constraint]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg-depictedconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.CycleLeg.depictedConstraint}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-processconstraint}
+  The process type read from the orientation of each depicted leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of depicted Constraint.
+\end{proof}
+\begin{definition}[Molecular Model]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-molecularmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.MolecularModel}
+  The molecular model stated in the problem. The diatomic case has five active translational and rotational quadratic degrees of freedom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Model.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-gasvolume}
+  Thermodynamic observables at one numbered equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Rectangular Diatomic Engine]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.RectangularDiatomicEngine}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-gasvolume, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cyclevertex, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-cycleleg, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-molecularmodel, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-thermodynamicstate}
+  All independent quantities and observables of the depicted engine cycle. molarGasConstantJoulePerMoleKelvin is explicitly an SI scalar readout because Physlib's dimension system does not include amount of substance as a base dimension. The signed workByGas and heatIntoGas use the convention that work done by the gas and heat entering the gas are positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Diatomic Engine.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Figure]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-matchesproblemstatementandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.MatchesProblemStatementAndFigure}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressurereadout, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumereadout, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine}
+  The gas description and coordinate information taken from the problem text and primary image. Equalities involving a factor of two are required in every choice of units, so they express a physical ratio rather than merely an SI calibration. No heat, work, efficiency, or answer choice occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Figure.
+\end{proof}
+\begin{definition}[Has Physical Engine Parameters]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-hasphysicalengineparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.HasPhysicalEngineParameters}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-temperatureinkelvins, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressureinpascals, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumeincubicmeters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyinjoules, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine}
+  Positivity and nondegeneracy conditions for a functioning heat engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Engine Parameters.
+\end{proof}
+\begin{definition}[Satisfies Diatomic Ideal Gas Cycle Laws]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-satisfiesdiatomicidealgascyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.SatisfiesDiatomicIdealGasCycleLaws}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-temperatureinkelvins, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressureinpascals, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumeincubicmeters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyinjoules, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine}
+  Governing laws The first field is p V = n R T. For a diatomic ideal gas with five active quadratic degrees of freedom, the second is U = (5/2) n R T. Boundary work is zero on an isochore and p (V\_f - V\_i) on an isobar. The first-law sign convention is Q = ΔU + W\_by. The remaining fields give the generic cycle totals and the definition eta = W\_net / Q\_in, where Q\_in is the sum of the positive parts of the four signed heats.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Diatomic Ideal Gas Cycle Laws.
+\end{proof}
+\begin{lemma}[leg work and heat readouts]
+  \label{lem:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-leg-work-and-heat-readouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.leg_work_and_heat_readouts}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressureinpascals, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumeincubicmeters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyinjoules, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-matchesproblemstatementandfigure, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-satisfiesdiatomicidealgascyclelaws}
+  The signed work and heat on each arrow, expressed in terms of the common energy scale p₀ V₀. These are consequences of the figure coordinates and governing laws, not input data
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of leg work and heat readouts.
+\end{proof}
+\begin{lemma}[net work and absorbed heat readouts]
+  \label{lem:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-net-work-and-absorbed-heat-readouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.net_work_and_absorbed_heat_readouts}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-pressureinpascals, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-volumeincubicmeters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-energyinjoules, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-matchesproblemstatementandfigure, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-hasphysicalengineparameters, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-satisfiesdiatomicidealgascyclelaws}
+  The clockwise rectangle produces net work p₀ V₀ and absorbs (19/2) p₀ V₀ of heat on its two heating legs
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of net work and absorbed heat readouts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.AnswerChoice}
+  Labels printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Thermal Efficiency]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-displayedthermalefficiency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.displayedThermalEfficiency}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-answerchoice}
+  Displayed percentages converted to dimensionless efficiency ratios
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Thermal Efficiency.
+\end{proof}
+\begin{definition}[Efficiency Matches Choice]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-efficiencymatcheschoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.EfficiencyMatchesChoice}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-rectangulardiatomicengine, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-answerchoice, def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-displayedthermalefficiency}
+  Agreement to half of the last displayed tenth of a percentage point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Efficiency Matches Choice.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0349.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0349:phyxminiproblems-problemphyxmini0349-answerchoice}
+  The dataset records answer choice B. This is metadata, not a premise of the physical theorem below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,240 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0082.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0082.source.json
+
+\chapter{Physics problem phyx\_mini\_0082}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0082}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Light of wavelength \$440 \textbackslash{}, \textbackslash{}text\{nm\}\$ passes through a double slit, yielding a diffraction pattern whose graph of intensity \$I\$ versus angular position \$	heta\$ is shown in figure.
+
+\#\# Question
+
+Verify the displayed intensities of the \$m = 1\$ and \$m = 2\$ interference fringes.
+
+\#\# Answer choices
+
+- A: A: 6.4\textbackslash{}
+
+- B: B: 5.2\textbackslash{}
+
+- C: C: 5.7\textbackslash{}
+
+- D: D: 4.8\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a line graph showing the relationship between angle (θ, in degrees) on the x-axis and intensity (in mW/cm²) on the y-axis.
+
+- The x-axis is labeled "θ (degrees)" and the y-axis is labeled "Intensity (mW/cm²)."
+- The graph displays a series of peaks that decrease in height as θ increases.
+- The first peak is the tallest, reaching just above 7 mW/cm² at around 0 degrees.
+- Subsequent peaks gradually decrease in both height and frequency as the angle increases towards 10 degrees.
+- The intensity appears to approach zero beyond 10 degrees.
+- The graph is overlaid with a grid to help measure values precisely. 
+- The green line represents the intensity, following an oscillating pattern with diminishing peaks.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 5.7\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/82.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0082.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0082:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0082.problem_phyx_mini_0082}
+\uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-hasphysicalparameters, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesproblemandfigure, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-satisfiesfraunhoferdoubleslitlaw, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-agreeswithdisplayedintensity, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesfirstfringeanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Irradiance Quantity]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradiancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.IrradianceQuantity}
+  A nonnegative physical irradiance. Power per area has dimension mass / time³, since the two powers of length in power and area cancel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Irradiance Quantity.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthquantity}
+  The numerical readout of a physical length in nanometers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[irradiance In Milliwatts Per Square Centimeter]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.irradianceInMilliwattsPerSquareCentimeter}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradiancequantity}
+  The numerical irradiance readout in mW/cm². An SI irradiance readout is in W/m², and 1 mW/cm² = 10 W/m²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance In Milliwatts Per Square Centimeter.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.degrees}
+  Convert the numerical degree markings on the horizontal axis to an angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.FigureAxis}
+  The two labeled axes in the supplied plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Axis Unit]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-figureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.FigureAxisUnit}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-degrees}
+  Units printed beside the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Unit.
+\end{proof}
+\begin{definition}[Trace Color]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-tracecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.TraceColor}
+  Color of the measured diffraction trace in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Color.
+\end{proof}
+\begin{definition}[Diffraction Graph]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-diffractiongraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.DiffractionGraph}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-figureaxis, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-figureaxisunit, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-tracecolor}
+  Metadata explicitly visible on the intensity-versus-angle graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diffraction Graph.
+\end{proof}
+\begin{definition}[Double Slit Setup]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.DoubleSlitSetup}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthquantity, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradiancequantity, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-diffractiongraph}
+  All named physical quantities in the finite-width double-slit experiment. The slit width and separation remain dimensionful quantities. The functions angularIrradiance and fringeAngle represent the physical curve and the angular location of each interference fringe
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Double Slit Setup.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthinnanometers, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup}
+  Positive wavelength, slit dimensions, and central irradiance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthinnanometers, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-degrees, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup}
+  Problem and figure readouts. The graph supplies a 7 mW/cm² central peak, uses degrees and mW/cm² on its axes, and shows a green trace through about 10°. The fourth constructive fringe coincides with the first diffraction minimum, calibrating the separation as four slit widths. No requested noncentral fringe intensity or answer-choice value occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Satisfies Fraunhofer Double Slit Law]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-satisfiesfraunhoferdoubleslitlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.SatisfiesFraunhoferDoubleSlitLaw}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-lengthinnanometers, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup}
+  The governing Fraunhofer law for two equal rectangular slits. The first factor is the single-slit diffraction envelope and the second is the two-source interference factor. Real.sinc x = sin x / x away from zero and has the continuous value 1 at zero. The second field is the constructive-interference condition d sin θₘ / λ = m. Both relations hold for arbitrary angles or fringe orders and contain neither of the requested numerical intensities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fraunhofer Double Slit Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Intensity]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-answerintensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.answerIntensity}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-answerchoice}
+  The intensity value in mW/cm² printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Intensity.
+\end{proof}
+\begin{definition}[Agrees With Displayed Intensity]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-agreeswithdisplayedintensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.AgreesWithDisplayedIntensity}
+  Agreement with a graph-displayed intensity to within 0.1 mW/cm²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees With Displayed Intensity.
+\end{proof}
+\begin{definition}[Matches First Fringe Answer]
+  \label{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesfirstfringeanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.MatchesFirstFringeAnswer}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-answerchoice, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-answerintensity, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-agreeswithdisplayedintensity}
+  The answer choices refer to the first noncentral (m = 1) fringe
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches First Fringe Answer.
+\end{proof}
+\begin{lemma}[irradiance at constructive fringe]
+  \label{lem:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradiance-at-constructive-fringe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.irradiance_at_constructive_fringe}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-hasphysicalparameters, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesproblemandfigure, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-satisfiesfraunhoferdoubleslitlaw}
+  At every constructive fringe, the figure calibration reduces the diffraction envelope phase to mπ/4 and the interference factor to cos²(mπ)
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of irradiance at constructive fringe.
+\end{proof}
+\begin{lemma}[first two fringe intensities exact]
+  \label{lem:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-first-two-fringe-intensities-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.first_two_fringe_intensities_exact}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-irradianceinmilliwattspersquarecentimeter, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-doubleslitsetup, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-hasphysicalparameters, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-matchesproblemandfigure, def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-satisfiesfraunhoferdoubleslitlaw}
+  Exact values predicted for the first two noncentral fringe peaks
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of first two fringe intensities exact.
+\end{proof}
+\begin{lemma}[exact fringe values agree with display]
+  \label{lem:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-exact-fringe-values-agree-with-display}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0082.exact_fringe_values_agree_with_display}
+  \uses{def:physics:phyx-mini-0082:phyxminiproblems-problemphyxmini0082-agreeswithdisplayedintensity}
+  The exact predictions agree with the graph's displayed peak heights
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of exact fringe values agree with display.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

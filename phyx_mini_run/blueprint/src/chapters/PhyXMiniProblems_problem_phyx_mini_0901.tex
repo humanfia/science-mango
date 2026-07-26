@@ -1,0 +1,395 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0901.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0901.source.json
+
+\chapter{Physics problem phyx\_mini\_0901}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0901}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two \textbackslash{}( 5.0\textbackslash{},\textbackslash{}mathrm\{g\} \textbackslash{}) point charges on \textbackslash{}( 1.0\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{})-long threads repel each other after being charged to \textbackslash{}( +100\textbackslash{},\textbackslash{}mathrm\{nC\} \textbackslash{}), as shown in figure.
+
+\#\# Question
+
+What is the angle \textbackslash{}( 	heta \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 3\textasciicircum{}\textbackslash{}circ
+
+- B: B: 9\textasciicircum{}\textbackslash{}circ
+
+- C: C: 4.4\textasciicircum{}\textbackslash{}circ
+
+- D: D: 2\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a physical setup with two identical objects suspended from a common point, forming an inverted "V" shape. Each object is represented as a red circle with a plus sign in the center, indicating a positive charge. The details are as follows:
+
+- Two identical objects, each with a mass of 5.0 grams and a charge of 100 nanocoulombs (nC).
+- Each object is suspended from a point by strings of equal length, 1.0 meter each.
+- The angle between each string and the vertical axis is labeled as θ.
+- The strings are symmetrically positioned, and a dashed vertical line runs between them, representing the vertical axis.
+- The two angles θ are marked on either side of the centerline.
+
+The setup appears to depict a situation where two charged objects are in equilibrium due to electrical and gravitational forces.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 4.4\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/901.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0901.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0901:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0901.problem_phyx_mini_0901}
+\uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matcheschargedpendulumscenario, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matchessuppliedfigure, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hasproblemphysicaldata, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hastextbookconstantcalibrations, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hasphysicalchargedpendulumparameters, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-satisfiessymmetricpendulumgeometry, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-satisfieschargedpendulumequilibriumlaws, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-ismatchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.accelerationDimension}
+  The physical dimension L T⁻² of acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[coulomb Constant Dimension]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.coulombConstantDimension}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcedimension}
+  The dimension force * length² / charge² of Coulomb's constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coulomb Constant Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.MassQuantity}
+  A nonnegative mass as a unit-independent physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.LengthQuantity}
+  A nonnegative length as a unit-independent physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.SignedChargeQuantity}
+  A signed electric charge as a unit-independent physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationdimension}
+  A nonnegative acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcedimension}
+  A nonnegative force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Coulomb Constant Quantity]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.CoulombConstantQuantity}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantdimension}
+  A nonnegative physical value of Coulomb's constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coulomb Constant Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.massInKilograms}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.lengthInMeters}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-signedchargequantity}
+  Read a signed physical charge in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationmagnitudequantity}
+  Read an acceleration magnitude in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.forceInNewtons}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcemagnitudequantity}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[coulomb Constant In Newton Meters Squared Per Coulomb Squared]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantinnewtonmeterssquaredpercoulombsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.coulombConstantInNewtonMetersSquaredPerCoulombSquared}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantquantity}
+  Read Coulomb's constant in N m² / C²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coulomb Constant In Newton Meters Squared Per Coulomb Squared.
+\end{proof}
+\begin{definition}[angle In Degrees]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-angleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.angleInDegrees}
+  Read the principal representative of an angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle In Degrees.
+\end{proof}
+\begin{definition}[Bob]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-bob}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.Bob}
+  The left and right suspended charged bodies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bob.
+\end{proof}
+\begin{definition}[Charged Body Model]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedbodymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.ChargedBodyModel}
+  Idealization of the two charged bodies used by Coulomb's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Body Model.
+\end{proof}
+\begin{definition}[Thread Model]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-threadmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.ThreadModel}
+  Idealization of each supporting thread
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thread Model.
+\end{proof}
+\begin{definition}[Mechanical State]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-mechanicalstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.MechanicalState}
+  Mechanical state shown after the charges have separated
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mechanical State.
+\end{proof}
+\begin{definition}[Printed Charge Sign]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-printedchargesign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.PrintedChargeSign}
+  Signs printed inside the two red charge markers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Printed Charge Sign.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.FigureObject}
+  Physical or geometric objects visibly present in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.FigureLabel}
+  Literal label kinds displayed in image 901.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Charged Pendulum Figure]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.ChargedPendulumFigure}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-bob, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-printedchargesign, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-figureobject, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-figurelabel}
+  Presentation data transcribed from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Pendulum Figure.
+\end{proof}
+\begin{definition}[Charged Pendulum Setup]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.ChargedPendulumSetup}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massquantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthquantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-signedchargequantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationmagnitudequantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forcemagnitudequantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantquantity, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-bob, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedbodymodel, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-threadmodel, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-mechanicalstate, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumfigure}
+  Independent physical quantities and observables of the two-pendulum system. No force, separation, or angle is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charged Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Charged Pendulum Scenario]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matcheschargedpendulumscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.MatchesChargedPendulumScenario}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Qualitative assumptions stated or implied by the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Charged Pendulum Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Exact qualitative and literal information visible in image 901.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Problem Physical Data]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hasproblemphysicaldata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.HasProblemPhysicalData}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massinkilograms, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthinmeters, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargeincoulombs, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Dimensionful physical values stated in the problem. The signed charge readout also records that both charges are positive. No angle or force value occurs in this interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Problem Physical Data.
+\end{proof}
+\begin{definition}[Has Textbook Constant Calibrations]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hastextbookconstantcalibrations}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.HasTextbookConstantCalibrations}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantinnewtonmeterssquaredpercoulombsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Standard textbook calibrations needed for the numerical calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Textbook Constant Calibrations.
+\end{proof}
+\begin{definition}[Has Physical Charged Pendulum Parameters]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-hasphysicalchargedpendulumparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.HasPhysicalChargedPendulumParameters}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massinkilograms, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthinmeters, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargeincoulombs, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forceinnewtons, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantinnewtonmeterssquaredpercoulombsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Positivity and the acute angular branch depicted in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Charged Pendulum Parameters.
+\end{proof}
+\begin{definition}[Satisfies Symmetric Pendulum Geometry]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-satisfiessymmetricpendulumgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.SatisfiesSymmetricPendulumGeometry}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthinmeters, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Mirror-symmetric common-pivot geometry. Each bob's horizontal displacement is L sin(theta), so the center-to-center separation is 2 L sin(theta)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Symmetric Pendulum Geometry.
+\end{proof}
+\begin{definition}[Satisfies Charged Pendulum Equilibrium Laws]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-satisfieschargedpendulumequilibriumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.SatisfiesChargedPendulumEquilibriumLaws}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-massinkilograms, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-lengthinmeters, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargeincoulombs, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-forceinnewtons, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-coulombconstantinnewtonmeterssquaredpercoulombsquared, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup}
+  Coulomb's inverse-square law, weight m g, and horizontal and vertical component force balance. These are coherent-SI readout equations and contain neither the target angle nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Charged Pendulum Equilibrium Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.AnswerChoice}
+  Multiple-choice labels in the order displayed by the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angle In Degrees]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice-displayedangleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.AnswerChoice.displayedAngleInDegrees}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice}
+  Numerical angle printed beside an answer choice, in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angle In Degrees.
+\end{proof}
+\begin{definition}[unit In Last Displayed Place In Degrees]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice-unitinlastdisplayedplaceindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.AnswerChoice.unitInLastDisplayedPlaceInDegrees}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice}
+  Precision of the final printed digit of each displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of unit In Last Displayed Place In Degrees.
+\end{proof}
+\begin{definition}[Matches Displayed Precision]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matchesdisplayedprecision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.MatchesDisplayedPrecision}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice}
+  An actual angle agrees with a displayed choice under round-to-nearest
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Precision.
+\end{proof}
+\begin{definition}[Is Matching Answer]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-ismatchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.IsMatchingAnswer}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-angleindegrees, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-chargedpendulumsetup, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice, def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-matchesdisplayedprecision}
+  A choice matches the independently modeled physical equilibrium angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Matching Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0901.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0901:phyxminiproblems-problemphyxmini0901-answerchoice}
+  Answer label recorded in the source dataset; metadata only
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

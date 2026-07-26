@@ -1,0 +1,346 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0314.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0314.source.json
+
+\chapter{Physics problem phyx\_mini\_0314}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0314}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, two speakers separated by distance \$d\_1 = 2.00\$ m are in phase. Assume the amplitudes of the sound waves from the speakers are approximately the same at the listener's ear at distance \$d\_2 = 3.75\$ m directly in front of one speaker. Consider the full audible range for normal hearing, \$20\$ Hz to \$20\$ kHz.
+
+\#\# Question
+
+What is the third lowest frequency \$f\_\{max,3\}\$ that gives maximum signal?
+
+\#\# Answer choices
+
+- A: A: 956 Hz
+
+- B: B: 986 Hz
+
+- C: C: 1015 Hz
+
+- D: D: 1029 Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram with two speakers on the left and a listener on the right. The listener is represented by an ear icon. There is a vertical distance labeled \textbackslash{}(d\_1\textbackslash{}) between the two speakers, which are aligned vertically on the left side. The horizontal distance from the speakers to the listener is labeled \textbackslash{}(d\_2\textbackslash{}). The words "Speakers" and "Listener" are placed near their respective icons, denoting their roles in the diagram. The arrangement suggests a context related to sound or audio positioning.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1029 Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/314.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0314.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0314:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0314.problem_phyx_mini_0314}
+\uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesproblemstatementandfigure, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasphysicaltwospeakerparameters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiesdepictedspeakergeometry, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiestwospeakerinterferencelaws, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasstandardairsoundspeedcalibration, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-isthirdlowestaudiblemaximum, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructivefrequency, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-answerchoice, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.LengthQuantity}
+  A nonnegative physical length, independent of the selected unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.FrequencyQuantity}
+  A nonnegative physical frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SpeedQuantity}
+  A nonnegative physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Sound Pressure Amplitude]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SoundPressureAmplitude}
+  A physical sound-pressure amplitude at the listener
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Pressure Amplitude.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.lengthReadout}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.frequencyReadout}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.speedReadout}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedquantity}
+  Read a physical speed in the selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.lengthInMeters}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthreadout}
+  Meter readout used for the figure geometry and interference condition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyreadout}
+  Hertz readout used for the audible band and displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedreadout}
+  Meter-per-second readout of the acoustic propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[sound Pressure In Pascals]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.soundPressureInPascals}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureamplitude}
+  Pascal readout of a received sound-pressure amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of sound Pressure In Pascals.
+\end{proof}
+\begin{definition}[Speaker Label]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speakerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SpeakerLabel}
+  The two loudspeakers distinguished by their vertical position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speaker Label.
+\end{proof}
+\begin{definition}[Source Phase Relation]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-sourcephaserelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SourcePhaseRelation}
+  The phase relation stipulated for the two coherent sources
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Phase Relation.
+\end{proof}
+\begin{definition}[Listener Alignment]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-listeneralignment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.ListenerAlignment}
+  Which speaker lies on the horizontal line through the listener's ear
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Listener Alignment.
+\end{proof}
+\begin{definition}[Figure Distance Label]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-figuredistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.FigureDistanceLabel}
+  Labels attached to the two dimension arrows in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Distance Label.
+\end{proof}
+\begin{definition}[Two Speaker Interference Setup]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.TwoSpeakerInterferenceSetup}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureamplitude, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speakerlabel, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-sourcephaserelation, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-listeneralignment, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-figuredistancelabel}
+  All independent physical quantities and qualitative data in the two-speaker experiment. constructiveWavelength order and constructiveFrequency order are indexed by positive integer path-difference order. They remain independent physical quantities until constrained by SatisfiesTwoSpeakerInterferenceLaws. givesMaximumSignal is the physical observation being characterized; it is not defined to make any particular frequency a maximum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Speaker Interference Setup.
+\end{proof}
+\begin{definition}[Received Amplitudes Approximately Equal]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-receivedamplitudesapproximatelyequal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.ReceivedAmplitudesApproximatelyEqual}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureinpascals, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  The source phrase "approximately the same" has no numerical tolerance. This predicate makes the approximation explicit: the Pascal-readout difference is at most a dimensionless relative tolerance times the larger amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Received Amplitudes Approximately Equal.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Figure]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesproblemstatementandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.MatchesProblemStatementAndFigure}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthinmeters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-receivedamplitudesapproximatelyequal}
+  Problem-text and primary-bitmap readouts. The lower speaker is on the listener's horizontal line, d₁ = 2.00 m, d₂ = 3.75 m, the sources are in phase, their received amplitudes are approximately equal, and the audible range is 20 Hz through 20 kHz. No path length, path difference, wavelength, constructive frequency, or answer choice is assigned a derived value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Figure.
+\end{proof}
+\begin{definition}[Has Physical Two Speaker Parameters]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasphysicaltwospeakerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.HasPhysicalTwoSpeakerParameters}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthinmeters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedinmeterspersecond, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-soundpressureinpascals, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  Positivity and nondegeneracy of the physical setup. The final field restricts the unspecified relative-amplitude tolerance to a genuine fractional error. These conditions supply no derived numerical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Two Speaker Parameters.
+\end{proof}
+\begin{definition}[Satisfies Depicted Speaker Geometry]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiesdepictedspeakergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SatisfiesDepictedSpeakerGeometry}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthreadout, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  Euclidean path geometry read from the primary figure. The lower path is the horizontal distance d₂; the upper path is the hypotenuse with legs d₁ and d₂; and the positive path difference is upper minus lower. The laws are stated in arbitrary length units and contain none of the numerical consequences 4.25 m or 0.50 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Depicted Speaker Geometry.
+\end{proof}
+\begin{definition}[Satisfies Two Speaker Interference Laws]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiestwospeakerinterferencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.SatisfiesTwoSpeakerInterferenceLaws}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthreadout, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyreadout, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedreadout, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-receivedamplitudesapproximatelyequal}
+  Governing laws for nondispersive sound and two in-phase coherent sources. For every positive order, v = λ f and Δr = m λ. Under the source's in-phase and approximately-equal-amplitude conditions, a positive frequency gives maximum signal exactly when it is one of these positive constructive orders. This generic criterion neither singles out order three nor states a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Speaker Interference Laws.
+\end{proof}
+\begin{definition}[Has Standard Air Sound Speed Calibration]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasstandardairsoundspeedcalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.HasStandardAirSoundSpeedCalibration}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedinmeterspersecond, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  The source omits a sound-speed readout. This separate premise records the conventional standard-air calibration needed for a numerical frequency. It does not mention a wavelength, interference order, target frequency, or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Air Sound Speed Calibration.
+\end{proof}
+\begin{definition}[Is In Audible Range]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-isinaudiblerange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.IsInAudibleRange}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup}
+  A physical frequency lies in the inclusive normal-hearing range
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is In Audible Range.
+\end{proof}
+\begin{definition}[Is Third Lowest Audible Maximum]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-isthirdlowestaudiblemaximum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.IsThirdLowestAudibleMaximum}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-isinaudiblerange}
+  candidate is the third-lowest audible maximum when it is an audible maximum and exactly two distinct audible maximum-frequency readouts lie below it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Third Lowest Audible Maximum.
+\end{proof}
+\begin{definition}[third Constructive Order]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructiveorder}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.thirdConstructiveOrder}
+  The positive constructive order whose frequency is being requested
+\end{definition}
+\begin{proof}
+  This is the declared model definition of third Constructive Order.
+\end{proof}
+\begin{definition}[third Constructive Frequency]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructivefrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.thirdConstructiveFrequency}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructiveorder}
+  Naming expansion for the order-three constructive frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of third Constructive Frequency.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.AnswerChoice}
+  Labels of the four answers printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency In Hertz]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-displayedanswerfrequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.displayedAnswerFrequencyInHertz}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-answerchoice}
+  Frequency in hertz displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency In Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-answerchoice}
+  The answer label recorded by the supplied dataset; it is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyquantity, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-answerchoice, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-displayedanswerfrequencyinhertz}
+  Exact agreement between a physical frequency and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[upper Path Length In Meters eq seventeen Fourths]
+  \label{lem:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-upperpathlengthinmeters-eq-seventeenfourths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.upperPathLengthInMeters_eq_seventeenFourths}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthinmeters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesproblemstatementandfigure, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasphysicaltwospeakerparameters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiesdepictedspeakergeometry}
+  The Pythagorean path from the upper speaker has length 17/4 m = 4.25 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of upper Path Length In Meters eq seventeen Fourths.
+\end{proof}
+\begin{lemma}[path Difference In Meters eq one Half]
+  \label{lem:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-pathdifferenceinmeters-eq-onehalf}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.pathDifferenceInMeters_eq_oneHalf}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-lengthinmeters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesproblemstatementandfigure, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasphysicaltwospeakerparameters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiesdepictedspeakergeometry}
+  Subtracting the lower path 15/4 m from the upper path 17/4 m gives the figure's physical path difference 1/2 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of path Difference In Meters eq one Half.
+\end{proof}
+\begin{lemma}[third Constructive Frequency eq six Times Sound Speed]
+  \label{lem:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructivefrequency-eq-sixtimessoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0314.thirdConstructiveFrequency_eq_sixTimesSoundSpeed}
+  \uses{def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-frequencyinhertz, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-speedinmeterspersecond, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-twospeakerinterferencesetup, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-matchesproblemstatementandfigure, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-hasphysicaltwospeakerparameters, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiesdepictedspeakergeometry, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-satisfiestwospeakerinterferencelaws, def:physics:phyx-mini-0314:phyxminiproblems-problemphyxmini0314-thirdconstructivefrequency}
+  At constructive order three, 1/2 = 3 λ, hence λ = 1/6 m and f = 6 v. This symbolic result does not assume a numerical speed or answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of third Constructive Frequency eq six Times Sound Speed.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

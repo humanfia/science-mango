@@ -1,0 +1,232 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0118.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0118.source.json
+
+\chapter{Physics problem phyx\_mini\_0118}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0118}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An acoustic waveguide consists of a long cylindrical tube with radius \$r\$ designed to channel sound waves, as shown in figure. A tone with frequency \$f\$ is emitted from a small source at the center of one end of this tube. Depending on the radius of the tube and the frequency of the tone, pressure nodes can develop along the tube axis where rays reflected from the periphery constructively interfere with direct rays. The tube were filled with helium rather than air.
+
+\#\# Question
+
+What the value of \$d\$?
+
+\#\# Answer choices
+
+- A: A: 11.3cm
+
+- B: B: 13.1cm
+
+- C: C: 12.3cm
+
+- D: D: 13.2cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cylindrical object with a focus on light reflection. 
+
+- **Cylinder**: There is a large horizontal cylinder shown, with its circular ends visible.
+- **Light Rays**: Inside the cylinder, a light ray is drawn in purple, starting from a point on the left end, reflecting off the inner wall at an angle, and reaching a point further to the right. The light ray appears to be originating from a blue dot.
+- **Points**: There are two points marked – a blue point on the left and a black point further along the cylinder's axis.
+- **Dashed Lines**: A horizontal dashed line runs through the blue and black points, indicating a measurement on the axis. There is also a vertical dashed line from the black point to the bottom side of the cylinder.
+- **Wavefronts**: Blue wavefronts are depicted emanating from the point where the light ray reflects, illustrating the wave nature of light.
+- **Text**: The variables \textbackslash{}( r \textbackslash{}) and \textbackslash{}( d \textbackslash{}) are labeled, corresponding to the radius from the center of the left end to the blue point, and the distance along the axis from the blue point to the black point, respectively.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 11.3cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/118.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0118.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0118:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0118.axialNodeDistance_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-matchesproblemandfigure, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hasphysicalparameters, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesdepictedraygeometry, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesacousticinterferencelaws, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-matchesanswerchoice, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.AcousticLength}
+  A physical length, independent of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.AcousticFrequency}
+  A physical frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.AcousticSpeed}
+  A physical propagation speed, carrying the length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.lengthValueIn}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength}
+  Read a physical length as a real scalar in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.metersValue}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-lengthvaluein}
+  The metre readout used in the governing equations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[centimeters Value]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-centimetersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.centimetersValue}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-lengthvaluein}
+  The centimetre readout used by the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters Value.
+\end{proof}
+\begin{definition}[hertz Value]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hertzvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.hertzValue}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticfrequency}
+  The hertz readout of a dimensionful frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz Value.
+\end{proof}
+\begin{definition}[meters Per Second Value]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-meterspersecondvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.metersPerSecondValue}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticspeed}
+  The metres-per-second readout of a dimensionful speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second Value.
+\end{proof}
+\begin{definition}[Tube Gas]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-tubegas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.TubeGas}
+  The two gases contrasted by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Gas.
+\end{proof}
+\begin{definition}[Cylindrical Acoustic Waveguide]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.CylindricalAcousticWaveguide}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticfrequency, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticspeed, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-tubegas}
+  The physical quantities in the cylindrical waveguide and its depicted one-reflection ray construction. The source centre is the axial and radial origin. The wall-reflection point has axial coordinate reflectionAxialCoordinate and radial coordinate equal to tubeRadius. The labelled pressure point lies back on the axis at coordinate axialNodeDistanceD
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylindrical Acoustic Waveguide.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide}
+  Qualitative information supplied by the problem text and primary figure. The source is at the centre of the left end, the labelled point is inside the long tube, and helium rather than air fills the tube. No requested numerical value of d occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hertzvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-meterspersecondvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide}
+  Positivity conditions for the acoustic and ray-path quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Depicted Ray Geometry]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesdepictedraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.SatisfiesDepictedRayGeometry}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide}
+  Euclidean and specular-reflection laws for the ray shown in the figure. With the source and observation point both on the tube axis, specular reflection puts the wall contact halfway between them. The two squared segment equations are the Pythagorean relations for the triangles with radial leg r. These equations describe the ray geometry and do not solve for d
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Depicted Ray Geometry.
+\end{proof}
+\begin{definition}[Satisfies Acoustic Interference Laws]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesacousticinterferencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.SatisfiesAcousticInterferenceLaws}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hertzvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-meterspersecondvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide}
+  The acoustic propagation and constructive-interference laws. For each gas, c = λ f. At the labelled axial pressure point, the excess of the one-bounce path over the direct path is a positive integer number of wavelengths in the gas actually filling the tube. The latter follows the problem's own description of the labelled pressure point as arising from constructive interference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Acoustic Interference Laws.
+\end{proof}
+\begin{lemma}[axial Node Distance formula]
+  \label{lem:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-axialnodedistance-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.axialNodeDistance_formula}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-metersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-cylindricalacousticwaveguide, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-matchesproblemandfigure, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-hasphysicalparameters, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesdepictedraygeometry, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-satisfiesacousticinterferencelaws}
+  Solving the one-bounce geometry and the integer-wavelength path-difference law gives the general axial distance formula d = (4 r² - (m λ)²) / (2 m λ). This symbolic conclusion does not use the recorded numerical answer
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of axial Node Distance formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[centimeters]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-answerchoice-centimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.AnswerChoice.centimeters}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-answerchoice}
+  The centimetre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-acousticlength, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-centimetersvalue, def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-answerchoice}
+  Agreement with an answer displayed to the nearest tenth of a centimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0118.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0118:phyxminiproblems-problemphyxmini0118-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

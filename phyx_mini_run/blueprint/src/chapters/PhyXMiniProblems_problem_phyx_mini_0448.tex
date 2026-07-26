@@ -1,0 +1,345 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0448.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0448.source.json
+
+\chapter{Physics problem phyx\_mini\_0448}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0448}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \$35 \textbackslash{}, \textbackslash{}text\{ft\}\textasciicircum{}3\$ rigid tank has air at \$225 \textbackslash{}, \textbackslash{}text\{psia\}\$ and ambient \$600 \textbackslash{}, R\$ connected by a valve to a piston/cylinder. The piston of area \$1 \textbackslash{}, \textbackslash{}text\{ft\}\textasciicircum{}2\$ requires \$40 \textbackslash{}, \textbackslash{}text\{psia\}\$ below it to float. The valve is opened, the piston moves slowly \$7 \textbackslash{}, \textbackslash{}text\{ft\}\$ up, and the valve is closed. During the process, air temperature remains at \$600 \textbackslash{}, R\$.
+
+\#\# Question
+
+What is the final pressure in the tank?
+
+\#\# Answer choices
+
+- A: A: 200 psia
+
+- B: B: 212 psia
+
+- C: C: 225 psia
+
+- D: D: 217 psia
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image presents a schematic diagram illustrating a fluid system. 
+
+- **Components and Labels**:
+  - **Tank A**: Positioned to the left, represented as a square with the label "Tank A."
+  - **Cylinder B**: Shown on the right, depicted as a tall rectangular container with a label "Cylinder B."
+  - **Piston**: Inside "Cylinder B," a piston is depicted, signified by a horizontal line with an arrow pointing downwards labeled "Piston."
+  - **Valve**: Located at the bottom, between Tank A and Cylinder B, represented by a circle with an X inside, labeled "Valve."
+  - **Gravity (g)**: Indicated by an arrow labeled "g" pointing downwards, suggesting gravitational force acting on the piston.
+
+- **Connections and Relationships**:
+  - A line connects Tank A and Cylinder B through the valve, suggesting a fluid path.
+  - The piston within Cylinder B is influenced by gravity, implying a setup where the piston can move vertically within the cylinder under gravitational force.
+
+- **Additional Details**:
+  - There is shading inside the cylinder below the piston, possibly indicating fluid present below the piston.
+
+The diagram likely illustrates a basic hydraulic or pneumatic system where the movement of the piston in Cylinder B is controlled through an open or closed valve and influenced by gravity.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 217 psia
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/448.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0448.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0448:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0448.finalTankPressure_eq_217_psia}
+\uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpsia, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-matchesproblemandprimaryfigure, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-hasphysicalparameters, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-satisfiespistonsweepgeometry, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-satisfiesisothermalidealgasinventory, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-conservesairduringtransfer, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-answerpressureinpsia}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.LengthQuantity}
+  A nonnegative physical piston displacement, carrying the length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.VolumeQuantity}
+  A nonnegative physical volume, carrying the dimension L\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.PressureQuantity}
+  A physical absolute pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.AreaQuantity}
+  A nonnegative physical cross-sectional area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.pressureInPascals}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressurequantity}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Psia]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpsia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.pressureInPsia}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressurequantity, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpascals}
+  Read an absolute pressure in pounds per square inch. The denominator is Physlib's dimensionful quantity representing one psi; calling this psia records that all pressures in this problem are absolute, not gauge pressures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Psia.
+\end{proof}
+\begin{definition}[length In Feet]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthinfeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.lengthInFeet}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthquantity}
+  Read a piston displacement in feet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Feet.
+\end{proof}
+\begin{definition}[area In Square Feet]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areainsquarefeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.areaInSquareFeet}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areaquantity}
+  Read a cross-sectional area in square feet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Feet.
+\end{proof}
+\begin{definition}[volume In Cubic Feet]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumeincubicfeet}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.volumeInCubicFeet}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumequantity}
+  Read a physical volume using feet as the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Feet.
+\end{proof}
+\begin{definition}[temperature In Rankine]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-temperatureinrankine}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.temperatureInRankine}
+  Rankine is the absolute Fahrenheit scale. Physlib's Temperature deliberately uses an arbitrary absolute unit; in this setup that unit is fixed to TemperatureUnit.absoluteFahrenheit, and this is its real-valued readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Rankine.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.GasSpecies}
+  The gas species named by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Vessel]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-vessel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.Vessel}
+  The two vessels labelled in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vessel.
+\end{proof}
+\begin{definition}[Tank Behavior]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-tankbehavior}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.TankBehavior}
+  The stated mechanical character of tank A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Behavior.
+\end{proof}
+\begin{definition}[Piston Motion Regime]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pistonmotionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.PistonMotionRegime}
+  The slow piston motion assumed by the textbook model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Piston Motion Regime.
+\end{proof}
+\begin{definition}[Thermal Regime]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-thermalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.ThermalRegime}
+  The thermal constraint stated for the valve-opening process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Regime.
+\end{proof}
+\begin{definition}[Air Transfer Direction]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-airtransferdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.AirTransferDirection}
+  Direction in which air crosses the open valve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Transfer Direction.
+\end{proof}
+\begin{definition}[Valve Event]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-valveevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.ValveEvent}
+  Three events in the valve operation described in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Event.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.ValvePosition}
+  Whether the valve is open or closed at a given event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.VerticalDirection}
+  Vertical direction of the piston motion or gravity arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.FigureComponent}
+  Physical components distinguished in image 448.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.FigureLabel}
+  Text or symbols printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Placement]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-horizontalplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.HorizontalPlacement}
+  Relative left-to-right placement visible in the schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Placement.
+\end{proof}
+\begin{definition}[Tank Piston Figure]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-tankpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.TankPistonFigure}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-vessel, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-verticaldirection, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-figurecomponent, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-figurelabel, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-horizontalplacement}
+  Structured transcription of the components and geometry in image 448.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Piston Figure.
+\end{proof}
+\begin{definition}[Rigid Tank Piston Setup]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.RigidTankPistonSetup}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthquantity, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumequantity, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressurequantity, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areaquantity, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-gasspecies, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-tankbehavior, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pistonmotionregime, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-thermalregime, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-airtransferdirection, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-valveevent, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-valveposition, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-tankpistonfigure}
+  Independent physical quantities and measured scalar components of the setup. In particular, tankAFinalPressure is an unconstrained physical-pressure field: it is not defined from 217 or from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Tank Piston Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpsia, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthinfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areainsquarefeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumeincubicfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-temperatureinrankine, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  Numerical data from the prose and qualitative data from the primary image. No field here fixes the requested final tank pressure, 217 psia, or an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpsia, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthinfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areainsquarefeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumeincubicfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-temperatureinrankine, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  Positivity conditions selecting the intended physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Piston Sweep Geometry]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-satisfiespistonsweepgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.SatisfiesPistonSweepGeometry}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-lengthinfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-areainsquarefeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumeincubicfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  The vertical piston displacement sweeps out area * rise beneath the piston. This geometric law contains no pressure value and no requested conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Piston Sweep Geometry.
+\end{proof}
+\begin{definition}[Satisfies Isothermal Ideal Gas Inventory]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-satisfiesisothermalidealgasinventory}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.SatisfiesIsothermalIdealGasInventory}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-pressureinpsia, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-volumeincubicfeet, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-temperatureinrankine, def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  Ideal-gas inventory equations in one consistent mixed-unit system. The first two equations describe the air remaining in the same rigid tank before and after transfer. The third describes the admitted air occupying the volume swept beneath a quasistatic piston held at its floating pressure. A single temperature field expresses the stated isothermal condition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isothermal Ideal Gas Inventory.
+\end{proof}
+\begin{definition}[Conserves Air During Transfer]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-conservesairduringtransfer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.ConservesAirDuringTransfer}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-rigidtankpistonsetup}
+  Air inventory is conserved while the valve is open: the loss from rigid tank A equals the amount admitted to cylinder B. This law contains no pressure answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Conserves Air During Transfer.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Pressure In Psia]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-answerpressureinpsia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.answerPressureInPsia}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-answerchoice}
+  Absolute-pressure value printed beside each displayed answer, in psia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Pressure In Psia.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0448.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0448:phyxminiproblems-problemphyxmini0448-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

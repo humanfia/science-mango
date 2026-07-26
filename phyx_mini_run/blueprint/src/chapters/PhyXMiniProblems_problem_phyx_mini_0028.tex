@@ -1,0 +1,160 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0028.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0028.source.json
+
+\chapter{Physics problem phyx\_mini\_0028}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0028}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two rays traveling parallel to the principal axis strike a large plano-convex lens having a refractive index of 1.60 figure. If the convex face is spherical, a ray near the edge does not pass through the focal point (spherical aberration occurs). Assume this face has a radius of curvature of \textbackslash{}( R = 20.0 \textbackslash{}text\{ cm\} \textbackslash{}) and the two rays are at distances \textbackslash{}( h\_1 = 0.500 \textbackslash{}text\{ cm\} \textbackslash{}) and \textbackslash{}( h\_2 = 12.0 \textbackslash{}text\{ cm\} \textbackslash{}) from the principal axis.
+
+\#\# Question
+
+Find the difference \textbackslash{}( \textbackslash{}Delta x \textbackslash{}) in the positions where each crosses the principal axis.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 16.1 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- B: B: \textbackslash{}( 18.2 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- C: C: \textbackslash{}( 20.8 \textbackslash{}text\{ cm\} \textbackslash{})
+
+- D: D: \textbackslash{}( 21.3 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a optical diagram illustrating light refraction through a lens.
+
+- There's a horizontal line representing the principal axis.
+- A convex lens is shown, partially shaded to indicate its curvature.
+- Three parallel arrows on the left, pointing towards the lens, represent incoming light rays.
+- After passing through the lens, the light rays converge at a point on the right side of the lens.
+- Above and below the principal axis, the diagram includes two vertical arrows marked with \textbackslash{}( h\_1 \textbackslash{}) and \textbackslash{}( h\_2 \textbackslash{}), representing object and image heights.
+- \textbackslash{}( C \textbackslash{}) is marked to the left of the lens on the principal axis, with a line extending downwards labeled \textbackslash{}( R \textbackslash{}), denoting the radius of curvature.
+- The distance between the converging point of the light rays and the lens on the right is labeled \textbackslash{}( \textbackslash{}Delta x \textbackslash{}).
+
+This figure illustrates basic concepts of lens optics, such as image formation and focal point.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 21.3 \textbackslash{}text\{ cm\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/28.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0028.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0028:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0028.axisCrossingSeparation_roundsTo_choiceD}
+\uses{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimeterunitchoices, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimetervalue, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-planoconvexlens, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-isphysicalplanoconvexlens, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-parallelaxisraytrace, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-satisfiessphericalexitraylaw, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-axiscrossingseparationcm}
+For a plano-convex lens of index \(1.60\) in air and spherical radius
+\(20.0\,\mathrm{cm}\), compare parallel rays at heights \(0.500\,\mathrm{cm}\)
+and \(12.0\,\mathrm{cm}\).  The exact spherical-surface geometry and Snell
+refraction place their axis crossings \(21.3\,\mathrm{cm}\) apart to the
+displayed precision, answer D.
+\end{theorem}
+\begin{proof}
+For a ray of height \(h\), the radial-normal angle \(i\) satisfies
+\(\sin i=h/R\), and Snell's law on the acute branch gives
+\(r=\arcsin((8/5)\sin i)\).  Its surface coordinate is
+\(x_s=x_C+\sqrt{R^2-h^2}\), and the transmitted ray crosses the axis at
+\[
+ x(h)=x_s+\frac{h}{\tan(r-i)}.
+\]
+Apply this formula at \(h=1/2\) and \(h=12\); the common center coordinate
+cancels in the difference.  Positivity and the acute-angle hypotheses justify
+all divisions.  Certified interval bounds for the two inverse-sine and
+tangent evaluations put \(|x(1/2)-x(12)|\) strictly between
+\(21.25\) and \(21.35\) centimetres, proving the stated half-tenth bound.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.centimeterUnitChoices}
+  The unit system obtained from SI by expressing its length component in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length Value]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-lengthvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.lengthValue}
+  The real-valued readout of a physical length in an arbitrary unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value.
+\end{proof}
+\begin{definition}[centimeter Value]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimetervalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.centimeterValue}
+  \uses{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimeterunitchoices, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-lengthvalue}
+  The numerical value of a physical length when expressed in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Value.
+\end{proof}
+\begin{definition}[Plano Convex Lens]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-planoconvexlens}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.PlanoConvexLens}
+  The plano-convex lens and the axis-coordinate labels needed in the meridional cross-section from the figure. Refractive indices are dimensionless, while all three geometric fields are genuine physical lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plano Convex Lens.
+\end{proof}
+\begin{definition}[Is Physical Plano Convex Lens]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-isphysicalplanoconvexlens}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.IsPhysicalPlanoConvexLens}
+  \uses{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimetervalue, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-planoconvexlens}
+  The non-numerical geometry and positivity conditions for the depicted lens. The spherical vertex is at C + R; the planar face lies strictly between the center of curvature and that vertex
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Plano Convex Lens.
+\end{proof}
+\begin{definition}[Parallel Axis Ray Trace]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-parallelaxisraytrace}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.ParallelAxisRayTrace}
+  Readouts for one meridional ray which enters normally through the planar face, travels parallel to the principal axis inside the lens, and refracts through the spherical face. Angles are dimensionless real readouts in radians and are measured from the local outward spherical normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Axis Ray Trace.
+\end{proof}
+\begin{definition}[Snell Law At Interface]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-snelllawatinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.SnellLawAtInterface}
+  Snell's law for dimensionless refractive indices and radian angle readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Interface.
+\end{proof}
+\begin{definition}[Satisfies Spherical Exit Ray Law]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-satisfiessphericalexitraylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.SatisfiesSphericalExitRayLaw}
+  \uses{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-lengthvalue, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-planoconvexlens, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-parallelaxisraytrace, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-snelllawatinterface}
+  The governing spherical-surface geometry and refraction law for one depicted ray. The square-root equation selects the right-hand spherical face. The last equation follows the transmitted ray from its surface point to its crossing with the principal axis; it is a general ray law and contains no numerical claim about the requested separation Δx
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Spherical Exit Ray Law.
+\end{proof}
+\begin{definition}[axis Crossing Separation Cm]
+  \label{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-axiscrossingseparationcm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0028.axisCrossingSeparationCm}
+  \uses{def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-centimetervalue, def:physics:phyx-mini-0028:phyxminiproblems-problemphyxmini0028-parallelaxisraytrace}
+  The centimeter readout of the figure's Δx between two axis crossings
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axis Crossing Separation Cm.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

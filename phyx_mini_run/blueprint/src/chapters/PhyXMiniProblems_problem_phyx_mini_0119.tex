@@ -1,0 +1,310 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0119.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0119.source.json
+
+\chapter{Physics problem phyx\_mini\_0119}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0119}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In your summer job at an optics company, you are asked to measure the wavelength \$\textbackslash{}lambda\$ of the light that is produced by a laser. To do so, you pass the laser light through two narrow slits that are separated by a distance \$d\$. You observe the interference pattern on a screen that is 0.900 m from the slits and measure the separation \$\textbackslash{}Delta y\$ between adjacent bright fringes in the portion of the pattern that is near the center of the screen. Using a microscope, you measure \$d\$. But both \$\textbackslash{}Delta y\$ and \$d\$ are small and difficult to measure accurately, so you repeat the measurements for several pairs of slits, each with a different value of \$d\$. Your results are shown in figure, where you have plotted \$\textbackslash{}Delta y\$ versus \$1/d\$. The line in the graph is the best-fit straight line for the data.
+
+\#\# Question
+
+Use figure to calculate \$\textbackslash{}lambda\$.
+
+\#\# Answer choices
+
+- A: A: 620nm
+
+- B: B: 619nm
+
+- C: C: 631nm
+
+- D: D: 618nm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a scatter plot with a fitted line. Here's a detailed description:
+
+- **Axes**: 
+  - The x-axis is labeled "1/d (mm⁻¹)" ranging from 0.00 to 12.00.
+  - The y-axis is labeled "Δy (mm)" ranging from 0.0 to 6.0.
+  
+- **Data Points**: 
+  - There are multiple black circular markers on the plot indicating the data points.
+  
+- **Line**:
+  - A magenta line runs through the data points, suggesting a linear relationship.
+  
+- **Grid**:
+  - The graph includes a background grid aiding in reading the values.
+
+- **Trend**:
+  - The data and line display a positive linear trend, indicating that as 1/d increases, Δy also increases.
+
+This plot likely represents a direct correlation between reciprocal distance and a measured difference in millimeters.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 620nm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/119.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0119.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0119:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0119.problem_phyx_mini_0119}
+\uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinnanometers, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-hasphysicalconfiguration, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesproblemreadouts, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchessuppliedplot, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-satisfiesmeasurementplotcalibration, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-satisfiesparaxialdoubleslitlaw, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesanswertonearestnanometer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.LengthQuantity}
+  A unit-independent physical quantity carrying the dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Area Quantity]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.AreaQuantity}
+  A unit-independent signed quantity carrying the dimension of area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Area Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.lengthReadout}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[area Readout]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.areaReadout}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areaquantity}
+  Scalar readout of a physical area in the square of a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.lengthInMeters}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthreadout}
+  Meter readout used for the stated slit-to-screen distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthreadout}
+  Millimeter readout used on the graph's vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthreadout}
+  Nanometer readout used by the wavelength answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[area In Square Millimeters]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areainsquaremillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.areaInSquareMillimeters}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areaquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areareadout}
+  Square-millimeter readout appropriate to the fitted graph slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Millimeters.
+\end{proof}
+\begin{definition}[Optical Plane]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-opticalplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.OpticalPlane}
+  The two optical planes whose axial separation is 0.900 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Plane.
+\end{proof}
+\begin{definition}[Illumination Kind]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-illuminationkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.IlluminationKind}
+  The illumination branch stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Illumination Kind.
+\end{proof}
+\begin{definition}[Slit Regime]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-slitregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.SlitRegime}
+  Whether each pair of openings is modeled as narrow or finite-width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Slit Regime.
+\end{proof}
+\begin{definition}[Optical Approximation]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-opticalapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.OpticalApproximation}
+  The approximation used for central adjacent-fringe spacing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Approximation.
+\end{proof}
+\begin{definition}[Plot Axis Quantity]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.PlotAxisQuantity}
+  Physical quantities named by the two axes of the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis Quantity.
+\end{proof}
+\begin{definition}[Plot Axis Unit]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.PlotAxisUnit}
+  Units printed beside the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis Unit.
+\end{proof}
+\begin{definition}[Plot Color]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.PlotColor}
+  Colors used for observations and the fitted line in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Color.
+\end{proof}
+\begin{definition}[Reciprocal Slit Separation Plot]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-reciprocalslitseparationplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.ReciprocalSlitSeparationPlot}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areaquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotaxisquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotaxisunit, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-plotcolor}
+  The eight plotted observations and the dimensionful fitted-line parameters. The observed horizontal coordinates are scalar readouts in mm⁻¹, and the observed vertical coordinates and fitted-line values are scalar readouts in mm. The intercept is therefore a length and the slope is an area
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reciprocal Slit Separation Plot.
+\end{proof}
+\begin{definition}[Double Slit Wavelength Experiment]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.DoubleSlitWavelengthExperiment}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthquantity, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-opticalplane, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-illuminationkind, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-slitregime, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-opticalapproximation, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-reciprocalslitseparationplot}
+  The laser, slit pairs, screen, and graph used by the wavelength experiment. Measured and ideal fringe spacings are separate fields: the black points are experimental observations and need not lie exactly on the paraxial prediction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Double Slit Wavelength Experiment.
+\end{proof}
+\begin{definition}[Has Physical Configuration]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-hasphysicalconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.HasPhysicalConfiguration}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmillimeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment}
+  The physical branch and positivity conditions of the experiment. Positivity does not prescribe the unknown wavelength's numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Configuration.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment}
+  The stated 0.900 m distance and its interpretation as the axial separation between the slit plane and screen. No wavelength value is included
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Plot]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchessuppliedplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.MatchesSuppliedPlot}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areainsquaremillimeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-reciprocalslitseparationplot}
+  Labels, ranges, grid spacings, colors, approximate marker-center readouts, and the calibrated fitted-line slope read from the primary image. The line's slope is 0.558 mm²; its value is independent figure data, not a wavelength assumption. The displayed marker coordinates retain experimental scatter and are deliberately not asserted to lie exactly on the ideal line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Plot.
+\end{proof}
+\begin{definition}[Satisfies Measurement Plot Calibration]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-satisfiesmeasurementplotcalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.SatisfiesMeasurementPlotCalibration}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmillimeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areainsquaremillimeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment}
+  Calibration connecting graph coordinates to the microscope and fringe-spacing measurements, together with the equation of the displayed fitted line
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Measurement Plot Calibration.
+\end{proof}
+\begin{definition}[Satisfies Paraxial Double Slit Law]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-satisfiesparaxialdoubleslitlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.SatisfiesParaxialDoubleSlitLaw}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthreadout, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-areareadout, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment}
+  The governing central-fringe law and its reciprocal-separation-plot form. For narrow slits in the paraxial Fraunhofer regime, Δy = λ L / d. Consequently a plot of Δy against 1 / d has physical slope λ L. Both relations are stated in every length unit and neither assigns a problem-specific value to λ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Paraxial Double Slit Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.AnswerChoice}
+  Labels of the four wavelength choices printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Wavelength Nanometers]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-displayedwavelengthnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.displayedWavelengthNanometers}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-answerchoice}
+  Wavelength readout in nanometers printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Wavelength Nanometers.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Nanometer]
+  \label{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesanswertonearestnanometer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.MatchesAnswerToNearestNanometer}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinnanometers, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-answerchoice, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-displayedwavelengthnanometers}
+  Agreement of a wavelength with a displayed whole-nanometer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Nanometer.
+\end{proof}
+\begin{lemma}[screen Distance In Millimeters eq nine hundred]
+  \label{lem:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-screendistanceinmillimeters-eq-nine-hundred}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.screenDistanceInMillimeters_eq_nine_hundred}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinmillimeters, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesproblemreadouts}
+  The stated 0.900 m screen distance is 900 mm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of screen Distance In Millimeters eq nine hundred.
+\end{proof}
+\begin{lemma}[wavelength In Nanometers eq six hundred twenty]
+  \label{lem:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-wavelengthinnanometers-eq-six-hundred-twenty}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0119.wavelengthInNanometers_eq_six_hundred_twenty}
+  \uses{def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-lengthinnanometers, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-doubleslitwavelengthexperiment, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-hasphysicalconfiguration, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchesproblemreadouts, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-matchessuppliedplot, def:physics:phyx-mini-0119:phyxminiproblems-problemphyxmini0119-satisfiesparaxialdoubleslitlaw}
+  The calibrated slope 0.558 mm² and screen distance 900 mm, combined with slope = λ L, give the laser wavelength 620 nm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of wavelength In Nanometers eq six hundred twenty.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,209 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0383.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0383.source.json
+
+\chapter{Physics problem phyx\_mini\_0383}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0383}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A valve in the cylinder shown in the figure has a cross-sectional area of 11 \textbackslash{}cm\textasciicircum{}2\textbackslash{} with a pressure of 735 kPa inside the cylinder and 99 kPa outside.
+
+\#\# Question
+
+How large a force is needed to open the valve?
+
+\#\# Answer choices
+
+- A: A: 490N
+
+- B: B: 700N
+
+- C: C: 154N
+
+- D: D: 10.2N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a cross-sectional diagram of a cylindrical chamber with a piston and a valve system. Key components and labels include:
+
+1. **Cylinder and Piston**: The main part of the diagram is a cylinder containing a piston. The piston can move up and down within the cylinder.
+
+2. **Valve System**: There is a valve at the top of the cylinder, denoted by the label “A\_valve.”
+
+3. **Pressures**: 
+   - “P\_cyl” is the pressure inside the cylinder.
+   - “P\_outside” is the pressure outside the system.
+
+4. **Fluid or Gas**: Inside the cylinder, there is a space occupied by a fluid or gas.
+
+The diagram likely represents a part of a thermodynamic system, such as an engine or compressor, illustrating how pressure is managed within the system.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 700N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/383.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0383.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0383:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0383.problem_phyx_mini_0383}
+\uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forceinnewtons, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchessuppliedvalvefigure, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchesproblemdata, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-hasphysicalvalveparameters, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchespressureonlyopeningmodel, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-satisfiesvalvepressureforcelaw, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.ForceMagnitude}
+  A nonnegative force magnitude, independent of the unit used to read it. Physlib supplies dimensionful pressure and area types but no named force type, so the standard force dimension M L T⁻² is instantiated with its existing Dimensionful/WithDim infrastructure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.areaInSquareMeters}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[area In Square Centimeters]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-areainsquarecentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.areaInSquareCentimeters}
+  Read a physical area in square centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.pressureInPascals}
+  Read a dimensionful pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinpascals}
+  Read a dimensionful pressure in kilopascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.forceInNewtons}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forcemagnitude}
+  Read a force magnitude in newtons. In coherent SI units, a quantity of dimension M L T⁻² has numerical unit kilograms-metres-per-second-squared, which is one newton
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Supplied Valve Figure]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-suppliedvalvefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.SuppliedValveFigure}
+  Information visible in the primary image. The physical quantities attached to the labels are independent observables; in particular, the opening force is not stored in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Valve Figure.
+\end{proof}
+\begin{definition}[Valve Cylinder Setup]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.ValveCylinderSetup}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forcemagnitude, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-suppliedvalvefigure}
+  The pressure-loaded valve and the requested force magnitude. The force is an independent physical observable constrained by the governing law below; it is not defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Cylinder Setup.
+\end{proof}
+\begin{definition}[Matches Supplied Valve Figure]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchessuppliedvalvefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.MatchesSuppliedValveFigure}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  Qualitative information read from the raster image. These fields record only geometry and labels, not the requested force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Valve Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-areainsquarecentimeters, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinkilopascals, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  The numerical data stated in the problem. The area is read in cm², and the two absolute pressures are read in kPa. No force value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Valve Parameters]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-hasphysicalvalveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.HasPhysicalValveParameters}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-areainsquaremeters, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinpascals, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  Positivity and ordering conditions selecting the physical pressure state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Valve Parameters.
+\end{proof}
+\begin{definition}[Matches Pressure Only Opening Model]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-matchespressureonlyopeningmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.MatchesPressureOnlyOpeningModel}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  The idealized model used by the pressure-force balance: pressure is uniform and normal to each valve face, and weight, friction, spring loading, and other axial resistances are omitted
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pressure Only Opening Model.
+\end{proof}
+\begin{definition}[Satisfies Valve Pressure Force Law]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-satisfiesvalvepressureforcelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.SatisfiesValvePressureForceLaw}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-areainsquaremeters, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-pressureinpascals, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-forceinnewtons, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-valvecylindersetup}
+  Governing pressure-force law in coherent SI readouts. The two pressures act on opposite faces of the same valve, so the required opening-force magnitude is the pressure difference times the cross-sectional area. This law is generic: it contains none of the supplied numbers or answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Valve Pressure Force Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.AnswerChoice}
+  Labels printed beside the four proposed force magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Force In Newtons]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-displayedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.displayedForceInNewtons}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-answerchoice}
+  Force in newtons printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Force In Newtons.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0383.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-answerchoice, def:physics:phyx-mini-0383:phyxminiproblems-problemphyxmini0383-displayedforceinnewtons}
+  A choice is the unique closest displayed force to the derived, unrounded opening-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

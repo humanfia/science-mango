@@ -1,0 +1,86 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0007.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0007.source.json
+
+\chapter{Physics problem phyx\_mini\_0007}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0007}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A beam of light both reflects and refracts at the surface between air and glass as shown in figure. If the refractive index of the glass is \textbackslash{}( n\_g \textbackslash{}).
+
+\#\# Question
+
+Find the angle of incidence \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) in the air that would result in the reflected ray and the refracted ray being perpendicular to each other.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( \textbackslash{}cos\textasciicircum{}\{-1\}(n\_g) \textbackslash{})
+
+- B: B: \textbackslash{}( \textbackslash{}sin\textasciicircum{}\{-1\}(n\_g) \textbackslash{})
+
+- C: C: \textbackslash{}( \textbackslash{}tan\textasciicircum{}\{-1\}(n\_g) \textbackslash{})
+
+- D: D: \textbackslash{}( \textbackslash{}cot\textasciicircum{}\{-1\}(n\_g) \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure illustrates the concept of light refraction at the boundary between two media. 
+
+- There is a rectangle representing a medium with a refractive index labeled as \textbackslash{}( n\_g \textbackslash{}).
+- A dashed vertical line indicates the normal line at the point of incidence.
+- An incoming (incident) light ray approaches from the top left towards the boundary and forms an angle labeled \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) with the normal.
+- A refracted ray bends towards the surface normal as it enters the second medium, depicted by the arrow pointing downwards inside the rectangle.
+- The reflected ray is shown exiting to the right, symmetrically opposite to the incident ray.
+  
+The configuration demonstrates the bending of light when transitioning between media with different refractive indexes.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( \textbackslash{}tan\textasciicircum{}\{-1\}(n\_g) \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/7.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0007.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0007:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0007.incidenceAngle_eq_arctan_glassRefractiveIndex}
+\uses{def:physics:phyx-mini-0007:phyxminiproblems-problemphyxmini0007-airglassraydiagram}
+Let a ray pass from air of index one into glass of dimensionless index
+$n_g>1$. Assume the reflected and refracted ray directions in the pictured
+branch are perpendicular, reflection preserves the incidence angle, Snell's
+law holds, and all normal-referenced angles are acute. Then the incidence
+angle is $\arctan(n_g)$, answer C. Ray directions and the interface normal
+must remain geometric objects rather than bare real numbers; real values are
+only their named radian projections.
+\end{theorem}
+\begin{proof}
+Write $\theta$ for the incidence and reflection angle and $r$ for the
+refraction angle. Perpendicularity in the displayed branch gives
+$\theta+r=\pi/2$. Snell's law therefore becomes
+$\sin\theta=n_g\sin r=n_g\cos\theta$. Since $\theta$ is acute,
+$\cos\theta>0$, so $\tan\theta=n_g$. The acute inverse branch yields
+$\theta=\arctan(n_g)$.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Air Glass Ray Diagram]
+  \label{def:physics:phyx-mini-0007:phyxminiproblems-problemphyxmini0007-airglassraydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0007.AirGlassRayDiagram}
+  Geometric data read from the pictured air--glass interface in its two-dimensional plane. The three propagation directions describe rays based at incidencePoint, while surfaceNormalTowardAir fixes the orientation of the interface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air Glass Ray Diagram.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

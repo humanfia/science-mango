@@ -1,0 +1,308 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0758.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0758.source.json
+
+\chapter{Physics problem phyx\_mini\_0758}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0758}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Some insects can walk below a thin rod (such as a twig) by hanging from it. Suppose that such an insect has mass \$m\$ and hangs from a horizontal rod as shown in figure, with angle \$\textbackslash{}theta = 40\textasciicircum{}\textbackslash{}circ\$. Its legs are all under the same tension, and the leg sections nearest the body are horizontal.
+
+\#\# Question
+
+What is the ratio of the tension in each tibia (forepart of a leg) to the insect's weight?
+
+\#\# Answer choices
+
+- A: A: 0.74
+
+- B: B: 0.46
+
+- C: C: 0.26
+
+- D: D: 0.54
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a labeled diagram featuring a mechanical or robotic component with several parts:
+
+1. **Rod**: Positioned at the top center, it is a round component connected to other parts.
+2. **Tibia**: Situated to the right, it is an elongated part attached to the rod.
+3. **Leg joint**: Located to the left, this part connects sections, depicted as a pivot point.
+4. **θ (theta)**: Represents an angle, suggesting movement or rotation between parts.
+5. **Base structure**: At the bottom, this has a design resembling a fan or leaf, likely serving as the support.
+
+The diagram shows a mechanical structure with emphasis on the connections and movements between the labeled components.
+
+\#\# Dataset metadata
+
+Statics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.26
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/758.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0758.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0758:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0758.problem_phyx_mini_0758}
+\uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-degreestoradians, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesproblemdata, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesprimaryfigure, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hasphysicalhangingparameters, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-satisfieshangingstaticslaws, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-tibiatensiontoweightratio, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-recordedanswerchoice, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesdisplayedratioanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.accelerationDimension}
+  Acceleration has physical dimension L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.forceDimension}
+  Force has physical dimension M L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.ForceMagnitude}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forcedimension}
+  A nonnegative force magnitude, used for weight, tension, and support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.nonnegativeReadout}
+  Read a nonnegative dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.massInKilograms}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-massquantity, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-nonnegativereadout}
+  Kilogram readout of the insect's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationquantity, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-nonnegativereadout}
+  Metres-per-second-squared readout of a physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.forceInNewtons}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forcemagnitude, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-nonnegativereadout}
+  Newton readout of a physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.degreesToRadians}
+  Convert an angle stated in degrees to the radian argument used by Real.sin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Insect Leg]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.InsectLeg}
+  The insect's six individually identifiable legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Insect Leg.
+\end{proof}
+\begin{definition}[Body Side]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-bodyside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.BodySide}
+  Left and right sides in the front-view schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Body Side.
+\end{proof}
+\begin{definition}[Segment Orientation]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-segmentorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.SegmentOrientation}
+  Orientation of a rod or a leg segment in the schematic plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Orientation.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.FigureFeature}
+  Named graphical features visible in the supplied primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.FigureLabel}
+  Literal text or symbol labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[expected Label Target]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-expectedlabeltarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.expectedLabelTarget}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurefeature, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurelabel}
+  The graphical feature to which each printed label is attached
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Label Target.
+\end{proof}
+\begin{definition}[Supplied Hanging Insect Figure]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-suppliedhanginginsectfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.SuppliedHangingInsectFigure}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-bodyside, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurefeature, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-figurelabel}
+  Qualitative labels and incidences transcribed from image 758.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Hanging Insect Figure.
+\end{proof}
+\begin{definition}[Hanging Insect Setup]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.HangingInsectSetup}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-massquantity, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationquantity, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forcemagnitude, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-segmentorientation, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-suppliedhanginginsectfigure}
+  Independent physical quantities of the hanging insect. In particular, the tibia tensions and the insect weight are not defined from the requested ratio. verticalSupportMagnitude is the upward component transmitted by each tibia to the insect-plus-legs free body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hanging Insect Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-degreestoradians, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  Numerical and categorical data stated in the prose. Equal tension is stated relationally across independently represented legs; no tension-to-weight ratio is supplied here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-expectedlabeltarget, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  Primary-image evidence. The angle arc is on the left representative leg, whereas the word Tibia is printed on the right; both tibiae incline from a leg joint upward to the rod. These are figure readouts, not force laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Hanging Parameters]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hasphysicalhangingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.HasPhysicalHangingParameters}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-massinkilograms, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forceinnewtons, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  Positivity and nondegeneracy conditions for the hanging configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Hanging Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hanging Statics Laws]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-satisfieshangingstaticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.SatisfiesHangingStaticsLaws}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-nonnegativereadout, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  The governing mechanics laws, stated in every coherent unit system: the weight magnitude is m g; the upward component of each inclined tibia tension is T sin(theta); and static vertical balance makes the sum of those six components equal the insect's weight. No target ratio or displayed answer value appears in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hanging Statics Laws.
+\end{proof}
+\begin{definition}[tibia Tension To Weight Ratio]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-tibiatensiontoweightratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.tibiaTensionToWeightRatio}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-forceinnewtons, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup}
+  Tension in one named tibia divided by the insect's weight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tibia Tension To Weight Ratio.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Ratio]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-displayedratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.displayedRatio}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-answerchoice}
+  Dimensionless ratio printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Ratio.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Ratio Answer]
+  \label{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesdisplayedratioanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.MatchesDisplayedRatioAnswer}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-tibiatensiontoweightratio, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-answerchoice, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-displayedratio}
+  A calculated ratio agrees with a two-decimal displayed answer when it lies within half of one hundredth of that displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Ratio Answer.
+\end{proof}
+\begin{lemma}[tibia Tension To Weight Ratio exact]
+  \label{lem:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-tibiatensiontoweightratio-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0758.tibiaTensionToWeightRatio_exact}
+  \uses{def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-degreestoradians, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-insectleg, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hanginginsectsetup, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-matchesproblemdata, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-hasphysicalhangingparameters, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-satisfieshangingstaticslaws, def:physics:phyx-mini-0758:phyxminiproblems-problemphyxmini0758-tibiatensiontoweightratio}
+  Six equal inclined tibia tensions in vertical equilibrium give the exact ratio T/W = 1 / (6 sin(40 degrees)) for every leg
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tibia Tension To Weight Ratio exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

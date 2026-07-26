@@ -1,0 +1,3 @@
+- Run-local `.archon/AGENTS.md` and `.archon/prompts/{plan,review}.md` are still missing; restore the known identical canonical copies to remove the archive fallback.
+- No eligible prover target remains: 24 passed targets are proof-Review exhausted and 37 targets remain formalization-Review exhausted.
+- With structural subagents disabled, the `0206`/`0472` imports and exhausted-signature repairs remain outside plan/prover write authority.

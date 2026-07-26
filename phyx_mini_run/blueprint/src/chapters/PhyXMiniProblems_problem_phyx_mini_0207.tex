@@ -1,0 +1,322 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0207.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0207.source.json
+
+\chapter{Physics problem phyx\_mini\_0207}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0207}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Carbon dioxide is a linear molecule. The carbon--oxygen bonds in this molecule act very much like springs. Figure shows one possible way the oxygen atoms in this molecule can oscillate: the oxygen atoms oscillate symmetrically in and out, while the central carbon atom remains at rest. Hence each oxygen atom acts like a simple harmonic oscillator with a mass equal to the mass of an oxygen atom. It is observed that this oscillation occurs at a frequency \textbackslash{}( f = 2.83 \textbackslash{}times 10\textasciicircum{}\{13\}\textbackslash{},\textbackslash{}mathrm\{Hz\} \textbackslash{}).
+
+\#\# Question
+
+What is the spring constant of the C--O bond?
+
+\#\# Answer choices
+
+- A: A: 760N/m
+
+- B: B: 800N/m
+
+- C: C: 880N/m
+
+- D: D: 840N/m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows two molecular diagrams depicting structures with bonds between atoms.
+
+1. **Top Diagram:**
+   - There are two large pink spheres labeled "O" on either end, representing oxygen atoms.
+   - A central gray sphere labeled "C" represents a carbon atom.
+   - The atoms are connected by curved lines representing chemical bonds, suggested in a linear arrangement.
+   - Two double-headed green arrows point outward, positioned on either side of the molecule, indicating some form of movement or force.
+
+2. **Bottom Diagram:**
+   - Similarly, it features two large pink spheres labeled "O" and a central gray sphere labeled "C".
+   - The connecting lines (bonds) are shown in a bent or staggered configuration, indicating a different molecular vibration or shape.
+   - Two green arrows, each pointing outward, are also present above each "O" atom, suggesting lateral forces or movement.
+
+These diagrams likely illustrate different vibrational modes of a CO\textbackslash{}(\_2\textbackslash{}) molecule, with the top depicting a symmetric stretch, and the bottom an asymmetric stretch.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 840N/m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/207.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0207.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0207:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0207.problem_phyx_mini_0207}
+\uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchessuppliedfigure, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesproblemstatement, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesoxygenatomicmassdata, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-hasphysicalparameters, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-satisfiesindependentoxygenoscillatormodel, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesanswertonearestnewtonpermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MassQuantity}
+  A physical mass, such as the mass of one oxygen atom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.FrequencyQuantity}
+  An ordinary (cycles-per-time) frequency, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.SpringConstantQuantity}
+  A spring constant has dimension force per length, equivalently mass per time squared. Its SI readout is therefore measured in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.massReadout}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massquantity}
+  Scalar readout of a physical mass in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.frequencyReadout}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyquantity}
+  Scalar readout of an ordinary frequency in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[spring Constant Readout]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.springConstantReadout}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantquantity}
+  Scalar readout of a spring constant in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.massInKilograms}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massreadout}
+  SI kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyreadout}
+  SI hertz readout of an ordinary frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantreadout}
+  SI newton-per-metre readout of a spring constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Atom Label]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-atomlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.AtomLabel}
+  The three atom labels in their left-to-right order in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atom Label.
+\end{proof}
+\begin{definition}[Atom Kind]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-atomkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.AtomKind}
+  Chemical element represented by an atom label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atom Kind.
+\end{proof}
+\begin{definition}[COBond]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.COBond}
+  The two carbon--oxygen bonds in the linear molecule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of COBond.
+\end{proof}
+\begin{definition}[Vibration Frame]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-vibrationframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.VibrationFrame}
+  The two depicted phases of the symmetric stretching oscillation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vibration Frame.
+\end{proof}
+\begin{definition}[Horizontal Motion]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-horizontalmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.HorizontalMotion}
+  Horizontal motion indicated by an arrow, or absence of translational motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Motion.
+\end{proof}
+\begin{definition}[Molecular Arrangement]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-moleculararrangement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MolecularArrangement}
+  Qualitative molecular geometry shown by the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Arrangement.
+\end{proof}
+\begin{definition}[Bond Depiction]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-bonddepiction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.BondDepiction}
+  The spring-like drawing used for each carbon--oxygen bond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bond Depiction.
+\end{proof}
+\begin{definition}[Symmetric Stretch Figure]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-symmetricstretchfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.SymmetricStretchFigure}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-atomlabel, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-atomkind, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-vibrationframe, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-horizontalmotion, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-moleculararrangement, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-bonddepiction}
+  Raw labels, connectivity, and motion-arrow readouts from the supplied image. No numerical mass, frequency, or spring constant is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Symmetric Stretch Figure.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-symmetricstretchfigure}
+  Primary-image evidence: a linear O--C--O molecule, two spring-like C--O bonds, oxygen arrows directed inward in one frame and outward in the other, and a stationary carbon in both frames
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[oxygen Atom For Bond]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-oxygenatomforbond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.oxygenAtomForBond}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-atomlabel, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond}
+  The oxygen atom attached to each of the two C--O bonds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of oxygen Atom For Bond.
+\end{proof}
+\begin{definition}[CO2 Symmetric Stretch Setup]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.CO2SymmetricStretchSetup}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantquantity, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-symmetricstretchfigure}
+  The physical quantities for the symmetric-stretch experiment. The spring constants remain unknown. oscillatorSIReadout uses Physlib's classical harmonic-oscillator structure to package the positive SI mass and spring constant readouts for each oxygen--bond pair
+\end{definition}
+\begin{proof}
+  This is the declared model definition of CO2 Symmetric Stretch Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyinhertz, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup}
+  The frequency stated in the problem. It is the common ordinary frequency of the symmetric mode, measured in hertz. The diagram and oscillator laws are kept in separate predicates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Oxygen Atomic Mass Data]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesoxygenatomicmassdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MatchesOxygenAtomicMassData}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massreadout, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massinkilograms, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup}
+  Standard atomic-mass data needed for the numerical calculation: one atomic mass unit is approximated as 1.66 × 10⁻²⁷ kg, and an oxygen atom has mass 16 u. The latter equality is required in every coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Oxygen Atomic Mass Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massinkilograms, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyinhertz, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup}
+  Positivity conditions for the measured physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Independent Oxygen Oscillator Model]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-satisfiesindependentoxygenoscillatormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.SatisfiesIndependentOxygenOscillatorModel}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massinkilograms, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyinhertz, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup}
+  The governing simple-harmonic-oscillator model. For each bond, the mass and spring constant in Physlib's HarmonicOscillator are precisely the SI readouts of the dimensionful quantities. The angular frequency ω of that oscillator is related to the observed ordinary frequency by ω = 2πf. These are general physical laws and readout bridges. They do not mention a numerical spring-constant answer or an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Independent Oxygen Oscillator Model.
+\end{proof}
+\begin{lemma}[bond Spring Constant eq mass mul angular Frequency sq]
+  \label{lem:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-bondspringconstant-eq-mass-mul-angularfrequency-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.bondSpringConstant_eq_mass_mul_angularFrequency_sq}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-massinkilograms, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-frequencyinhertz, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-satisfiesindependentoxygenoscillatormodel}
+  Physlib's theorem ClassicalMechanics.HarmonicOscillator.ω\_sq implies the usual readout relation k = m (2πf)² after applying the three bridges above. This is a generic consequence of the governing model, before any numerical oxygen-mass or frequency data are substituted
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bond Spring Constant eq mass mul angular Frequency sq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-displayedspringconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.displayedSpringConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-answerchoice}
+  Spring-constant value displayed by each choice, in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Newton Per Meter]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-matchesanswertonearestnewtonpermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.MatchesAnswerToNearestNewtonPerMeter}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-answerchoice, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-displayedspringconstantinnewtonspermeter}
+  The computed spring constant rounds to a displayed whole-newton-per-metre answer. The half-unit tolerance is independent of which choice is supplied
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Newton Per Meter.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0207.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-springconstantinnewtonspermeter, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-cobond, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-co2symmetricstretchsetup, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-answerchoice, def:physics:phyx-mini-0207:phyxminiproblems-problemphyxmini0207-displayedspringconstantinnewtonspermeter}
+  The selected displayed value is strictly closer than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

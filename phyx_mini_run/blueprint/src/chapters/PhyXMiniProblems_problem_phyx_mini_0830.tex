@@ -1,0 +1,340 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0830.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0830.source.json
+
+\chapter{Physics problem phyx\_mini\_0830}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0830}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Bob leaves home in Chicago at 9:00 A.M. and travels east at a steady 60 mph. Susan, 400 miles to the east in Pittsburgh, leaves at the same time and travels west at a steady 40 mph.
+
+\#\# Question
+
+How many miles east of Chicago will they meet for lunch?
+
+\#\# Answer choices
+
+- A: A: 220miles
+
+- B: B: 240miles
+
+- C: C: 250miles
+
+- D: D: 230miles
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image appears to depict a physics problem involving two cars moving towards each other. 
+
+- At the bottom, there is a horizontal axis labeled "x" representing position. 
+- There are two cars: one labeled "Bob" starting from Chicago on the left and the other labeled "Susan" starting from Pittsburgh on the right.
+- Each car illustration includes a set of coordinate tuples: for Bob at the starting point \textbackslash{}((x\_\{0B\}, (v\_x)\_B, t\_0)\textbackslash{}) and for Susan at the starting point \textbackslash{}((x\_\{0S\}, (v\_x)\_S, t\_0)\textbackslash{}).
+
+Above the cars:
+
+- A horizontal number line indicates a path of motion from Chicago to Pittsburgh. 
+- Arrows represent direction; Bob’s arrow points right (towards Susan) and Susan’s arrow points left (towards Bob), suggesting they meet.
+- \textbackslash{}(\textbackslash{}vec\{v\}\_B\textbackslash{}) and \textbackslash{}(\textbackslash{}vec\{v\}\_S\textbackslash{}) denote their velocities, and \textbackslash{}( \textbackslash{}vec\{a\} = \textbackslash{}vec\{0\} \textbackslash{}) indicates zero acceleration.
+- A label "Meet here" marks a point on the path where they converge.
+
+This setup illustrates a problem involving relative motion and meeting points, often used in kinematics studies.
+
+\#\# Dataset metadata
+
+Kinematics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 240miles
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/830.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0830.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0830:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0830.meet_two_hundred_forty_miles_east_of_chicago}
+\uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchestravelscenario, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchesproblemreadouts, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchessuppliedfigure, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-hasphysicalmeetingparameters, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-satisfieszeroaccelerationlaw, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-satisfiesuniformmotionlaw, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-ismeetingevent, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-meetingdisplacementeastofchicagoinmiles}
+With east positive, Bob starts at Chicago and drives at
+$60\,\mathrm{mi/h}$ while Susan starts $400\,\mathrm{mi}$ east of Chicago
+and drives at $-40\,\mathrm{mi/h}$.  Their designated meeting point is
+$240\,\mathrm{mi}$ east of Chicago, answer B.
+\end{theorem}
+\begin{proof}
+Take Chicago as mile zero and let
+$\tau=t_{\mathrm{meet}}-9$ be the positive number of hours after the common
+departure.  Uniform motion gives Bob's position as $60\tau$ miles and
+Susan's as $400-40\tau$ miles.  The meeting predicate makes these positions
+equal, so $60\tau=400-40\tau$.  Hence $\tau=4$ and their common position is
+$60\cdot4=240$ miles.  Subtracting Chicago's zero coordinate therefore gives
+a meeting displacement of $240\,\mathrm{mi}$ to the east.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Position Quantity]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.SignedPositionQuantity}
+  A signed one-dimensional position with the physical dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Position Quantity.
+\end{proof}
+\begin{definition}[Clock Time Quantity]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.ClockTimeQuantity}
+  A clock time, represented as a signed physical time quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Clock Time Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.SignedVelocityQuantity}
+  A signed x-velocity component with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Signed Acceleration Quantity]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.SignedAccelerationQuantity}
+  A signed x-acceleration component with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Acceleration Quantity.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.positionReadout}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedpositionquantity}
+  Read a signed position in a selected physical length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[clock Time Readout]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.clockTimeReadout}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity}
+  Read a clock time in a selected physical time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of clock Time Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.velocityReadout}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedvelocityquantity}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.accelerationReadout}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedaccelerationquantity}
+  Read a signed acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[position In Miles]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positioninmiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.positionInMiles}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedpositionquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positionreadout}
+  Mile readout used for the Chicago--Pittsburgh coordinate axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Miles.
+\end{proof}
+\begin{definition}[clock Time In Hours]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimeinhours}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.clockTimeInHours}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimereadout}
+  Hour readout used for the two clock-event labels t₀ and t\_f
+\end{definition}
+\begin{proof}
+  This is the declared model definition of clock Time In Hours.
+\end{proof}
+\begin{definition}[velocity In Miles Per Hour]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityinmilesperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.velocityInMilesPerHour}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedvelocityquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityreadout}
+  Miles-per-hour readout of a signed horizontal velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Miles Per Hour.
+\end{proof}
+\begin{definition}[acceleration In Miles Per Hour Squared]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-accelerationinmilesperhoursquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.accelerationInMilesPerHourSquared}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedaccelerationquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-accelerationreadout}
+  Miles-per-hour-squared readout of a signed horizontal acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Miles Per Hour Squared.
+\end{proof}
+\begin{definition}[Traveler]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-traveler}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.Traveler}
+  The two travelers named in the problem and the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traveler.
+\end{proof}
+\begin{definition}[City]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-city}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.City}
+  The two endpoint cities on the horizontal route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of City.
+\end{proof}
+\begin{definition}[Axis Direction]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-axisdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.AxisDirection}
+  The positive and negative directions of the pictured x-axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Direction.
+\end{proof}
+\begin{definition}[Figure Event]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-figureevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.FigureEvent}
+  The initial and final state-tuples drawn below the cars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Event.
+\end{proof}
+\begin{definition}[Motion Regime]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-motionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.MotionRegime}
+  The idealized translational motion regime stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Regime.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.FigureLabel}
+  Literal semantic labels appearing in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Chicago Pittsburgh Meeting Figure]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-chicagopittsburghmeetingfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.ChicagoPittsburghMeetingFigure}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-traveler, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-city, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-axisdirection, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-figureevent, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-figurelabel}
+  A typed transcription of phyx\_data/test\_image/830.png. The tuple flags refer to (x₀B, (vₓ)B, t₀), (x₀S, (vₓ)S, t₀) and the corresponding two meeting tuples with x\_f and t\_f. No numeric meeting coordinate is stored in this figure object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Chicago Pittsburgh Meeting Figure.
+\end{proof}
+\begin{definition}[Two Traveler Meeting Setup]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.TwoTravelerMeetingSetup}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedpositionquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedvelocityquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-signedaccelerationquantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-traveler, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-city, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-axisdirection, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-motionregime, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-chicagopittsburghmeetingfigure}
+  Independent physical quantities and time-indexed observables. departureTime is shared by construction, reflecting that Bob and Susan leave simultaneously. The meeting coordinate is not a field and is not fixed by any definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Traveler Meeting Setup.
+\end{proof}
+\begin{definition}[Matches Travel Scenario]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchestravelscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.MatchesTravelScenario}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  Qualitative prose content, with no numerical meeting time or position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Travel Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positioninmiles, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimeinhours, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityinmilesperhour, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  The numerical values stated in the problem. Pittsburgh's location is given as a displacement from Chicago, so the choice of Chicago as coordinate origin is recorded separately and explicitly. The westward velocity component is negative because positive x points east
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  Qualitative facts and tuple/arrow labels read from the primary raster. The image locates a meeting marker between the city endpoints but prints no numerical meeting coordinate and no answer-choice letter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Meeting Parameters]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-hasphysicalmeetingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.HasPhysicalMeetingParameters}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positioninmiles, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimeinhours, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityinmilesperhour, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  Sign and time-order conditions selecting the intended physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Meeting Parameters.
+\end{proof}
+\begin{definition}[Satisfies Zero Acceleration Law]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-satisfieszeroaccelerationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.SatisfiesZeroAccelerationLaw}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-accelerationreadout, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-traveler, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  The zero-acceleration law shown by the two a⃗ = 0⃗ labels. It is stated in every coherent choice of length and time units and contains no meeting answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Zero Acceleration Law.
+\end{proof}
+\begin{definition}[Satisfies Uniform Motion Law]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-satisfiesuniformmotionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.SatisfiesUniformMotionLaw}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positionreadout, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimereadout, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-velocityreadout, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-traveler, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  Uniform rectilinear motion in any coherent length/time unit system: x(t) = x(t₀) + vₓ (t - t₀). This is a general governing law for each traveler and does not mention the meeting location or any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Motion Law.
+\end{proof}
+\begin{definition}[Is Meeting Event]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-ismeetingevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.IsMeetingEvent}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimequantity, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-clocktimeinhours, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  The designated lunch event occurs after departure and has a single shared position. This predicate identifies what “meet” means but does not state where the event occurs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Meeting Event.
+\end{proof}
+\begin{definition}[meeting Displacement East Of Chicago In Miles]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-meetingdisplacementeastofchicagoinmiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.meetingDisplacementEastOfChicagoInMiles}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-positioninmiles, def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-twotravelermeetingsetup}
+  The signed displacement of the lunch point east of Chicago, in miles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meeting Displacement East Of Chicago In Miles.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.AnswerChoice}
+  The four response labels printed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Miles]
+  \label{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-answerchoicemiles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0830.answerChoiceMiles}
+  \uses{def:physics:phyx-mini-0830:phyxminiproblems-problemphyxmini0830-answerchoice}
+  Mile values printed beside the four response labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Miles.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

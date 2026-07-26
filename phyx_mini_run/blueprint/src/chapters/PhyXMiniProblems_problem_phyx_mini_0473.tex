@@ -1,0 +1,173 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0473.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0473.source.json
+
+\chapter{Physics problem phyx\_mini\_0473}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0473}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gasoline truck engine takes in 10,000 J of heat and delivers 2000 J of mechanical work per cycle. The heat is obtained by burning gasoline with heat of combustion L\_c = 5.0 \textbackslash{}times 10\textasciicircum{}4 J/g.
+
+\#\# Question
+
+How much gasoline is burned in each cycle?
+
+\#\# Answer choices
+
+- A: A: 0.25g
+
+- B: B: 0.20g
+
+- C: C: 0.30g
+
+- D: D: 0.35g
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram representing a thermodynamic process. It includes:
+
+1. **Vertical Arrows**: 
+   - An arrow pointing downward labeled with \textbackslash{}( T\_H \textbackslash{}) at the top and \textbackslash{}( T\_C \textbackslash{}) at the bottom, indicating a temperature gradient from high (\textbackslash{}( T\_H \textbackslash{})) to low (\textbackslash{}( T\_C \textbackslash{})).
+   
+2. **Horizontal Arrow**: 
+   - An arrow pointing to the right labeled \textbackslash{}( W = 2000 \textbackslash{}, \textbackslash{}text\{J\} \textbackslash{}), indicating the work done by the system.
+
+3. **Text and Labels**:
+   - \textbackslash{}( Q\_H = 10,000 \textbackslash{}, \textbackslash{}text\{J\} \textbackslash{}) next to the downward arrow, representing the heat input at the higher temperature.
+   - \textbackslash{}( Q\_C = ? \textbackslash{}) next to the downward arrow near \textbackslash{}( T\_C \textbackslash{}), indicating the heat expelled at the lower temperature, which is unknown.
+
+The diagram depicts an energy balance concept, often used in the context of heat engines or refrigerators.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.20g
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/473.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0473.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0473:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0473.gasoline_burned_per_cycle_eq_point_two_grams}
+\uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassingrams, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-gasolinetruckenginecycle, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-matchesproblemstatementandprimaryfigure, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-obeysgasolineheatenginecyclelaws}
+One engine cycle burns $0.20$ grams of gasoline.
+\end{theorem}
+\begin{proof}
+The figure and problem readouts give heat input $Q_H=10000$ joules and combustion energy $H=5\cdot10^4$ joules per gram.  The combustion law says $Q_H=mH$.  Substitute the two readouts and divide by the positive value $5\cdot10^4$ to obtain $m=10000/(5\cdot10^4)=1/5=0.20$ grams.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Fuel Mass Quantity]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.FuelMassQuantity}
+  Nonnegative gasoline mass with physical dimension M
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fuel Mass Quantity.
+\end{proof}
+\begin{definition}[Specific Combustion Energy Quantity]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-specificcombustionenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.SpecificCombustionEnergyQuantity}
+  Heat released per unit fuel mass. Its dimension is energy divided by mass, namely L² T⁻²; its SI readout is in joules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Combustion Energy Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.energyInJoules}
+  Read a dimensionful energy magnitude in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[fuel Mass In Grams]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.fuelMassInGrams}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassquantity}
+  Read a physical fuel mass in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of fuel Mass In Grams.
+\end{proof}
+\begin{definition}[combustion Energy In Joules Per Gram]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-combustionenergyinjoulespergram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.combustionEnergyInJoulesPerGram}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-specificcombustionenergyquantity}
+  Read a specific combustion energy in joules per gram. A coherent-SI readout of this dimension is in joules per kilogram, and 1 J/g = 1000 J/kg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of combustion Energy In Joules Per Gram.
+\end{proof}
+\begin{definition}[Figure Arrow Direction]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figurearrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.FigureArrowDirection}
+  Arrow orientations appearing in the heat-engine diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow Direction.
+\end{proof}
+\begin{definition}[Figure Temperature Label]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figuretemperaturelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.FigureTemperatureLabel}
+  The two literal reservoir-temperature labels in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Temperature Label.
+\end{proof}
+\begin{definition}[Figure Energy Label]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figureenergylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.FigureEnergyLabel}
+  The three literal energy-flow labels in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Energy Label.
+\end{proof}
+\begin{definition}[Supplied Heat Engine Figure]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-suppliedheatenginefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.SuppliedHeatEngineFigure}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figurearrowdirection, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figuretemperaturelabel, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-figureenergylabel}
+  Data transcribed from primary image 473.png. The two numeric fields are display readouts, while the cold-side heat is explicitly marked unknown
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Heat Engine Figure.
+\end{proof}
+\begin{definition}[Gasoline Truck Engine Cycle]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-gasolinetruckenginecycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.GasolineTruckEngineCycle}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassquantity, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-specificcombustionenergyquantity, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-suppliedheatenginefigure}
+  Independent physical observables for one truck-engine cycle. In particular, the gasoline mass is not defined from an answer choice, and the rejected heat is retained even though the question asks only for fuel consumption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gasoline Truck Engine Cycle.
+\end{proof}
+\begin{definition}[Matches Problem Statement And Primary Figure]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-matchesproblemstatementandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.MatchesProblemStatementAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-energyinjoules, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-combustionenergyinjoulespergram, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-gasolinetruckenginecycle}
+  The numerical problem statement and qualitative primary-image transcription. No field specifies the gasoline mass or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement And Primary Figure.
+\end{proof}
+\begin{definition}[Obeys Gasoline Heat Engine Cycle Laws]
+  \label{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-obeysgasolineheatenginecyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0473.ObeysGasolineHeatEngineCycleLaws}
+  \uses{def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-energyinjoules, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-fuelmassingrams, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-combustionenergyinjoulespergram, def:physics:phyx-mini-0473:phyxminiproblems-problemphyxmini0473-gasolinetruckenginecycle}
+  The first law for a cyclic heat engine and the fuel-combustion energy law. These are general relations among independent observables, not numerical assertions of the requested fuel mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Gasoline Heat Engine Cycle Laws.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

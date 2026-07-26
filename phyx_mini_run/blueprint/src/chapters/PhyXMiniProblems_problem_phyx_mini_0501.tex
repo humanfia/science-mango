@@ -1,0 +1,271 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0501.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0501.source.json
+
+\chapter{Physics problem phyx\_mini\_0501}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0501}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the probability density for an electron that has passed through an experimental apparatus. If \textbackslash{}( 1.0 \textbackslash{}times 10\textasciicircum{}6 \textbackslash{}) electrons are used.
+
+\#\# Question
+
+What is the expected number that will land in a \textbackslash{}( 0.010\textbackslash{}text\{-mm\} \textbackslash{}) wide strip at \textbackslash{}( x = 2.000\textbackslash{}text\{ mm\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 2200
+
+- B: B: 1000
+
+- C: C: 1100
+
+- D: D: 3500
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph representing a probability distribution function. The x-axis is labeled "x (mm)" and ranges from -3 to 3. The y-axis represents the probability density function \textbackslash{}( P(x) = |\textbackslash{}psi(x)|\textasciicircum{}2 \textbackslash{}) in units of mm\textbackslash{}(\textasciicircum{}\{-1\}\textbackslash{}).
+
+The graph forms a symmetric triangle centered at x = 0, where the peak value is 0.333 mm\textbackslash{}(\textasciicircum{}\{-1\}\textbackslash{}). The triangle's base runs from x = -3 to x = 3, crossing the x-axis at both points. The graph displays a peak at the origin (x = 0), indicating the maximum probability density.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1100
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/501.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0501.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0501:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0501.expected_electron_count_and_recorded_answer_C}
+\uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matcheselectronexperimentscenario, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matchessuppliedpositiondensityfigure, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matchesproblemreadouts, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-figureplotstriangularpositiondensity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-satisfiespositionprobabilitylaws, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-satisfiesexpectedstripcountlaw, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-isuniqueclosestdisplayedcount}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.PositionQuantity}
+  A signed, unit-independent position along the graph's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.LengthQuantity}
+  A nonnegative, unit-independent physical length used for the strip width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Probability Density Quantity]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-probabilitydensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.ProbabilityDensityQuantity}
+  A nonnegative probability density, carrying inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Probability Density Quantity.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.positionReadout}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity}
+  Read a signed physical position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.lengthReadout}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthquantity}
+  Read a nonnegative physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[density Readout]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.densityReadout}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-probabilitydensityquantity}
+  Read an inverse-length probability density in the reciprocal selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density Readout.
+\end{proof}
+\begin{definition}[position From Millimeters]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionfrommillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.positionFromMillimeters}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity}
+  Construct a signed position from its millimetre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position From Millimeters.
+\end{proof}
+\begin{definition}[Electron Position State]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronpositionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.ElectronPositionState}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-probabilitydensityquantity}
+  An electron's one-dimensional position state after the apparatus. The complex amplitude is a scalar readout in inverse square-root length units; the associated probability density is stored as an inverse-length physical quantity. Their physical relation is imposed separately by Born's rule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electron Position State.
+\end{proof}
+\begin{definition}[density At Millimeter Coordinate]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityatmillimetercoordinate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.densityAtMillimeterCoordinate}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionfrommillimeters, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronpositionstate}
+  Probability density at a coordinate whose numerical value is in millimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density At Millimeter Coordinate.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.ParticleSpecies}
+  The particle species sent through the experimental apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Density Curve Shape]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densitycurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.DensityCurveShape}
+  The qualitative shape of the curve shown in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Density Curve Shape.
+\end{proof}
+\begin{definition}[Position Density Figure]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positiondensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.PositionDensityFigure}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densitycurveshape}
+  Axis labels, units, and landmarks read from the primary probability-density graph. displayedPeakDensity is the printed scalar label 0.333; it is not asserted to be the exact normalized peak height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Density Figure.
+\end{proof}
+\begin{definition}[Electron Strip Experiment]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.ElectronStripExperiment}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthquantity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronpositionstate, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-particlespecies, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positiondensityfigure}
+  The repeated-electron experiment and the strip whose count is requested. expectedElectronCount is an independent dimensionless observable; it is not defined from an answer choice or from the requested numerical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electron Strip Experiment.
+\end{proof}
+\begin{definition}[Matches Electron Experiment Scenario]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matcheselectronexperimentscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.MatchesElectronExperimentScenario}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  Qualitative physical assumptions in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Electron Experiment Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Position Density Figure]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matchessuppliedpositiondensityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.MatchesSuppliedPositionDensityFigure}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positiondensityfigure}
+  Text, units, and plotted landmark readouts from the supplied image. The peak label is recorded to the three decimals actually printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Position Density Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  Numerical data stated in the prose question; no expected count occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Figure Plots Triangular Position Density]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-figureplotstriangularpositiondensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.FigurePlotsTriangularPositionDensity}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityatmillimetercoordinate, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  The graph is the linear triangular interpolation through its left intercept, peak, and right intercept, with zero density outside its base. The exact peak height is obtained from the physical density itself; the printed 0.333 label is required only to agree with it to the displayed precision. This predicate is figure evidence and contains neither an electron-count expectation nor an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Plots Triangular Position Density.
+\end{proof}
+\begin{definition}[Satisfies Position Probability Laws]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-satisfiespositionprobabilitylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.SatisfiesPositionProbabilityLaws}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionquantity, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityatmillimetercoordinate, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  Born's rule and normalization for the post-apparatus position state. The wave-amplitude and density readouts use compatible choices of length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Position Probability Laws.
+\end{proof}
+\begin{definition}[strip Left Endpoint In Millimeters]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-stripleftendpointinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.stripLeftEndpointInMillimeters}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  Left endpoint of the strip, as a scalar millimetre coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of strip Left Endpoint In Millimeters.
+\end{proof}
+\begin{definition}[strip Right Endpoint In Millimeters]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-striprightendpointinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.stripRightEndpointInMillimeters}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-positionreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-lengthreadout, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment}
+  Right endpoint of the strip, as a scalar millimetre coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of strip Right Endpoint In Millimeters.
+\end{proof}
+\begin{definition}[Satisfies Expected Strip Count Law]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-satisfiesexpectedstripcountlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.SatisfiesExpectedStripCountLaw}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-densityatmillimetercoordinate, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-stripleftendpointinmillimeters, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-striprightendpointinmillimeters}
+  The probability of landing in the centred strip is the density integral over that strip, and linearity of expectation multiplies this probability by the number of identically prepared electrons. No numerical answer is assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Expected Strip Count Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Expected Electron Count]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-displayedexpectedelectroncount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.displayedExpectedElectronCount}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-answerchoice}
+  Expected electron count printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Expected Electron Count.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Count]
+  \label{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-isuniqueclosestdisplayedcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0501.IsUniqueClosestDisplayedCount}
+  \uses{def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-electronstripexperiment, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-answerchoice, def:physics:phyx-mini-0501:phyxminiproblems-problemphyxmini0501-displayedexpectedelectroncount}
+  A displayed count is strictly closer to the modeled expectation than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Count.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

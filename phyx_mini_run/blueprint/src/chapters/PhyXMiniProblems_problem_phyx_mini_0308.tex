@@ -1,0 +1,368 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0308.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0308.source.json
+
+\chapter{Physics problem phyx\_mini\_0308}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0308}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+One clue used by your brain to determine the direction of a source of sound is the time delay \$\textbackslash{}Delta t\$ between the arrival of the sound at the ear closer to the source and the arrival at the farther ear. Assume that the source is distant so that a wavefront from it is approximately planar when it reaches you, and let \$D\$ represent the separation between your ears.
+
+\#\# Question
+
+Based on the time-delay clue, your brain interprets the submerged sound to arrive at an angle \$\textbackslash{}theta\$ from the forward direction. Evaluate \$\textbackslash{}theta\$ for fresh water at \$20\textasciicircum{}\textbackslash{}circ\$C.
+
+\#\# Answer choices
+
+- A: A: \$4\textasciicircum{}\textbackslash{}circ\$
+
+- B: B: \$7\textasciicircum{}\textbackslash{}circ\$
+
+- C: C: \$10\textasciicircum{}\textbackslash{}circ\$
+
+- D: D: \$13\textasciicircum{}\textbackslash{}circ\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a wavefront diagram with geometric components:
+
+- Two dark points labeled \textbackslash{}(L\textbackslash{}) and \textbackslash{}(R\textbackslash{}) are connected by lines, forming a right triangle with a hypotenuse labeled \textbackslash{}(d\textbackslash{}).
+- The angle \textbackslash{}( \textbackslash{}theta \textbackslash{}) is marked at the points \textbackslash{}(L\textbackslash{}) and \textbackslash{}(R\textbackslash{}).
+- The line labeled \textbackslash{}(D\textbackslash{}) is perpendicular to the wavefront lines, intersecting the hypotenuse at right angles.
+- Two parallel lines with wavefront arrows point towards the hypotenuse at angles marked by \textbackslash{}( \textbackslash{}theta \textbackslash{}).
+- The word "Wavefronts" is placed near the parallel lines.
+
+This diagram likely illustrates concepts related to wave propagation, such as reflection or refraction in physics.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \$13\textasciicircum{}\textbackslash{}circ\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/308.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0308.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0308:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0308.submergedSound_interpretedAngle_is_thirteen_degrees}
+\uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-radianstodegrees, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchessourcefigure, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesproblemstatement, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchessoundspeeddata, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesintendedsideonarrival, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-hasphysicalparameters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiessoundlocalizationphysics, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-isclosestanglechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.AcousticLength}
+  A nonnegative physical one-dimensional distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Duration]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.AcousticDuration}
+  A nonnegative physical arrival-time delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Duration.
+\end{proof}
+\begin{definition}[Acoustic Speed]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.AcousticSpeed}
+  A nonnegative physical propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Speed.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.lengthInMeters}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticlength}
+  Metre readout of a physical acoustic length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.durationInSeconds}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticduration}
+  Second readout of a physical acoustic duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticspeed}
+  Metre-per-second readout of a physical acoustic speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.radiansToDegrees}
+  Convert a radian readout to a degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Ear Point Label]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-earpointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.EarPointLabel}
+  Labels printed beside the two ear points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ear Point Label.
+\end{proof}
+\begin{definition}[Distance Label]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-distancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.DistanceLabel}
+  Labels printed on the baseline and perpendicular offset segments
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Distance Label.
+\end{proof}
+\begin{definition}[Bearing Label]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-bearinglabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.BearingLabel}
+  The angular symbol printed twice in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bearing Label.
+\end{proof}
+\begin{definition}[Bearing Meaning]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-bearingmeaning}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.BearingMeaning}
+  Geometric meanings of the two displayed copies of theta
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bearing Meaning.
+\end{proof}
+\begin{definition}[Wavefront Arrangement]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-wavefrontarrangement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.WavefrontArrangement}
+  Relationship between the two drawn wavefront lines
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wavefront Arrangement.
+\end{proof}
+\begin{definition}[Intersection Kind]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-intersectionkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.IntersectionKind}
+  The marked intersection of d with a wavefront
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Intersection Kind.
+\end{proof}
+\begin{definition}[Propagation Arrow Sense]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-propagationarrowsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.PropagationArrowSense}
+  Sense of the arrows normal to the wavefronts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Arrow Sense.
+\end{proof}
+\begin{definition}[Source Figure]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-sourcefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SourceFigure}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-earpointlabel, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-distancelabel, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-bearinglabel, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-bearingmeaning, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-wavefrontarrangement, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-intersectionkind, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-propagationarrowsense}
+  A structured transcription of the primary raster. It records only labels and qualitative incidence data; the image supplies no numerical length or angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Figure.
+\end{proof}
+\begin{definition}[Source Distance Regime]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-sourcedistanceregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SourceDistanceRegime}
+  The distance regime stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Distance Regime.
+\end{proof}
+\begin{definition}[Sound Medium]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SoundMedium}
+  Medium whose speed is used for actual or interpreted propagation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Medium.
+\end{proof}
+\begin{definition}[Sound Localization Setup]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SoundLocalizationSetup}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticlength, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticduration, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-acousticspeed, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-earpointlabel, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-sourcefigure, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-sourcedistanceregime, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundmedium}
+  Physical data for one localization event. The actual submerged path difference and the air-calibrated inferred path difference are independent dimensionful quantities. The interpreted bearing is also an independent observation; no requested numerical answer is built into this record. The final four real fields quantify the far-field approximation rather than silently identifying an approximately planar wave with an exact plane wave
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Localization Setup.
+\end{proof}
+\begin{definition}[Matches Source Figure]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchessourcefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.MatchesSourceFigure}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Label and incidence information read from 308.png. The primary raster, not the auxiliary caption, shows D along the ear baseline and lowercase d perpendicular to a wavefront. For the arrow orientation, R is reached before L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Source Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Distant-source and fresh-water data stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Sound Speed Data]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchessoundspeeddata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.MatchesSoundSpeedData}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Standard textbook sound-speed readouts at 20 °C: 344 m/s for the listener's ordinary air calibration and 1482 m/s for fresh water
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Sound Speed Data.
+\end{proof}
+\begin{definition}[Matches Intended Side On Arrival]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesintendedsideonarrival}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.MatchesIntendedSideOnArrival}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  The recorded 13° choice requires the submerged source to be directly to one side, giving the maximum interaural delay. The extracted prose does not state this datum, so it is exposed as a separate intended-scenario premise rather than hidden in a law or in the answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Intended Side On Arrival.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-durationinseconds, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Positivity and principal-angle conditions for the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Bounded Far Field Approximation]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesboundedfarfieldapproximation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesBoundedFarFieldApproximation}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Quantitative meaning of “approximately planar.” The actual finite-distance path difference equals the plane-wave first term plus a signed residual. Its absolute error is bounded, and both the baseline-to-distance ratio and the relative error are controlled by the stored tolerance. Thus no far-field approximation is globalized into an exact equality
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bounded Far Field Approximation.
+\end{proof}
+\begin{definition}[Satisfies Exact Side On Source Geometry]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesexactsideonsourcegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesExactSideOnSourceGeometry}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Exact finite-source geometry for a source on the extension of the ear baseline. At a side-on bearing, the farther source-to-ear distance exceeds the nearer one by exactly the ear separation; this fact does not use the far-field approximation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exact Side On Source Geometry.
+\end{proof}
+\begin{definition}[Satisfies Water Delay Law]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfieswaterdelaylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesWaterDelayLaw}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-durationinseconds, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  Constant-speed water propagation converts actual path difference to delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Delay Law.
+\end{proof}
+\begin{definition}[Satisfies Air Calibrated Delay Distance Law]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesaircalibrateddelaydistancelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesAirCalibratedDelayDistanceLaw}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-durationinseconds, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  The auditory system converts the measured delay to a distance using its air sound-speed calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Air Calibrated Delay Distance Law.
+\end{proof}
+\begin{definition}[Satisfies Interpreted Bearing Geometry]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesinterpretedbearinggeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesInterpretedBearingGeometry}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-lengthinmeters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup}
+  The exact right triangle in the interpretation schematic relates the inferred distance d, ear separation D, and the interpreted principal bearing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Interpreted Bearing Geometry.
+\end{proof}
+\begin{definition}[Satisfies Sound Localization Physics]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiessoundlocalizationphysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.SatisfiesSoundLocalizationPhysics}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesboundedfarfieldapproximation, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesexactsideonsourcegeometry, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfieswaterdelaylaw, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesaircalibrateddelaydistancelaw, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiesinterpretedbearinggeometry}
+  The governing physical and auditory laws. The current numerical conclusion does not occur in any field. In particular, the far-field law retains an explicit bounded remainder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sound Localization Physics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.AnswerChoice}
+  Labels of the four answer choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Degrees]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoicedegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.answerChoiceDegrees}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoice}
+  Degree readout printed beside each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Degrees.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoice}
+  Dataset answer retained as metadata, not as a physics premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Angle Choice]
+  \label{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-isclosestanglechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.IsClosestAngleChoice}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoice, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-answerchoicedegrees}
+  A displayed choice is uniquely closest to the interpreted degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Angle Choice.
+\end{proof}
+\begin{lemma}[interpreted Bearing sine eq speed Ratio]
+  \label{lem:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-interpretedbearing-sine-eq-speedratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.interpretedBearing_sine_eq_speedRatio}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesintendedsideonarrival, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-hasphysicalparameters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiessoundlocalizationphysics}
+  For exact side-on source geometry, eliminating D and the common delay gives the dimensionless air-to-water speed ratio. The bounded far-field relation is not replaced by an exact plane-wave identity in this derivation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of interpreted Bearing sine eq speed Ratio.
+\end{proof}
+\begin{lemma}[interpreted Bearing eq arcsin speed Ratio]
+  \label{lem:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-interpretedbearing-eq-arcsin-speedratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0308.interpretedBearing_eq_arcsin_speedRatio}
+  \uses{def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-speedinmeterspersecond, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-soundlocalizationsetup, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-matchesintendedsideonarrival, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-hasphysicalparameters, def:physics:phyx-mini-0308:phyxminiproblems-problemphyxmini0308-satisfiessoundlocalizationphysics}
+  The principal apparent bearing is the arcsine of the speed ratio
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of interpreted Bearing eq arcsin speed Ratio.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

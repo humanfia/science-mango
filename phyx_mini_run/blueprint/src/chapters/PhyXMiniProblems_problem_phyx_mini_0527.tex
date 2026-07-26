@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0527.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0527.source.json
+
+\chapter{Physics problem phyx\_mini\_0527}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0527}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An enemy spacecraft moves away from the Earth at a speed of \textbackslash{}( v = 0.800c \textbackslash{}) as shown in figure. A galactic patrol spacecraft pursues at a speed of \textbackslash{}( u = 0.900c \textbackslash{}) relative to the Earth. Observers on the Earth measure the patrol craft to be overtaking the enemy craft at a relative speed of \textbackslash{}( 0.100c \textbackslash{}).
+
+\#\# Question
+
+With what speed is the patrol craft overtaking the enemy craft as measured by the patrol craft's crew?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.253c \textbackslash{})
+
+- B: B: \textbackslash{}( 0.407c \textbackslash{})
+
+- C: C: \textbackslash{}( 0.331c \textbackslash{})
+
+- D: D: \textbackslash{}( 0.357c \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scenario with two spacecrafts in motion, represented within two different coordinate systems.
+
+1. On the left:
+   - A coordinate system labeled "S" with axes "x" and an implied "y."
+   - A "Galactic patrol spacecraft" is shown, gray in color, moving along the positive x-axis, denoted by a red arrow labeled with vector \textbackslash{}(\textbackslash{}vec\{u\}\textbackslash{}).
+   - An illustration of Earth is present, suggesting a reference point or origin.
+
+2. On the right:
+   - A coordinate system labeled "S'" with axes "x'" and an implied "y'." 
+   - An "Enemy spacecraft" is depicted, blue in color, also moving along the positive x'-axis, indicated by a red arrow labeled with vector \textbackslash{}(\textbackslash{}vec\{v\}\textbackslash{}).
+
+The spacecrafts and their respective directions suggest a depiction of motion related to physics or space dynamics, with different inertial frames of reference.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 0.357c \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/527.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0527.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0527:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0527.patrolCrewMeasuredOvertakingSpeed_eq_choiceD}
+\uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-matchesscenarioandfigure, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-matchesproblemreadouts, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-hasphysicalpursuitparameters, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-obeysearthframeclosingrate, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-obeyscollinearrelativisticvelocitytransformation, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-patrolmeasuredspeedisrelativevelocitymagnitude, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-answerchoiceinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-roundstonearestthousandth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.SignedVelocityQuantity}
+  A signed one-dimensional physical velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.SpeedQuantity}
+  A nonnegative physical speed, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityquantity}
+  Read a signed velocity in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.speedReadout}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedquantity}
+  Read a nonnegative speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.vacuumSpeedOfLightReadout}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityreadout}
+  Physlib's exact vacuum speed of light in the selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[velocity In Light Speed Units]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.velocityInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityquantity, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityreadout, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-vacuumspeedoflightreadout}
+  Dimensionless signed velocity in units of the vacuum speed of light
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Light Speed Units.
+\end{proof}
+\begin{definition}[speed In Light Speed Units]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.speedInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedquantity, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedreadout, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-vacuumspeedoflightreadout}
+  Dimensionless nonnegative speed in units of the vacuum speed of light
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Light Speed Units.
+\end{proof}
+\begin{definition}[Reference Frame Label]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-referenceframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.ReferenceFrameLabel}
+  The two inertial-frame labels printed in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reference Frame Label.
+\end{proof}
+\begin{definition}[Coordinate Axis Label]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-coordinateaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.CoordinateAxisLabel}
+  The horizontal coordinate-axis labels printed in the two panels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis Label.
+\end{proof}
+\begin{definition}[Figure Object Label]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-figureobjectlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.FigureObjectLabel}
+  Physical objects explicitly shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object Label.
+\end{proof}
+\begin{definition}[Velocity Arrow Label]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityarrowlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.VelocityArrowLabel}
+  Velocity-vector labels printed above the two spacecraft
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Arrow Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.AxialDirection}
+  Orientation along the common horizontal motion axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Spacecraft Pursuit Figure]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.SpacecraftPursuitFigure}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-referenceframelabel, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-coordinateaxislabel, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-figureobjectlabel, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityarrowlabel, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-axialdirection}
+  Qualitative evidence from phyx\_data/test\_image/527.png. The image has a left S,x panel containing Earth and the patrol craft and a right S',x' panel containing the enemy craft. Both printed velocity arrows point right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spacecraft Pursuit Figure.
+\end{proof}
+\begin{definition}[Spacecraft Pursuit Setup]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.SpacecraftPursuitSetup}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-signedvelocityquantity, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedquantity, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-referenceframelabel, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitfigure}
+  All physical quantities in the pursuit problem. In particular, enemyVelocityInPatrolFrame and patrolMeasuredOvertakingSpeed are unknown observables: no field assigns either one a numerical value or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spacecraft Pursuit Setup.
+\end{proof}
+\begin{definition}[Matches Scenario And Figure]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-matchesscenarioandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.MatchesScenarioAndFigure}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  Qualitative frame, object, axis, and arrow information from the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  The three numerical readouts stated in the problem. These concern only Earth-frame quantities: enemy speed 0.800 c, patrol speed 0.900 c, and the Earth-observed closing rate 0.100 c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Pursuit Parameters]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-hasphysicalpursuitparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.HasPhysicalPursuitParameters}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-vacuumspeedoflightreadout, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  Positivity, ordering, and subluminality of the stated Earth-frame data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pursuit Parameters.
+\end{proof}
+\begin{definition}[Obeys Earth Frame Closing Rate]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-obeysearthframeclosingrate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.ObeysEarthFrameClosingRate}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  Ordinary same-frame kinematics for the Earth observers: because both craft move right and the patrol is faster, their reported closing speed is u - v. This preserves the separately stated 0.100 c observation without using the patrol-frame target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Earth Frame Closing Rate.
+\end{proof}
+\begin{definition}[Obeys Collinear Relativistic Velocity Transformation]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-obeyscollinearrelativisticvelocitytransformation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.ObeysCollinearRelativisticVelocityTransformation}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  The governing one-dimensional Lorentz velocity transformation beta'\_enemy = (beta\_enemy - beta\_patrol) / (1 - beta\_patrol * beta\_enemy). Its left-hand side is still an unknown patrol-frame velocity, and this law contains no numerical patrol-frame speed or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Collinear Relativistic Velocity Transformation.
+\end{proof}
+\begin{definition}[Patrol Measured Speed Is Relative Velocity Magnitude]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-patrolmeasuredspeedisrelativevelocitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.PatrolMeasuredSpeedIsRelativeVelocityMagnitude}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-velocityinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-speedinlightspeedunits, def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-spacecraftpursuitsetup}
+  Operational meaning of the requested speed: the patrol crew reports the nonnegative magnitude of the enemy's signed velocity in the patrol frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Patrol Measured Speed Is Relative Velocity Magnitude.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.AnswerChoice}
+  Labels of the four choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Light Speed Units]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-answerchoiceinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.answerChoiceInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-answerchoice}
+  Displayed candidate speeds, as dimensionless multiples of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Light Speed Units.
+\end{proof}
+\begin{definition}[Rounds To Nearest Thousandth]
+  \label{def:physics:phyx-mini-0527:phyxminiproblems-problemphyxmini0527-roundstonearestthousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0527.RoundsToNearestThousandth}
+  Nearest-thousandth agreement, using a half-open convention at ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Thousandth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

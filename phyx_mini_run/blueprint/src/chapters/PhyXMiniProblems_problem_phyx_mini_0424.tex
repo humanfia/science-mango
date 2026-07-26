@@ -1,0 +1,326 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0424.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0424.source.json
+
+\chapter{Physics problem phyx\_mini\_0424}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0424}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a Carnot heat engine driving a Carnot refrigerator.
+
+\#\# Question
+
+Determine \$Q\_3\$.
+
+\#\# Answer choices
+
+- A: A: 1000 J
+
+- B: B: 1500 J
+
+- C: C: 2000 J
+
+- D: D: 2500 J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image represents a thermodynamic diagram involving a Carnot heat engine and a Carnot refrigerator.
+
+- **Sections and Labels:**
+  - **Top Section:** 
+    - On the left, the temperature is labeled 600 K.
+    - On the right, the temperature is labeled 500 K.
+    - Between these, an arrow labeled \textbackslash{}(Q\_1 = 1000 \textbackslash{}, \textbackslash{}text\{J\}\textbackslash{}) indicates heat transfer.
+
+  - **Bottom Section:**
+    - On the left, the temperature is labeled 300 K.
+    - On the right, the temperature is labeled 400 K.
+
+- **Components and Processes:**
+  - **Carnot Heat Engine:**
+    - Located on the left side.
+    - Heat \textbackslash{}(Q\_1\textbackslash{}) enters from the top (600 K) and exits as \textbackslash{}(Q\_2\textbackslash{}) at the bottom (300 K) with downward arrows.
+    - Outputs work labeled \textbackslash{}(W\_\{\textbackslash{}text\{out\}\}\textbackslash{}).
+
+  - **Carnot Refrigerator:**
+    - Located on the right side.
+    - Heat \textbackslash{}(Q\_3\textbackslash{}) enters from the bottom (400 K) and exits as \textbackslash{}(Q\_4\textbackslash{}) at the top (500 K) with upward arrows.
+    - Requires work labeled \textbackslash{}(W\_\{\textbackslash{}text\{in\}\}\textbackslash{}).
+
+- **Connections:**
+  - The heat engine and refrigerator are connected through work transfers, \textbackslash{}(W\_\{\textbackslash{}text\{out\}\}\textbackslash{}) from the heat engine to \textbackslash{}(W\_\{\textbackslash{}text\{in\}\}\textbackslash{}) for the refrigerator.
+
+- **Arrows:**
+  - Purple arrows indicate the direction of heat and work transfers through the systems.
+
+The diagram illustrates the energy exchange and work process between a heat engine and a refrigerator operating between these temperatures.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 2500 J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/424.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0424.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0424:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0424.q3_for_coupled_carnot_engine_and_refrigerator}
+\uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-matchescoupledcarnotscenario, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-matchessuppliedfigure, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-hasphysicalmagnitudes, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-satisfiescoupledcarnotlaws}
+The \(600/300\,\mathrm K\) Carnot engine drives the
+\(500/400\,\mathrm K\) Carnot refrigerator losslessly.  With
+\(Q_1=1000\,\mathrm J\), the rejected refrigerator heat is
+\(Q_3=2500\,\mathrm J\), answer D.
+\end{theorem}
+\begin{proof}
+Reversibility of the engine gives
+\(300Q_1=600Q_2\), hence \(Q_2=500\,\mathrm J\).  Its first law therefore
+gives \(W_{\rm out}=500\,\mathrm J\), and lossless coupling makes
+\(W_{\rm in}=500\,\mathrm J\).  For the refrigerator,
+\(400Q_3=500Q_4\) and \(Q_3=Q_4+500\).  Eliminating \(Q_4\) yields
+\(Q_3=2500\,\mathrm J\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.energyReadout}
+  Read a dimensionful energy in coherent SI energy units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.energyInJoules}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-energyreadout}
+  Read heat or work in joules, normalized by the dimensionful one joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.temperatureInKelvins}
+  Read an absolute temperature in kelvin, accounting for the zero-preserving temperature unit in which the Physlib Temperature is stored
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Device]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-device}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.Device}
+  The two thermodynamic devices connected by the horizontal work shaft
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Device.
+\end{proof}
+\begin{definition}[Device Mode]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-devicemode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.DeviceMode}
+  The operating role written next to each device in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Device Mode.
+\end{proof}
+\begin{definition}[Cycle Idealization]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-cycleidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.CycleIdealization}
+  Whether a device is the reversible Carnot idealization stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Idealization.
+\end{proof}
+\begin{definition}[Device Position]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-deviceposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.DevicePosition}
+  The left and right device positions in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Device Position.
+\end{proof}
+\begin{definition}[Thermal Reservoir]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-thermalreservoir}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.ThermalReservoir}
+  The four reservoirs attached to the two devices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Reservoir.
+\end{proof}
+\begin{definition}[Reservoir Position]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.ReservoirPosition}
+  The four geometric reservoir positions visible in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reservoir Position.
+\end{proof}
+\begin{definition}[Heat Label]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.HeatLabel}
+  Heat-transfer symbols printed next to the four vertical arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Label.
+\end{proof}
+\begin{definition}[Work Label]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-worklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.WorkLabel}
+  Work-transfer symbols printed on the horizontal connection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Label.
+\end{proof}
+\begin{definition}[Heat Arrow Role]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatarrowrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.HeatArrowRole}
+  Physical direction and role of each heat arrow in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Arrow Role.
+\end{proof}
+\begin{definition}[expected Heat Arrow Role]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-expectedheatarrowrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.expectedHeatArrowRole}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatlabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatarrowrole}
+  The heat-arrow roles associated with the four printed symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Heat Arrow Role.
+\end{proof}
+\begin{definition}[Work Arrow Role]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workarrowrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.WorkArrowRole}
+  Physical role of each work label on the shared horizontal shaft
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Arrow Role.
+\end{proof}
+\begin{definition}[expected Work Arrow Role]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-expectedworkarrowrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.expectedWorkArrowRole}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-worklabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workarrowrole}
+  The work-arrow roles associated with the two printed symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Work Arrow Role.
+\end{proof}
+\begin{definition}[Coupled Carnot Figure]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.CoupledCarnotFigure}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-device, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-devicemode, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-deviceposition, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-thermalreservoir, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirposition, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatlabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-worklabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatarrowrole, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workarrowrole}
+  Qualitative information displayed by the supplied raster. Numerical temperatures and energy readouts are related to the setup separately in MatchesSuppliedFigure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupled Carnot Figure.
+\end{proof}
+\begin{definition}[Coupled Carnot Setup]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.CoupledCarnotSetup}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-device, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-devicemode, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-cycleidealization, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-thermalreservoir, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatlabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-worklabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotfigure}
+  The physical observables of the two devices. Heat and work fields are independent dimensionful magnitudes; none is defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coupled Carnot Setup.
+\end{proof}
+\begin{definition}[heat In Joules]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.heatInJoules}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-energyinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatlabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup}
+  Joule readout of one of the four labelled heat-transfer magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of heat In Joules.
+\end{proof}
+\begin{definition}[work In Joules]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.workInJoules}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-energyinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-worklabel, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup}
+  Joule readout of one of the two labelled work-transfer magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work In Joules.
+\end{proof}
+\begin{definition}[reservoir Temperature In Kelvins]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirtemperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.reservoirTemperatureInKelvins}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-temperatureinkelvins, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-thermalreservoir, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup}
+  Kelvin readout of a labelled reservoir's absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reservoir Temperature In Kelvins.
+\end{proof}
+\begin{definition}[Matches Coupled Carnot Scenario]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-matchescoupledcarnotscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.MatchesCoupledCarnotScenario}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup}
+  The prose-level scenario: a Carnot heat engine directly drives a Carnot refrigerator. Quantitative energy and reversibility laws are stated separately
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Coupled Carnot Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-expectedheatarrowrole, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-expectedworkarrowrole, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirtemperatureinkelvins}
+  Facts read from the primary image. They include positions, arrows, the four reservoir temperatures, and Q₁ = 1000 J, but no numerical value for Q₃, Q₄, or either work transfer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Magnitudes]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-hasphysicalmagnitudes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.HasPhysicalMagnitudes}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirtemperatureinkelvins}
+  Positivity conditions for the directed heat and work magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Magnitudes.
+\end{proof}
+\begin{definition}[Satisfies Coupled Carnot Laws]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-satisfiescoupledcarnotlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.SatisfiesCoupledCarnotLaws}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-coupledcarnotsetup, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-heatinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-workinjoules, def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-reservoirtemperatureinkelvins}
+  Governing relations for the ideal coupled devices: the engine obeys Q₁ = Q₂ + W\_out; reversibility gives Q₁ / T\_engine,hot = Q₂ / T\_engine,cold; the refrigerator obeys Q₃ = Q₄ + W\_in; reversibility gives Q₃ / T\_refrigerator,hot = Q₄ / T\_refrigerator,cold; and the lossless direct shaft gives W\_out = W\_in. The reversible heat ratios are written without division as cross-products of kelvin and joule readouts. None of these general laws contains the requested numerical value of Q₃
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Coupled Carnot Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.AnswerChoice}
+  The four answer labels supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Q3 In Joules]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-displayedq3injoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.displayedQ3InJoules}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-answerchoice}
+  The candidate Q₃ magnitudes printed beside the answer labels, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Q3 In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0424.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0424:phyxminiproblems-problemphyxmini0424-answerchoice}
+  The source dataset records answer label D; this metadata is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

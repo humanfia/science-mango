@@ -1,0 +1,347 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0180.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0180.source.json
+
+\chapter{Physics problem phyx\_mini\_0180}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0180}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A steel wire is used to stretch the spring of figure. An oscillating magnetic field drives the steel wire back and forth. A standing wave with three antinodes is created when the spring is stretched \$8.0 \textbackslash{}, \textbackslash{}text\{cm\}\$.
+
+\#\# Question
+
+What stretch of the spring produces a standing wave with two antinodes?
+
+\#\# Answer choices
+
+- A: A: 8.0 cm
+
+- B: B: 24 cm
+
+- C: C: 12cm
+
+- D: D: 18 cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a mechanical setup consisting of three main elements:
+
+1. **Spring**: On the left side, there's a gray helical spring attached to a vertical wall or surface. The spring is coiled and depicted in a compressed or relaxed state.
+
+2. **Steel Wire**: Connected to the spring, there's a sinusoidal, wavy blue line labeled "Steel wire." This wire extends horizontally to the right, creating a wave-like pattern.
+
+3. **Pull Arrow**: On the right end, there's a red arrow pointing to the right labeled "Pull." This indicates the direction of the force applied to the steel wire, suggesting tension being applied to the system.
+
+These elements are interconnected to demonstrate the concept of mechanical tension or dynamics involving springs and wires.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 18 cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/180.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0180.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0180:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0180.problem_phyx_mini_0180}
+\uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesprimaryfigure, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesproblemdescription, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-hasphysicalparameters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeyshooketensionlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysstretchedstringwavespeedlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysfixedendstandingwavelaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-iscorrectstretchanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DimLength}
+  A signed physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[Dim Frequency]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DimFrequency}
+  A physical frequency, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Frequency.
+\end{proof}
+\begin{definition}[Dim Tension]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimtension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DimTension}
+  A tensile force, with dimension mass times length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Tension.
+\end{proof}
+\begin{definition}[Dim Spring Stiffness]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimspringstiffness}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DimSpringStiffness}
+  Spring stiffness, with dimension force per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Spring Stiffness.
+\end{proof}
+\begin{definition}[Dim Linear Mass Density]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlinearmassdensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DimLinearMassDensity}
+  Linear mass density, with dimension mass per length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Linear Mass Density.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.centimeterUnitChoices}
+  SI base units with centimeters selected as the length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlength, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-centimeterunitchoices}
+  The scalar centimeter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[frequency In Units]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-frequencyinunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.frequencyInUnits}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimfrequency}
+  The scalar readout of a frequency in a specified coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Units.
+\end{proof}
+\begin{definition}[tension In Units]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-tensioninunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.tensionInUnits}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimtension}
+  The scalar readout of a tensile force in a specified coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tension In Units.
+\end{proof}
+\begin{definition}[spring Stiffness In Units]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-springstiffnessinunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.springStiffnessInUnits}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimspringstiffness}
+  The scalar readout of spring stiffness in a specified coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Stiffness In Units.
+\end{proof}
+\begin{definition}[linear Mass Density In Units]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-linearmassdensityinunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.linearMassDensityInUnits}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlinearmassdensity}
+  The scalar readout of linear mass density in a specified coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Mass Density In Units.
+\end{proof}
+\begin{definition}[speed In Units]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-speedinunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.speedInUnits}
+  The real-valued scalar readout of Physlib's nonnegative speed quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Units.
+\end{proof}
+\begin{definition}[Wire Material]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-wirematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.WireMaterial}
+  Material classification of the vibrating wire
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Material.
+\end{proof}
+\begin{definition}[Spring Mount]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-springmount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.SpringMount}
+  How the spring is supported in the apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Mount.
+\end{proof}
+\begin{definition}[Drive Mechanism]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-drivemechanism}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DriveMechanism}
+  Physical mechanism used to drive the wire
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Drive Mechanism.
+\end{proof}
+\begin{definition}[Driven Motion]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-drivenmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.DrivenMotion}
+  Qualitative motion produced by the drive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Driven Motion.
+\end{proof}
+\begin{definition}[Wire End]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-wireend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.WireEnd}
+  The two endpoints of the horizontal wire in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire End.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.HorizontalDirection}
+  Horizontal directions used by the pull arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Standing Wave Boundary]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-standingwaveboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.StandingWaveBoundary}
+  Boundary-node information for a standing wave on the wire segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Wave Boundary.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.FigureElement}
+  Physical elements explicitly shown in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.FigureLabel}
+  Text labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Steel Wire Spring Setup]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.SteelWireSpringSetup}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlength, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimfrequency, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimtension, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimspringstiffness, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-dimlinearmassdensity, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-wirematerial, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-springmount, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-drivemechanism, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-drivenmotion, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-wireend, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-horizontaldirection, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-standingwaveboundary, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-figureelement, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-figurelabel}
+  Physical quantities and figure-derived roles for the spring--wire apparatus. The functions indexed by antinode count describe each resonant configuration obtained by stretching the same spring and wire while retaining the same wire length, linear density, spring stiffness, and magnetic drive frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Steel Wire Spring Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Readouts and qualitative geometry taken from the primary image. The exact spring stretch is not read from the image: the 8.0 cm datum comes from the problem text and is recorded separately below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Problem-statement data: the wire is steel, an oscillating magnetic field drives it back and forth, the three-antinode resonance occurs at 8.0 cm, and the question asks for the two-antinode resonance. No stretch for two antinodes is specified here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-frequencyinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-tensioninunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-springstiffnessinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-linearmassdensityinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-speedinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Positivity conditions for the physical branch of every nonzero mode
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Obeys Hooke Tension Law]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeyshooketensionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.ObeysHookeTensionLaw}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-tensioninunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-springstiffnessinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Hooke's law for the magnitude of the wire tension: T = k x. It is stated in every coherent unit system, so it relates physical quantities rather than only their centimeter/SI readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Hooke Tension Law.
+\end{proof}
+\begin{definition}[Obeys Stretched String Wave Speed Law]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysstretchedstringwavespeedlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.ObeysStretchedStringWaveSpeedLaw}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-tensioninunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-linearmassdensityinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-speedinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Transverse-wave speed on a stretched string, in the homogeneous squared form μ v² = T
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Stretched String Wave Speed Law.
+\end{proof}
+\begin{definition}[Obeys Fixed End Standing Wave Law]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysfixedendstandingwavelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.ObeysFixedEndStandingWaveLaw}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-frequencyinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-speedinunits, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup}
+  Fixed-end standing-wave resonance with n antinodes, written as 2 L f = n v. The single driveFrequency field records that the oscillating magnetic drive has the same frequency in every stretched configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Fixed End Standing Wave Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.AnswerChoice}
+  Labels of the four answer choices in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[stretch In Centimeters]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-answerchoice-stretchincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.AnswerChoice.stretchInCentimeters}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-answerchoice}
+  The spring stretch in centimeters printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stretch In Centimeters.
+\end{proof}
+\begin{definition}[Is Correct Stretch Answer]
+  \label{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-iscorrectstretchanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.IsCorrectStretchAnswer}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-answerchoice}
+  A choice reports the requested resonant spring stretch exactly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Stretch Answer.
+\end{proof}
+\begin{lemma}[antinode Count sq mul extension is invariant]
+  \label{lem:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-antinodecount-sq-mul-extension-is-invariant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.antinodeCount_sq_mul_extension_is_invariant}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-hasphysicalparameters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeyshooketensionlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysstretchedstringwavespeedlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysfixedendstandingwavelaw}
+  For a fixed wire, spring, and drive, the string and Hooke laws imply that n² x\_n is independent of the positive antinode count n
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of antinode Count sq mul extension is invariant.
+\end{proof}
+\begin{lemma}[requested Extension In Centimeters eq eighteen]
+  \label{lem:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-requestedextensionincentimeters-eq-eighteen}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0180.requestedExtensionInCentimeters_eq_eighteen}
+  \uses{def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-lengthincentimeters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-steelwirespringsetup, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesprimaryfigure, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-matchesproblemdescription, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-hasphysicalparameters, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeyshooketensionlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysstretchedstringwavespeedlaw, def:physics:phyx-mini-0180:phyxminiproblems-problemphyxmini0180-obeysfixedendstandingwavelaw}
+  The reference resonance has three antinodes at 8.0 cm. Since n² x\_n is constant, the requested two-antinode resonance has stretch (3 / 2)² · 8 cm = 18 cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of requested Extension In Centimeters eq eighteen.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

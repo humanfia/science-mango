@@ -1,0 +1,509 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0934.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0934.source.json
+
+\chapter{Physics problem phyx\_mini\_0934}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0934}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The switch in figure has been in position 1 for a long time. It is changed to position 2 at \textbackslash{}( t = 0 \textbackslash{}, \textbackslash{}text\{s\} \textbackslash{}).
+
+\#\# Question
+
+What is the first time at which the current is maximum?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.20 \textbackslash{}
+
+- B: B: \textbackslash{}( 0.50 \textbackslash{}
+
+- C: C: \textbackslash{}( 0.40 \textbackslash{}
+
+- D: D: \textbackslash{}( 0.60 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit diagram consisting of the following components:
+
+1. **Voltage Source**: A 12 V battery is shown on the left side with positive and negative terminals indicated.
+
+2. **Resistor**: A resistor with a resistance of 2 ohms (Ω) is connected in series with the voltage source.
+
+3. **Switch**: A switch with two positions (1 and 2) is placed right after the resistor. It is currently shown in position 1.
+
+4. **Capacitor**: A 2.0 microfarad (μF) capacitor is connected next to the switch. When the switch is in position 1, the circuit with the resistor is complete, and when in position 2, the circuit includes the capacitor and inductor.
+
+5. **Inductor**: A 50 millihenry (mH) inductor is connected as part of the circuit when the switch is in position 2.
+
+The circuit has two distinct paths depending on the switch position, either including the resistor with the battery or completing the LC circuit with the capacitor and inductor.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( 0.50 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/934.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0934.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0934:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0934.problem_phyx_mini_0934}
+\uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchesidealswitchedlcscenario, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchessuppliedswitchedlctopology, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchessuppliedswitchedlcfigure, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchesswitchingprotocol, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-hasphysicalswitchedlcparameters, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-haslongtimepositiononeinitialstate, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-satisfiesidealpostswitchlcdynamics, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-isfirstpostswitchcurrentmaximum, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-ideallcfirstpeaktime, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-recordeddatasetanswer, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-isuniqueclosestfirstpeaktimechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.energyDimension}
+  Energy has physical dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.electricCurrentDimension}
+  Electric current has physical dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-energydimension}
+  Electric potential difference has physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.electricalResistanceDimension}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentdimension, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  Electrical resistance has physical dimension voltage per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.capacitanceDimension}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  Capacitance has physical dimension charge per voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.inductanceDimension}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentdimension, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  Inductance has physical dimension voltage times time per current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Voltage Magnitude Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.VoltageMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  A nonnegative, unit-independent voltage magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Magnitude Quantity.
+\end{proof}
+\begin{definition}[Potential Difference Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferencequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.PotentialDifferenceQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricpotentialdimension}
+  A signed, unit-independent instantaneous potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Difference Quantity.
+\end{proof}
+\begin{definition}[Resistance Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.ResistanceQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricalresistancedimension}
+  A nonnegative, unit-independent resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Quantity.
+\end{proof}
+\begin{definition}[Capacitance Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.CapacitanceQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancedimension}
+  A nonnegative, unit-independent capacitance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Quantity.
+\end{proof}
+\begin{definition}[Inductance Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.InductanceQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancedimension}
+  A nonnegative, unit-independent inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Quantity.
+\end{proof}
+\begin{definition}[Electric Charge Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.ElectricChargeQuantity}
+  A signed, unit-independent capacitor charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Charge Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentdimension}
+  A signed, unit-independent current in the capacitor-to-inductor orientation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.signedSIReadout}
+  Coherent-SI readout of a signed physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative physical quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[voltage Magnitude In Volts]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudeinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.voltageMagnitudeInVolts}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-nonnegativesireadout}
+  Read a source-voltage magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage Magnitude In Volts.
+\end{proof}
+\begin{definition}[potential Difference In Volts]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferenceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.potentialDifferenceInVolts}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferencequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-signedsireadout}
+  Read a signed instantaneous potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Difference In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-nonnegativesireadout}
+  Read resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-nonnegativesireadout}
+  Read capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[capacitance In Microfarads]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinmicrofarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.capacitanceInMicrofarads}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinfarads}
+  Read capacitance in microfarads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Microfarads.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-nonnegativesireadout}
+  Read inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinhenries}
+  Read inductance in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricchargequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-signedsireadout}
+  Read signed capacitor charge in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.currentInAmperes}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentquantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-signedsireadout}
+  Read the signed loop current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[Figure Component]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-figurecomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.FigureComponent}
+  The five component symbols visible in 934.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component.
+\end{proof}
+\begin{definition}[Two Terminal Component]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-twoterminalcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.TwoTerminalComponent}
+  The four two-terminal electrical components in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Terminal Component.
+\end{proof}
+\begin{definition}[Switch Terminal]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchterminal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.SwitchTerminal}
+  The three terminals of the depicted single-pole double-throw switch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch Terminal.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.CircuitNode}
+  Named electrical nodes read from the circuit drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Switch Position]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.SwitchPosition}
+  The two numbered switch positions shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch Position.
+\end{proof}
+\begin{definition}[Component Model]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-componentmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.ComponentModel}
+  Standard idealized physical roles assigned to the component symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Model.
+\end{proof}
+\begin{definition}[Switched LCFigure]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.SwitchedLCFigure}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-figurecomponent, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchposition}
+  Literal presentation information transcribed from the primary raster. The printed scalar values are kept separate from the physical quantities that they calibrate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched LCFigure.
+\end{proof}
+\begin{definition}[Switched LCCircuit Setup]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.SwitchedLCCircuitSetup}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferencequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductancequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electricchargequantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-electriccurrentquantity, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-twoterminalcomponent, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchterminal, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-circuitnode, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchposition, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-componentmodel, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlcfigure}
+  Independent physical data for the switching experiment. The charge, voltage, and current waveforms are observables; none is defined by the requested first-maximum time or by a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched LCCircuit Setup.
+\end{proof}
+\begin{definition}[capacitor Charge Waveform In Coulombs]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitorchargewaveformincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.capacitorChargeWaveformInCoulombs}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-chargeincoulombs, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The capacitor charge readout as a function of time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitor Charge Waveform In Coulombs.
+\end{proof}
+\begin{definition}[current Waveform In Amperes]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentwaveforminamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.currentWaveformInAmperes}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentinamperes, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The oriented loop-current readout as a function of time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Waveform In Amperes.
+\end{proof}
+\begin{definition}[capacitor Charge Derivative In Amperes]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitorchargederivativeinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.capacitorChargeDerivativeInAmperes}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitorchargewaveformincoulombs}
+  Time derivative of the capacitor-charge readout, in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitor Charge Derivative In Amperes.
+\end{proof}
+\begin{definition}[current Derivative In Amperes Per Second]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentderivativeinamperespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.currentDerivativeInAmperesPerSecond}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentwaveforminamperes}
+  Time derivative of the current readout, in amperes per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current Derivative In Amperes Per Second.
+\end{proof}
+\begin{definition}[Matches Ideal Switched LCScenario]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchesidealswitchedlcscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.MatchesIdealSwitchedLCScenario}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The ideal lumped-component interpretation of the circuit symbols
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Switched LCScenario.
+\end{proof}
+\begin{definition}[Matches Supplied Switched LCTopology]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchessuppliedswitchedlctopology}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.MatchesSuppliedSwitchedLCTopology}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The node incidences read from 934.png. In position 1 the switch common joins the capacitor to the source/resistor branch; in position 2 it joins the capacitor to the inductor, whose lower terminal shares the common return
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Switched LCTopology.
+\end{proof}
+\begin{definition}[Matches Supplied Switched LCFigure]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchessuppliedswitchedlcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.MatchesSuppliedSwitchedLCFigure}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudeinvolts, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistanceinohms, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinmicrofarads, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinmillihenries, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  Primary-raster symbols, labels, and calibration of every printed component value. These fields contain no current-maximum time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Switched LCFigure.
+\end{proof}
+\begin{definition}[Matches Switching Protocol]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-matchesswitchingprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.MatchesSwitchingProtocol}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The switch has occupied position 1 throughout negative time and changes to position 2 at t = 0 s, where it remains. The position-2 topology disconnects the source/resistor branch and closes the capacitor-inductor loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Switching Protocol.
+\end{proof}
+\begin{definition}[Has Physical Switched LCParameters]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-hasphysicalswitchedlcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.HasPhysicalSwitchedLCParameters}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudeinvolts, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-resistanceinohms, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinfarads, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinhenries, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  Positivity and nondegeneracy of the passive component data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Switched LCParameters.
+\end{proof}
+\begin{definition}[Has Long Time Position One Initial State]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-haslongtimepositiononeinitialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.HasLongTimePositionOneInitialState}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-voltagemagnitudeinvolts, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferenceinvolts, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentwaveforminamperes}
+  The result of leaving position 1 selected for a long time: immediately after switching, capacitor voltage is continuous and equals the battery voltage, and the newly connected inductor-loop current is zero. This is an initial state, not the requested first-maximum time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Long Time Position One Initial State.
+\end{proof}
+\begin{definition}[Satisfies Ideal Post Switch LCDynamics]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-satisfiesidealpostswitchlcdynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.SatisfiesIdealPostSwitchLCDynamics}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-potentialdifferenceinvolts, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinfarads, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinhenries, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitorchargewaveformincoulombs, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentwaveforminamperes, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitorchargederivativeinamperes, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentderivativeinamperespersecond}
+  Ideal post-switch LC dynamics in the orientation from the capacitor's upper plate through the inductor to the common return. The charge and current readouts are differentiable, q = C V\_C, charge leaves the upper plate at rate I, the inductor obeys V\_L = L dI/dt, and KVL equates the two oriented voltage drops. These general laws contain no quarter-period or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Post Switch LCDynamics.
+\end{proof}
+\begin{definition}[Is First Post Switch Current Maximum]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-isfirstpostswitchcurrentmaximum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.IsFirstPostSwitchCurrentMaximum}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-currentwaveforminamperes}
+  The event time is positive, its current is a global maximum over all post-switch times, and every earlier nonnegative time has strictly smaller current. The last clause selects the first occurrence among the periodic maxima of the ideal LC current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is First Post Switch Current Maximum.
+\end{proof}
+\begin{definition}[ideal LCFirst Peak Time In Seconds]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-ideallcfirstpeaktimeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.idealLCFirstPeakTimeInSeconds}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-capacitanceinfarads, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-inductanceinhenries, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup}
+  The ideal-LC quarter-period expressed in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ideal LCFirst Peak Time In Seconds.
+\end{proof}
+\begin{definition}[ideal LCFirst Peak Time]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-ideallcfirstpeaktime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.idealLCFirstPeakTime}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-ideallcfirstpeaktimeinseconds}
+  The corresponding point of Physlib Time, whose chosen unit is seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ideal LCFirst Peak Time.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.AnswerChoice}
+  Labels of the four time choices supplied with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Time In Milliseconds]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-answerchoice-displayedtimeinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.AnswerChoice.displayedTimeInMilliseconds}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-answerchoice}
+  The source text truncates the unit after each number. Dimensional evaluation of the pictured 50 mH and 2.0 μF components identifies these displayed readouts as milliseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Time In Milliseconds.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest First Peak Time Choice]
+  \label{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-isuniqueclosestfirstpeaktimechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0934.IsUniqueClosestFirstPeakTimeChoice}
+  \uses{def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-switchedlccircuitsetup, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-ideallcfirstpeaktimeinseconds, def:physics:phyx-mini-0934:phyxminiproblems-problemphyxmini0934-answerchoice}
+  A displayed choice is correct when it is strictly closer to the exact quarter-period than every other displayed time. This treats 0.50 ms as the two-significant-figure answer to the approximately 0.4967 ms physical time, rather than asserting a false exact equality
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest First Peak Time Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

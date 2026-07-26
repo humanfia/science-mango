@@ -1,0 +1,269 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0750.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0750.source.json
+
+\chapter{Physics problem phyx\_mini\_0750}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0750}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A radar station detects an airplane approaching directly from the east. At first observation, the airplane is at distance \$d\_1 = 360\textbackslash{} m\$ from the station and at angle \$\textbackslash{}theta\_1 = 40\textasciicircum{}\textbackslash{}circ\$ above the horizon. The airplane is tracked through an angular change \$\textbackslash{}Delta\textbackslash{}theta = 123\textasciicircum{}\textbackslash{}circ\$ in the vertical east\$-\$west plane; its distance is then \$d\_2 = 790\textbackslash{} m\$.
+
+\#\# Question
+
+Find the magnitude of the airplane's displacement during this period.
+
+\#\# Answer choices
+
+- A: A: 936 m
+
+- B: B: 965 m
+
+- C: C: 1031 m
+
+- D: D: 1261 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a schematic diagram involving a radar tracking system and an airplane. 
+
+- **Objects Present:**
+  - Two airplanes, one on the left and one on the right, indicating movement from east to west.
+  - A radar dish located on the ground, positioned between the two airplanes.
+
+- **Text Labels:**
+  - The airplane is labeled as "Airplane."
+  - The radar dish is labeled as "Radar dish."
+  - The directions "W" (West) and "E" (East) are marked along a horizontal dashed line.
+
+- **Lines and Angles:**
+  - Two lines connect the radar dish to each airplane, labeled \textbackslash{}(d\_2\textbackslash{}) for the left airplane and \textbackslash{}(d\_1\textbackslash{}) for the right airplane, representing distances.
+  - The radar dish angle is marked with \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}) for the line connecting it to the right airplane.
+  - The change in angle is represented by \textbackslash{}(\textbackslash{}Delta \textbackslash{}theta\textbackslash{}), showing the difference between the two lines.
+
+- **Additional Elements:**
+  - The ground is represented by a textured pattern below the horizontal dashed line.
+  - The motion of the airplanes is indicated by dashed lines behind them, and an arrow pointing from the right airplane to the left airplane.
+
+The diagram illustrates how a radar dish tracks the movement of an airplane based on changes in distance and angle.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1031 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/750.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0750.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0750:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0750.airplaneDisplacement_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-anglefromdegrees, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchesradartrackingscenario, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchessuppliedradarreadouts, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchessuppliedradarfigure, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-hasphysicalradarparameters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-satisfiesradartrianglecosinelaw, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-recordeddatasetanswer, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-isuniquenearestmeteranswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.LengthQuantity}
+  A nonnegative physical distance, represented coherently in every unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.lengthReadout}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity}
+  Read a physical distance in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.lengthInMeters}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthreadout}
+  Metre readout of a physical distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[angle From Degrees]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-anglefromdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.angleFromDegrees}
+  Convert a numerical degree readout to Mathlib's angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle From Degrees.
+\end{proof}
+\begin{definition}[Tracking Plane Kind]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-trackingplanekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.TrackingPlaneKind}
+  The vertical plane in which the radar tracks the airplane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tracking Plane Kind.
+\end{proof}
+\begin{definition}[Horizon Side]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-horizonside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.HorizonSide}
+  Side of the radar station on which an observed airplane position lies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizon Side.
+\end{proof}
+\begin{definition}[Airplane Travel Direction]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-airplanetraveldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.AirplaneTravelDirection}
+  Direction of the airplane's motion shown by the figure's arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Airplane Travel Direction.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.FigureObject}
+  Physical objects and geometric features visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.FigureLabel}
+  Literal symbolic and compass labels visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Supplied Radar Figure]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-suppliedradarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.SuppliedRadarFigure}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-figureobject, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-figurelabel}
+  Structured transcription of image 750. It stores the quantities denoted by the four geometric labels and qualitative incidence information. The image contains no displacement-magnitude label and no numerical answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Radar Figure.
+\end{proof}
+\begin{definition}[Radar Tracking Setup]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.RadarTrackingSetup}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-trackingplanekind, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-horizonside, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-airplanetraveldirection, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-suppliedradarfigure}
+  Independent physical quantities in the radar-tracking model. In particular, displacementMagnitude is not defined from an answer choice; it is related to the two radar ranges by the governing triangle law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radar Tracking Setup.
+\end{proof}
+\begin{definition}[Matches Radar Tracking Scenario]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchesradartrackingscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.MatchesRadarTrackingScenario}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  Qualitative geometry and direction stated by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Radar Tracking Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Radar Readouts]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchessuppliedradarreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.MatchesSuppliedRadarReadouts}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-anglefromdegrees, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  Numerical readouts supplied by the prose. This contains neither a value for the displacement nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Radar Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Radar Figure]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchessuppliedradarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.MatchesSuppliedRadarFigure}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  Objects, labels, and incidence relations read from the primary bitmap. The fields connect the figure's d₁, d₂, θ₁, and Δθ labels to the physical setup without assigning the requested third-side length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Radar Figure.
+\end{proof}
+\begin{definition}[Has Physical Radar Parameters]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-hasphysicalradarparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.HasPhysicalRadarParameters}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  Positivity and angle-branch conditions selecting the geometry shown in the image. These conditions provide no numerical displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Radar Parameters.
+\end{proof}
+\begin{definition}[Satisfies Radar Triangle Cosine Law]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-satisfiesradartrianglecosinelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.SatisfiesRadarTriangleCosineLaw}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthreadout, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup}
+  The governing law for the triangle whose vertices are the radar station and the airplane's two observed positions. It is stated in every length unit and is the dimensionful readout form of the cosine rule. It does not specialize the supplied numerical data or identify an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Radar Triangle Cosine Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.AnswerChoice}
+  Labels of the four displayed displacement choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Displacement Meters]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-displayeddisplacementmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.displayedDisplacementMeters}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-answerchoice}
+  Metre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Displacement Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Meter]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-roundstodisplayedmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.RoundsToDisplayedMeter}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-answerchoice, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-displayeddisplacementmeters}
+  A displacement matches an integer-metre answer when its metre readout rounds to that integer, expressed by an error strictly below half a metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Meter.
+\end{proof}
+\begin{definition}[Is Unique Nearest Meter Answer]
+  \label{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-isuniquenearestmeteranswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.IsUniqueNearestMeterAnswer}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthquantity, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-answerchoice, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-roundstodisplayedmeter}
+  A choice is the unique displayed nearest-metre match
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Meter Answer.
+\end{proof}
+\begin{lemma}[displacement Squared In Meters eq cosine Rule]
+  \label{lem:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-displacementsquaredinmeters-eq-cosinerule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0750.displacementSquaredInMeters_eq_cosineRule}
+  \uses{def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-lengthinmeters, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-anglefromdegrees, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-radartrackingsetup, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-matchessuppliedradarreadouts, def:physics:phyx-mini-0750:phyxminiproblems-problemphyxmini0750-satisfiesradartrianglecosinelaw}
+  Specializing the unit-generic cosine rule to metres and the supplied radar readouts gives the exact squared displacement relation. This is a derived intermediate result, not a premise of the model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of displacement Squared In Meters eq cosine Rule.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

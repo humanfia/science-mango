@@ -1,0 +1,415 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0764.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0764.source.json
+
+\chapter{Physics problem phyx\_mini\_0764}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0764}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 5.00 kg chunk of ice is sliding at 12.0 m/s on the floor of an ice-covered valley when it collides with and sticks to another 5.00 kg chunk of ice that is initially at rest as shown in figure. Since the valley is icy, there is no friction.
+
+\#\# Question
+
+After the collision, how high above the valley floor will the combined chunks go?
+
+\#\# Answer choices
+
+- A: A: 1.6m
+
+- B: B: 1.2m
+
+- C: C: 1.9m
+
+- D: D: 1.5m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics scenario involving two blocks on a horizontal surface. Here's a description of the elements:
+
+1. **Blocks**: There are two identical orange blocks, each labeled as having a mass of 5.00 kg.
+
+2. **Velocity and Motion**: The block on the left is shown with a green arrow pointing to the right, labeled "12.0 m/s," indicating its velocity in that direction.
+
+3. **Surface and Terrain**: The blocks are on a surface that appears flat initially and then transitions into a curved, wave-like hill.
+
+4. **Text**: The text above each block indicates their masses, and there is an additional text beside the arrow showing the velocity of one block.
+
+This setup suggests a physics problem involving motion, momentum, or energy concepts.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 1.2m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/764.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0764.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0764:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0764.problem_phyx_mini_0764}
+\uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthinmeters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesicevalleyscenario, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesproblemreadouts, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-usesstandardterrestrialgravity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchessuppliedfigure, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-hasphysicalicevalleyparameters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesstickingcollisionmomentumlaws, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesfrictionlessascentenergylaws, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-isuniqueclosestheightchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.accelerationDimension}
+  Gravitational acceleration has dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.LengthQuantity}
+  A nonnegative, unit-independent height above the valley floor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.SpeedQuantity}
+  A nonnegative, unit-independent speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationdimension}
+  A nonnegative, unit-independent acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Momentum Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-momentumquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.MomentumQuantity}
+  Unit-independent one-dimensional momentum; rightward is positive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Momentum Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.EnergyQuantity}
+  Mechanical energy with Physlib's energy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.massReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.lengthReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.speedReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedquantity}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.accelerationReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationquantity}
+  Read acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[momentum Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-momentumreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.momentumReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-momentumquantity}
+  Read signed momentum in coherent selected mechanical units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of momentum Readout.
+\end{proof}
+\begin{definition}[energy Readout]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-energyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.energyReadout}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-energyquantity}
+  Read energy in the coherent unit induced by selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.massInKilograms}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.lengthInMeters}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedreadout}
+  Metre-per-second readout of a speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationreadout}
+  Metre-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[Ice Chunk]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icechunk}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.IceChunk}
+  The two separate chunks present immediately before the collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ice Chunk.
+\end{proof}
+\begin{definition}[Ascent Stage]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-ascentstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.AscentStage}
+  The two states of the stuck pair during its frictionless ascent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ascent Stage.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.HorizontalDirection}
+  Qualitative direction of motion along the valley floor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.CollisionOutcome}
+  Outcome of the short collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.SurfaceCondition}
+  Idealization of the ice-covered floor and curved valley side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Terrain Region]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-terrainregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.TerrainRegion}
+  Visible terrain regions distinguished in image 764.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Terrain Region.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.FigureObject}
+  Physical and graphical objects visible in image 764.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Ice Valley Figure]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-suppliedicevalleyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.SuppliedIceValleyFigure}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icechunk, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-horizontaldirection, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-terrainregion, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-figureobject}
+  Literal evidence from the supplied raster. Its real-valued fields transcribe printed labels only; MatchesSuppliedFigure connects those labels to the independent dimensionful quantities in the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Ice Valley Figure.
+\end{proof}
+\begin{definition}[Ice Valley Collision Setup]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.IceValleyCollisionSetup}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-momentumquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-energyquantity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icechunk, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-ascentstage, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-horizontaldirection, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-collisionoutcome, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-surfacecondition, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-suppliedicevalleyfigure}
+  Independent physical quantities for the collision and ascent. In particular, maximumRiseAboveValleyFloor is not defined from an answer choice and is constrained only by the governing laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ice Valley Collision Setup.
+\end{proof}
+\begin{definition}[Matches Ice Valley Scenario]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesicevalleyscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.MatchesIceValleyScenario}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Qualitative conditions and boundary states stated or implied by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ice Valley Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massinkilograms, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedinmeterspersecond, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  The masses and initial speed printed in the problem. No post-collision speed, maximum height, or answer choice occurs in these data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Conventional near-Earth gravitational calibration for the numerical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massinkilograms, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedinmeterspersecond, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icechunk, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-terrainregion, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-figureobject, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Primary-raster evidence: two 5.00 kg blocks lie on the flat floor, only the left block has a rightward 12.0 m/s arrow, and the floor becomes a curved rising right side. The image contains no maximum-height readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Ice Valley Parameters]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-hasphysicalicevalleyparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.HasPhysicalIceValleyParameters}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massinkilograms, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthinmeters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedinmeterspersecond, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icechunk, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Positivity and nondegeneracy conditions for the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ice Valley Parameters.
+\end{proof}
+\begin{definition}[Satisfies Sticking Collision Momentum Laws]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesstickingcollisionmomentumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.SatisfiesStickingCollisionMomentumLaws}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-momentumreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Mass additivity and one-dimensional linear-momentum conservation for the short sticking collision. Speeds serve as signed components because the scenario states that every nonzero horizontal motion is rightward. No field assigns a numerical post-collision speed or height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sticking Collision Momentum Laws.
+\end{proof}
+\begin{definition}[Satisfies Frictionless Ascent Energy Laws]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesfrictionlessascentenergylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.SatisfiesFrictionlessAscentEnergyLaws}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-massreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-accelerationreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-energyreadout, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-ascentstage, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup}
+  Kinetic-energy definition, gravitational potential-energy gain, and mechanical-energy conservation for the frictionless ascent after the inelastic collision. Energy conservation is deliberately not asserted across the collision itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Frictionless Ascent Energy Laws.
+\end{proof}
+\begin{definition}[Height Answer Choice]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-heightanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.HeightAnswerChoice}
+  The four height choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Height Answer Choice.
+\end{proof}
+\begin{definition}[displayed Height In Meters]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-displayedheightinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.displayedHeightInMeters}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-heightanswerchoice}
+  Metre value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Height In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-heightanswerchoice}
+  The answer label stored in the source dataset; metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Height Choice]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-isclosestheightchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.IsClosestHeightChoice}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-heightanswerchoice, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-displayedheightinmeters}
+  A displayed choice is closest to an exact physical height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Height Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Height Choice]
+  \label{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-isuniqueclosestheightchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.IsUniqueClosestHeightChoice}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-heightanswerchoice, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-isclosestheightchoice}
+  A displayed choice is the unique closest choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Height Choice.
+\end{proof}
+\begin{lemma}[post collision speed is six meters per second]
+  \label{lem:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-post-collision-speed-is-six-meters-per-second}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.post_collision_speed_is_six_meters_per_second}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-speedinmeterspersecond, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesicevalleyscenario, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesproblemreadouts, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-hasphysicalicevalleyparameters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesstickingcollisionmomentumlaws}
+  Momentum conservation through the sticking collision fixes the compound object's speed on the valley floor at 6 m/s. This is a derived conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of post collision speed is six meters per second.
+\end{proof}
+\begin{lemma}[maximum rise is ninety over forty nine meters]
+  \label{lem:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-maximum-rise-is-ninety-over-forty-nine-meters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0764.maximum_rise_is_ninety_over_forty_nine_meters}
+  \uses{def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-lengthinmeters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-icevalleycollisionsetup, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesicevalleyscenario, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-matchesproblemreadouts, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-usesstandardterrestrialgravity, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-hasphysicalicevalleyparameters, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesstickingcollisionmomentumlaws, def:physics:phyx-mini-0764:phyxminiproblems-problemphyxmini0764-satisfiesfrictionlessascentenergylaws}
+  Mechanical-energy conservation during the ascent gives the exact height v²/(2g) = 90/49 m under standard terrestrial gravity
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum rise is ninety over forty nine meters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,256 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0668.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0668.source.json
+
+\chapter{Physics problem phyx\_mini\_0668}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0668}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+One drop of oil falls straight down onto the road from the engine of a moving car every \textbackslash{}( 5 \textbackslash{}text\{ s\} \textbackslash{}). Figure shows the pattern of the drops left behind on the pavement.
+
+\#\# Question
+
+What is the average speed of the car over this section of its motion?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}[ 120 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- B: B: \textbackslash{}[ 100 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- C: C: \textbackslash{}[ 24 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+- D: D: \textbackslash{}[ 20 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a section of a road stretching horizontally. The road has two yellow lines running down the center, indicating a separation of lanes or directions. There are small black shapes evenly distributed across the road, resembling rocks. Below the section of the road, there is a text that reads "600 m," indicating the length of the road section shown. Arrow lines on either side of the text point outward, suggesting the measurement applies to the entire length of the depicted road segment.
+
+\#\# Dataset metadata
+
+Kinematics; Multi-Formula Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}[ 24 \textbackslash{}text\{ m/s\} \textbackslash{}]
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/668.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0668.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0668:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0668.averageSpeedOfCarOverShownSection}
+\uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-speedinmeterspersecond, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchesoildropcarscenario, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchessuppliedoildropfigure, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchesproblemreadouts, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-satisfiesoildropkinematics}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.TimeQuantity}
+  A nonnegative, unit-independent physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.lengthReadout}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthquantity}
+  Read a physical length as a real scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.lengthInMeters}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthquantity, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthreadout}
+  Metre readout used by the road-span annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.timeReadout}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timequantity}
+  Read a physical duration as a real scalar in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.timeInSeconds}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timequantity, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timereadout}
+  Second readout used by the periodic-release law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.speedInMetersPerSecond}
+  Read a physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Oil Drop Mark]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildropmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.OilDropMark}
+  The six successive oil marks visible in the primary image, from left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oil Drop Mark.
+\end{proof}
+\begin{definition}[Consecutive Oil Drops]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-consecutiveoildrops}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.ConsecutiveOilDrops}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildropmark}
+  Adjacency in the release order of the six visible oil drops
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Consecutive Oil Drops.
+\end{proof}
+\begin{definition}[Road Orientation]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roadorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.RoadOrientation}
+  Orientation of the road segment in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road Orientation.
+\end{proof}
+\begin{definition}[Road Direction]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roaddirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.RoadDirection}
+  Direction of the car along the one-dimensional road coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road Direction.
+\end{proof}
+\begin{definition}[Oil Fall Direction]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oilfalldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.OilFallDirection}
+  Direction in which an oil drop falls from the engine to the pavement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oil Fall Direction.
+\end{proof}
+\begin{definition}[Moving Object Kind]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-movingobjectkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.MovingObjectKind}
+  Physical kind of the moving object in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Object Kind.
+\end{proof}
+\begin{definition}[Road Marking Color]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roadmarkingcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.RoadMarkingColor}
+  Color of the pair of center lines visible on the road
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Road Marking Color.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.FigureFeature}
+  Named objects and annotations directly visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Oil Drop Pattern Figure]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroppatternfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.OilDropPatternFigure}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildropmark, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roadorientation, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roadmarkingcolor, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-figurefeature}
+  Primary-image evidence from phyx\_data/test\_image/668.png. Coordinates are metre readouts along the horizontal road axis; the physical road length itself is retained separately in OilDropRoadSetup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oil Drop Pattern Figure.
+\end{proof}
+\begin{definition}[Oil Drop Road Setup]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.OilDropRoadSetup}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthquantity, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timequantity, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildropmark, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-roaddirection, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oilfalldirection, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-movingobjectkind, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroppatternfigure}
+  Independent physical quantities and observables in the problem. In particular, averageSpeed is not defined from the answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oil Drop Road Setup.
+\end{proof}
+\begin{definition}[Matches Oil Drop Car Scenario]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchesoildropcarscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.MatchesOilDropCarScenario}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup}
+  Qualitative information stated in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Oil Drop Car Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Oil Drop Figure]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchessuppliedoildropfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.MatchesSuppliedOilDropFigure}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-consecutiveoildrops, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroppatternfigure}
+  Readouts and qualitative geometry obtained from the supplied figure. The six-constructor type OilDropMark records the number of shown drops; the fields below identify the first and last marks as the endpoints of the 600 m arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Oil Drop Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-lengthinmeters, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timeinseconds, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup}
+  Numerical problem data connect the physical duration and road length to their SI readouts. Neither field mentions the requested average-speed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Satisfies Oil Drop Kinematics]
+  \label{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-satisfiesoildropkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.SatisfiesOilDropKinematics}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timeinseconds, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-speedinmeterspersecond, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-consecutiveoildrops, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup}
+  The idealized kinematics used in the problem: consecutive drops are released one physical dropInterval apart; a vertically falling drop records the car's horizontal release position; average speed over the shown section is endpoint displacement divided by endpoint elapsed time. These are governing relations, not the requested numerical conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Oil Drop Kinematics.
+\end{proof}
+\begin{lemma}[endpoint Elapsed Time eq five intervals]
+  \label{lem:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-endpointelapsedtime-eq-five-intervals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.endpointElapsedTime_eq_five_intervals}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-timeinseconds, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-satisfiesoildropkinematics}
+  Six visible drops determine five equal release intervals
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of endpoint Elapsed Time eq five intervals.
+\end{proof}
+\begin{lemma}[endpoint Car Displacement eq printed Span]
+  \label{lem:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-endpointcardisplacement-eq-printedspan}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0668.endpointCarDisplacement_eq_printedSpan}
+  \uses{def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-oildroproadsetup, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchesoildropcarscenario, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-matchessuppliedoildropfigure, def:physics:phyx-mini-0668:phyxminiproblems-problemphyxmini0668-satisfiesoildropkinematics}
+  The first-to-last car displacement is the span printed in the figure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of endpoint Car Displacement eq printed Span.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

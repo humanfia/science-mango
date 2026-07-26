@@ -1,0 +1,284 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0284.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0284.source.json
+
+\chapter{Physics problem phyx\_mini\_0284}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0284}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a \$2500\$ kg demolition ball swings from the end of a crane. The length of the swinging segment of cable is \$17\$ m.
+
+\#\# Question
+
+Find the period of the swinging, assuming that the system can be treated as a simple pendulum.
+
+\#\# Answer choices
+
+- A: A: 7.6 s
+
+- B: B: 8.0 s
+
+- C: C: 8.7 s
+
+- D: D: 8.3 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a demolition crane with a wrecking ball. The scene includes the following elements:
+
+1. **Crane**: A tracked, heavy-duty crane vehicle with a gantry arm extending outward.
+   
+2. **Wrecking Ball**: A large, grey spherical metal ball is suspended from the crane's arm by a cable, positioned against a brick wall.
+
+3. **Brick Wall**: Located on the left side of the image, the wrecking ball is about to impact or is positioned closely against this wall.
+
+4. **Crane Arm and Pulleys**: The arm has a lattice design with pulleys guiding the cables holding the wrecking ball.
+
+5. **Cityscape Background**: The faint outlines of buildings are visible in the background, suggesting an urban setting.
+
+There is no text present in the image.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 8.3 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/284.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0284.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0284:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0284.demolitionBallSwingPeriod_is_answer_D}
+\uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timeinseconds, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-matchesproblemandfiguredata, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-usesstandardearthgravity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-hasphysicalparameters, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-satisfiessmallanglesimplependulumphysics, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerperiodseconds, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-roundstodisplayedtenth, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-isuniqueclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.accelerationDimension}
+  Acceleration has physical dimension length divided by time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationdimension}
+  A nonnegative physical acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.TimeQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[quantity SIReadout]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-quantitysireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.quantitySIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of quantity SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.massInKilograms}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-quantitysireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.lengthInMeters}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-quantitysireadout}
+  Meter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-quantitysireadout}
+  Meter-per-second-squared readout of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.timeInSeconds}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timequantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-quantitysireadout}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.FigureObject}
+  Objects visibly present in the supplied demolition-crane image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.FigurePoint}
+  Distinguished attachment points of the pictured swinging cable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Demolition Crane Figure]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitioncranefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.DemolitionCraneFigure}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-figureobject, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-figurepoint}
+  Qualitative incidence data from the primary image. The bitmap contains no printed scale or text, so all numerical measurements are kept in the prose data predicate below rather than in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Demolition Crane Figure.
+\end{proof}
+\begin{definition}[Bob Model]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-bobmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.BobModel}
+  Idealized model used for the suspended bob
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bob Model.
+\end{proof}
+\begin{definition}[Cable Model]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-cablemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.CableModel}
+  Idealized mechanical behavior of the swinging cable segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cable Model.
+\end{proof}
+\begin{definition}[Oscillation Regime]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-oscillationregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.OscillationRegime}
+  Oscillation regime in which the elementary pendulum period law applies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Oscillation Regime.
+\end{proof}
+\begin{definition}[Demolition Ball Pendulum Setup]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.DemolitionBallPendulumSetup}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationquantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timequantity, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitioncranefigure, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-bobmodel, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-cablemodel, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-oscillationregime}
+  Physical quantities and modeling choices for the demolition-ball pendulum. The observed period is a field of the experiment; it is not defined to be the requested answer. The separate governing-law predicate constrains it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Demolition Ball Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Data]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-matchesproblemandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.MatchesProblemAndFigureData}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massinkilograms, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthinmeters, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup}
+  Readouts from the source prose and primary image. The mass and cable length are 2500 kg and 17 m; the picture fixes which endpoints the swinging cable joins and confirms that the ball is beside the wall. No period, gravity value, or answer choice is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Data.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup}
+  The standard near-Earth textbook calibration implicit in the numerical answer. This is kept separate because the source does not print g
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-massinkilograms, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthinmeters, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timeinseconds, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup}
+  Positivity conditions for the physical magnitudes in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Small Angle Simple Pendulum Physics]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-satisfiessmallanglesimplependulumphysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.SatisfiesSmallAngleSimplePendulumPhysics}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-lengthinmeters, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-timeinseconds, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-demolitionballpendulumsetup}
+  Governing simple-pendulum law The point-mass, massless-inextensible-cable, small-angle assumptions spell out what it means here to treat the crane system as a simple pendulum. The last field is the standard symbolic law T = 2π √(L/g). It contains no substituted 17 m cable length and no 8.3 s answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Small Angle Simple Pendulum Physics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.AnswerChoice}
+  Labels of the four answer choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Period Seconds]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerperiodseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.answerPeriodSeconds}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerchoice}
+  Period in seconds printed beside each source answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Period Seconds.
+\end{proof}
+\begin{definition}[Rounds To Displayed Tenth]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-roundstodisplayedtenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.RoundsToDisplayedTenth}
+  A computed duration agrees with a displayed one-decimal answer on rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Tenth.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer Choice]
+  \label{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-isuniqueclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0284.IsUniqueClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerchoice, def:physics:phyx-mini-0284:phyxminiproblems-problemphyxmini0284-answerperiodseconds}
+  A displayed answer is strictly closer than every other listed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

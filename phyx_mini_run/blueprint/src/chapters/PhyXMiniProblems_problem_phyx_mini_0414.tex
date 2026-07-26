@@ -1,0 +1,341 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0414.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0414.source.json
+
+\chapter{Physics problem phyx\_mini\_0414}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0414}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a thermodynamic process followed by 120 \$	ext\{mg\}\$ of helium.
+
+\#\# Question
+
+How much heat energy is transferred to or from the gas during each of the three segments?
+
+\#\# Answer choices
+
+- A: A: 1.01 kJ
+
+- B: B: 0 kJ
+
+- C: C: -1.01 kJ
+
+- D: D: -0.61 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (P-V) diagram displaying a cyclic thermodynamic process on a graph with labeled axes and points.
+
+- **Axes**: 
+  - The vertical axis is labeled with pressure (\textbackslash{}(p\textbackslash{})) and marked with \textbackslash{}(5p\_1\textbackslash{}) and \textbackslash{}(p\_1\textbackslash{}).
+  - The horizontal axis is labeled with volume (\textbackslash{}(V\textbackslash{})) and marked with \textbackslash{}(1000 \textbackslash{}, \textbackslash{}text\{cm\}\textasciicircum{}3\textbackslash{}) and \textbackslash{}(V\_3\textbackslash{}).
+
+- **Points**:
+  - There are three labeled points: 1, 2, and 3, indicating states of the system.
+  
+- **Process Path**:
+  - The path from point 1 to point 2 is vertical, indicating an increase in pressure at constant volume.
+  - The path from point 2 to point 3 is curved and labeled "Isotherm," indicating an isothermal process (constant temperature).
+  - The path from point 3 back to point 1 is horizontal, indicating a decrease in volume at constant pressure.
+  
+- **Annotation**:
+  - The diagram also includes a text annotation "133°C" next to the horizontal section, specifying the temperature for that part of the process. 
+
+Arrows on the paths indicate the direction of the process cycle.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -1.01 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/414.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0414.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0414:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0414.heatTransfersOnCycleSegments_and_recordedChoiceC}
+\uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinjoules, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinkilojoules, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesproblemstatement, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-usestextbookheliumreferencedata, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-obeysidealmonatomicgaslaws, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-displayedheatinkilojoules, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-recordedanswerchoice, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-roundstonearesthundredthkilojoule, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-isnearestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.MassQuantity}
+  A physical mass, carrying the mass dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.VolumeQuantity}
+  A signed physical volume, carrying the length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.massInKilograms}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massquantity}
+  Read a physical mass in SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.massInGrams}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massquantity, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinkilograms}
+  Read a physical mass in grams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[mass In Milligrams]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinmilligrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.massInMilligrams}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massquantity, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinkilograms}
+  Read a physical mass in milligrams
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Milligrams.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumequantity}
+  Read a physical volume in SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.pressureInPascals}
+  Read a physical pressure in SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.energyInJoules}
+  Read a signed physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinjoules}
+  Read a signed physical energy in kilojoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.temperatureInKelvin}
+  Read Physlib's absolute-temperature value in kelvins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureinkelvin}
+  Read an absolute temperature in degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.GasSpecies}
+  Chemical species named in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.GasModel}
+  Textbook material model used for the helium sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.StateLabel}
+  Labels printed at the three vertices of the pressure-volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Cycle Segment]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-cyclesegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.CycleSegment}
+  Directed segments indicated by arrows in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Segment.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.ProcessKind}
+  Thermodynamic constraint on a process segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.PathGeometry}
+  Geometric appearance of a segment in the pressure-volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.AxisQuantity}
+  Physical quantity shown on a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumequantity}
+  A dimensionful equilibrium state of the helium sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Helium Thermodynamic Cycle]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.HeliumThermodynamicCycle}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massquantity, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumequantity, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-gasspecies, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-gasmodel, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-statelabel, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-cyclesegment, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-processkind, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pathgeometry, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-axisquantity, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-thermodynamicstate}
+  The helium sample, three equilibrium states, directed paths, and signed energy transfers. internalEnergyChange segment means final minus initial internal energy on that segment. The fields figurePressureP1 and figureVolumeV3 represent the symbolic labels p₁ and V₃ printed in the primary image; they do not prescribe the requested heat transfer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Helium Thermodynamic Cycle.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinmilligrams, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  Data supplied by the prose. No heat-transfer value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesprimarypressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.MatchesPrimaryPressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumeincubicmeters, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pressureinpascals, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureindegreescelsius, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  Literal transcription of the primary raster. In particular, the unknown horizontal coordinate at state 3 remains the independent figure label V₃; its value is to follow from the isotherm and ideal-gas law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Uses Textbook Helium Reference Data]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-usestextbookheliumreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.UsesTextbookHeliumReferenceData}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massingrams, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  Textbook calibration data used to obtain a numerical result: helium is treated as a monatomic ideal gas of molar mass 4.00 g/mol, the molar gas constant is 8.314 J/(mol K), and the amount in moles is mass divided by molar mass. These are reference/model data, not heat-transfer answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Helium Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-massinkilograms, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumeincubicmeters, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pressureinpascals, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureinkelvin, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  Positivity conditions selecting the physically meaningful branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Monatomic Gas Laws]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-obeysidealmonatomicgaslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.ObeysIdealMonatomicGasLaws}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-volumeincubicmeters, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-pressureinpascals, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinjoules, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-temperatureinkelvin, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle}
+  Macroscopic laws for an ideal monatomic gas: pV = nRT at every labeled equilibrium state; ΔU = (3/2)nRΔT on each segment; Q = ΔU + W\_by with heat into and work by the gas positive; zero boundary work for an isochoric process; constant temperature and logarithmic boundary work for an isotherm; constant pressure and p ΔV boundary work for an isobaric process. All formulas are stated in compatible SI readouts. No field fixes any of the three requested heat transfers or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Monatomic Gas Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.AnswerChoice}
+  Labels printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Kilojoules]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-displayedheatinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.displayedHeatInKilojoules}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-answerchoice}
+  Heat readout in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth Kilojoule]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-roundstonearesthundredthkilojoule}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.RoundsToNearestHundredthKilojoule}
+  A kilojoule readout rounds to displayed to the nearest hundredth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth Kilojoule.
+\end{proof}
+\begin{definition}[Is Nearest Displayed Choice]
+  \label{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-isnearestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.IsNearestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-answerchoice, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-displayedheatinkilojoules}
+  A displayed choice is at least as close to the actual heat as every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Displayed Choice.
+\end{proof}
+\begin{lemma}[heat Transfer Readouts On All Three Segments]
+  \label{lem:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heattransferreadoutsonallthreesegments}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0414.heatTransferReadoutsOnAllThreeSegments}
+  \uses{def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-energyinjoules, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-heliumthermodynamiccycle, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesproblemstatement, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-usestextbookheliumreferencedata, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0414:phyxminiproblems-problemphyxmini0414-obeysidealmonatomicgaslaws}
+  The exact heat entering the gas on each directed segment, in joules. Thus the first isochoric leg receives about 0.608 kJ, the isothermal expansion receives about 0.815 kJ, and the final isobaric compression rejects about 1.013 kJ
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of heat Transfer Readouts On All Three Segments.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

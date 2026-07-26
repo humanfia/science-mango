@@ -1,0 +1,258 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0153.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0153.source.json
+
+\chapter{Physics problem phyx\_mini\_0153}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0153}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure was taken from the NIST Laboratory (National Institute of Standards and Technology) in Boulder, CO, \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{km\}\textbackslash{}) from the hiker in the photo. The Sun's image was \textbackslash{}(15\textbackslash{},\textbackslash{}mathrm\{mm\}\textbackslash{}) across on the film. The Sun has diameter \textbackslash{}(1.4 \textbackslash{}times 10\textasciicircum{}6\textbackslash{},\textbackslash{}mathrm\{km\}\textbackslash{}), and it is \textbackslash{}(1.5 \textbackslash{}times 10\textasciicircum{}8\textbackslash{},\textbackslash{}mathrm\{km\}\textbackslash{}) away.
+
+\#\# Question
+
+Estimate the focal length of the camera lens.
+
+\#\# Answer choices
+
+- A: A: 2.0m
+
+- B: B: 1.8m
+
+- C: C: 1.6m
+
+- D: D: 1.4m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a silhouette scene against a large, orange-red circular background resembling the sun. In the foreground, there are black silhouettes of a rock formation and a tree. A human figure stands on one of the rocks with arms outstretched. The image creates a dramatic contrast between the dark foreground and the vibrant background. There is no text present.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.6m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/153.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0153.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0153:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0153.problem_phyx_mini_0153}
+\uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesstatedmeasurements, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesprimaryfigure, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-hasphysicalsolarcameraparameters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiessolarangulardiametergeometry, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiesdistantobjectprojectionlaw, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesanswertonearesttenth, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-isclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.LengthQuantity}
+  A signed physical length represented independently of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.lengthReadout}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity}
+  Read a physical length as a real scalar in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.lengthInMeters}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthreadout}
+  The metre readout used for the governing geometrical-optics equations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthreadout}
+  The kilometre readout used for the astronomical and foreground data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthreadout}
+  The millimetre readout used for the solar image on the film
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[Observation Site]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-observationsite}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.ObservationSite}
+  The location from which the problem's photograph was taken
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observation Site.
+\end{proof}
+\begin{definition}[Figure Subject]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-figuresubject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.FigureSubject}
+  Objects explicitly visible in the supplied photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Subject.
+\end{proof}
+\begin{definition}[Figure Appearance]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-figureappearance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.FigureAppearance}
+  The two visually relevant rendering styles in the source image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Appearance.
+\end{proof}
+\begin{definition}[Image Shape]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-imageshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.ImageShape}
+  The shape assigned to the image of the solar disk on the film
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Shape.
+\end{proof}
+\begin{definition}[Image Medium]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-imagemedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.ImageMedium}
+  The physical medium on which the source says the solar image was measured
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Medium.
+\end{proof}
+\begin{definition}[Optical Regime]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-opticalregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.OpticalRegime}
+  The geometrical-optics regime used to estimate the camera focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Regime.
+\end{proof}
+\begin{definition}[Solar Camera Setup]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.SolarCameraSetup}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-observationsite, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-figuresubject, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-figureappearance, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-imageshape, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-imagemedium, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-opticalregime}
+  The physical setup and figure-derived quantities. sunAngularDiameterRadians is dimensionless. No field assigns a numerical value to cameraLensFocalLength; its value is the current target
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Solar Camera Setup.
+\end{proof}
+\begin{definition}[Matches Stated Measurements]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesstatedmeasurements}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.MatchesStatedMeasurements}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinkilometers, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmillimeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  The numerical readouts printed in the problem. They constrain the foreground distance, solar diameter and distance, and film-image diameter, but do not constrain the unknown focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Measurements.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  Primary-image metadata: the photograph was taken at NIST, the Sun is a circular orange-red background disk, and the hiker, rocks, and tree are dark silhouettes. These facts preserve the figure labels without supplying an optical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Solar Camera Parameters]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-hasphysicalsolarcameraparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.HasPhysicalSolarCameraParameters}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  Positivity and principal-angle conditions for the physical configuration. They restrict the admissible model without fixing the requested focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Solar Camera Parameters.
+\end{proof}
+\begin{definition}[Satisfies Solar Angular Diameter Geometry]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiessolarangulardiametergeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.SatisfiesSolarAngularDiameterGeometry}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  Angular-radius geometry for a circular object viewed along the line to its center: tan (theta / 2) = (solar radius) / (distance to the solar center). This is a general geometric relation and contains no numerical focal-length answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Solar Angular Diameter Geometry.
+\end{proof}
+\begin{definition}[Satisfies Distant Object Projection Law]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiesdistantobjectprojectionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.SatisfiesDistantObjectProjectionLaw}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup}
+  Central projection by a thin camera lens focused on a distant object: film-image radius = focal length * tan (angular radius). This is the governing imaging law. It relates the unknown focal length to independently supplied physical quantities but does not state its requested numeric value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Distant Object Projection Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.AnswerChoice}
+  The labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[focal Length Meters]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice-focallengthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.AnswerChoice.focalLengthMeters}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice}
+  The focal-length estimate in metres printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of focal Length Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice}
+  Dataset metadata: the recorded answer is C, never used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice}
+  Agreement with a focal length displayed to the nearest tenth of a metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{definition}[Is Closest Answer Choice]
+  \label{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-isclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.IsClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthquantity, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-answerchoice}
+  A displayed choice is uniquely closest to the derived focal length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer Choice.
+\end{proof}
+\begin{lemma}[focal Length eq image Diameter mul distance div sun Diameter]
+  \label{lem:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-focallength-eq-imagediameter-mul-distance-div-sundiameter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0153.focalLength_eq_imageDiameter_mul_distance_div_sunDiameter}
+  \uses{def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-lengthinmeters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-solarcamerasetup, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-hasphysicalsolarcameraparameters, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiessolarangulardiametergeometry, def:physics:phyx-mini-0153:phyxminiproblems-problemphyxmini0153-satisfiesdistantobjectprojectionlaw}
+  Combining angular-diameter geometry with central projection gives the usual similar-triangles formula f = imageDiameter * distance / objectDiameter. This symbolic conclusion remains independent of all numerical readouts
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of focal Length eq image Diameter mul distance div sun Diameter.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

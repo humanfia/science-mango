@@ -1,0 +1,358 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0784.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0784.source.json
+
+\chapter{Physics problem phyx\_mini\_0784}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0784}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The mechanism shown in figure is used to raise a crate of supplies from a ship's hold. The crate has total mass \textbackslash{}(50\textbackslash{}text\{ kg\}\textbackslash{}). A rope is wrapped around a wooden cylinder that turns on a metal axle. The cylinder has radius \textbackslash{}(0.25\textbackslash{}text\{ m\}\textbackslash{}) and moment of inertia \textbackslash{}(I = 2.9\textbackslash{}text\{ kg\}\textbackslash{}cdot\textbackslash{}text\{m\}\textasciicircum{}2\textbackslash{}) about the axle. The crate is suspended from the free end of the rope. One end of the axle pivots on frictionless bearings; a crank handle is attached to the other end. When the crank is turned, the end of the handle rotates about the axle in a vertical circle of radius \textbackslash{}(0.12\textbackslash{}text\{ m\}\textbackslash{}), the cylinder turns, and the crate is raised.
+
+\#\# Question
+
+What magnitude of the force \textbackslash{}(\textbackslash{}vec\{F\}\textbackslash{}) applied tangentially to the rotating crank is required to raise the crate with an acceleration of \textbackslash{}(1.40\textbackslash{}text\{ m/s\}\textasciicircum{}2\textbackslash{})? (You can ignore the mass of the rope as well as the moments of inertia of the axle and the crank.)
+
+\#\# Answer choices
+
+- A: A: 700N
+
+- B: B: 1300N
+
+- C: C: 1960N
+
+- D: D: 980N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a mechanical crank system:
+
+- **Drum**: A cylindrical wooden drum is positioned horizontally, around which a rope is coiled.
+- **Rope**: The rope is wrapped around the drum and extends downwards, attached to a rectangular, orange block, presumably for lifting.
+- **Crank Handle**: A metal crank handle is on the right side of the drum, used for manual rotation.
+- **Supports**: The drum is held by two gray triangular supports on either side.
+- **Block**: The block is tied securely with the rope extending from the drum.
+- **Text**: Near the crank, there's a label showing a vertical arrow with "0.12 m" indicating the diameter of the drum. Another arrow labeled "F" points towards the crank handle, suggesting the direction of force applied.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 1300N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/784.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0784.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0784:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0784.problem_phyx_mini_0784}
+\uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudeinnewtons, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchesidealliftingscenario, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchesproblemreadouts, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchessuppliedfigure, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-obeysidealcrankdrummechanics, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-isclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.accelerationDimension}
+  The physical dimension L T⁻² of linear acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[angular Acceleration Dimension]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.angularAccelerationDimension}
+  Angular acceleration has dimension T⁻² because radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.momentOfInertiaDimension}
+  The physical dimension M L² of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[torque Dimension]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-torquedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.torqueDimension}
+  The physical dimension M L² T⁻² of torque
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.MassQuantity}
+  A nonnegative physical mass, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationdimension}
+  A nonnegative linear-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Angular Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.AngularAccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationdimension}
+  A nonnegative angular-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcedimension}
+  A nonnegative force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiadimension}
+  A nonnegative axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Signed Torque Quantity]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-signedtorquequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.SignedTorqueQuantity}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-torquedimension}
+  A signed torque about the axle; positive torque raises the crate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Torque Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.massInKilograms}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.lengthInMeters}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationmagnitudequantity}
+  Read a linear acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Acceleration In Radians Per Second Squared]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationinradianspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.angularAccelerationInRadiansPerSecondSquared}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationmagnitudequantity}
+  Read an angular acceleration in radians per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration In Radians Per Second Squared.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudequantity}
+  Read a force magnitude in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Square Meters]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiainkilogramsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.momentOfInertiaInKilogramSquareMeters}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiaquantity}
+  Read a moment of inertia in kilogram square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Square Meters.
+\end{proof}
+\begin{definition}[signed Torque In Newton Meters]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-signedtorqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.signedTorqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-signedtorquequantity}
+  Read a signed torque in newton metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Torque In Newton Meters.
+\end{proof}
+\begin{definition}[Component Material]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-componentmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.ComponentMaterial}
+  Materials explicitly assigned to components by the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Material.
+\end{proof}
+\begin{definition}[Bearing Regime]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-bearingregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.BearingRegime}
+  The bearing idealization at the pivoting end of the axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bearing Regime.
+\end{proof}
+\begin{definition}[Crank Endpoint Path]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankendpointpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.CrankEndpointPath}
+  The path followed by the endpoint of the crank handle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crank Endpoint Path.
+\end{proof}
+\begin{definition}[Applied Force Direction]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-appliedforcedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.AppliedForceDirection}
+  How the applied force is oriented relative to the crank's circular path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Applied Force Direction.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.FigureObject}
+  Physical objects visibly distinguished in image 784.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.FigureLabel}
+  Literal labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Crank Drum Figure]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.CrankDrumFigure}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthquantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-appliedforcedirection, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-figureobject, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-figurelabel}
+  Typed evidence from the supplied raster. The vertical 0.12 m dimension runs from the axle level to the handle endpoint and is therefore the crank radius. The raster itself does not print the requested force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crank Drum Figure.
+\end{proof}
+\begin{definition}[Crank Drum Lift Setup]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.CrankDrumLiftSetup}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massquantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthquantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationmagnitudequantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationmagnitudequantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudequantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiaquantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-signedtorquequantity, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-componentmaterial, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-bearingregime, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankendpointpath, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-appliedforcedirection, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumfigure}
+  Independent observables and physical parameters of the lifting mechanism. In particular, the applied force is a field constrained by the governing laws; it is not defined from answer choice B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Crank Drum Lift Setup.
+\end{proof}
+\begin{definition}[Matches Ideal Lifting Scenario]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchesidealliftingscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.MatchesIdealLiftingScenario}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massinkilograms, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiainkilogramsquaremeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup}
+  Qualitative content and stated idealizations. Treating the rope, axle, and crank contributions as zero is the explicit model corresponding to the instruction to ignore them. No value of the applied force occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Ideal Lifting Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massinkilograms, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthinmeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiainkilogramsquaremeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup}
+  Numerical readouts stated in the problem, plus the conventional near-Earth value g = 9.8 m/s² used to resolve the recorded multiple-choice answer. This predicate contains no applied-force readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthinmeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup}
+  Objects, labels, and the radial interpretation of 0.12 m in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Obeys Ideal Crank Drum Mechanics]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-obeysidealcrankdrummechanics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.ObeysIdealCrankDrumMechanics}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-massinkilograms, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-lengthinmeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-angularaccelerationinradianspersecondsquared, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-forcemagnitudeinnewtons, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-momentofinertiainkilogramsquaremeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-signedtorqueinnewtonmeters, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-crankdrumliftsetup}
+  The scalar, fixed-axis mechanics used to determine the force: upward Newton's second law for the crate is T - mg = ma; the rope does not slip on the drum, so a = α R; tangential force and rope tension have torque magnitudes F r and T R; the rope torque opposes the handle torque; and the drum obeys the fixed-axis law τ\_net = I α. These are governing relations between independent observables. None gives a numerical value for the applied force or mentions an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Crank Drum Mechanics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.AnswerChoice}
+  The four force magnitudes supplied by the problem, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-answermagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.answerMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-answerchoice}
+  Numerical newton readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Magnitude In Newtons.
+\end{proof}
+\begin{definition}[Is Closest Answer]
+  \label{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-isclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0784.IsClosestAnswer}
+  \uses{def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-answerchoice, def:physics:phyx-mini-0784:phyxminiproblems-problemphyxmini0784-answermagnitudeinnewtons}
+  A choice is closest to an independently determined force readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

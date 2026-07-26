@@ -1,0 +1,164 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0069.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0069.source.json
+
+\chapter{Physics problem phyx\_mini\_0069}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0069}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A laser beam is incident on the left mirror in Figure. Its initial direction is parallel to a line that bisects the mirrors.
+
+\#\# Question
+
+What is the angle \textbackslash{}phi of the reflected laser beam?
+
+\#\# Answer choices
+
+- A: A: 35\textasciicircum{}\textbackslash{}circ
+
+- B: B: 90\textasciicircum{}\textbackslash{}circ
+
+- C: C: 20\textasciicircum{}\textbackslash{}circ
+
+- D: D: 23\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a vector diagram associated with a physical system involving angles and forces. Here's a detailed breakdown:
+
+1. **Objects and Features:**
+   - An inverted V-shape (likely representing two surfaces or vectors joining at a point).
+   - The angle formed at the apex of the V is labeled as 80°.
+   - A vertical arrow pointing upward is positioned on the left side of the image.
+   - Another arrow, this one slanted, points downward and to the right.
+
+2. **Angles and Annotations:**
+   - The angle at the apex of the V is annotated with "80°".
+   - An additional angle (denoted as \textbackslash{}( \textbackslash{}phi \textbackslash{})) is shown between the slanted downward arrow and an imaginary line perpendicular to this arrow.
+
+3. **Relationships:**
+   - The vertical and slanted arrows are likely representing forces or vectors. The 80° angle indicates the separation between the surfaces or vectors.
+
+4. **Colors and Styles:**
+   - Arrows are in purple.
+   - The outline of the inverted V-shape is gradient blue transitioning to white.
+
+The image is likely used to illustrate a problem involving vector resolution or the analysis of forces acting at an angle.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 20\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/69.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0069.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0069:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0069.reflectedLaserAngle_eq_twenty_degrees}
+\uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-degreestoradians, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-twomirrorlasersetup, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-matchestwomirrorfigure, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-satisfiestwomirrorreflectionlaws, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-phiradians}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.degreesToRadians}
+  Convert a scalar degree readout to its radian value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[mirror Direction Subspace]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-mirrordirectionsubspace}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.mirrorDirectionSubspace}
+  The one-dimensional direction subspace of a plane mirror in the diagram. Only the tangent direction is needed to reflect a propagation direction; the mirror's affine position is recorded separately by the path geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mirror Direction Subspace.
+\end{proof}
+\begin{definition}[Satisfies Specular Reflection]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-satisfiesspecularreflection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.SatisfiesSpecularReflection}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-mirrordirectionsubspace}
+  Specular reflection of a propagation direction in a plane mirror. Mathlib's Submodule.reflection fixes the mirror-tangent subspace and reverses its orthogonal complement, which is precisely the vector form of the law of reflection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Specular Reflection.
+\end{proof}
+\begin{definition}[Two Mirror Laser Setup]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-twomirrorlasersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.TwoMirrorLaserSetup}
+  The physical objects and ray data in the two-mirror laser setup. Mirror directions point from the common apex down their respective mirror faces. The three laser directions refer, in order, to the segment before the left reflection, the segment between the mirrors, and the final outgoing segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Mirror Laser Setup.
+\end{proof}
+\begin{definition}[Matches Two Mirror Figure]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-matchestwomirrorfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.MatchesTwoMirrorFigure}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-degreestoradians, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-twomirrorlasersetup}
+  Problem-statement and primary-image readouts. The positive-distance conditions say that the displayed encounters occur on the downward mirror rays and in the stated propagation order. The incident direction is opposite the downward unit bisector, matching the upward arrow in the figure. No field specifies φ or the requested 20° conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Two Mirror Figure.
+\end{proof}
+\begin{definition}[Satisfies Two Mirror Reflection Laws]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-satisfiestwomirrorreflectionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.SatisfiesTwoMirrorReflectionLaws}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-satisfiesspecularreflection, def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-twomirrorlasersetup}
+  The two successive applications of the governing law of reflection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Mirror Reflection Laws.
+\end{proof}
+\begin{definition}[phi Radians]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-phiradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.phiRadians}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-twomirrorlasersetup}
+  The figure label φ: the undirected acute angle between the final outgoing laser direction and the downward interior bisector, measured in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of phi Radians.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.AnswerChoice}
+  Labels of the four numerical answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[angle Degrees]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-answerchoice-angledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.AnswerChoice.angleDegrees}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-answerchoice}
+  Degree readout printed beside each answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0069.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0069:phyxminiproblems-problemphyxmini0069-answerchoice}
+  Dataset metadata: the recorded answer is choice C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

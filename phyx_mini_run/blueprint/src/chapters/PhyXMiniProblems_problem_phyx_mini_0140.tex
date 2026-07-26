@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0140.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0140.source.json
+
+\chapter{Physics problem phyx\_mini\_0140}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0140}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(1.00\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-high object is placed \textbackslash{}(10.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) from a concave mirror whose radius of curvature is \textbackslash{}(30.0\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}).
+
+\#\# Question
+
+Determine the magnification analytically.
+
+\#\# Answer choices
+
+- A: A: +2.00
+
+- B: B: +4.00
+
+- C: C: +3.00
+
+- D: D: +5.00
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a concave mirror diagram used to illustrate image formation. On the left, there's an eye observing the image formed by the mirror. Key components and labels are:
+
+- **Mirror**: The concave mirror is represented by a green curved line.
+- **Principal Axis**: A horizontal line passing through the center of curvature (C), the focal point (F), and the mirror's vertex (O).
+- **Points**: 
+  - C (Center of Curvature)
+  - F (Focal Point)
+  - O (Optical Center/Vertex)
+  - A (Aperture, just after O)
+  - I (Image location on the right side)
+
+- **Rays**: Three distinct light rays are drawn with arrows indicating direction:
+  - Ray 1 (Magenta): Travels parallel to the principal axis, reflects through the focal point F.
+  - Ray 2 (Magenta): Passes through F, reflects parallel to the principal axis.
+  - Ray 3 (Magenta): Heads towards O, reflecting back in the same angle to the principal axis.
+  
+- **Extensions**: Dashed magenta lines represent extended rays showing the convergence to form an image at point I.
+- **Image I**: An upright, magnified image formed at point I.
+
+The observing eye is placed such that it can view the image convergence or appearance at I.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: +3.00
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/140.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0140.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0140:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0140.problem_phyx_mini_0140}
+\uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesstatedreadouts, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesprimaryfigure, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-usescartesianmirrorsignconvention, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiessphericalmirrorfocallaw, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiesgaussianmirrorequation, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiessignedmagnificationlaw, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.OpticalLength}
+  A signed physical length, independent of the unit chosen to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.centimeterUnitChoices}
+  Unit choices with centimeters selected as the length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-opticallength, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-centimeterunitchoices}
+  The signed scalar readout of a physical length in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Axial Figure Point]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-axialfigurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.AxialFigurePoint}
+  The five lettered points on the horizontal principal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Figure Point.
+\end{proof}
+\begin{definition}[Spherical Mirror Kind]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-sphericalmirrorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.SphericalMirrorKind}
+  The optical type of the spherical mirror viewed from the incident side
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Mirror Kind.
+\end{proof}
+\begin{definition}[Image Nature]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-imagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.ImageNature}
+  Whether the physical rays or only their backward extensions meet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Nature.
+\end{proof}
+\begin{definition}[Image Orientation]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-imageorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.ImageOrientation}
+  The image orientation relative to the upright object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Orientation.
+\end{proof}
+\begin{definition}[Mirror Side]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-mirrorside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.MirrorSide}
+  The side of the mirror on which a depicted object lies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mirror Side.
+\end{proof}
+\begin{definition}[Principal Ray]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-principalray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.PrincipalRay}
+  The three numbered principal rays shown in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Principal Ray.
+\end{proof}
+\begin{definition}[Principal Ray Behavior]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-principalraybehavior}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.PrincipalRayBehavior}
+  The standard paraxial behavior represented by a principal ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Principal Ray Behavior.
+\end{proof}
+\begin{definition}[Concave Mirror Setup]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.ConcaveMirrorSetup}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-opticallength, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-axialfigurepoint, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-sphericalmirrorkind, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-imagenature, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-imageorientation, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-mirrorside, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-principalray, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-principalraybehavior}
+  The physical mirror setup together with the lettered axial geometry and the qualitative ray information in the source image. objectDistance and radiusOfCurvatureMagnitude are positive magnitudes. signedImageDistance follows the Gaussian convention and is negative for the pictured virtual image. The unknown transverseMagnification is a signed, dimensionless scalar; it is not initialized with an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Concave Mirror Setup.
+\end{proof}
+\begin{definition}[axial Separation In Centimeters]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-axialseparationincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.axialSeparationInCentimeters}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-axialfigurepoint, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  The directed centimeter separation between two lettered axis points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Separation In Centimeters.
+\end{proof}
+\begin{definition}[Matches Stated Readouts]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesstatedreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.MatchesStatedReadouts}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  The numerical data supplied by the problem statement. No focal length, image distance, or magnification value is included here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-axialseparationincentimeters}
+  Primary-image readouts. In the image itself the upright object is based at O, while the green mirror intersects the principal axis at A; this is why the physical distance fields below are attached to those literal labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Cartesian Mirror Sign Convention]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-usescartesianmirrorsignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.UsesCartesianMirrorSignConvention}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  Positivity and signed-distance conditions for the depicted optical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Cartesian Mirror Sign Convention.
+\end{proof}
+\begin{definition}[Satisfies Spherical Mirror Focal Law]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiessphericalmirrorfocallaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.SatisfiesSphericalMirrorFocalLaw}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  For a spherical mirror, the radius-of-curvature magnitude is twice the positive paraxial focal length. The relation is required in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Spherical Mirror Focal Law.
+\end{proof}
+\begin{definition}[Satisfies Gaussian Mirror Equation]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiesgaussianmirrorequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.SatisfiesGaussianMirrorEquation}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  The signed Gaussian mirror equation 1/f = 1/dₒ + 1/dᵢ, written in the division-free dimensionally homogeneous form f(dₒ + dᵢ) = dₒ dᵢ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Gaussian Mirror Equation.
+\end{proof}
+\begin{definition}[Satisfies Signed Magnification Law]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiessignedmagnificationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.SatisfiesSignedMagnificationLaw}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup}
+  The signed transverse-magnification law m = -dᵢ/dₒ, written without division. It relates the dimensionless magnification to signed lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Signed Magnification Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.AnswerChoice}
+  The labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[magnification]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-answerchoice-magnification}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.AnswerChoice.magnification}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-answerchoice}
+  The dimensionless signed magnification printed beside each answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnification.
+\end{proof}
+\begin{definition}[Matches Answer]
+  \label{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.MatchesAnswer}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-answerchoice}
+  Exact agreement between a signed magnification and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer.
+\end{proof}
+\begin{lemma}[focal length and signed image distance]
+  \label{lem:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-focal-length-and-signed-image-distance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0140.focal_length_and_signed_image_distance}
+  \uses{def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-lengthincentimeters, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-concavemirrorsetup, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-matchesstatedreadouts, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-usescartesianmirrorsignconvention, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiessphericalmirrorfocallaw, def:physics:phyx-mini-0140:phyxminiproblems-problemphyxmini0140-satisfiesgaussianmirrorequation}
+  The radius law and Gaussian mirror equation give the two analytic intermediate values f = 15 cm and dᵢ = -30 cm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of focal length and signed image distance.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

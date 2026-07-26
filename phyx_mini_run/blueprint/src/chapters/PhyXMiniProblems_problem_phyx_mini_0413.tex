@@ -1,0 +1,356 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0413.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0413.source.json
+
+\chapter{Physics problem phyx\_mini\_0413}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0413}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a thermodynamic process followed by 0.015 \$	ext\{mol\}\$ of hydrogen.
+
+\#\# Question
+
+How much heat energy is transferred to the gas?
+
+\#\# Answer choices
+
+- A: A: -36 J
+
+- B: B: 0 J
+
+- C: C: 36 J
+
+- D: D: 72 J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with pressure \textbackslash{}( p \textbackslash{}) in atmospheres (atm) on the y-axis and volume \textbackslash{}( V \textbackslash{}) in cubic centimeters (cm\textbackslash{}(\textasciicircum{}3\textbackslash{})) on the x-axis. 
+
+- The y-axis ranges from 0 to 4 atm.
+- The x-axis ranges from 0 to 300 cm\textbackslash{}(\textasciicircum{}3\textbackslash{}).
+
+There is a line with an arrow that starts from point "i" at about (100 cm\textbackslash{}(\textasciicircum{}3\textbackslash{}), 4 atm) and ends at point "f" at approximately (250 cm\textbackslash{}(\textasciicircum{}3\textbackslash{}), 1 atm). The arrow on the line indicates the direction from "i" to "f", showing a process where both pressure decreases and volume increases.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 36 J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/413.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0413.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0413:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0413.problem_phyx_mini_0413}
+\uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesproblemdescription, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesprimaryfigure, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hasphysicalprocessparameters, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-usesthreedegreeidealgascalibration, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesstraightpvpathandworklaw, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesidealgasenergyandfirstlaws, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-isuniqueclosestdisplayedheat}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.VolumeQuantity}
+  A nonnegative physical gas volume, carrying dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Molar Energy Per Kelvin]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.MolarEnergyPerKelvin}
+  Energy per mole per kelvin, with the mole count represented by a named readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Per Kelvin.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumequantity}
+  Coherent-SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumequantity, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubicmeters}
+  Cubic-centimetre readout used on the horizontal axis, 1 m³ = 10⁶ cm³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.pressureInPascals}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinpascals}
+  Pressure readout as a multiple of Physlib's standard atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.energyInJoules}
+  Joule readout of a signed physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.temperatureInKelvins}
+  Kelvin readout of Physlib's absolute-temperature object
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Energy Per Kelvin In SI]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvininsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.molarEnergyPerKelvinInSI}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvin}
+  Joules-per-mole-kelvin readout of a molar energy-per-temperature quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Energy Per Kelvin In SI.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.GasSpecies}
+  Chemical species named by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Equation Of State Model]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-equationofstatemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.EquationOfStateModel}
+  Equation-of-state model used in the intended calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equation Of State Model.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.GasSample}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-gasspecies, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-equationofstatemodel}
+  The gas sample is a physical object with chemical and modeling roles. amountInMoles is an explicitly unit-labelled scalar readout, not a scalar replacement for the sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.StateLabel}
+  The two endpoint labels printed in the pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumequantity}
+  One equilibrium state of the gas, including its state-function energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.FigureAxis}
+  The two axes visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.AxisQuantity}
+  Physical quantity assigned to a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.AxisDisplayUnit}
+  Unit text printed beside a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Figure Point Label]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-figurepointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.FigurePointLabel}
+  Literal state label printed next to a plotted endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point Label.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.PathGeometry}
+  Geometry of the only process path visible in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-statelabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-figureaxis, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-axisquantity, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-axisdisplayunit, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-figurepointlabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pathgeometry}
+  Scalar coordinate fields are literal readouts from the axes. They are linked to dimensionful thermodynamic states by MatchesPrimaryFigure below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Hydrogen Straight PVProcess]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.HydrogenStraightPVProcess}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvin, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-gassample, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-statelabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-thermodynamicstate, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressurevolumediagram}
+  The independent physical setup. Heat is positive into the gas and work is positive when done by the gas. Neither energy field is defined from the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydrogen Straight PVProcess.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  Prose data and the ideal-gas equation-of-state choice, without a heat answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubiccentimeters, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinatmospheres, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-statelabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-figurepointlabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  Exact evidence transcribed from the primary bitmap phyx\_data/test\_image/413.png. In particular, the plotted final volume is 300 cm³; the auxiliary caption's approximately 250 cm³ statement is not used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Process Parameters]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hasphysicalprocessparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.HasPhysicalProcessParameters}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubicmeters, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinpascals, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-temperatureinkelvins, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvininsi, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  Positivity conditions selecting physically meaningful gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Process Parameters.
+\end{proof}
+\begin{definition}[Uses Three Degree Ideal Gas Calibration]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-usesthreedegreeidealgascalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.UsesThreeDegreeIdealGasCalibration}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvininsi, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  The textbook calibration implicit in the recorded 36 J answer: the molar gas constant is 8.314 J mol⁻¹ K⁻¹, and the effective constant-volume heat capacity retains three quadratic degrees of freedom, C\_V = (3/2) R. This assumption is explicit because ordinary molecular hydrogen at room temperature would instead normally use C\_V = (5/2) R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Three Degree Ideal Gas Calibration.
+\end{proof}
+\begin{definition}[Satisfies Straight PVPath And Work Law]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesstraightpvpathandworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.SatisfiesStraightPVPathAndWorkLaw}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubicmeters, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinpascals, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  The straight path is affinely parametrized by t ∈ [0,1]. For a straight pressure trace, the quasistatic boundary work ∫ p dV is the trapezoid area, average endpoint pressure times the volume change. These are generic process laws and contain no numerical heat value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Straight PVPath And Work Law.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Energy And First Laws]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesidealgasenergyandfirstlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.SatisfiesIdealGasEnergyAndFirstLaws}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-volumeincubicmeters, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-pressureinpascals, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-temperatureinkelvins, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-molarenergyperkelvininsi, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-statelabel, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  Macroscopic ideal-gas thermodynamics in coherent SI readouts: pV = nRT at each endpoint; U = n C\_V T at each endpoint; Q = U\_f - U\_i + W\_by for the depicted closed-system process. None of these laws fixes the current question's numerical heat conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Energy And First Laws.
+\end{proof}
+\begin{definition}[internal Energy Change In Joules]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-internalenergychangeinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.internalEnergyChangeInJoules}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess}
+  Final-minus-initial internal-energy change in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of internal Energy Change In Joules.
+\end{proof}
+\begin{lemma}[work Done By Gas in joules]
+  \label{lem:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-workdonebygas-in-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.workDoneByGas_in_joules}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-energyinjoules, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesprimaryfigure, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesstraightpvpathandworklaw}
+  The straight-line pressure-volume work is exactly 50.6625 J
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of work Done By Gas in joules.
+\end{proof}
+\begin{lemma}[internal Energy Change in joules]
+  \label{lem:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-internalenergychange-in-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.internalEnergyChange_in_joules}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-hydrogenstraightpvprocess, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-matchesprimaryfigure, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-usesthreedegreeidealgascalibration, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-satisfiesidealgasenergyandfirstlaws, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-internalenergychangeinjoules}
+  The ideal-gas and effective three-degree internal-energy laws give ΔU = (3/2)(p\_f V\_f - p\_i V\_i) = -15.19875 J
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of internal Energy Change in joules.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.AnswerChoice}
+  The four heat values displayed in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat In Joules]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-displayedheatinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.displayedHeatInJoules}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-answerchoice}
+  Heat transferred to the gas, in joules, printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat In Joules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-answerchoice}
+  Dataset metadata, deliberately separate from every theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Heat]
+  \label{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-isuniqueclosestdisplayedheat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0413.IsUniqueClosestDisplayedHeat}
+  \uses{def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-answerchoice, def:physics:phyx-mini-0413:phyxminiproblems-problemphyxmini0413-displayedheatinjoules}
+  The selected displayed heat is strictly closer than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Heat.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

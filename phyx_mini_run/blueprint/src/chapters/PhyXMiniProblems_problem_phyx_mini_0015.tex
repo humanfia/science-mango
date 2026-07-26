@@ -1,0 +1,206 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0015.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0015.source.json
+
+\chapter{Physics problem phyx\_mini\_0015}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0015}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A thief hides a precious jewel by placing it on the bottom of a public swimming pool. He places a circular raft on the surface of the water directly above and centered over the jewel as shown in figure. The surface of the water is calm.
+The raft, of diameter \textbackslash{}( d = 4.54\textbackslash{} \textbackslash{}text\{m\} \textbackslash{}), prevents the jewel from being seen by any observer above the water, either on the raft or on the side of the pool.
+
+\#\# Question
+
+What is the maximum depth \textbackslash{}( h \textbackslash{}) of the pool for the jewel to remain unseen?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 3.50\textbackslash{} \textbackslash{}text\{m\} \textbackslash{})
+
+- B: B: \textbackslash{}( 3.00\textbackslash{} \textbackslash{}text\{m\} \textbackslash{})
+
+- C: C: \textbackslash{}( 2.00\textbackslash{} \textbackslash{}text\{m\} \textbackslash{})
+
+- D: D: \textbackslash{}( 2.50\textbackslash{} \textbackslash{}text\{m\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a cross-sectional diagram of a container filled with liquid. Key elements include:
+
+- A "Raft" floating on the surface of the liquid, labeled with the distance "d" spanning its horizontal length.
+- A "Jewel" located at the bottom of the container.
+- The distance from the surface of the liquid to the jewel is labeled "h."
+- The raft and jewel are vertically aligned with a dashed line connecting them.
+- The liquid reaches the top edges of the container, indicating it is full. 
+- The container is represented with thick walls.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 2.00\textbackslash{} \textbackslash{}text\{m\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/15.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0015.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0015:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0015.problem_phyx_mini_0015}
+\uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelremainsunseenatdepth, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfieswateraircriticalanglelaw, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-matchesanswertonearesthundredth}
+For a centered opaque raft of diameter \(4.54\,\mathrm m\) over water of
+index \(4/3\) in air of index one, there is a greatest depth at which every
+escaping ray from the jewel is intercepted by the raft.  Its critical-ray
+boundary satisfies \(h\tan\theta_c=d/2\), and the depth rounds to
+\(2.00\,\mathrm m\), answer C.
+\end{theorem}
+\begin{proof}
+The water--air critical law gives
+\(\sin\theta_c=3/4\), hence \(\tan\theta_c=3/\sqrt7\) on the acute branch.
+The limiting ray reaches the raft rim, so
+\(h=(d/2)/\tan\theta_c=d\sqrt7/6\).  Escape-cone monotonicity shows this
+depth is maximal, and certified bounds on \(\sqrt7\) give the stated
+nearest-hundredth result.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.LengthQuantity}
+  A physical length, independent of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[value In Meters]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.valueInMeters}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity}
+  The numerical value of a physical length when SI meters are selected
+\end{definition}
+\begin{proof}
+  This is the declared model definition of value In Meters.
+\end{proof}
+\begin{definition}[Optical Region]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-opticalregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.OpticalRegion}
+  The two optical media on opposite sides of the calm pool surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Region.
+\end{proof}
+\begin{definition}[Pool Raft Setup]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.PoolRaftSetup}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-opticalregion}
+  The physical and figure-derived data that stay fixed while the candidate pool depth varies. The raft diameter is dimensionful; refractive indices are dimensionless material readouts. The four propositions retain the shape, alignment, opacity, and calm-surface conditions stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Raft Setup.
+\end{proof}
+\begin{definition}[Jewel Surface Ray]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.JewelSurfaceRay}
+  A radial cross-section of a ray emitted by the jewel and reaching the water surface. Both angles are in radians and measured from the surface normal. surfaceRadiusMeters is the horizontal distance from the raft center to the emergence point; the azimuth is irrelevant because the raft is circular
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Jewel Surface Ray.
+\end{proof}
+\begin{definition}[Is Acute Or Critical Angle]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-isacuteorcriticalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.IsAcuteOrCriticalAngle}
+  Physical incidence/refraction angles, including the limiting grazing ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Acute Or Critical Angle.
+\end{proof}
+\begin{definition}[Satisfies Snell Law]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfiessnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.SatisfiesSnellLaw}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray}
+  Snell's law at the horizontal water--air interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law.
+\end{proof}
+\begin{definition}[Satisfies Jewel Ray Geometry]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfiesjewelraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.SatisfiesJewelRayGeometry}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray}
+  The right-triangle geometry of a straight ray from a jewel at vertical depth h to its radial point of incidence on the surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Jewel Ray Geometry.
+\end{proof}
+\begin{definition}[Is Escaping Ray From Jewel]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-isescapingrayfromjewel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.IsEscapingRayFromJewel}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-isacuteorcriticalangle, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfiessnelllaw, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfiesjewelraygeometry}
+  A ray that can emerge from the jewel into the air according to geometrical optics. This combines angle ranges, Snell's law, and the figure's radial right-triangle relation, but says nothing about whether the requested depth is maximal or which numerical answer is correct
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Escaping Ray From Jewel.
+\end{proof}
+\begin{definition}[Raft Blocks Ray]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-raftblocksray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.RaftBlocksRay}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray}
+  For a centered circular opaque raft, an emergent ray is intercepted exactly when its radial surface point lies no farther out than the raft radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Raft Blocks Ray.
+\end{proof}
+\begin{definition}[Jewel Remains Unseen At Depth]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelremainsunseenatdepth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.JewelRemainsUnseenAtDepth}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-jewelsurfaceray, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-isescapingrayfromjewel, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-raftblocksray}
+  At figure depth h, the jewel is unseen from above the water when every ray that can refract into the air meets the opaque raft. This quantifies over all external observers implicitly through all possible emergent rays
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Jewel Remains Unseen At Depth.
+\end{proof}
+\begin{definition}[Satisfies Water Air Critical Angle Law]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-satisfieswateraircriticalanglelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.SatisfiesWaterAirCriticalAngleLaw}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-poolraftsetup}
+  The critical incidence angle for water-to-air transmission: the limiting refracted ray is tangent to the surface, so its refracted sine is one. This is a governing-law relation, not an assumption about the maximum pool depth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Air Critical Angle Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.AnswerChoice}
+  The four depth choices printed with the problem, in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Depth Meters]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-answerdepthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.answerDepthMeters}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-answerchoice}
+  The scalar meter readout attached to each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Depth Meters.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-matchesanswertonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0015.MatchesAnswerToNearestHundredth}
+  \uses{def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-lengthquantity, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-valueinmeters, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-answerchoice, def:physics:phyx-mini-0015:phyxminiproblems-problemphyxmini0015-answerdepthmeters}
+  A depth agrees with a two-decimal-place choice to the nearest 0.01 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Hundredth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

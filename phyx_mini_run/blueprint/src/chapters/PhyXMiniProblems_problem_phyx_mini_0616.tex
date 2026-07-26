@@ -1,0 +1,482 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0616.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0616.source.json
+
+\chapter{Physics problem phyx\_mini\_0616}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0616}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Suppose we have two copper wires that meet on either side of an oxide gap with length \$L = 1\$ nm, as shown in figure. If the left side is at a potential \$V\$ relative to the right side, then we can estimate the tunneling current as follows: The wires have diameter \$d = 1\$ mm, and copper has \$n = 8.5 \textbackslash{}times 10\textasciicircum{}\{28\}\$ free electrons per m\$\textasciicircum{}3\$.Assume that the oxide gap provides a rectangular potential barrier of height 12 eV and that the energy of the free electrons incident on this barrier is 5.0 eV. Assume the gap has length \textbackslash{}( L = 1 \textbackslash{}, \textbackslash{}text\{nm\} \textbackslash{}).
+
+\#\# Question
+
+What is the probability \textbackslash{}( T \textbackslash{}) that an electron will tunnel through the barrier?
+
+\#\# Answer choices
+
+- A: A: 5eV
+
+- B: B: 6eV
+
+- C: C: 7eV
+
+- D: D: 8eV
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a tunneling junction. It consists of the following components:
+
+1. **Copper Wires**:
+   - Two cylindrical copper wires are shown, indicated as having a diameter \textbackslash{}(d\textbackslash{}).
+
+2. **Oxide Gap**:
+   - There is a small gap between the two wires labeled as the "Oxide gap" with a length \textbackslash{}(L\textbackslash{}).
+
+3. **Current Direction**:
+   - An arrow labeled \textbackslash{}(I\_\{\textbackslash{}text\{tunnel\}\}\textbackslash{}) indicates the direction of the tunneling current flowing across the gap.
+
+4. **Voltage Sources**:
+   - Two voltage sources are depicted in the circuit.
+   - One is labeled \textbackslash{}(V\textbackslash{}) and shows a battery with a positive terminal connected to one side of the circuit.
+   - The other, labeled \textbackslash{}(V\_B\textbackslash{}), has a condition \textbackslash{}(V\_B > V\textbackslash{}) indicating it has a higher voltage than \textbackslash{}(V\textbackslash{}).
+
+5. **Circuit Connections**:
+   - The wires and voltage sources form a closed loop, allowing current to flow through the system.
+
+Overall, the diagram represents a typical setup for studying electron tunneling phenomena in a nanoscale junction.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 5eV
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/616.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0616.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0616:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0616.problem_phyx_mini_0616}
+\uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchescopperoxidejunctionscenario, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesproblemnumericalreadouts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchessuppliedcopperoxidefigure, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-usesstandardelectronreferencedata, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesphyslibrectangularbarrier, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-hasphysicaltunnelingparameters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-satisfiesbarrierdecayrelation, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-definesleadingopaquebarriertransmissionestimate}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Number Density Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.NumberDensityQuantity}
+  A nonnegative free-particle number density, with dimension length⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Number Density Quantity.
+\end{proof}
+\begin{definition}[action Dimension]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actiondimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.actionDimension}
+  The dimension of action, mass * length² / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action Dimension.
+\end{proof}
+\begin{definition}[Action Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.ActionQuantity}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actiondimension}
+  A nonnegative, unit-independent physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Action Quantity.
+\end{proof}
+\begin{definition}[Inverse Length Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.InverseLengthQuantity}
+  A nonnegative inverse length, used for the under-barrier decay constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inverse Length Quantity.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.electricPotentialDimension}
+  Electric potential has dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electricpotentialdimension}
+  A signed electric-potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.electricCurrentDimension}
+  Electric current has dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electriccurrentdimension}
+  A nonnegative tunneling-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.lengthReadout}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.lengthInMeters}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthreadout}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthreadout}
+  Read a physical length in millimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthreadout}
+  Read a physical length in nanometres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.energyInJoules}
+  Read an energy in coherent SI units, hence in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinjoules}
+  Read an energy in electron volts using Physlib's calibrated unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.massInKilograms}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[action In Joule Seconds]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actioninjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.actionInJouleSeconds}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actionquantity}
+  Read a physical action in coherent SI joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action In Joule Seconds.
+\end{proof}
+\begin{definition}[inverse Length In Inverse Meters]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthininversemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.inverseLengthInInverseMeters}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthquantity}
+  Read an inverse-length quantity in inverse metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inverse Length In Inverse Meters.
+\end{proof}
+\begin{definition}[number Density In Per Cubic Meter]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityinpercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.numberDensityInPerCubicMeter}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityquantity}
+  Read a free-electron number density in particles per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of number Density In Per Cubic Meter.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.potentialInVolts}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electricpotentialquantity}
+  Read an electric-potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.currentInAmperes}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electriccurrentmagnitude}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[Wire Side]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wireside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.WireSide}
+  The two copper conductors on opposite sides of the gap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Side.
+\end{proof}
+\begin{definition}[Wire Material]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wirematerial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.WireMaterial}
+  Material assigned to a conductor in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Material.
+\end{proof}
+\begin{definition}[Wire Shape]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wireshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.WireShape}
+  Geometric shape of a wire
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Shape.
+\end{proof}
+\begin{definition}[Gap Material]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-gapmaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.GapMaterial}
+  Material occupying the junction gap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gap Material.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.ParticleSpecies}
+  Particle species incident on the oxide barrier
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Potential Profile Shape]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialprofileshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.PotentialProfileShape}
+  Shape assumed for the oxide potential-energy profile
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Profile Shape.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.HorizontalDirection}
+  Horizontal direction in the circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Voltage Source Label]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-voltagesourcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.VoltageSourceLabel}
+  The two voltage-source labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Source Label.
+\end{proof}
+\begin{definition}[Potential Difference Role]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialdifferencerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.PotentialDifferenceRole}
+  Physical role assigned to each depicted voltage source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Difference Role.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.FigureQuantityLabel}
+  Quantity symbols explicitly printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Copper Oxide Junction Figure]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidejunctionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.CopperOxideJunctionFigure}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wireside, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wirematerial, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wireshape, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-gapmaterial, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-horizontaldirection, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-voltagesourcelabel, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialdifferencerole, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-figurequantitylabel}
+  Literal qualitative information visible in image 616.png. The figure record contains no transmission probability and no numerical approximation to it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Copper Oxide Junction Figure.
+\end{proof}
+\begin{definition}[Copper Oxide Tunneling Setup]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.CopperOxideTunnelingSetup}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actionquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electricpotentialquantity, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-electriccurrentmagnitude, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-wireside, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-particlespecies, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialprofileshape, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialdifferencerole, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidejunctionfigure}
+  Independent physical quantities for the junction. In particular, leadingOpaqueBarrierEstimate and barrierDecayConstant are stored independently; the governing laws below constrain them without defining either from the requested numerical result. The former is explicitly the dimensionless estimate produced by the leading exponential approximation, not an assertion about the exact rectangular-barrier transmission coefficient
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Copper Oxide Tunneling Setup.
+\end{proof}
+\begin{definition}[Matches Copper Oxide Junction Scenario]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchescopperoxidejunctionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MatchesCopperOxideJunctionScenario}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Qualitative physical scenario stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Copper Oxide Junction Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Numerical Readouts]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesproblemnumericalreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MatchesProblemNumericalReadouts}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmillimeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinnanometers, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinelectronvolts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityinpercubicmeter, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Numerical physical readouts from the prose. They constrain geometry, material density, and the two energy levels, but not the requested tunneling probability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Numerical Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Copper Oxide Figure]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchessuppliedcopperoxidefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MatchesSuppliedCopperOxideFigure}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-potentialinvolts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Primary-raster evidence from image 616.png: two copper cylinders separated by an oxide gap, labels d, L, and I\_tunnel, a right-pointing tunneling current, sources V and V\_B with positive terminals, the printed relation V\_B > V, and a closed circuit loop
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Copper Oxide Figure.
+\end{proof}
+\begin{definition}[Uses Standard Electron Reference Data]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-usesstandardelectronreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.UsesStandardElectronReferenceData}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massinkilograms, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actioninjouleseconds, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Standard electron and quantum reference data. Physlib supplies Constants.ℏ; its searched API has no dimensionful electron-rest-mass constant, so the mass is explicitly calibrated in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Electron Reference Data.
+\end{proof}
+\begin{definition}[Matches Physlib Rectangular Barrier]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesphyslibrectangularbarrier}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MatchesPhyslibRectangularBarrier}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinjoules, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massinkilograms, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Calibrate Physlib's scalar rectangular barrier against the coherent-SI readouts of the dimensionful junction. Only the separation of the two faces is physically relevant here, so their absolute coordinate is left free
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Physlib Rectangular Barrier.
+\end{proof}
+\begin{definition}[Has Physical Tunneling Parameters]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-hasphysicaltunnelingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.HasPhysicalTunnelingParameters}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinjoules, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massinkilograms, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actioninjouleseconds, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthininversemeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-numberdensityinpercubicmeter, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-currentinamperes, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  Positivity and branch conditions selecting a physical tunneling setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tunneling Parameters.
+\end{proof}
+\begin{definition}[Satisfies Barrier Decay Relation]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-satisfiesbarrierdecayrelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.SatisfiesBarrierDecayRelation}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinjoules, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-massinkilograms, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-actioninjouleseconds, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthininversemeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  For a rectangular barrier with incident energy below the barrier height, the evanescent decay constant obeys κ = sqrt (2 m (U - E)) / ℏ. Both sides are coherent-SI inverse-metre readouts. This general law contains no numerical tunneling-probability answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Barrier Decay Relation.
+\end{proof}
+\begin{definition}[Defines Leading Opaque Barrier Transmission Estimate]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-definesleadingopaquebarriertransmissionestimate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.DefinesLeadingOpaqueBarrierTransmissionEstimate}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-lengthinmeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-inverselengthininversemeters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup}
+  The leading opaque-barrier exponential estimate T\_lead = exp (-2 κ L). This is the exact definition of the value produced by that approximation scheme, not an exact claim about the physical transmission coefficient and not the requested numerical specialization
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Defines Leading Opaque Barrier Transmission Estimate.
+\end{proof}
+\begin{definition}[Malformed Source Choice]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-malformedsourcechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MalformedSourceChoice}
+  Labels of the four source choices, whose printed values have energy units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Malformed Source Choice.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-malformedsourcechoice-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.MalformedSourceChoice.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinelectronvolts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-malformedsourcechoice}
+  Electron-volt values printed beside the source choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[recorded Malformed Source Answer]
+  \label{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-recordedmalformedsourceanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.recordedMalformedSourceAnswer}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-malformedsourcechoice}
+  Dataset answer metadata; it is not a dimensionless probability answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Malformed Source Answer.
+\end{proof}
+\begin{lemma}[barrier energy deficit electronvolts eq seven]
+  \label{lem:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-barrier-energy-deficit-electronvolts-eq-seven}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.barrier_energy_deficit_electronvolts_eq_seven}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-energyinelectronvolts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesproblemnumericalreadouts}
+  The supplied energies imply that the electron is 7 eV below the top
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of barrier energy deficit electronvolts eq seven.
+\end{proof}
+\begin{lemma}[leading opaque barrier estimate between 1 6e 12 and 1 8e 12]
+  \label{lem:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-leading-opaque-barrier-estimate-between-1-6e-12-and-1-8e-12}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0616.leading_opaque_barrier_estimate_between_1_6e_12_and_1_8e_12}
+  \uses{def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-copperoxidetunnelingsetup, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-matchesproblemnumericalreadouts, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-usesstandardelectronreferencedata, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-hasphysicaltunnelingparameters, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-satisfiesbarrierdecayrelation, def:physics:phyx-mini-0616:phyxminiproblems-problemphyxmini0616-definesleadingopaquebarriertransmissionestimate}
+  For an electron facing a 12 eV barrier with energy 5 eV across a 1 nm gap, the leading opaque-barrier estimate gives T\_lead ≈ 1.685 × 10⁻¹². The target interval states the estimate without claiming it is the exact rectangular-barrier transmission coefficient or claiming spurious precision
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of leading opaque barrier estimate between 1 6e 12 and 1 8e 12.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,381 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0600.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0600.source.json
+
+\chapter{Physics problem phyx\_mini\_0600}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0600}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A particle of mass \$m\$ and kinetic energy \$E > 0\$ approaches an abrupt potential drop \$V\_0\$.
+
+\#\# Question
+
+When a free neutron enters a nucleus, it experiences a sudden drop in potential energy, from \$V = 0\$ outside to around \$-12 \textbackslash{}, \textbackslash{}text\{MeV\}\$ (million electron volts) inside. Suppose a neutron, emitted with kinetic energy \$4 \textbackslash{}, \textbackslash{}text\{MeV\}\$ by a fission event, strikes such a nucleus. What is the probability it will be absorbed, thereby initiating another fission?
+
+\#\# Answer choices
+
+- A: A: 0.6667
+
+- B: B: 0.5556
+
+- C: C: 0.8889
+
+- D: D: 0.7778
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a graph with two axes. The horizontal axis is labeled "x," and the vertical axis is labeled "V(x)." There is a horizontal line along the x-axis at potential level 0, and below this, at some negative potential, there's a line labeled "-V₀" extending parallel to the x-axis, indicating a potential well.
+
+On the left side of the image, there is a simple diagram of a cart on wheels, depicted as a rectangle with two circles underneath, illustrating motion to the right, as shown by an arrow in front of the cart. This suggests kinetic movement in relation to the potential energy diagram shown.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.8889
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/600.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0600.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0600:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0600.neutronAbsorptionProbabilityAtNuclearPotentialDrop}
+\uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-absorptionprobability, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesneutronnucleusscenario, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesproblemenergyreadouts, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchessuppliedpotentialdropfigure, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-hasphysicalpotentialdropparameters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-usesstandardreducedplanckconstant, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-satisfiesabruptpotentialdroplaws, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-modelsentryasabsorptioninducingfission, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-isnearestanswerchoice, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-agreeswhenroundedtofourdecimals}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[action Dimension]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actiondimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.actionDimension}
+  The physical dimension of action, equivalently energy times time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action Dimension.
+\end{proof}
+\begin{definition}[Action Quantity]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.ActionQuantity}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actiondimension}
+  A nonnegative, unit-independent physical action
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Action Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.SignedLengthQuantity}
+  A signed, unit-independent position along the scattering axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.WaveNumberQuantity}
+  A nonnegative wave-number magnitude, of inverse-length dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.energyInJoules}
+  Coherent-SI readout of a physical energy, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Mega Electron Volts]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinmegaelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.energyInMegaElectronVolts}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinjoules}
+  Read a physical energy in megaelectron-volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Mega Electron Volts.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.massInKilograms}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massquantity}
+  Coherent-SI readout of a physical mass, in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[action In Joule Seconds]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actioninjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.actionInJouleSeconds}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actionquantity}
+  Coherent-SI readout of an action, in joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of action In Joule Seconds.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.positionInMeters}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-signedlengthquantity}
+  Read a signed position in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[wave Number In Inverse Meters]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberininversemeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.waveNumberInInverseMeters}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberquantity}
+  Read a wave-number magnitude in inverse metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number In Inverse Meters.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.ParticleSpecies}
+  Particle species relevant to the stated nuclear-entry scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[Potential Region]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-potentialregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.PotentialRegion}
+  The two constant-potential regions separated by the nuclear boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Region.
+\end{proof}
+\begin{definition}[Scattering Event]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-scatteringevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.ScatteringEvent}
+  Events whose probabilities are distinguished by the physical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Scattering Event.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.HorizontalDirection}
+  Directions along the horizontal x axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.FigureAxis}
+  The two coordinate axes drawn in the potential-energy diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.AxisSymbol}
+  Literal symbols printed at the ends of the axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Potential Level Label]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-potentiallevellabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.PotentialLevelLabel}
+  The negative inside-potential label printed beside the lower plateau
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Potential Level Label.
+\end{proof}
+\begin{definition}[Abrupt Potential Drop Figure]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-abruptpotentialdropfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.AbruptPotentialDropFigure}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-horizontaldirection, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-figureaxis, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-axissymbol, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-potentiallevellabel}
+  Qualitative contents and rounded pixel readouts from the 850 × 406 primary raster. Pixel coordinates are dimensionless presentation data, not physical positions or energies. The rounded zero and lower-level ordinates give a drawn drop of about 177 pixels, but no physical energy is inferred from that uncalibrated distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Abrupt Potential Drop Figure.
+\end{proof}
+\begin{definition}[Neutron Potential Drop Setup]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.NeutronPotentialDropSetup}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massquantity, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actionquantity, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-signedlengthquantity, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberquantity, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-particlespecies, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-potentialregion, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-scatteringevent, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-horizontaldirection, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-abruptpotentialdropfigure}
+  Independent physical quantities of the scattering experiment. In particular, the three event probabilities are stored independently; none is defined from an answer value or from the sharp-step coefficient
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Neutron Potential Drop Setup.
+\end{proof}
+\begin{definition}[transmission Probability]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-transmissionprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.transmissionProbability}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  Probability flux transmitted from outside into the nucleus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmission Probability.
+\end{proof}
+\begin{definition}[reflection Probability]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-reflectionprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.reflectionProbability}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  Probability that the neutron is reflected and remains outside
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflection Probability.
+\end{proof}
+\begin{definition}[absorption Probability]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-absorptionprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.absorptionProbability}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  Probability requested by the problem: absorption initiating fission
+\end{definition}
+\begin{proof}
+  This is the declared model definition of absorption Probability.
+\end{proof}
+\begin{definition}[Matches Neutron Nucleus Scenario]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesneutronnucleusscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.MatchesNeutronNucleusScenario}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinjoules, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-positioninmeters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  The neutron comes from the left, the boundary is chosen as x = 0, and the potential drops from zero outside to -V₀ inside. These are general scenario relations and contain neither the supplied MeV values nor the answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Neutron Nucleus Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Energy Readouts]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesproblemenergyreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.MatchesProblemEnergyReadouts}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinmegaelectronvolts, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  The two numerical energies stated in the prose. The inside kinetic energy, wave-number ratio, and absorption probability are intentionally absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Energy Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Potential Drop Figure]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchessuppliedpotentialdropfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.MatchesSuppliedPotentialDropFigure}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-abruptpotentialdropfigure}
+  Direct evidence from image 600.png. This premise contains no physical probability, wave number, MeV calibration, or answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Potential Drop Figure.
+\end{proof}
+\begin{definition}[Has Physical Potential Drop Parameters]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-hasphysicalpotentialdropparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.HasPhysicalPotentialDropParameters}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinjoules, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massinkilograms, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actioninjouleseconds, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberininversemeters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  Positivity and ordinary probability bounds for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Potential Drop Parameters.
+\end{proof}
+\begin{definition}[Uses Standard Reduced Planck Constant]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-usesstandardreducedplanckconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.UsesStandardReducedPlanckConstant}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actioninjouleseconds, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup}
+  Physlib's standard reduced Planck constant, calibrated in SI joule-seconds. Its value is common to both regions and does not determine the answer on its own
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Reduced Planck Constant.
+\end{proof}
+\begin{definition}[Satisfies Abrupt Potential Drop Laws]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-satisfiesabruptpotentialdroplaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.SatisfiesAbruptPotentialDropLaws}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-energyinjoules, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-massinkilograms, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-actioninjouleseconds, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberininversemeters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-potentialregion, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-transmissionprobability, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-reflectionprobability}
+  Governing laws for a stationary one-dimensional downward potential step: regional kinetic energy is E - V; ℏ² k² = 2 m K in each constant-potential region; the sharp-interface transmission and reflection flux coefficients are expressed in terms of the still-unknown regional wave numbers; and incident probability flux is conserved. These laws are general in all energies and wave numbers. They contain no specialization to 4 MeV, 12 MeV, k\_inside/k\_outside = 2, or 8/9
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Abrupt Potential Drop Laws.
+\end{proof}
+\begin{definition}[Models Entry As Absorption Inducing Fission]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-modelsentryasabsorptioninducingfission}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.ModelsEntryAsAbsorptionInducingFission}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-transmissionprobability, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-absorptionprobability}
+  An additional idealized capture model: every neutron represented by transmitted probability flux is absorbed and initiates another fission. Sharp-step scattering itself does not imply this equality. This is an event-identification law, not a numerical absorption formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Models Entry As Absorption Inducing Fission.
+\end{proof}
+\begin{lemma}[inside To Outside Wave Number Ratio]
+  \label{lem:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-insidetooutsidewavenumberratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.insideToOutsideWaveNumberRatio}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-wavenumberininversemeters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesneutronnucleusscenario, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesproblemenergyreadouts, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-hasphysicalpotentialdropparameters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-satisfiesabruptpotentialdroplaws}
+  The 4 MeV outside kinetic energy and 12 MeV downward potential change make the inside kinetic energy 16 MeV. With common positive mass and ℏ, the dispersion law therefore yields k\_inside / k\_outside = 2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of inside To Outside Wave Number Ratio.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.AnswerChoice}
+  Labels of the four absorption-probability choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Absorption Probability]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-displayedabsorptionprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.displayedAbsorptionProbability}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-answerchoice}
+  Dimensionless decimal probability printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Absorption Probability.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-answerchoice}
+  Dataset metadata recording answer C; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-answerchoice, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-displayedabsorptionprobability}
+  A displayed choice is at least as close as every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+\begin{definition}[Agrees When Rounded To Four Decimals]
+  \label{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-agreeswhenroundedtofourdecimals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.AgreesWhenRoundedToFourDecimals}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-answerchoice, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-displayedabsorptionprobability}
+  Agreement with a probability printed to four decimal places. Half of one unit in the final decimal place is 1 / 20000
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees When Rounded To Four Decimals.
+\end{proof}
+\begin{theorem}[neutron Entry Transmission Probability At Nuclear Potential Drop]
+  \label{thm:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronentrytransmissionprobabilityatnuclearpotentialdrop}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0600.neutronEntryTransmissionProbabilityAtNuclearPotentialDrop}
+  \uses{def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-neutronpotentialdropsetup, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-transmissionprobability, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesneutronnucleusscenario, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchesproblemenergyreadouts, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-matchessuppliedpotentialdropfigure, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-hasphysicalpotentialdropparameters, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-usesstandardreducedplanckconstant, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-satisfiesabruptpotentialdroplaws, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-isnearestanswerchoice, def:physics:phyx-mini-0600:phyxminiproblems-problemphyxmini0600-agreeswhenroundedtofourdecimals}
+  For a 4 MeV neutron entering a 12 MeV downward nuclear well, k\_inside/k\_outside = 2. Substitution into the general transmitted-flux coefficient gives the physically supported entry probability 8/9. Its four-decimal display is 0.8889, answer C. This conclusion does not identify entry with nuclear absorption
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of neutron Entry Transmission Probability At Nuclear Potential Drop.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

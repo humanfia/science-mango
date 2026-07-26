@@ -1,0 +1,358 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0712.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0712.source.json
+
+\chapter{Physics problem phyx\_mini\_0712}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0712}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(20\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-diameter, \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) solid disk is rotating at \textbackslash{}(200\textbackslash{},\textbackslash{}mathrm\{rpm\}\textbackslash{}). A \textbackslash{}(20\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{})-diameter, \textbackslash{}(1.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) circular loop is dropped straight down onto the rotating disk. Friction causes the loop to accelerate until it is riding on the disk.
+
+\#\# Question
+
+What is the final angular velocity of the combined system?
+
+\#\# Answer choices
+
+- A: A: 122rpm
+
+- B: B: 88rpm
+
+- C: C: 100rpm
+
+- D: D: 134rpm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure illustrates two stages, "Before" and "After," depicting a rotational system involving a loop and a disk.
+
+**Before:**
+- A loop with a diameter of 20 cm and a mass \textbackslash{}( M\_\{loop\} = 1.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}) is placed above a disk with a mass \textbackslash{}( M\_\{disk\} = 2.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}).
+- The loop is rotating at \textbackslash{}( \textbackslash{}omega\_i = 200 \textbackslash{}, \textbackslash{}text\{rpm\} \textbackslash{}).
+- The loop and disk share a vertical symmetry axis.
+- Arrows indicate forces or motions: downward arrows represent gravitational forces, and a circular arrow indicates the direction of rotation.
+- A vertical vector \textbackslash{}( \textbackslash{}vec\{L\}\_i \textbackslash{}) points upward, representing the initial angular momentum.
+
+**After:**
+- The loop and the disk are shown combined into one rotating system.
+- The rotational speed is now \textbackslash{}( \textbackslash{}omega\_f \textbackslash{}).
+- A vertical vector \textbackslash{}( \textbackslash{}vec\{L\}\_f \textbackslash{}) indicates the final angular momentum, still pointing upward.
+
+The diagram visually supports the concept of conservation of angular momentum, showing that despite changes in mass distribution, the total angular momentum direction is unchanged.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 100rpm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/712.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0712.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0712:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0712.finalAngularVelocity_is_100_rpm}
+\uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinrevolutionsperminute, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesprimarydiskloopfigure, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesdiskloopproblemdata, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-hasphysicaldiskloopparameters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesdiskandloopmomentofinertialaws, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesisolatedfrictionalangularmomentumlaw, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-recordeddatasetanswer, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.momentOfInertiaDimension}
+  The physical dimension of axial moment of inertia, mass * length\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[angular Momentum Dimension]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularmomentumdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.angularMomentumDimension}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiadimension}
+  The physical dimension of angular momentum, mass * length\textasciicircum{}2 / time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Axial Angular Velocity]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AxialAngularVelocity}
+  A signed axial angular velocity. Its sign records orientation relative to the upward symmetry axis shown in the figure; radians are dimensionless, so the physical dimension is inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Angular Velocity.
+\end{proof}
+\begin{definition}[Axial Moment Of Inertia]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialmomentofinertia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AxialMomentOfInertia}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiadimension}
+  A nonnegative axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Moment Of Inertia.
+\end{proof}
+\begin{definition}[Axial Angular Momentum]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularmomentum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AxialAngularMomentum}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularmomentumdimension}
+  A signed component of angular momentum along the common symmetry axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Angular Momentum.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.signedSIReadout}
+  Read a signed dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.lengthInMeters}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthquantity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-nonnegativesireadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.massInKilograms}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massquantity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-nonnegativesireadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[angular Velocity In Radians Per Second]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.angularVelocityInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularvelocity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-signedsireadout}
+  Radian-per-second readout of a signed axial angular velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Velocity In Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.angularVelocityInRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularvelocity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond}
+  Revolutions-per-minute readout of a signed axial angular velocity. Since one revolution is 2 * pi radians and one minute is 60 seconds, the conversion factor from radians per second is 30 / pi
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity In Revolutions Per Minute.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialmomentofinertia, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-nonnegativesireadout}
+  Kilogram-metre-squared readout of an axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[angular Momentum In Kilogram Meters Squared Per Second]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularmomentuminkilogrammeterssquaredpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.angularMomentumInKilogramMetersSquaredPerSecond}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularmomentum, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-signedsireadout}
+  Kilogram-metre-squared-per-second readout of axial angular momentum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Momentum In Kilogram Meters Squared Per Second.
+\end{proof}
+\begin{definition}[Rotating Body]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-rotatingbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.RotatingBody}
+  The two rigid bodies named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotating Body.
+\end{proof}
+\begin{definition}[Rotating Body Shape]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-rotatingbodyshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.RotatingBodyShape}
+  The body shapes needed by the standard axial inertia formulas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotating Body Shape.
+\end{proof}
+\begin{definition}[Figure Stage]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-figurestage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.FigureStage}
+  The two stages explicitly labelled in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Stage.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AxialDirection}
+  Orientation of an arrow along the common vertical symmetry axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Disk Loop Figure Label]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-diskloopfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.DiskLoopFigureLabel}
+  Text and symbol labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Loop Figure Label.
+\end{proof}
+\begin{definition}[Disk Loop Figure]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-diskloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.DiskLoopFigure}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-rotatingbody, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-figurestage, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialdirection, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-diskloopfigurelabel}
+  Qualitative and schematic evidence transcribed from image 712.png. Coordinates are drawing coordinates and are deliberately kept separate from the physical lengths. The image's omega\_i = 200 rpm label is attached to the before stage; the prose identifies the disk as the initially rotating body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Loop Figure.
+\end{proof}
+\begin{definition}[Disk Loop Rotation Setup]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.DiskLoopRotationSetup}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthquantity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massquantity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularvelocity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialmomentofinertia, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularmomentum, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-rotatingbody, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-rotatingbodyshape, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-diskloopfigure}
+  Independent physical quantities for the initial bodies and the coupled final system. The final angular velocity is stored as an unknown observable; it is not defined from angular-momentum conservation or from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Loop Rotation Setup.
+\end{proof}
+\begin{definition}[Matches Primary Disk Loop Figure]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesprimarydiskloopfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.MatchesPrimaryDiskLoopFigure}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  Facts visible in the primary image. The before-stage loop is above the disk, both bodies share the drawn axis, the loop moves downward, and the after-stage picture shows it riding on the disk. Both angular-momentum arrows point upward. No metric value is inferred from a drawing coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Disk Loop Figure.
+\end{proof}
+\begin{definition}[Matches Disk Loop Problem Data]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesdiskloopproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.MatchesDiskLoopProblemData}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthinmeters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massinkilograms, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinrevolutionsperminute, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  Numerical and qualitative data supplied by the problem statement. The disk, not the dropped loop, has the stated initial 200 rpm rotation. "Dropped straight down" is modeled as no initial spin of the loop about the vertical axis. Friction then brings both bodies to one common final angular velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Disk Loop Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Disk Loop Parameters]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-hasphysicaldiskloopparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.HasPhysicalDiskLoopParameters}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthinmeters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massinkilograms, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularmomentuminkilogrammeterssquaredpersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  Positivity and nondegeneracy conditions for the physical branch shown in the image. They contain no solved final angular velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Disk Loop Parameters.
+\end{proof}
+\begin{definition}[Satisfies Disk And Loop Moment Of Inertia Laws]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesdiskandloopmomentofinertialaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.SatisfiesDiskAndLoopMomentOfInertiaLaws}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-lengthinmeters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-massinkilograms, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  The standard moments about the central symmetry axis: a uniform solid disk has I = (1 / 2) * M * R\textasciicircum{}2; a thin circular loop has I = M * R\textasciicircum{}2. These are shape laws, not solved values for the final angular velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Disk And Loop Moment Of Inertia Laws.
+\end{proof}
+\begin{definition}[Satisfies Isolated Frictional Angular Momentum Law]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesisolatedfrictionalangularmomentumlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.SatisfiesIsolatedFrictionalAngularMomentumLaw}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularmomentuminkilogrammeterssquaredpersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup}
+  Axial angular momentum for the before and after stages and its conservation. Friction is internal to the disk-loop system, and external torque about the vertical axis is taken to be negligible. Thus the initial total is the sum of each body's I * omega, while after coupling both moments multiply the same common angular velocity. None of these fields contains 100 rpm or an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isolated Frictional Angular Momentum Law.
+\end{proof}
+\begin{lemma}[disk Moment Of Inertia equals loop Moment Of Inertia]
+  \label{lem:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-diskmomentofinertia-equals-loopmomentofinertia}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.diskMomentOfInertia_equals_loopMomentOfInertia}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesdiskloopproblemdata, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-hasphysicaldiskloopparameters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesdiskandloopmomentofinertialaws}
+  For the equal radii and stated masses, the disk and loop have equal axial moments of inertia: (1 / 2) * 2 * R\textasciicircum{}2 = 1 * R\textasciicircum{}2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of disk Moment Of Inertia equals loop Moment Of Inertia.
+\end{proof}
+\begin{lemma}[final Common Angular Velocity formula]
+  \label{lem:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-finalcommonangularvelocity-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.finalCommonAngularVelocity_formula}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinradianspersecond, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-disklooprotationsetup, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-hasphysicaldiskloopparameters, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-satisfiesisolatedfrictionalangularmomentumlaw}
+  Solving the conserved-angular-momentum relation gives the common final axial angular velocity as total initial I * omega divided by the total inertia. This is a derived formula, not a premise of the numerical theorem
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Common Angular Velocity formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AnswerChoice}
+  Labels of the four angular-velocity choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[revolutions Per Minute]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-answerchoice-revolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.AnswerChoice.revolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-answerchoice}
+  Revolutions-per-minute value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of revolutions Per Minute.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0712.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-axialangularvelocity, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-angularvelocityinrevolutionsperminute, def:physics:phyx-mini-0712:phyxminiproblems-problemphyxmini0712-answerchoice}
+  An independently stored final angular velocity matches an answer choice when its revolutions-per-minute readout equals the printed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

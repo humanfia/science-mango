@@ -1,0 +1,284 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0575.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0575.source.json
+
+\chapter{Physics problem phyx\_mini\_0575}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0575}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Doping changes the Fermi energy of a semiconductor. Consider silicon, with a gap of 1.11\textbackslash{}text\{eV\} between the top of the valence band and the bottom of the conduction band. At 300\textbackslash{}text\{K\} the Fermi level of the pure material is nearly at the mid-point of the gap. Suppose that silicon is doped with donor atoms, each of which has a state 0.15\textbackslash{}text\{eV\} below the bottom of the silicon conduction band, and suppose further that doping raises the Fermi level to 0.11\textbackslash{}text\{eV\} below the bottom of that band.
+
+\#\# Question
+
+Calculate the probability that a state in the doped material (at the donor level) is occupied.
+
+\#\# Answer choices
+
+- A: A: 0.014
+
+- B: B: 0.176
+
+- C: C: 0.824
+
+- D: D: 0.986
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating energy levels related to semiconductor physics. 
+
+- At the top, there is a blue block labeled "Conduction band."
+- Below, there is a red block labeled "Valence band."
+- Between the two bands, there is a vertical arrow marked with "1.11 eV," indicating the energy gap between the conduction band and valence band.
+- Inside the gap, there are horizontal dashed lines representing energy levels.
+- Two lines are labeled: one as "Fermi level" and the other as "Donor level."
+- The Fermi level is positioned slightly above the valence band and below the donor level.
+- The donor level is shown closer to the conduction band than the valence band.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.824
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/575.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0575.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0575:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0575.donorLevelOccupation_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-boltzmannconstantinelectronvoltsperkelvin, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donorleveloccupationprobability, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchesdonordopedsiliconscenario, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchessuppliedsemiconductorenergydiagram, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchesproblemenergyreadouts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-hasphysicalsemiconductorparameters, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-satisfiesfermidiracoccupationlaw, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-agreeswithinonethousandth, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-isuniquenearestdisplayedprobability}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.energyInJoules}
+  Coherent-SI readout of an energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinjoules}
+  Read a dimensionful energy in electron-volts. The denominator is Physlib's physical one-electron-volt energy, so this is a unit readout rather than a scalar replacement for energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.temperatureInKelvins}
+  Read an absolute temperature in kelvins. Physlib stores a nonnegative temperature in an arbitrary absolute scale; the unit ratio performs the calibration to TemperatureUnit.kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[boltzmann Constant In Electron Volts Per Kelvin]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-boltzmannconstantinelectronvoltsperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.boltzmannConstantInElectronVoltsPerKelvin}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinjoules}
+  Boltzmann's constant expressed in electron-volts per kelvin. Physlib supplies Constants.kB in coherent SI joules per kelvin, so division by the joule readout of one electron-volt gives the required calibrated scalar
+\end{definition}
+\begin{proof}
+  This is the declared model definition of boltzmann Constant In Electron Volts Per Kelvin.
+\end{proof}
+\begin{definition}[fermi Dirac Occupation Probability]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-fermidiracoccupationprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.fermiDiracOccupationProbability}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-boltzmannconstantinelectronvoltsperkelvin}
+  The Fermi--Dirac occupation function in consistent eV and K readouts. This is a general distribution law and is not specialized to the donor level or to any displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of fermi Dirac Occupation Probability.
+\end{proof}
+\begin{definition}[Semiconductor Material]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-semiconductormaterial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.SemiconductorMaterial}
+  Semiconductor material named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Semiconductor Material.
+\end{proof}
+\begin{definition}[Dopant Kind]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-dopantkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.DopantKind}
+  Kind of impurity introduced into the semiconductor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dopant Kind.
+\end{proof}
+\begin{definition}[Energy Reference]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyreference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.EnergyReference}
+  Physical energy references appearing in the prose and diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Reference.
+\end{proof}
+\begin{definition}[Diagram Feature]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-diagramfeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.DiagramFeature}
+  Features explicitly visible in the supplied energy-level diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Feature.
+\end{proof}
+\begin{definition}[Diagram Mark Style]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-diagrammarkstyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.DiagramMarkStyle}
+  Rendering style used for a feature in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Mark Style.
+\end{proof}
+\begin{definition}[Semiconductor Energy Diagram]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-semiconductorenergydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.SemiconductorEnergyDiagram}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-diagramfeature, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-diagrammarkstyle}
+  Primary-image data. Vertical coordinates are schematic dimensionless drawing coordinates increasing upward; they are not physical energies. The numerical gap annotation is an electron-volt readout printed beside the arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Semiconductor Energy Diagram.
+\end{proof}
+\begin{definition}[Donor Doped Semiconductor Setup]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.DonorDopedSemiconductorSetup}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-semiconductormaterial, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-dopantkind, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyreference, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-semiconductorenergydiagram}
+  Independent physical data for the pure and donor-doped silicon samples. The energy function retains all levels as dimensionful quantities. The tolerance parameter gives quantitative meaning to the prose word "nearly" without inventing a fixed numerical tolerance not stated by the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Donor Doped Semiconductor Setup.
+\end{proof}
+\begin{definition}[donor Level Occupation Probability]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donorleveloccupationprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.donorLevelOccupationProbability}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup}
+  The dimensionless probability requested by the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of donor Level Occupation Probability.
+\end{proof}
+\begin{definition}[Is Near Band Gap Midpoint Within]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-isnearbandgapmidpointwithin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.IsNearBandGapMidpointWithin}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts}
+  An energy is near the midpoint of two band edges when its electron-volt readout lies within a nonnegative tolerance smaller than half the gap. The tolerance remains scenario data because the source says only "nearly"
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Near Band Gap Midpoint Within.
+\end{proof}
+\begin{definition}[Matches Donor Doped Silicon Scenario]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchesdonordopedsiliconscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.MatchesDonorDopedSiliconScenario}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-temperatureinkelvins, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-isnearbandgapmidpointwithin}
+  The material, donor doping, temperature, qualitative intrinsic-level placement, and the statement that doping raises the Fermi level. None of these fields asserts the requested occupation probability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Donor Doped Silicon Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Semiconductor Energy Diagram]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchessuppliedsemiconductorenergydiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.MatchesSuppliedSemiconductorEnergyDiagram}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-semiconductorenergydiagram}
+  Labels, drawing styles, gap annotation, and bottom-to-top order read from the primary image 575.png. The bitmap places the donor dashed line below the Fermi dashed line, consistently with the stated 0.15 eV and 0.11 eV depths; this takes precedence over the contradictory auxiliary caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Semiconductor Energy Diagram.
+\end{proof}
+\begin{definition}[Matches Problem Energy Readouts]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchesproblemenergyreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.MatchesProblemEnergyReadouts}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup}
+  The calibrated physical energy differences stated in the problem. They relate independent dimensionful levels and do not mention an occupation probability or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Energy Readouts.
+\end{proof}
+\begin{definition}[Has Physical Semiconductor Parameters]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-hasphysicalsemiconductorparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.HasPhysicalSemiconductorParameters}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-temperatureinkelvins, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup}
+  Positivity, in-gap placement, and probability bounds selecting the physical branch of the model. These conditions contain no numerical value for the donor occupation probability
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Semiconductor Parameters.
+\end{proof}
+\begin{definition}[Satisfies Fermi Dirac Occupation Law]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-satisfiesfermidiracoccupationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.SatisfiesFermiDiracOccupationLaw}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-temperatureinkelvins, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-fermidiracoccupationprobability, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup}
+  The governing Fermi--Dirac law for every electronic-state energy in the doped sample. It relates the independent occupation observable to the doped Fermi level and temperature generally; it is not specialized to the donor state or to the recorded answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fermi Dirac Occupation Law.
+\end{proof}
+\begin{lemma}[donor Energy Relative To Doped Fermi]
+  \label{lem:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donorenergyrelativetodopedfermi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.donorEnergyRelativeToDopedFermi}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-energyinelectronvolts, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-donordopedsemiconductorsetup, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-matchesproblemenergyreadouts}
+  Subtracting the two stated depths below the conduction-band edge places the donor state 0.04 eV below the doped Fermi level. This is a derived intermediate relation, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of donor Energy Relative To Doped Fermi.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.AnswerChoice}
+  Labels attached to the four displayed occupation probabilities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Occupation Probability]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-displayedoccupationprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.displayedOccupationProbability}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-answerchoice}
+  Dimensionless probability printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Occupation Probability.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-answerchoice}
+  Dataset metadata recording answer C; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Agrees Within One Thousandth]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-agreeswithinonethousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.AgreesWithinOneThousandth}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-answerchoice, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-displayedoccupationprobability}
+  The exact standard-constant calculation differs from the displayed 0.824 by less than 0.001. This tolerance describes agreement with the supplied three-decimal answer without falsely claiming exact equality or conventional rounding at the half-thousandth boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Agrees Within One Thousandth.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Probability]
+  \label{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-isuniquenearestdisplayedprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0575.IsUniqueNearestDisplayedProbability}
+  \uses{def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-answerchoice, def:physics:phyx-mini-0575:phyxminiproblems-problemphyxmini0575-displayedoccupationprobability}
+  A choice is strictly closer than every distinct displayed alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Probability.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

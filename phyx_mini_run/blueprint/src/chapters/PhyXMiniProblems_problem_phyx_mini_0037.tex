@@ -1,0 +1,172 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0037.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0037.source.json
+
+\chapter{Physics problem phyx\_mini\_0037}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0037}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Sunlight reflects off the smooth surface of a swimming pool.
+
+\#\# Question
+
+For what angle of reflection is the reflected light completely polarized?
+
+\#\# Answer choices
+
+- A: A: 60.0\textasciicircum{}\textbackslash{}circ
+
+- B: B: 53.1\textasciicircum{}\textbackslash{}circ
+
+- C: C: 68.0\textasciicircum{}\textbackslash{}circ
+
+- D: D: 67.4\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates the refraction and reflection of light at the interface between two mediums: air and water. 
+
+- **Text:**
+  - "DAY" is written at the top.
+  - An arrow labeled "Incident" points downward toward the interface.
+  - Below the horizontal boundary:
+    - "Air: nₐ = 1.00"
+    - "Water: nᵦ = 1.33"
+- **Diagram:**
+  - A horizontal line represents the boundary between air (above) and water (below).
+  - A normal line (dashed) is perpendicular to the boundary.
+  - An incident ray approaches the boundary and hits it at a specific point.
+  - At this point:
+    - The ray splits into two:
+      - One ray reflects upward, labeled "Reflected."
+      - The other ray refracts downward, labeled "Refracted."
+  - Angles are labeled with θₚ for the reflected ray and θ₆ for the refracted ray, showing the angles relative to the normal line.
+
+The diagram visually explains the behavior of light rays when crossing between air and water, highlighting reflectance and refraction angles.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 53.1\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/37.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0037.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0037:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0037.completelyPolarizedReflection_is_answer_B}
+\uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolfigurereadouts, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolopticslaws, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-matchesanswertonearesttenthdegree}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.OpticalMedium}
+  The two optical media separated by the smooth swimming-pool surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Polarization State]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-polarizationstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.PolarizationState}
+  Qualitative polarization state of the reflected sunlight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Polarization State.
+\end{proof}
+\begin{definition}[Pool Reflection Setup]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.PoolReflectionSetup}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-opticalmedium, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-polarizationstate}
+  The physical objects and scalar readouts in the displayed air--water ray diagram. Directions live in the two-dimensional plane of incidence. The three angle fields are real-valued radian readouts measured from the dashed surface normal; refractive indices are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Reflection Setup.
+\end{proof}
+\begin{definition}[Has Normal Angle Readouts]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-hasnormalanglereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.HasNormalAngleReadouts}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup}
+  The three scalar angle fields are the undirected geometric angles between the corresponding ray directions and the appropriate side of the interface normal. The incident propagation direction is reversed to measure the incoming ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Normal Angle Readouts.
+\end{proof}
+\begin{definition}[Satisfies Snell Law]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-satisfiessnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.SatisfiesSnellLaw}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup}
+  Snell's law for dimensionless refractive indices and radian angle readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snell Law.
+\end{proof}
+\begin{definition}[Pool Figure Readouts]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.PoolFigureReadouts}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-hasnormalanglereadouts}
+  Problem-statement and figure readouts. In particular, the right-angle marker states that the reflected and refracted propagation directions are perpendicular. None of these fields states the requested numerical reflection angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Figure Readouts.
+\end{proof}
+\begin{definition}[Pool Optics Laws]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolopticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.PoolOpticsLaws}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-opticalmedium, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-poolreflectionsetup, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-satisfiessnelllaw}
+  Governing geometrical-optics laws for the depicted configuration. The Brewster criterion relates complete reflected polarization to perpendicular reflected and refracted rays, expressed by the sum of their acute normal-angle readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Optics Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.AnswerChoice}
+  The four reflected-angle choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-answerchoice}
+  Degree readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.degreesToRadians}
+  Convert a real-valued degree readout to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth Degree]
+  \label{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-matchesanswertonearesttenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0037.MatchesAnswerToNearestTenthDegree}
+  \uses{def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-answerchoice, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-answerangledegrees, def:physics:phyx-mini-0037:phyxminiproblems-problemphyxmini0037-degreestoradians}
+  A radian angle rounds to the displayed one-decimal-place answer when it is within half of 0.1° of that answer's degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

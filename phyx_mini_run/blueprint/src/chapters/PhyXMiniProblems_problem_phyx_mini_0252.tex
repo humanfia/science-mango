@@ -1,0 +1,213 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0252.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0252.source.json
+
+\chapter{Physics problem phyx\_mini\_0252}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0252}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+As shown in figure, two springs are attached to a block that can oscillate over a frictionless floor. If the left spring is removed, the block oscillates at a frequency of \$30\textbackslash{} Hz\$. If, instead, the spring on the right is removed, the block oscillates at a frequency of \$45\textbackslash{} Hz\$.
+
+\#\# Question
+
+At what frequency does the block oscillate with both springs attached?
+
+\#\# Answer choices
+
+- A: A: 48 Hz
+
+- B: B: 51 Hz
+
+- C: C: 54 Hz
+
+- D: D: 57 Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a mechanical system consisting of a block labeled with the letter "m," which is situated on a horizontal surface. The block is connected to two identical springs, one on each side, attached to the walls of a container. The springs appear to be in a relaxed or uncompressed state. The system is symmetrically arranged, with the block positioned in the center of the container between the two springs. The background and springs are gray, while the block is colored orange. The springs and block are drawn in a simplified, schematic style.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 54 Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/252.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0252.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0252:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0252.bothSpringsFrequency_exact_and_matches_choiceC}
+\uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyinhertz, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringblocksetup, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-matchesproblemandfigure, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-hasphysicalparameters, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-satisfieslineartwospringoscillatormodel, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.SpringStiffnessQuantity}
+  A nonnegative linear spring stiffness, with SI unit newtons per metre and dimension mass per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.FrequencyQuantity}
+  A nonnegative cyclic frequency, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.massInKilograms}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massquantity}
+  Read a physical mass in SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-springstiffnessquantity}
+  Read a spring stiffness in SI newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyquantity}
+  Read a cyclic frequency in hertz, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[Figure Side]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-figureside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.FigureSide}
+  The two sides of the block distinguished in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Side.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.FigureLabel}
+  The sole mathematical label printed on the block in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Motion Axis]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-motionaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.MotionAxis}
+  The horizontal direction of the block's allowed displacement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Axis.
+\end{proof}
+\begin{definition}[Floor Condition]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-floorcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.FloorCondition}
+  The idealized contact condition specified by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Floor Condition.
+\end{proof}
+\begin{definition}[Two Spring Figure]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.TwoSpringFigure}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-figureside, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-figurelabel}
+  Qualitative geometry read from the primary image. springGlyphsMatchInStyle records only the springs' matching schematic appearance; it does not assert that their physical stiffnesses are equal, which would conflict with the two different one-spring frequencies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Spring Figure.
+\end{proof}
+\begin{definition}[Two Spring Block Setup]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringblocksetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.TwoSpringBlockSetup}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massquantity, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-springstiffnessquantity, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyquantity, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-motionaxis, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-floorcondition, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringfigure}
+  The dimensionful apparatus data and the three oscillator configurations. The bothSpringsFrequency is an independent unknown rather than a definition of the requested answer. The scalar Physlib oscillator fields are likewise independent here and are connected to the dimensionful apparatus only by the general laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Spring Block Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyinhertz, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-figureside, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringblocksetup}
+  Problem-text calibrations and qualitative evidence from the supplied image. Removing the left spring leaves the right-only configuration at 30 Hz, and removing the right spring leaves the left-only configuration at 45 Hz. Nothing here specifies the frequency with both springs attached
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massinkilograms, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-stiffnessinnewtonspermeter, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringblocksetup}
+  Positivity of the physical mass and the two spring stiffnesses
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Linear Two Spring Oscillator Model]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-satisfieslineartwospringoscillatormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.SatisfiesLinearTwoSpringOscillatorModel}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-massinkilograms, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-stiffnessinnewtonspermeter, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyinhertz, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-twospringblocksetup}
+  Governing small-oscillation laws All three configurations contain the same block. A one-spring configuration has the stiffness of its remaining spring, while a horizontal displacement with both springs attached produces restoring forces in the same direction, so the effective stiffness is k\_left + k\_right. Physlib supplies HarmonicOscillator.ω = sqrt (k / m); the final three fields relate that angular frequency to the physical cyclic frequency by ω = 2 π f.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linear Two Spring Oscillator Model.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-answerchoice}
+  Frequency in hertz printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0252.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyquantity, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-frequencyinhertz, def:physics:phyx-mini-0252:phyxminiproblems-problemphyxmini0252-answerchoice}
+  A whole-hertz answer agrees with the physical frequency when it is within half a hertz, corresponding to rounding to the nearest displayed integer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,271 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0731.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0731.source.json
+
+\chapter{Physics problem phyx\_mini\_0731}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0731}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A pilot flies horizontally at \$1300\textbackslash{} km/h\$, at height \$h = 35\textbackslash{} m\$ above initially level ground. However, at time \$t = 0\$, the pilot begins to fly over ground sloping upward at angle \$\textbackslash{}theta = 4.3\textasciicircum{}\textbackslash{}circ\$.
+
+\#\# Question
+
+If the pilot does not change the airplane's heading, at what time \$t\$ does the plane strike the ground?
+
+\#\# Answer choices
+
+- A: A: 0.4 s
+
+- B: B: 0.8 s
+
+- C: C: 1.3 s
+
+- D: D: 1.8 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram featuring an airplane and a runway. 
+
+- **Airplane**: Positioned in the top right, indicating flight above the ground.
+
+- **Runway**: Shown as a sloped surface towards the left side; it tapers into a horizontal plane, reflecting elevation changes.
+
+- **Text and Symbols**:
+  - The angle of the slope is labeled with the symbol \textbackslash{}(\textbackslash{}theta\textbackslash{}).
+  - A vertical dashed line extends from the airplane to the ground, representing height, labeled as \textbackslash{}(h\textbackslash{}).
+
+- **Lines and Arrows**:
+  - A dashed line extends from the plane parallel to the bottom surface, indicating alignment.
+  - Curved arrows denote the direction of angle \textbackslash{}(\textbackslash{}theta\textbackslash{}).
+
+The diagram suggests a scenario of studying geometric and positional relationships, likely for educational or illustrative purposes in aerodynamics or physics.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.3 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/731.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0731.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0731:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0731.firstGroundImpact_matches_recordedAnswerC}
+\uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedinmeterspersecond, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-matchesproblemandfigure, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-hasphysicalflightparameters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-satisfieshorizontalflightandslopelaws, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-isfirstgroundimpact, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-matchesanswerchoice, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Flight Length]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.FlightLength}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Flight Length.
+\end{proof}
+\begin{definition}[Flight Duration]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.FlightDuration}
+  A nonnegative physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Flight Duration.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.lengthReadout}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightlength}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.durationReadout}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration}
+  Read a physical elapsed time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.speedReadout}
+  Read a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.lengthInMeters}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightlength, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthreadout}
+  Metre readout used by the geometric laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.durationInSeconds}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationreadout}
+  Second readout used by the requested time and answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedreadout}
+  Metres-per-second readout used by the constant-speed law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angle Of Degrees]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-angleofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.angleOfDegrees}
+  Convert an angle stated in degrees to Mathlib's angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Of Degrees.
+\end{proof}
+\begin{definition}[Ground Profile Kind]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-groundprofilekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.GroundProfileKind}
+  The idealized ground profile described by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ground Profile Kind.
+\end{proof}
+\begin{definition}[Flight Heading]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightheading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.FlightHeading}
+  The airplane heading retained after it reaches the slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Flight Heading.
+\end{proof}
+\begin{definition}[Flight Direction]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.FlightDirection}
+  Direction of motion relative to the rising portion of the ground
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Flight Direction.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.FigureFeature}
+  Named visual elements present in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Rising Ground Figure]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.RisingGroundFigure}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightlength, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-figurefeature}
+  The two mathematical labels and qualitative features transcribed from image 731. The quantity labeled h and the angle labeled theta remain physical data; the figure does not contain an impact-time label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rising Ground Figure.
+\end{proof}
+\begin{definition}[Rising Ground Flight Setup]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.RisingGroundFlightSetup}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightlength, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-groundprofilekind, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightheading, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightdirection, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundfigure}
+  Independent physical quantities and trajectories in the model. horizontalDistanceAt measures distance traveled from the foot of the slope. Both elevation functions use the same vertical datum at that foot. The trajectory fields are independent observables related by the governing laws below; no impact duration is stored in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rising Ground Flight Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedreadout, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-angleofdegrees, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup}
+  Numerical and qualitative data read from the prose and primary figure. In particular, this predicate says nothing about an impact time or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Flight Parameters]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-hasphysicalflightparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.HasPhysicalFlightParameters}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedinmeterspersecond, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup}
+  Positivity and the acute physical branch of the slope angle. These conditions exclude a stationary plane, zero clearance, and non-rising trigonometric branches without assigning the requested collision time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Flight Parameters.
+\end{proof}
+\begin{definition}[Satisfies Horizontal Flight And Slope Laws]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-satisfieshorizontalflightandslopelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.SatisfiesHorizontalFlightAndSlopeLaws}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-speedinmeterspersecond, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup}
+  Constant horizontal flight and planar-slope geometry, stated in coherent SI readouts: horizontal distance traveled is speed * elapsed time; unchanged horizontal heading keeps aircraft elevation equal to h; the upward ground elevation after distance x is x * tan(theta). These are general kinematic and geometric laws. They contain no collision time, numerical answer, or answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Horizontal Flight And Slope Laws.
+\end{proof}
+\begin{definition}[Is First Ground Impact]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-isfirstgroundimpact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.IsFirstGroundImpact}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-lengthinmeters, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-risinggroundflightsetup}
+  An elapsed time is the first ground impact when aircraft and ground elevations coincide then, the time is positive, and the aircraft remains strictly above the ground at every earlier elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is First Ground Impact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.AnswerChoice}
+  Labels of the four answers supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-answerchoice}
+  Seconds printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-flightduration, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-durationinseconds, def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-answerchoice}
+  A physical impact time agrees with a displayed tenth-second answer when its second readout is within half of one tenth of the printed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0731.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0731:phyxminiproblems-problemphyxmini0731-answerchoice}
+  The answer label recorded by the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

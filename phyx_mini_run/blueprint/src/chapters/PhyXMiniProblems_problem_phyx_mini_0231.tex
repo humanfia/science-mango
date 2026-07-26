@@ -1,0 +1,337 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0231.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0231.source.json
+
+\chapter{Physics problem phyx\_mini\_0231}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0231}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A large block \textbackslash{}( P \textbackslash{}) attached to a light spring executes horizontal, simple harmonic motion as it slides across a frictionless surface with a frequency \textbackslash{}( f = 1.50\textbackslash{},\textbackslash{}mathrm\{Hz\} \textbackslash{}). Block \textbackslash{}( B \textbackslash{}) rests on it as shown in figure, and the coefficient of static friction between the two is \textbackslash{}( \textbackslash{}mu\_s = 0.600 \textbackslash{}).The block \textbackslash{}( B \textbackslash{}) is not to slip.
+
+\#\# Question
+
+What maximum amplitude of oscillation can the system have?
+
+\#\# Answer choices
+
+- A: A: 6.32cm
+
+- B: B: 6.42cm
+
+- C: C: 6.52cm
+
+- D: D: 6.62cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a mechanical setup with the following components:
+
+1. **Wall and Surface**: On the left side, there is a vertical wall, and the whole setup is placed on a horizontal surface.
+
+2. **Spring**: Attached to the wall is a spring extending horizontally. The spring appears to be under some tension or compression, likely interacting with the block next to it.
+
+3. **Block P**: Positioned horizontally and adjacent to the spring is a larger rectangular block labeled "P." It is in contact with the spring.
+
+4. **Block B**: On top of block P, there is a smaller rectangular block labeled "B." 
+
+5. **Label μₛ**: There is a line connecting block B to a μₛ symbol, which indicates the coefficient of static friction between blocks B and P.
+
+The relationship between the objects suggests a scenario involving static friction and possibly forces or motion experiments involving the blocks and the spring.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Implicit Condition Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 6.62cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/231.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0231.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0231:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0231.maximumNonSlipAmplitude_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-matchesproblemandfiguredata, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-hasphysicalparameters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-satisfieshorizontalshmandstaticfrictionlaws, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-ismaximumnonslipamplitude, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-recordedanswerchoice, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.MassQuantity}
+  A physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.LengthQuantity}
+  A physical length, used in particular for an oscillation amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.FrequencyQuantity}
+  A physical cyclic frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.AccelerationQuantity}
+  A physical acceleration, with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.ForceQuantity}
+  A physical force, with dimension mass times acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Stiffness Quantity]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.StiffnessQuantity}
+  A spring stiffness, equivalently force per length or mass per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.massInKilograms}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.lengthInMeters}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters}
+  Read a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyquantity}
+  Read a physical cyclic frequency in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationquantity}
+  Read a physical acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.forceInNewtons}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forcequantity}
+  Read a physical force in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessquantity}
+  Read a physical spring stiffness in newtons per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[length Of Meters]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthofmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.lengthOfMeters}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity}
+  Construct a physical length from its metre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Of Meters.
+\end{proof}
+\begin{definition}[Block Label]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blocklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.BlockLabel}
+  The two block labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Label.
+\end{proof}
+\begin{definition}[Block Size]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blocksize}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.BlockSize}
+  The relative block sizes visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Size.
+\end{proof}
+\begin{definition}[Block Placement]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blockplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.BlockPlacement}
+  The vertical/support placement of a block in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Block Placement.
+\end{proof}
+\begin{definition}[Spring Attachment]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-springattachment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.SpringAttachment}
+  The attachment represented by the spring drawn between the wall and P
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Attachment.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.SurfaceCondition}
+  The stated condition of the horizontal support beneath block P
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Spring Idealization]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-springidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.SpringIdealization}
+  The stated idealization of the spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Idealization.
+\end{proof}
+\begin{definition}[Stacked Spring Blocks Setup]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.StackedSpringBlocksSetup}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forcequantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blocklabel, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blocksize, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-blockplacement, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-springattachment, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-surfacecondition, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-springidealization}
+  The complete physical setup. The force and acceleration fields are physical response quantities, indexed by a proposed amplitude where appropriate. Their relation to SHM, Newton's second law, vertical force balance, and Coulomb static friction is supplied separately by SatisfiesHorizontalSHMAndStaticFrictionLaws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Stacked Spring Blocks Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Data]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-matchesproblemandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.MatchesProblemAndFigureData}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massinkilograms, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyinhertz, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup}
+  The scalar data and qualitative geometry supplied by the problem and its primary image. The gravitational acceleration is the standard near-Earth calibration 9.80 m/s² used by the recorded multiple-choice calculation. This predicate contains no proposed maximum amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massinkilograms, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyinhertz, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessinnewtonspermeter, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup}
+  Positivity conditions for the masses and other physical magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Horizontal SHMAnd Static Friction Laws]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-satisfieshorizontalshmandstaticfrictionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.SatisfiesHorizontalSHMAndStaticFrictionLaws}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-massinkilograms, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyinhertz, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forceinnewtons, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stiffnessinnewtonspermeter, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup}
+  The governing laws for the stacked-block motion. Since B does not slip relative to P, the oscillator's effective mass is the sum of the two block masses, while the light spring supplies the stated stiffness. Cyclic frequency and angular frequency obey ω = 2πf. A nonnegative SHM amplitude A has peak acceleration ω² A. Vertical force balance gives N = m\_B g. Coulomb static friction is bounded by μ\_s N. The horizontal friction required to carry B is m\_B a\_peak.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Horizontal SHMAnd Static Friction Laws.
+\end{proof}
+\begin{definition}[Does Not Slip At Amplitude]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-doesnotslipatamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.DoesNotSlipAtAmplitude}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-forceinnewtons, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup}
+  At a proposed nonnegative amplitude, block B does not slip when the required horizontal friction does not exceed the available static-friction magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Does Not Slip At Amplitude.
+\end{proof}
+\begin{definition}[Is Maximum Non Slip Amplitude]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-ismaximumnonslipamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.IsMaximumNonSlipAmplitude}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-doesnotslipatamplitude}
+  An amplitude is the requested maximum when it is non-slipping and every other non-slipping physical amplitude has no larger metre readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Maximum Non Slip Amplitude.
+\end{proof}
+\begin{lemma}[maximum Non Slip Amplitude formula]
+  \label{lem:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-maximumnonslipamplitude-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.maximumNonSlipAmplitude_formula}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthinmeters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-frequencyinhertz, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-stackedspringblockssetup, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-hasphysicalparameters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-satisfieshorizontalshmandstaticfrictionlaws, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-ismaximumnonslipamplitude}
+  The governing laws imply the usual threshold formula A\_max = μ\_s g / (2πf)². This is a derived conclusion, not a field of the law structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Non Slip Amplitude formula.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[centimeters]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-answerchoice-centimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.AnswerChoice.centimeters}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-answerchoice}
+  The amplitude in centimetres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0231.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthquantity, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-lengthincentimeters, def:physics:phyx-mini-0231:phyxminiproblems-problemphyxmini0231-answerchoice}
+  Agreement with a displayed answer to the nearest 0.01 cm. The half-step tolerance makes the conclusion a rounding statement rather than the false claim that the expression involving π is exactly a terminating decimal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

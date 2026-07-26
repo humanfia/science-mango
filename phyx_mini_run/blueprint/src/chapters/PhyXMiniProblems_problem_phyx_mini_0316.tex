@@ -1,0 +1,313 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0316.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0316.source.json
+
+\chapter{Physics problem phyx\_mini\_0316}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0316}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows two point sources \$S\_1\$ and \$S\_2\$ that emit sound of wavelength \$\textbackslash{}lambda = 2.00\$ m. The emissions are isotropic and in phase, and the separation between the sources is \$d = 16.0\$ m. At any point \$P\$ on the \$x\$ axis, the wave from \$S\_1\$ and the wave from \$S\_2\$ interfere.
+
+\#\# Question
+
+At what distance \$x\$ do the waves have a phase difference of \$1.50\textbackslash{}lambda\$?
+
+\#\# Answer choices
+
+- A: A: 38.6 m
+
+- B: B: 39.8 m
+
+- C: C: 40.6 m
+
+- D: D: 41.2 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a two-dimensional Cartesian coordinate system with the x-axis and y-axis. 
+
+- There are two points marked on the y-axis: \textbackslash{}( S\_1 \textbackslash{}) and \textbackslash{}( S\_2 \textbackslash{}). 
+  - \textbackslash{}( S\_1 \textbackslash{}) is above \textbackslash{}( S\_2 \textbackslash{}), and there's a vertical distance \textbackslash{}( d \textbackslash{}) between them.
+  - Both points \textbackslash{}( S\_1 \textbackslash{}) and \textbackslash{}( S\_2 \textbackslash{}) are marked with red dots.
+
+- A point \textbackslash{}( P \textbackslash{}) is located on the positive x-axis, marked with a black dot.
+
+- The axes intersect at the origin, and the axes are labeled with \textbackslash{}( x \textbackslash{}) and \textbackslash{}( y \textbackslash{}).
+
+- The text labels include \textbackslash{}( S\_1 \textbackslash{}), \textbackslash{}( S\_2 \textbackslash{}), \textbackslash{}( P \textbackslash{}), \textbackslash{}( x \textbackslash{}), \textbackslash{}( y \textbackslash{}), and \textbackslash{}( d \textbackslash{}).
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 41.2 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/316.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0316.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0316:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0316.problem_phyx_mini_0316}
+\uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchescoherentinphasesourcedescription, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchesproblemandquestionreadouts, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchessuppliedfigure, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-hasphysicalacousticparameters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesperpendicularpathgeometry, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesgeometricpathdifferencelaw, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesinphaseacousticphaselaw, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-requestedphasedistancesetmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.SignedLengthQuantity}
+  A signed physical length used for Cartesian coordinates in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.lengthReadout}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthquantity}
+  Read a nonnegative physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthquantity}
+  Read a signed Cartesian coordinate in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.lengthInMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthquantity, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthreadout}
+  Meter readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[signed Length In Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.signedLengthInMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthquantity, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthreadout}
+  Meter readout of a signed figure coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length In Meters.
+\end{proof}
+\begin{definition}[Source Label]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-sourcelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.SourceLabel}
+  Labels of the two sound sources printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Label.
+\end{proof}
+\begin{definition}[Figure Point Label]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-figurepointlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.FigurePointLabel}
+  Point labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point Label.
+\end{proof}
+\begin{definition}[Coordinate Axis]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-coordinateaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.CoordinateAxis}
+  Cartesian axis labels printed in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Coordinate Axis.
+\end{proof}
+\begin{definition}[Acoustic Source Kind]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-acousticsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.AcousticSourceKind}
+  The source type stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Source Kind.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.AcousticMedium}
+  The common homogeneous propagation medium implicit in the sound diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Plane Point]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-planepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.PlanePoint}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthquantity}
+  A Cartesian point whose coordinates are dimensionful signed lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plane Point.
+\end{proof}
+\begin{definition}[coordinate In Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-coordinateinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.coordinateInMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-signedlengthinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-coordinateaxis, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-planepoint}
+  Meter readout of one coordinate of a physical figure point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coordinate In Meters.
+\end{proof}
+\begin{definition}[Two Point Source Interference Setup]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.TwoPointSourceInterferenceSetup}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthquantity, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-sourcelabel, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-figurepointlabel, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-acousticsourcekind, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-acousticmedium, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-planepoint}
+  The physical quantities, figure-labelled objects, paths, and phase observable. observationPointPAtMeters x is the point labelled P whose nonnegative horizontal coordinate is read as x meters. The path lengths and their geometric difference remain dimensionful. No field assigns a numerical value to the requested coordinate x or selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Point Source Interference Setup.
+\end{proof}
+\begin{definition}[Matches Coherent In Phase Source Description]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchescoherentinphasesourcedescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.MatchesCoherentInPhaseSourceDescription}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-sourcelabel, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  The qualitative acoustic description: the sources are isotropic, mutually coherent, and initially in phase in one common medium. Isotropic propagation also makes both waves available to overlap at every pictured point on the nonnegative x axis. This contains no distinguished distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Coherent In Phase Source Description.
+\end{proof}
+\begin{definition}[Matches Problem And Question Readouts]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchesproblemandquestionreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.MatchesProblemAndQuestionReadouts}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  Numerical data stated in the problem and question: lambda = 2.00 m, d = 16.0 m, and the requested phase difference is 1.50 wavelengths. No observation distance or answer-choice value occurs in these readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Question Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-coordinateinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  Coordinate and label information read from the primary image. S₁ is at the axes' intersection, S₂ is directly below it by d, and the point P runs along the nonnegative x axis. These are figure readouts only; they contain no phase condition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-sourcelabel, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  Positivity and nondegeneracy of the physical wave and path quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Perpendicular Path Geometry]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesperpendicularpathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.SatisfiesPerpendicularPathGeometry}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthinmeters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  Straight-line Euclidean propagation geometry on the horizontal observation ray. A point x meters from S₁ is x meters from S₁ and sqrt (x\textasciicircum{}2 + d\textasciicircum{}2) meters from S₂. This law is quantified over arbitrary nonnegative x and does not single out the requested phase condition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Perpendicular Path Geometry.
+\end{proof}
+\begin{definition}[Satisfies Geometric Path Difference Law]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesgeometricpathdifferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.SatisfiesGeometricPathDifferenceLaw}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthreadout, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  In one homogeneous medium, the geometric propagation-path difference is the magnitude of the difference of the two source-to-observer path lengths. The relation is required in every length unit and contains no requested value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Geometric Path Difference Law.
+\end{proof}
+\begin{definition}[Satisfies In Phase Acoustic Phase Law]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesinphaseacousticphaselaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.SatisfiesInPhaseAcousticPhaseLaw}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-lengthreadout, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  For coherent in-phase sources, phase difference measured in wavelength cycles is geometric path difference divided by wavelength. Stating the ratio in every length unit records its dimensionless physical meaning. This is a general wave law and does not assert where a particular phase occurs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies In Phase Acoustic Phase Law.
+\end{proof}
+\begin{definition}[Has Requested Phase Difference At Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-hasrequestedphasedifferenceatmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.HasRequestedPhaseDifferenceAtMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup}
+  A nonnegative meter coordinate at which the question's phase occurs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Requested Phase Difference At Meters.
+\end{proof}
+\begin{definition}[requested Phase Distance Set Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-requestedphasedistancesetmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.requestedPhaseDistanceSetMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-hasrequestedphasedifferenceatmeters}
+  The set of all nonnegative meter coordinates satisfying the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of requested Phase Distance Set Meters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Distance In Meters]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-displayeddistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.displayedDistanceInMeters}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-answerchoice}
+  Distance in meters printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Distance In Meters.
+\end{proof}
+\begin{definition}[Rounds To Displayed Distance]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-roundstodisplayeddistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.RoundsToDisplayedDistance}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-answerchoice, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-displayeddistanceinmeters}
+  An exact distance rounds to a displayed tenth-meter choice when it differs from that printed value by less than half of 0.1 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Distance.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-answerchoice, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-roundstodisplayeddistance}
+  Exactly one displayed value agrees with the exact derived distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+\begin{lemma}[requested Phase Distance Set eq singleton]
+  \label{lem:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-requestedphasedistanceset-eq-singleton}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0316.requestedPhaseDistanceSet_eq_singleton}
+  \uses{def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-twopointsourceinterferencesetup, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-matchesproblemandquestionreadouts, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-hasphysicalacousticparameters, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesperpendicularpathgeometry, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesgeometricpathdifferencelaw, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-satisfiesinphaseacousticphaselaw, def:physics:phyx-mini-0316:phyxminiproblems-problemphyxmini0316-requestedphasedistancesetmeters}
+  The perpendicular-path and in-phase wave laws determine the unique exact coordinate x = 247/6 m for a 3/2-wavelength phase difference. The exact value occurs only in this conclusion, not in setup data or governing laws
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of requested Phase Distance Set eq singleton.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

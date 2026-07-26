@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0063.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0063.source.json
+
+\chapter{Physics problem phyx\_mini\_0063}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0063}
+
+\paragraph{Problem source.}
+\#\# Question
+
+At what angle \textbackslash{}phi should the laser beam in Figure aimed at the mirrored ceiling in order to hit the midpoint of the far wall?
+
+\#\# Answer choices
+
+- A: A: 35\textasciicircum{}\textbackslash{}circ
+
+- B: B: 90\textasciicircum{}\textbackslash{}circ
+
+- C: C: 42\textasciicircum{}\textbackslash{}circ
+
+- D: D: 123\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic representation of a rectangular room. The dimensions of the room are marked as 3.0 meters in height and 5.0 meters in width. At the top of the rectangle, the word "Mirror" is labeled, indicating the presence of a mirror along the entire top side. The right side of the rectangle is labeled "Wall," suggesting it is a wall.
+
+Inside the room, a laser beam is depicted, originating from the bottom left corner and directed upwards at an angle, labeled with the Greek letter "φ". The laser beam is shown as an arrow, indicating its direction. Lines representing dimensions (height and width) are marked with double-headed arrows outside the rectangle. The text "Laser beam" is placed next to the arrow indicating its identity.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 42\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/63.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0063.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0063:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0063.problem_phyx_mini_0063}
+\uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-matchesfigurereadouts, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-hasphysicalpathgeometry, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-launchangledescribesincidentray, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-hasacutelaunchangle, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-obeysspecularreflectionlaw, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-matchesanswertonearestdegree}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.LengthQuantity}
+  A physical length, represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.metersValue}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-lengthquantity}
+  The numerical SI readout of a physical length, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[Point2 D]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.Point2D}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-lengthquantity}
+  A point in the vertical cross-section of the room. Both coordinates are physical lengths measured from the lower-left corner
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Point2 D.
+\end{proof}
+\begin{definition}[x Meters]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d-xmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.Point2D.xMeters}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-metersvalue, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d}
+  The horizontal coordinate of a point, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Meters.
+\end{proof}
+\begin{definition}[y Meters]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d-ymeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.Point2D.yMeters}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-metersvalue, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d}
+  The vertical coordinate of a point, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Meters.
+\end{proof}
+\begin{definition}[Rectangular Room]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.RectangularRoom}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-lengthquantity}
+  The two physical dimensions of the rectangular room
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Room.
+\end{proof}
+\begin{definition}[width Meters]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom-widthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.RectangularRoom.widthMeters}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-metersvalue, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom}
+  The room width, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of width Meters.
+\end{proof}
+\begin{definition}[height Meters]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom-heightmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.RectangularRoom.heightMeters}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-metersvalue, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom}
+  The room height, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height Meters.
+\end{proof}
+\begin{definition}[Room Boundary]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-roomboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.RoomBoundary}
+  Labels for the four sides of the rectangular cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Room Boundary.
+\end{proof}
+\begin{definition}[Lies On Boundary]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-liesonboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.LiesOnBoundary}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-roomboundary}
+  Coordinate characterization of each labelled room boundary. In particular, mirroredCeiling is the entire top side and farWall is the right-hand side marked "Wall" in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Lies On Boundary.
+\end{proof}
+\begin{definition}[Is Bottom Left Corner]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-isbottomleftcorner}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.IsBottomLeftCorner}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d}
+  The point is the lower-left corner from which the depicted laser starts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Bottom Left Corner.
+\end{proof}
+\begin{definition}[Is Midpoint Of Far Wall]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ismidpointoffarwall}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.IsMidpointOfFarWall}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-liesonboundary}
+  The point is the midpoint of the right-hand wall. The equation is kept division-free and hence remains dimensionally clear
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Midpoint Of Far Wall.
+\end{proof}
+\begin{definition}[Ceiling Mirror Laser Setup]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.CeilingMirrorLaserSetup}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rectangularroom}
+  The physical objects and labelled points in the reflected laser path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ceiling Mirror Laser Setup.
+\end{proof}
+\begin{definition}[Matches Figure Readouts]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-matchesfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.MatchesFigureReadouts}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-liesonboundary, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-isbottomleftcorner, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ismidpointoffarwall, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup}
+  Figure-derived data: a 5.0 m by 3.0 m room, source at the lower-left corner, reflection point on the mirrored ceiling, and target at the midpoint of the far wall. The unknown launch angle is deliberately not fixed here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Path Geometry]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-hasphysicalpathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.HasPhysicalPathGeometry}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup}
+  Positivity and left-to-right travel conditions for the two nondegenerate ray segments shown in the room
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Path Geometry.
+\end{proof}
+\begin{definition}[ray Inclination Radians]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rayinclinationradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.rayInclinationRadians}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-point2d}
+  The directed inclination of a straight ray segment from the horizontal, in radians. The quotient is dimensionless because both differences are SI readouts of lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ray Inclination Radians.
+\end{proof}
+\begin{definition}[Launch Angle Describes Incident Ray]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-launchangledescribesincidentray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.LaunchAngleDescribesIncidentRay}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rayinclinationradians}
+  The labelled angle φ is the inclination of the incident ray segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Launch Angle Describes Incident Ray.
+\end{proof}
+\begin{definition}[Has Acute Launch Angle]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-hasacutelaunchangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.HasAcuteLaunchAngle}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup}
+  The launch direction lies strictly between the horizontal and vertical directions, as depicted
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Acute Launch Angle.
+\end{proof}
+\begin{definition}[Obeys Specular Reflection Law]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-obeysspecularreflectionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.ObeysSpecularReflectionLaw}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-ceilingmirrorlasersetup, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-rayinclinationradians}
+  Specular reflection at a horizontal mirror reverses the sign of the ray's vertical inclination while preserving its magnitude. This is the law of reflection specialized to the ceiling orientation in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Specular Reflection Law.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.degrees}
+  Convert a degree value into a physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[degree Readout]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-degreereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.degreeReadout}
+  Read the principal representative of a physical angle in degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.AnswerChoice}
+  The four multiple-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[degree Value]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-answerchoice-degreevalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.AnswerChoice.degreeValue}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-answerchoice}
+  Numerical degree values printed beside the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degree Value.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Degree]
+  \label{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-matchesanswertonearestdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0063.MatchesAnswerToNearestDegree}
+  \uses{def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-degreereadout, def:physics:phyx-mini-0063:phyxminiproblems-problemphyxmini0063-answerchoice}
+  An integer-degree answer matches when it is the nearest-degree readout of the exact physical angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

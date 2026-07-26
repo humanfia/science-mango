@@ -1,0 +1,248 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0132.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0132.source.json
+
+\chapter{Physics problem phyx\_mini\_0132}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0132}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The two stars that can just be resolved by the Arecibo radiotelescope (figure), whose diameter is \textbackslash{}(300\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}) and whose radius of curvature is also \textbackslash{}(300\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{}). Assume \textbackslash{}(\textbackslash{}lambda = 4\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) (the shortest wavelength at which the radiotelescope has operated).
+
+\#\# Question
+
+What is the theoretical minimum angular separation of two stars?
+
+\#\# Answer choices
+
+- A: A: \$1.6\textbackslash{}times10\textasciicircum{}\{-5\}\textbackslash{}
+
+- B: B: \$1.6\textbackslash{}times10\textasciicircum{}\{-3\}\textbackslash{}
+
+- C: C: \$1.6\textbackslash{}times10\textasciicircum{}\{-4\}\textbackslash{}
+
+- D: D: \$1.7\textbackslash{}times10\textasciicircum{}\{-4\}\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a large radio telescope situated in a lush, green landscape surrounded by hills. The telescope features a massive, circular dish antenna embedded in the ground and measures several hundred meters in diameter. Above the dish, there's a suspended platform or structure held by cables attached to surrounding towers. This platform likely contains instruments or receivers for capturing radio signals. The sky is clear with a single cloud visible, and there is no text present in the image. The overall scene suggests a remote and expansive setting.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$1.6\textbackslash{}times10\textasciicircum{}\{-4\}\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/132.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0132.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0132:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0132.problem_phyx_mini_0132}
+\uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesscenarioandfigure, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesproblemreadouts, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-hasphysicalparameters, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-satisfiescircularaperturerayleighcriterion, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-isuniquematchingangularseparation}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.lengthReadout}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthquantity}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.lengthInMeters}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthquantity, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthreadout}
+  Meter readout used for the dish geometry stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthquantity, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthreadout}
+  Centimeter readout used for the shortest operating wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Radio Telescope Label]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-radiotelescopelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.RadioTelescopeLabel}
+  The named instrument in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radio Telescope Label.
+\end{proof}
+\begin{definition}[Star Label]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-starlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.StarLabel}
+  The two astronomical sources whose resolution is considered
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Star Label.
+\end{proof}
+\begin{definition}[Astronomical Source Kind]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-astronomicalsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.AstronomicalSourceKind}
+  Physical class of each member of the source pair
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Astronomical Source Kind.
+\end{proof}
+\begin{definition}[Aperture Shape]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-apertureshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.ApertureShape}
+  Shape of the effective collecting aperture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Aperture Shape.
+\end{proof}
+\begin{definition}[Reflector Geometry]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-reflectorgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.ReflectorGeometry}
+  Geometry of the Arecibo reflector visible in the supplied photograph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflector Geometry.
+\end{proof}
+\begin{definition}[Resolution Regime]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-resolutionregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.ResolutionRegime}
+  Optical idealization used to define the theoretical resolution limit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resolution Regime.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.FigureFeature}
+  Distinct qualitative features visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Arecibo Resolution Setup]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.AreciboResolutionSetup}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthquantity, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-radiotelescopelabel, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-starlabel, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-astronomicalsourcekind, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-apertureshape, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-reflectorgeometry, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-resolutionregime, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-figurefeature}
+  All physical quantities and figure labels in the problem. minimumAngularSeparationRad is the unknown theoretical resolution limit. Neither it nor observedPairSeparationRad is assigned a numerical answer in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arecibo Resolution Setup.
+\end{proof}
+\begin{definition}[Matches Scenario And Figure]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesscenarioandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.MatchesScenarioAndFigure}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup}
+  Qualitative scenario and primary-image readouts. The photograph shows the large ground-embedded dish, its suspended receiver platform, and the support towers and cables. It supplies no angular measurement. The final equality says only that the two stars are *just resolved*: their unknown separation is the unknown resolution limit. It does not assign the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthinmeters, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthincentimeters, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup}
+  Numerical data explicitly stated in the problem: dish diameter 300 m, dish radius of curvature 300 m, and shortest operating wavelength 4 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthinmeters, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthincentimeters, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup}
+  Positivity and angular-range conditions for the physical configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Circular Aperture Rayleigh Criterion]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-satisfiescircularaperturerayleighcriterion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.SatisfiesCircularApertureRayleighCriterion}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-lengthreadout, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup}
+  Rayleigh's criterion for a circular aperture, theta\_min = 1.22 * lambda / D. The radian angle is dimensionless. The factor 1.22 is represented exactly as 61 / 50, and the relation is required in every common length unit. This is a governing optical law, not the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Aperture Rayleigh Criterion.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.AnswerChoice}
+  Labels of the four angular-separation choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angular Separation Rad]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-displayedangularseparationrad}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.displayedAngularSeparationRad}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice}
+  Radian value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angular Separation Rad.
+\end{proof}
+\begin{definition}[displayed Precision Rad]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-displayedprecisionrad}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.displayedPrecisionRad}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice}
+  Place value of the last displayed significant digit, in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Precision Rad.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice}
+  The answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Angular Separation]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesdisplayedangularseparation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.MatchesDisplayedAngularSeparation}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-displayedangularseparationrad, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-displayedprecisionrad}
+  Agreement with a displayed answer after rounding to its shown precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Angular Separation.
+\end{proof}
+\begin{definition}[Is Unique Matching Angular Separation]
+  \label{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-isuniquematchingangularseparation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0132.IsUniqueMatchingAngularSeparation}
+  \uses{def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-areciboresolutionsetup, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-answerchoice, def:physics:phyx-mini-0132:phyxminiproblems-problemphyxmini0132-matchesdisplayedangularseparation}
+  The selected choice is the unique displayed value matching the limit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Angular Separation.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

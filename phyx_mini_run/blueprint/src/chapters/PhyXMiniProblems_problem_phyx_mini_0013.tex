@@ -1,0 +1,184 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0013.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0013.source.json
+
+\chapter{Physics problem phyx\_mini\_0013}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0013}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A digital video disc (DVD) records information in a spiral track approximately \textbackslash{}( 1\textbackslash{} \textbackslash{}mu\textbackslash{}text\{m\} \textbackslash{}) wide. The track consists of a series of pits in the information layer that scatter light from a laser beam sharply focused on them. The laser shines in from below through transparent plastic of thickness \textbackslash{}( t = 1.20\textbackslash{} \textbackslash{}text\{mm\} \textbackslash{}) and index of refraction 1.55 as shown in figure. Assume the width of the laser beam at the information layer must be \textbackslash{}( a = 1.00\textbackslash{} \textbackslash{}mu\textbackslash{}text\{m\} \textbackslash{}) to read from only one track and not from its neighbors. Assume the width of the beam as it enters the transparent plastic is \textbackslash{}( w = 0.700\textbackslash{} \textbackslash{}text\{mm\} \textbackslash{}). A lens makes the beam converge into a cone with an apex angle \textbackslash{}( 2\textbackslash{}theta\_1 \textbackslash{}) before it enters the DVD.
+
+\#\# Question
+
+Find the incidence angle \textbackslash{}( \textbackslash{}theta\_1 \textbackslash{}) of the light at the edge of the conical beam. This design is relatively immune to small dust particles degrading the video quality.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 20.6\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- B: B: \textbackslash{}( 18.3\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- C: C: \textbackslash{}( 25.7\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+- D: D: \textbackslash{}( 21.3\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating light refraction through a plastic layer with the refractive index, \textbackslash{}(n = 1.55\textbackslash{}).
+
+\#\#\# Key Elements:
+
+1. **Layers:**
+   - **Information Layer:** Positioned at the top with a horizontal width.
+   - **Plastic Layer**: Below the information layer, labeled with \textbackslash{}(n = 1.55\textbackslash{}) and separated by dashed lines on the sides.
+
+2. **Dimensions:**
+   - **\textbackslash{}(b\textbackslash{}):** Half the width of the information layer on either side.
+   - **\textbackslash{}(a\textbackslash{}):** Central width of the information layer.
+   - **\textbackslash{}(t\textbackslash{}):** Total vertical height of the plastic layer.
+   - **\textbackslash{}(w\textbackslash{}):** Base width between the exiting light rays in the air.
+
+3. **Light Rays:**
+   - Two light rays are shown entering from the bottom in the air, refracting inside the plastic layer, and exiting towards the top.
+   - **Angles:** 
+     - \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}): Angle of incidence in air.
+     - \textbackslash{}(\textbackslash{}theta\_2\textbackslash{}) and \textbackslash{}(\textbackslash{}theta'\_2\textbackslash{}): Angles of refraction inside the plastic.
+
+4. **Material:**
+   - **Air:** Denoted below the plastic layer where the initial light rays originate.
+
+\#\#\# Relationships:
+The image illustrates the refraction process: light enters the plastic layer at \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}), changes direction due to the refractive index, travels through the plastic at \textbackslash{}(\textbackslash{}theta\_2\textbackslash{}) and \textbackslash{}(\textbackslash{}theta'\_2\textbackslash{}), and exits back into air. The geometry and refractive properties are annotated to demonstrate these relationships.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 25.7\textasciicircum{}\textbackslash{}circ \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/13.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0013.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0013:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0013.incidenceAngle_is_answer_C}
+\uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasersetup, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlaserfigurereadouts, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasergoverninglaws, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-matchesanswertonearesttenthdegree}
+For the DVD geometry with plastic thickness \(1.20\,\mathrm{mm}\), track
+width \(1.00\,\mu\mathrm m\), entry width \(0.700\,\mathrm{mm}\), and
+dimensionless plastic index \(1.55\), the edge-ray incidence angle in air
+rounds to \(25.7^\circ\), answer C.
+\end{theorem}
+\begin{proof}
+Convert all lateral readouts to one length unit.  The two right-triangle
+relations determine the acute plastic edge angles from the half-width changes
+over the slab thickness.  Substitution in the two Snell equations then
+determines the common acute incidence angle; certified trigonometric bounds
+place it within \(0.05^\circ\) of \(25.7^\circ\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.LengthQuantity}
+  A physical length, represented independently of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[value In Meters]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-valueinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.valueInMeters}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-lengthquantity}
+  The scalar value of a physical length when the chosen unit system is SI meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of value In Meters.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.OpticalMedium}
+  The two optical media separated by the lower face of the DVD
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[DVDLaser Setup]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.DVDLaserSetup}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-lengthquantity, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-opticalmedium}
+  The physical quantities and figure labels in the symmetric DVD laser-beam cross-section. The angles are real-valued radian readouts measured from the interface normal. The two in-plastic angles retain the figure's left and right labels theta\_2 and theta'\_2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of DVDLaser Setup.
+\end{proof}
+\begin{definition}[Snell Law At Interface]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-snelllawatinterface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.SnellLawAtInterface}
+  Snell's law at a planar interface. Refractive indices are dimensionless and angles are radian magnitudes from the local normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snell Law At Interface.
+\end{proof}
+\begin{definition}[DVDLaser Figure Readouts]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlaserfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.DVDLaserFigureReadouts}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-valueinmeters, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasersetup}
+  Problem-statement and figure readouts. Lengths are read in SI meters, so the displayed micrometer and millimeter values are converted exactly to powers of ten. The width partition and cone-angle relations are geometric annotations from the symmetric figure; neither states the requested numerical incidence angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of DVDLaser Figure Readouts.
+\end{proof}
+\begin{definition}[DVDLaser Governing Laws]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasergoverninglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.DVDLaserGoverningLaws}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-opticalmedium, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-dvdlasersetup, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-snelllawatinterface}
+  The governing geometrical-optics relations for the two edge rays. The right-triangle equations express b = t tan(theta\_2) in any chosen unit system, and the two Snell-law fields describe refraction from air into the plastic. Acute-angle hypotheses select the physical branches of the trigonometric equations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of DVDLaser Governing Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.AnswerChoice}
+  The four incidence-angle choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-answerchoice}
+  The degree readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.degreesToRadians}
+  Convert a real-valued degree readout to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth Degree]
+  \label{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-matchesanswertonearesttenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0013.MatchesAnswerToNearestTenthDegree}
+  \uses{def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-answerchoice, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-answerangledegrees, def:physics:phyx-mini-0013:phyxminiproblems-problemphyxmini0013-degreestoradians}
+  A radian angle rounds to a displayed one-decimal-place answer when it lies within half of 0.1 degrees of that choice's degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth Degree.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

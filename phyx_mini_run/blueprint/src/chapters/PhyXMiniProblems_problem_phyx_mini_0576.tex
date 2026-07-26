@@ -1,0 +1,268 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0576.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0576.source.json
+
+\chapter{Physics problem phyx\_mini\_0576}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0576}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the decay of parents in a radioactive sample. The axes are scaled by \$N\_s = 2.00 \textbackslash{}times 10\textasciicircum{}6\$ and \$t\_s = 10.0 \textbackslash{}, \textbackslash{}text\{s\}\$.
+
+\#\# Question
+
+What is the activity of the sample at \$t = 27.0 \textbackslash{}, \textbackslash{}text\{s\}\$?
+
+\#\# Answer choices
+
+- A: A: 30Bq
+
+- B: B: 120Bq
+
+- C: C: 60Bq
+
+- D: D: 6Bq
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image displays a graph on a grid, featuring a curve that exhibits a decreasing trend. Here are the detailed components:
+
+- **Axes**: The graph is plotted with two axes. The horizontal axis (x-axis) is labeled as \textbackslash{}( t \textbackslash{}) and shows the starting point as 0, ending at \textbackslash{}( t\_s \textbackslash{}). The vertical axis (y-axis) is labeled as \textbackslash{}( N \textbackslash{}) and starts at \textbackslash{}( N\_s \textbackslash{}).
+
+- **Curve**: The curve appears to be exponential decay, starting from the top left and descending towards the bottom right. It begins at the point \textbackslash{}( (0, N\_s) \textbackslash{}) and approaches the x-axis as it moves rightward, near \textbackslash{}( t\_s \textbackslash{}).
+
+- **Grid**: The background consists of a grid, which helps to clearly show the slope and progression of the curve.
+
+- **Color**: The curve is a shade of magenta, providing a vivid contrast against the grid background.
+
+This graph likely represents a concept related to exponential decay over time.
+
+\#\# Dataset metadata
+
+Nuclear Physics; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 60Bq
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/576.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0576.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0576:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0576.activity_at_twenty_seven_seconds_rounds_to_sixty_becquerels}
+\uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityinbecquerels, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-matchesproblemreadouts, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-matchessuppliedparentdecayfigure, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-hasphysicalradioactiveparameters, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-satisfiesradioactivedecaylaws, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-wholebecquerelroundingtolerance, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-iscorrectroundedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.TimeQuantity}
+  A nonnegative, unit-independent physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Decay Constant Quantity]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.DecayConstantQuantity}
+  A nonnegative radioactive decay constant, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Constant Quantity.
+\end{proof}
+\begin{definition}[Activity Quantity]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.ActivityQuantity}
+  A nonnegative radioactive activity, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Activity Quantity.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.timeReadout}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity}
+  Read a physical elapsed time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[decay Constant Readout]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.decayConstantReadout}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantquantity}
+  Read a decay constant in inverse units of a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of decay Constant Readout.
+\end{proof}
+\begin{definition}[activity Readout]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.activityReadout}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityquantity}
+  Read an activity as decays per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of activity Readout.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.timeInSeconds}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timereadout}
+  Seconds readout of a physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[decay Constant In Per Second]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantinpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.decayConstantInPerSecond}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantquantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantreadout}
+  Per-second readout of a radioactive decay constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of decay Constant In Per Second.
+\end{proof}
+\begin{definition}[activity In Becquerels]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityinbecquerels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.activityInBecquerels}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityquantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityreadout}
+  Becquerel readout of an activity; one becquerel is one decay per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of activity In Becquerels.
+\end{proof}
+\begin{definition}[Radioactive Sample]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivesample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.RadioactiveSample}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantquantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityquantity}
+  An idealized radioactive sample. Its expected parent population and activity at a time are independent observables here; the governing laws below relate them without defining either observable to be the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radioactive Sample.
+\end{proof}
+\begin{definition}[Decay Curve Color]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurvecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.DecayCurveColor}
+  The color of the curve visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Curve Color.
+\end{proof}
+\begin{definition}[Decay Curve Trend]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurvetrend}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.DecayCurveTrend}
+  Qualitative vertical trend of the plotted parent population
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Curve Trend.
+\end{proof}
+\begin{definition}[Decay Curve Shape]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.DecayCurveShape}
+  Physical model represented by the shape of the plotted curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Decay Curve Shape.
+\end{proof}
+\begin{definition}[Parent Decay Figure]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-parentdecayfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.ParentDecayFigure}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurvecolor, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurvetrend, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decaycurveshape}
+  Literal labels and grid information read from the primary image. Grid indices are normalized diagram coordinates, not physical times or parent counts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parent Decay Figure.
+\end{proof}
+\begin{definition}[Radioactive Decay Setup]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.RadioactiveDecaySetup}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivesample, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-parentdecayfigure}
+  The sample, the two axis scales, the queried time, and the half-life point read from the graph. Each physical quantity remains independent of its scalar readout and of the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Radioactive Decay Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timeinseconds, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup}
+  Numerical scales and query time stated alongside the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Parent Decay Figure]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-matchessuppliedparentdecayfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.MatchesSuppliedParentDecayFigure}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timeinseconds, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup}
+  Primary-image evidence: the axes are labelled t and N, the endpoint scales are t\_s and N\_s, and a magenta decreasing exponential occupies a ten-by-ten grid. The curve crosses half of N\_s at horizontal grid column two and vertical row five. The last two fields interpret that calibrated crossing as the sample's half-population point; neither field concerns the requested activity at 27 s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Parent Decay Figure.
+\end{proof}
+\begin{definition}[Has Physical Radioactive Parameters]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-hasphysicalradioactiveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.HasPhysicalRadioactiveParameters}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timeinseconds, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantinpersecond, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup}
+  Positive, nondegenerate parameters of the radioactive-decay scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Radioactive Parameters.
+\end{proof}
+\begin{definition}[Satisfies Radioactive Decay Laws]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-satisfiesradioactivedecaylaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.SatisfiesRadioactiveDecayLaws}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timequantity, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-timeinseconds, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-decayconstantinpersecond, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityinbecquerels, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup}
+  The standard exponential parent-population law and A(t) = λ N(t). Both are general governing laws quantified over every elapsed time. In particular, they do not state a numerical activity at the queried time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Radioactive Decay Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.AnswerChoice}
+  The four answer labels printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Activity In Becquerels]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-displayedactivityinbecquerels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.displayedActivityInBecquerels}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-answerchoice}
+  Becquerel value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Activity In Becquerels.
+\end{proof}
+\begin{definition}[whole Becquerel Rounding Tolerance]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-wholebecquerelroundingtolerance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.wholeBecquerelRoundingTolerance}
+  The answer choices are reported to the nearest whole becquerel
+\end{definition}
+\begin{proof}
+  This is the declared model definition of whole Becquerel Rounding Tolerance.
+\end{proof}
+\begin{definition}[Is Correct Rounded Answer Choice]
+  \label{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-iscorrectroundedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0576.IsCorrectRoundedAnswerChoice}
+  \uses{def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-activityinbecquerels, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-radioactivedecaysetup, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-answerchoice, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-displayedactivityinbecquerels, def:physics:phyx-mini-0576:phyxminiproblems-problemphyxmini0576-wholebecquerelroundingtolerance}
+  A displayed choice agrees with the physical prediction when the exact model activity lies within half a becquerel of the displayed whole-number value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Rounded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

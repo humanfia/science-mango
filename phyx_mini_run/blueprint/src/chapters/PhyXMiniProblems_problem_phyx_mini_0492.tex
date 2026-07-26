@@ -1,0 +1,325 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0492.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0492.source.json
+
+\chapter{Physics problem phyx\_mini\_0492}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0492}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider the following two-step process. Heat is allowed to flow out of an ideal gas at constant volume so that its pressure drops from \textbackslash{}(2.2\textbackslash{},\textbackslash{}mathrm\{atm\}\textbackslash{}) to \textbackslash{}(1.4\textbackslash{},\textbackslash{}mathrm\{atm\}\textbackslash{}). Then the gas expands at constant pressure, from a volume of \textbackslash{}(5.9\textbackslash{},\textbackslash{}mathrm\{L\}\textbackslash{}) to \textbackslash{}(9.3\textbackslash{},\textbackslash{}mathrm\{L\}\textbackslash{}), where the temperature reaches its original value.
+
+\#\# Question
+
+Calculate the total work done by the gas in the process.
+
+\#\# Answer choices
+
+- A: A: 390J
+
+- B: B: 420J
+
+- C: C: 450J
+
+- D: D: 480J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a pressure-volume (P-V) relationship. Here's a detailed description:
+
+- **Axes**: 
+  - The y-axis represents pressure (P) in atm, labeled from 0 to above 2 atm.
+  - The x-axis represents volume (V) in liters (L), labeled from 0 to beyond 9 L.
+
+- **Curve**: 
+  - A red curve shows the relationship between P and V, decreasing as volume increases.
+
+- **Points and Lines**:
+  - Point **a** is on the curve at 2.2 atm with a vertical dashed line extending to the curve.
+  - Point **b** is at 1.4 atm, with horizontal and vertical dashed lines intersecting the curve at around 5.9 L.
+  - Point **c** is on the curve at 1.4 atm, intersecting with a vertical dashed line at 9.3 L.
+
+- **Arrows**:
+  - A red arrow indicates a vertical transition from point a to point b.
+  - A red arrow indicates a horizontal transition from point b to point c.
+
+- **Annotations**:
+  - Points a, b, and c are labeled next to the respective points on the graph.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 480J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/492.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0492.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0492:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0492.totalWorkDoneByGas_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energyinjoules, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-matchesproblemstatement, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-matchesprimarypressurevolumefigure, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-satisfiesboundaryworklaws, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-answerchoice, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-recordedanswerchoice, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-roundstonearesttenjoules}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.VolumeQuantity}
+  A nonnegative physical gas volume carrying dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinpascals}
+  Read a pressure in the standard atmospheres printed on the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Liters]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeinliters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.volumeInLiters}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumequantity, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeincubicmeters}
+  Read a physical volume in the litres printed on the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Liters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.energyInJoules}
+  Read signed heat or work in coherent SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[joules Per Liter Atmosphere]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-joulesperliteratmosphere}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.joulesPerLiterAtmosphere}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinpascals}
+  The exact number of joules represented by one litre-atmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Liter Atmosphere.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.GasModel}
+  Equation-of-state model specified by the phrase “ideal gas”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.FigurePoint}
+  The three point labels printed in the pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ProcessLeg}
+  The two directed process legs shown by red arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[initial Point]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg-initialpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ProcessLeg.initialPoint}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-figurepoint, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg}
+  Initial endpoint of each directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of initial Point.
+\end{proof}
+\begin{definition}[final Point]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg-finalpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ProcessLeg.finalPoint}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-figurepoint, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg}
+  Final endpoint of each directed process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Point.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ProcessKind}
+  Thermodynamic constraint imposed on each process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Segment Geometry]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-segmentgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.SegmentGeometry}
+  Geometric appearance of a process leg in the pressure--volume plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Geometry.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.AxisQuantity}
+  Physical quantity assigned to one of the plot axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.AxisUnit}
+  Unit printed beside an axis of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Comparison Curve Kind]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-comparisoncurvekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ComparisonCurveKind}
+  The red comparison curve through a and c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Comparison Curve Kind.
+\end{proof}
+\begin{definition}[Energy Sign Convention]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energysignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.EnergySignConvention}
+  Sign conventions used for the directed energy transfers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Sign Convention.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumequantity}
+  Pressure, volume, and absolute temperature at one labeled state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-figurepoint, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-segmentgeometry, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-axisquantity, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-axisunit, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-comparisoncurvekind}
+  Qualitative content transcribed from the primary bitmap. Numerical state coordinates remain in the physical states and are recorded separately by MatchesPrimaryPressureVolumeFigure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Two Step Ideal Gas Process]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.TwoStepIdealGasProcess}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-gasmodel, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-figurepoint, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processleg, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-processkind, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energysignconvention, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-thermodynamicstate, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressurevolumefigure}
+  Independent physical quantities for the same closed gas sample. In particular, totalWorkDoneByGas is an independent dimensionful observable; it is not defined to be the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Step Ideal Gas Process.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energyinjoules, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess}
+  Facts stated in the prose. The strict negative heat readout encodes heat flow out of the gas under the declared sign convention. No work value or answer choice occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-matchesprimarypressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.MatchesPrimaryPressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinatmospheres, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeinliters, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess}
+  Exact transcription of the supplied pressure--volume bitmap. The red curve passes through a and c; the actual process instead follows the vertical arrow a → b and the horizontal arrow b → c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinatmospheres, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeinliters, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess}
+  Positivity and nondegeneracy conditions for the physical process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Boundary Work Laws]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-satisfiesboundaryworklaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.SatisfiesBoundaryWorkLaws}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-pressureinatmospheres, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-volumeinliters, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-energyinjoules, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-joulesperliteratmosphere, def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-twostepidealgasprocess}
+  General boundary-work laws for the two process kinds, written in the named units of the diagram. A constant-volume leg does no boundary work, while a constant-pressure expansion does P ΔV work. These laws contain none of the problem's numerical coordinates or answer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Boundary Work Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.AnswerChoice}
+  Labels printed beside the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[work In Joules]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-answerchoice-workinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.AnswerChoice.workInJoules}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-answerchoice}
+  Work in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of work In Joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-answerchoice}
+  Answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Ten Joules]
+  \label{def:physics:phyx-mini-0492:phyxminiproblems-problemphyxmini0492-roundstonearesttenjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0492.RoundsToNearestTenJoules}
+  The answer choices report work to the nearest ten joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Ten Joules.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

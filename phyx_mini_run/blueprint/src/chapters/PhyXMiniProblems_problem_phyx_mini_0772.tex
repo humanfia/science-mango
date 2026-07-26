@@ -1,0 +1,504 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0772.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0772.source.json
+
+\chapter{Physics problem phyx\_mini\_0772}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0772}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A disk of radius 25.0 cm is free to turn about an axle perpendicular to it through its center. It has very thin but strong string wrapped around its rim, and the string is attached to a ball that is pulled tangentially away from the rim of the disk as shown in figure. The pull increases in magnitude and produces an acceleration of the ball that obeys the equa-tion \textbackslash{}(a(t) = At\textbackslash{}), where \textbackslash{}(t\textbackslash{}) is in seconds and \textbackslash{}(A\textbackslash{}) is a constant. The cylinder starts from rest, and at the end of the third second, the ball’s acceleration is \textbackslash{}(1.80\textbackslash{}text\{ m/s\}\textasciicircum{}2\textbackslash{}).
+
+\#\# Question
+
+Through what angle has the disk turned just as it reaches \textbackslash{}(15.0\textbackslash{}text\{ rad/s\}\textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 18.1 rad
+
+- B: B: 17.7 rad
+
+- C: C: 11.7 rad
+
+- D: D: 37.7 rad
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of the following elements:
+
+- A large orange disk is shown on the left side. It is labeled "Disk" and has a black dot at its center, indicating the pivot or axis point.
+  
+- Connected to the disk is a gray rod that extends horizontally to the right.
+
+- At the end of this rod, there is a small golden ball labeled "Ball."
+
+- There is a red arrow starting from the ball and pointing to the right, labeled "Pull," indicating a force being applied in that direction.
+
+The image represents a mechanical setup involving rotational dynamics, where a pulling force is exerted on the ball connected to the disk.
+
+\#\# Dataset metadata
+
+Rotational Motion; Multi-Formula Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 17.7 rad
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/772.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0772.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0772:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0772.problem_phyx_mini_0772}
+\uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemscenario, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchessuppliedfigure, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemreadouts, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-hasphysicalparameters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfieslinearaccelerationprofile, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfiesnoslipunwindingkinematics, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesquestionevent, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-isuniqueclosestdisplayedangle, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-roundstodisplayedtenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationDimension}
+  The physical dimension L T⁻² of linear acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[acceleration Slope Dimension]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationSlopeDimension}
+  The physical dimension L T⁻³ of the coefficient in a(t) = A t
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Slope Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.forceDimension}
+  The physical dimension M L T⁻² of a force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.TimeQuantity}
+  A nonnegative, unit-independent physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Force Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.ForceQuantity}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcedimension}
+  A nonnegative, unit-independent force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationdimension}
+  A nonnegative, unit-independent linear-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Acceleration Slope Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AccelerationSlopeQuantity}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopedimension}
+  A nonnegative, unit-independent acceleration slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Slope Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AngularSpeedQuantity}
+  A nonnegative angular speed; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Acceleration Quantity]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AngularAccelerationQuantity}
+  A nonnegative angular acceleration; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Acceleration Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.lengthReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.timeReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timequantity}
+  Read a physical time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[force Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.forceReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcequantity}
+  Read a force in the coherent unit induced by selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationquantity}
+  Read a linear acceleration in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[acceleration Slope Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationSlopeReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopequantity}
+  Read an acceleration slope in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Slope Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedquantity}
+  Read angular speed in radians per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[angular Acceleration Readout]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.angularAccelerationReadout}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationquantity}
+  Read angular acceleration in radians per selected time unit squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.lengthInMeters}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthreadout}
+  Centimetre readout used for the stated disk radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.timeInSeconds}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timereadout}
+  Second readout of a physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.forceInNewtons}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcereadout}
+  Newton readout of the applied pull magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationreadout}
+  SI readout in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[acceleration Slope In Meters Per Second Cubed]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopeinmeterspersecondcubed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationSlopeInMetersPerSecondCubed}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopereadout}
+  SI readout in metres per second cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Slope In Meters Per Second Cubed.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedreadout}
+  SI angular-speed readout in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Acceleration In Radians Per Second Squared]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationinradianspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.angularAccelerationInRadiansPerSecondSquared}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationreadout}
+  SI angular-acceleration readout in radians per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration In Radians Per Second Squared.
+\end{proof}
+\begin{definition}[Axle Constraint]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-axleconstraint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AxleConstraint}
+  The disk's fixed-axis constraint stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Constraint.
+\end{proof}
+\begin{definition}[String Model]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-stringmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.StringModel}
+  The idealization of the string wrapped on the rim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of String Model.
+\end{proof}
+\begin{definition}[Pull Direction]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-pulldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.PullDirection}
+  Direction assigned to the pull relative to the circular rim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pull Direction.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.RotationSense}
+  Positive sense used for scalar angular observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.FigureObject}
+  Physical objects and marks visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label Location]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabellocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.FigureLabelLocation}
+  Locations of the three literal text labels visible in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label Location.
+\end{proof}
+\begin{definition}[Figure Label Text]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabeltext}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.FigureLabelText}
+  Literal text carried by a figure label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label Text.
+\end{proof}
+\begin{definition}[expected Figure Label]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-expectedfigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.expectedFigureLabel}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabellocation, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabeltext}
+  The label text expected at each location in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Figure Label.
+\end{proof}
+\begin{definition}[Supplied Disk Ball Figure]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-supplieddiskballfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.SuppliedDiskBallFigure}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figureobject, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabellocation, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabeltext}
+  Typed qualitative content read directly from image 772.png. In particular, the raster shows a thin horizontal string leaving the top of the disk tangentially; it does not show the gray rigid rod described by the auxiliary caption. No metric value is inferred from pixel coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Disk Ball Figure.
+\end{proof}
+\begin{definition}[Disk Ball Unwinding Setup]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.DiskBallUnwindingSetup}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forcequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopequantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationquantity, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-axleconstraint, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-stringmodel, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-pulldirection, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-rotationsense, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-supplieddiskballfigure}
+  Independent physical parameters and observables. The target event time and turned angle are independent observables constrained only by source data and governing laws; neither is defined from an answer choice or solved formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Ball Unwinding Setup.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-forceinnewtons, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  Qualitative assignments from the prose, including the increasing pull
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figureobject, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-figurelabellocation, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-expectedfigurelabel, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  Objects, literal labels, and incidences transcribed from the primary image. This evidence contains neither the requested angle nor its numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthinmeters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthincentimeters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedinradianspersecond, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  Numerical data and initial conditions from the problem. Angle zero at the initial instant is the coordinate convention for "angle turned". No event time, event angle, or answer-choice value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthinmeters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopeinmeterspersecondcubed, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  Positivity and the future-time branch implicit in the physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Linear Acceleration Profile]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfieslinearaccelerationprofile}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.SatisfiesLinearAccelerationProfile}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopeinmeterspersecondcubed, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  The source law a(t) = A t, with t the numerical SI-second coordinate. It is a general trajectory law and does not contain the target event or angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Linear Acceleration Profile.
+\end{proof}
+\begin{definition}[Satisfies No Slip Unwinding Kinematics]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfiesnoslipunwindingkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.SatisfiesNoSlipUnwindingKinematics}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-lengthinmeters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedinradianspersecond, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularaccelerationinradianspersecondsquared, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  No-slip unwinding and rotational kinematics in the clockwise-positive coordinate: a = r α, dω/dt = α, dθ/dt = ω, and s = r θ. These are general laws and do not fix the angle or time at which ω = 15 rad/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies No Slip Unwinding Kinematics.
+\end{proof}
+\begin{definition}[Matches Question Event]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesquestionevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.MatchesQuestionEvent}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angularspeedinradianspersecond, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup}
+  Selection of the instant asked about. Reaching 15 rad/s is input to the event query; the event time and angle remain to be derived
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Question Event.
+\end{proof}
+\begin{lemma}[acceleration Slope eq three fifths]
+  \label{lem:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslope-eq-three-fifths}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.accelerationSlope_eq_three_fifths}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-accelerationslopeinmeterspersecondcubed, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemreadouts, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfieslinearaccelerationprofile}
+  The observation a(3) = 1.80 calibrates A = 0.60 m/s³
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of acceleration Slope eq three fifths.
+\end{proof}
+\begin{lemma}[target Event Time eq five sqrt two over two]
+  \label{lem:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-targeteventtime-eq-five-sqrt-two-over-two}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.targetEventTime_eq_five_sqrt_two_over_two}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-timeinseconds, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-diskballunwindingsetup, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesproblemreadouts, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-hasphysicalparameters, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfieslinearaccelerationprofile, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-satisfiesnoslipunwindingkinematics, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-matchesquestionevent}
+  The positive event at 15 rad/s occurs at 5√2/2 seconds
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of target Event Time eq five sqrt two over two.
+\end{proof}
+\begin{definition}[Angle Answer Choice]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.AngleAnswerChoice}
+  Labels of the four angle choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angle Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angle In Radians]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-displayedangleinradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.displayedAngleInRadians}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice}
+  Angle in radians printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angle In Radians.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice}
+  Answer metadata recorded in the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[distance From Displayed Angle]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-distancefromdisplayedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.distanceFromDisplayedAngle}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-displayedangleinradians}
+  Absolute distance between an exact angle and a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance From Displayed Angle.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Angle]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-isuniqueclosestdisplayedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.IsUniqueClosestDisplayedAngle}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-distancefromdisplayedangle}
+  A choice is strictly closer to the exact angle than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Angle.
+\end{proof}
+\begin{definition}[Rounds To Displayed Tenth]
+  \label{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-roundstodisplayedtenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0772.RoundsToDisplayedTenth}
+  \uses{def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-angleanswerchoice, def:physics:phyx-mini-0772:phyxminiproblems-problemphyxmini0772-distancefromdisplayedangle}
+  A displayed tenth agrees with an exact angle within 0.05 rad
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Tenth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

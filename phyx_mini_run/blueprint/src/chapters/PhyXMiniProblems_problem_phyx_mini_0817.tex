@@ -1,0 +1,263 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0817.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0817.source.json
+
+\chapter{Physics problem phyx\_mini\_0817}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0817}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+James (mass 90.0 kg) and Ramon (mass 60.0 kg) are 20.0 m apart on a frozen pond. Midway between them is a mug of their favorite beverage as shown in figure. They pull on the ends of a light rope stretched between them.
+
+\#\# Question
+
+When James has moved 6.0 m toward the mug, how far has Ramon moved?
+
+\#\# Answer choices
+
+- A: A: 6.0m
+
+- B: B: 9.0m
+
+- C: C: 4.0m
+
+- D: D: 3.0m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram with two stick figures on either side, labeled "James" on the left and "Ramon" on the right. 
+
+- **James** is on the left side, positioned at -10.0 meters on the horizontal axis and has a mass of 90.0 kg.
+- **Ramon** is on the right side, positioned at +10.0 meters and has a mass of 60.0 kg.
+  
+The axis is marked with various points:
+- \textbackslash{}( x\_\{cm\} \textbackslash{}) is marked along the axis to indicate the center of mass, although its exact position isn't specified in the image.
+- A point labeled "P" is positioned at 0 on the axis.
+
+The stick figures are each holding one end of a line that spans the distance between them, indicating the presence of some kind of connection or relationship between the two points.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 9.0m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/817.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0817.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0817:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0817.ramon_distanceMoved_eq_nine_meters_and_choiceB}
+\uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-distancemovedinmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-matchesproblemandprimaryfigure, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-whenjameshasmovedsixmeterstowardmug, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-satisfiesisolatedhorizontalcenterofmasslaw, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-answerchoice, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-answerchoice-distanceinmeters}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.MassQuantity}
+  A nonnegative physical mass, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.AxialPosition}
+  A signed physical coordinate on the horizontal axis in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.massInKilograms}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.positionInMeters}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-axialposition}
+  Metre readout of a signed horizontal position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.lengthInMeters}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-lengthquantity}
+  Metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[Person]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-person}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.Person}
+  The two people named in the problem and primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Person.
+\end{proof}
+\begin{definition}[Observation Time]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-observationtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.ObservationTime}
+  The two instants compared in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observation Time.
+\end{proof}
+\begin{definition}[Axis Marker]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-axismarker}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.AxisMarker}
+  Labels printed on the horizontal axis of the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Marker.
+\end{proof}
+\begin{definition}[Rope Mass Model]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropemassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.RopeMassModel}
+  The light-rope idealization used in the mechanics model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rope Mass Model.
+\end{proof}
+\begin{definition}[Rope Configuration]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropeconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.RopeConfiguration}
+  The rope configuration described and drawn in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rope Configuration.
+\end{proof}
+\begin{definition}[Rope Interaction]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropeinteraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.RopeInteraction}
+  The interaction described by “they pull on the ends of a light rope.”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rope Interaction.
+\end{proof}
+\begin{definition}[Pond Surface Model]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-pondsurfacemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.PondSurfaceModel}
+  The horizontal idealization of motion on the frozen pond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pond Surface Model.
+\end{proof}
+\begin{definition}[Initial Motion Model]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-initialmotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.InitialMotionModel}
+  The initial motion state implicit before James and Ramon begin pulling
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Initial Motion Model.
+\end{proof}
+\begin{definition}[Frozen Pond Rope Setup]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.FrozenPondRopeSetup}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massquantity, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-axialposition, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-lengthquantity, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-person, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-observationtime, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-axismarker, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropemassmodel, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropeconfiguration, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-ropeinteraction, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-pondsurfacemodel, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-initialmotionmodel}
+  All independent physical quantities and qualitative labels in the pictured two-person system. In particular, Ramon's later position is an independent field and is not assigned its requested value here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frozen Pond Rope Setup.
+\end{proof}
+\begin{definition}[two Person Center Of Mass In Meters]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-twopersoncenterofmassinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.twoPersonCenterOfMassInMeters}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massinkilograms, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-person, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-observationtime, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup}
+  The center-of-mass coordinate of James and Ramon at one observation time, using their kilogram and metre readouts. This is Mathlib's finite weighted center of mass specialized to the two named people
+\end{definition}
+\begin{proof}
+  This is the declared model definition of two Person Center Of Mass In Meters.
+\end{proof}
+\begin{definition}[distance Moved In Meters]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-distancemovedinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.distanceMovedInMeters}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-person, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup}
+  The ordinary nonnegative distance a named person travels, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance Moved In Meters.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massinkilograms, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-lengthinmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-twopersoncenterofmassinmeters}
+  Numerical and qualitative readouts supplied by the prose and primary image. The midpoint equation records that the mug is midway between the initial positions. The x\_cm marker is identified with the initial center of mass without assigning it an extra numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[When James Has Moved Six Meters Toward Mug]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-whenjameshasmovedsixmeterstowardmug}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.WhenJamesHasMovedSixMetersTowardMug}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup}
+  The observation specified in the question: James has moved six metres in the positive-axis direction from his pictured location toward P, without passing the mug. This contains no condition on Ramon's later position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of When James Has Moved Six Meters Toward Mug.
+\end{proof}
+\begin{definition}[Satisfies Isolated Horizontal Center Of Mass Law]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-satisfiesisolatedhorizontalcenterofmasslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.SatisfiesIsolatedHorizontalCenterOfMassLaw}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-twopersoncenterofmassinmeters}
+  For the light-rope system on the frictionless horizontal pond, all horizontal pulls are internal. Starting from rest gives zero initial total horizontal momentum, so the two-person center of mass is unchanged between the two observation times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isolated Horizontal Center Of Mass Law.
+\end{proof}
+\begin{theorem}[mass Weighted Displacements balance]
+  \label{thm:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massweighteddisplacements-balance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.massWeightedDisplacements_balance}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-massinkilograms, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-positioninmeters, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-frozenpondropesetup, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-matchesproblemandprimaryfigure, def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-satisfiesisolatedhorizontalcenterofmasslaw}
+  Center-of-mass conservation gives the mass-weighted balance of the two signed axial displacements. This intermediate relation is derived rather than included in the governing-law premise
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mass Weighted Displacements balance.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.AnswerChoice}
+  Labels of the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-answerchoice-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0817.AnswerChoice.distanceInMeters}
+  \uses{def:physics:phyx-mini-0817:phyxminiproblems-problemphyxmini0817-answerchoice}
+  Distance in metres printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

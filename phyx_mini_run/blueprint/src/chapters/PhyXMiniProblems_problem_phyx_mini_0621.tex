@@ -1,0 +1,292 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0621.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0621.source.json
+
+\chapter{Physics problem phyx\_mini\_0621}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0621}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The rocket 2 in figure is moving with respect to Earth.
+
+\#\# Question
+
+Calculate the speed of rocket 2.
+
+\#\# Answer choices
+
+- A: A: 0.66c
+
+- B: B: 0.77c
+
+- C: C: 0.88c
+
+- D: D: 0.99c
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts two rockets in space above Earth, demonstrating relative velocity. 
+
+- **Earth**: Positioned at the bottom left, labeled "Earth".
+- **Rocket 1**: Moving away from Earth, marked as "1". A dotted line indicates its path.
+- **Rocket 2**: Moving in the same direction, placed above rocket 1, labeled "2".
+  
+**Text Annotations**:
+- Near rocket 1: "v = 0.60c with respect to Earth" indicates its velocity relative to Earth.
+- Near rocket 2: "u' = 0.60c with respect to rocket 1", describing its velocity relative to rocket 1.
+
+The rockets have lines representing motion, indicating fast travel.
+
+\#\# Dataset metadata
+
+Relativity; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.88c
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/621.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0621.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0621:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0621.problem_phyx_mini_0621}
+\uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchessuppliedrocketfigure, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchescollinearrocketscenario, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchesfigurevelocityreadouts, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-hasphysicalinputspeeds, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-satisfiescollineareinsteinvelocityaddition, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-isuniquematchinganswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.SpeedQuantity}
+  A nonnegative physical speed with length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.speedReadout}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedquantity}
+  Read a physical speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedquantity, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedreadout}
+  Read a physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light In Meters Per Second]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-vacuumspeedoflightinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.vacuumSpeedOfLightInMetersPerSecond}
+  Physlib's exact vacuum speed of light, read in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light In Meters Per Second.
+\end{proof}
+\begin{definition}[Body Label]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.BodyLabel}
+  The three physical bodies named in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Body Label.
+\end{proof}
+\begin{definition}[Inertial Frame Label]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-inertialframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.InertialFrameLabel}
+  Rest frames carried by the three named bodies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inertial Frame Label.
+\end{proof}
+\begin{definition}[rest Frame]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.restFrame}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-inertialframelabel}
+  The rest frame canonically associated to a body label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rest Frame.
+\end{proof}
+\begin{definition}[Rocket Label]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.RocketLabel}
+  The two rockets whose orientation is visible in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rocket Label.
+\end{proof}
+\begin{definition}[rocket Body]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.rocketBody}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketlabel}
+  Associate each printed rocket number to its physical body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rocket Body.
+\end{proof}
+\begin{definition}[Axis Direction]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-axisdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.AxisDirection}
+  Positive means outward from Earth along the common motion axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Direction.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.FigureRegion}
+  Coarse regions used only to transcribe the qualitative bitmap layout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Printed Body Label]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-printedbodylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.PrintedBodyLabel}
+  Literal labels printed next to the bodies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Printed Body Label.
+\end{proof}
+\begin{definition}[Velocity Annotation]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-velocityannotation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.VelocityAnnotation}
+  The two velocity symbols printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Annotation.
+\end{proof}
+\begin{definition}[Rocket Velocity Figure]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketvelocityfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.RocketVelocityFigure}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketlabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-figureregion, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-printedbodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-velocityannotation}
+  Qualitative and textual information carried by the 298 × 280 primary raster. Regions are presentation data, not physical positions. Likewise, annotationCoefficientOfC is the dimensionless number printed next to an annotation, not a definition of any physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rocket Velocity Figure.
+\end{proof}
+\begin{definition}[Collinear Rocket Setup]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.CollinearRocketSetup}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedquantity, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-inertialframelabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-axisdirection, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketvelocityfigure}
+  The speed of each body relative to each named rest frame is independent data. In particular, the .rocket2/.earthRest entry is not defined from an answer choice or from the Einstein-addition expression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collinear Rocket Setup.
+\end{proof}
+\begin{definition}[speed Fraction Of Light]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.speedFractionOfLight}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedinmeterspersecond, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-vacuumspeedoflightinmeterspersecond, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-bodylabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-inertialframelabel, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup}
+  A physical relative speed expressed as a dimensionless fraction of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Fraction Of Light.
+\end{proof}
+\begin{definition}[Matches Supplied Rocket Figure]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchessuppliedrocketfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.MatchesSuppliedRocketFigure}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-rocketvelocityfigure}
+  Literal and qualitative facts read from the primary image 621.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Rocket Figure.
+\end{proof}
+\begin{definition}[Matches Collinear Rocket Scenario]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchescollinearrocketscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.MatchesCollinearRocketScenario}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup}
+  The two same-direction relations needed to compose the supplied speeds. The unknown direction of rocket 2 relative to Earth is deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Collinear Rocket Scenario.
+\end{proof}
+\begin{definition}[Matches Figure Velocity Readouts]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchesfigurevelocityreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.MatchesFigureVelocityReadouts}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight}
+  Connect the printed annotations to physical speeds. Their numerical values remain in MatchesSuppliedRocketFigure; no Earth-frame readout for rocket 2 is supplied here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Velocity Readouts.
+\end{proof}
+\begin{definition}[Has Physical Input Speeds]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-hasphysicalinputspeeds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.HasPhysicalInputSpeeds}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-vacuumspeedoflightinmeterspersecond, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight}
+  Physical-domain conditions only on the two supplied input speeds. No field constrains the requested speed of rocket 2 in Earth's frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Input Speeds.
+\end{proof}
+\begin{definition}[Satisfies Collinear Einstein Velocity Addition]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-satisfiescollineareinsteinvelocityaddition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.SatisfiesCollinearEinsteinVelocityAddition}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight}
+  For any three named bodies with successive positive, subluminal collinear speeds β₁ and β₂, special relativity gives (β₁ + β₂) / (1 + β₁ β₂). This is quantified as a governing law. It contains no 0.88, 15/17, or answer label and is not specialized to the current target triple
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Collinear Einstein Velocity Addition.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.AnswerChoice}
+  Labels of the four speed choices supplied with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Fraction Of C]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-displayedanswerfractionofc}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.displayedAnswerFractionOfC}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-answerchoice}
+  The dimensionless coefficient of c printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Fraction Of C.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.RoundsToNearestHundredth}
+  Generic half-open nearest-hundredth rounding. The existential integer ensures that the displayed value itself lies on the hundredth grid; this definition contains no distinguished answer value or label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Rocket Two Earth Speed Choice]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchesrockettwoearthspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.MatchesRocketTwoEarthSpeedChoice}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-restframe, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-speedfractionoflight, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-answerchoice, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-displayedanswerfractionofc, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-roundstonearesthundredth}
+  A choice matches the computed Earth-frame speed to two decimal places
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Rocket Two Earth Speed Choice.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer Choice]
+  \label{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-isuniquematchinganswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0621.IsUniqueMatchingAnswerChoice}
+  \uses{def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-collinearrocketsetup, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-answerchoice, def:physics:phyx-mini-0621:phyxminiproblems-problemphyxmini0621-matchesrockettwoearthspeedchoice}
+  The selected answer is the unique printed choice matching that speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

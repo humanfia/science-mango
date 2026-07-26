@@ -1,0 +1,217 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0644.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0644.source.json
+
+\chapter{Physics problem phyx\_mini\_0644}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0644}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The first three energy levels of the fictitious element \$X\$ are shown in figure.
+
+\#\# Question
+
+What is the ionization energy of element \$X\$?
+
+\#\# Answer choices
+
+- A: A: -6.5 eV
+
+- B: B: 6.5 eV
+
+- C: C: -3 eV
+
+- D: D: 3 eV
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an energy level diagram with three horizontal lines representing different energy states. 
+
+- At the top, there is a dashed red line labeled "0.00" indicating an energy level of 0.00 electron volts (eV).
+- Below that, three solid brown lines are labeled with energy levels and quantum numbers:
+
+  - The top brown line has the label \textbackslash{}( n = 3 \textbackslash{}) and an energy of \textbackslash{}(-2.00 \textbackslash{}, \textbackslash{}text\{eV\}\textbackslash{}).
+  - The middle brown line is labeled \textbackslash{}( n = 2 \textbackslash{}) with an energy of \textbackslash{}(-3.00 \textbackslash{}, \textbackslash{}text\{eV\}\textbackslash{}).
+  - The bottom brown line is labeled \textbackslash{}( n = 1 \textbackslash{}) with an energy of \textbackslash{}(-6.50 \textbackslash{}, \textbackslash{}text\{eV\}\textbackslash{}).
+
+- On the right side, there is a column titled \textbackslash{}( E \textbackslash{}, (\textbackslash{}text\{eV\}) \textbackslash{}) indicating energy values.
+
+This diagram represents energy levels in electron volts (eV), commonly used for depicting the energy state of electrons in an atom.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.5 eV
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/644.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0644.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0644:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0644.problem_phyx_mini_0644}
+\uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinelectronvolts, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matcheselementxscenario, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matchessuppliedenergylevelfigure, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-hasphysicalelementxparameters, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-satisfiesgroundstateionizationlaw, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matchesdisplayedionizationenergy, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-isuniquematchingionizationenergychoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.energyInJoules}
+  Coherent-SI readout of a physical energy, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Electron Volts]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.energyInElectronVolts}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinjoules}
+  Electron-volt readout of a physical energy. The denominator is Physlib's dimensionful calibrated constant for one electron volt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Electron Volts.
+\end{proof}
+\begin{definition}[Atomic Species]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.AtomicSpecies}
+  Atomic species represented by the supplied fictitious-element diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atomic Species.
+\end{proof}
+\begin{definition}[Atomic Energy Level]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.AtomicEnergyLevel}
+  The three bound levels and the dashed zero-energy continuum reference shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atomic Energy Level.
+\end{proof}
+\begin{definition}[Energy Level Line Style]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energylevellinestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.EnergyLevelLineStyle}
+  Line styles used to distinguish bound levels from the continuum threshold
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Level Line Style.
+\end{proof}
+\begin{definition}[Energy Level Line Color]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energylevellinecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.EnergyLevelLineColor}
+  Line colors visible in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Level Line Color.
+\end{proof}
+\begin{definition}[Atomic Energy Level Figure]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevelfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.AtomicEnergyLevelFigure}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevel, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energylevellinestyle, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energylevellinecolor}
+  Presentation-level data transcribed from the supplied energy-level diagram. Its real-valued fields are displayed coordinates and electron-volt labels, not replacements for the dimensionful physical energies in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atomic Energy Level Figure.
+\end{proof}
+\begin{definition}[Element XIonization Setup]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.ElementXIonizationSetup}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicspecies, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevel, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevelfigure}
+  Independent physical quantities for the atom. In particular, ionizationEnergy is an unconstrained dimensionful observable here; it is not defined from the requested answer or from an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Element XIonization Setup.
+\end{proof}
+\begin{definition}[Matches Element XScenario]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matcheselementxscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.MatchesElementXScenario}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup}
+  The prose scenario identifies element X, its ground level, and its threshold
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Element XScenario.
+\end{proof}
+\begin{definition}[Matches Supplied Energy Level Figure]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matchessuppliedenergylevelfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.MatchesSuppliedEnergyLevelFigure}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinelectronvolts, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-atomicenergylevel, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup}
+  Literal and numerical evidence read from the primary raster. The final four fields calibrate the physical levels against the printed eV values, but do not mention the required ionization energy or any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Energy Level Figure.
+\end{proof}
+\begin{definition}[Has Physical Element XParameters]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-hasphysicalelementxparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.HasPhysicalElementXParameters}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinjoules, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup}
+  Ordering and positivity conditions selecting the intended bound-state branch. They contain no numerical value for the ionization energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Element XParameters.
+\end{proof}
+\begin{definition}[Satisfies Ground State Ionization Law]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-satisfiesgroundstateionizationlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.SatisfiesGroundStateIonizationLaw}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinjoules, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup}
+  The ground-state ionization law: the required energy equals the difference between the continuum threshold and the occupied ground level. This is a general relation among independent physical quantities; it contains neither the specialized value 6.5 eV nor an answer-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ground State Ionization Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.AnswerChoice}
+  Labels of the four answer choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[energy Electron Volts]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice-energyelectronvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.AnswerChoice.energyElectronVolts}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice}
+  Ionization-energy value printed beside each answer, in electron volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Electron Volts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice}
+  Dataset metadata recording answer B; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Ionization Energy]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matchesdisplayedionizationenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.MatchesDisplayedIonizationEnergy}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-energyinelectronvolts, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice}
+  The physical ionization energy agrees exactly with a displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Ionization Energy.
+\end{proof}
+\begin{definition}[Is Unique Matching Ionization Energy Choice]
+  \label{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-isuniquematchingionizationenergychoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0644.IsUniqueMatchingIonizationEnergyChoice}
+  \uses{def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-elementxionizationsetup, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-answerchoice, def:physics:phyx-mini-0644:phyxminiproblems-problemphyxmini0644-matchesdisplayedionizationenergy}
+  Exactly one displayed answer agrees with the physical ionization energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Ionization Energy Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

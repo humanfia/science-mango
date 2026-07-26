@@ -1,0 +1,286 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0365.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0365.source.json
+
+\chapter{Physics problem phyx\_mini\_0365}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0365}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The mercury manometer shown in the figure is attached to a gas cell. The mercury height h is 120 mm when the cell is placed in an ice-water mixture. The mercury height drops to 30 mm when the device is carried into an industrial freezer.
+
+\#\# Question
+
+What is the freezer temperature?
+
+\#\# Answer choices
+
+- A: A: -28\textasciicircum{}\textbackslash{}circ C
+
+- B: B: -56\textasciicircum{}\textbackslash{}circ C
+
+- C: C: -36\textasciicircum{}\textbackslash{}circ C
+
+- D: D: -84\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram of a gas cell connected to a U-shaped tube, likely representing a manometer setup. The gas cell is a rectangular structure labeled "Gas cell" filled with gas. It connects to a U-shaped tube partially filled with a liquid, creating a visible height difference between the two sides of the tube. This difference is indicated by an arrow and labeled "h," representing the height difference of the liquid columns. The diagram illustrates how the pressure inside the gas cell can be measured using the height difference in the liquid columns of the manometer.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: -28\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/365.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0365.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0365:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0365.problem_phyx_mini_0365}
+\uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-freezertemperatureincelsius, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedmanometerfigure, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedheightreadouts, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-usesstandardicepointandatmosphericpressure, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-hasphysicalgascellmanometerparameters, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-satisfiessealedconstantvolumegasandmanometerlaws, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-isuniquematchinganswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.VolumeQuantity}
+  A nonnegative physical volume with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.lengthReadout}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthquantity}
+  Read a physical length as a real scalar in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Millimeters]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.lengthInMillimeters}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthquantity, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthreadout}
+  Millimetre readout for the height label h in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Millimeters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.pressureInPascals}
+  Read a dimensionful pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Millimeters Of Mercury]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinmillimetersofmercury}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.pressureInMillimetersOfMercury}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinpascals}
+  Read pressure in millimetres of mercury by comparison with Physlib's dimensionful one-millimetre-of-mercury pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Millimeters Of Mercury.
+\end{proof}
+\begin{definition}[Thermal Environment]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-thermalenvironment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.ThermalEnvironment}
+  The two thermal environments in which the same apparatus is observed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Environment.
+\end{proof}
+\begin{definition}[Manometer Arm]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-manometerarm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.ManometerArm}
+  The two arms of the U-tube, named by their boundary conditions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Manometer Arm.
+\end{proof}
+\begin{definition}[Manometer Liquid]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-manometerliquid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.ManometerLiquid}
+  The liquid occupying the lower part of the manometer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Manometer Liquid.
+\end{proof}
+\begin{definition}[Supplied Manometer Figure]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-suppliedmanometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.SuppliedManometerFigure}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-manometerarm, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-manometerliquid}
+  Qualitative and labelled geometry visible in the supplied figure. In particular, gasSideSurfaceLowerThanOpenSide fixes the sign of the gauge pressure; it does not prescribe its magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Manometer Figure.
+\end{proof}
+\begin{definition}[Gas Cell Manometer Setup]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.GasCellManometerSetup}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthquantity, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-volumequantity, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-thermalenvironment, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-suppliedmanometerfigure}
+  The physical apparatus and its observables in the two environments. The pressure and temperature fields are not defined from the desired answer. The governing manometer and ideal-gas relations are stated separately below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Cell Manometer Setup.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.temperatureInKelvin}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-thermalenvironment, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup}
+  Convert the stored absolute-temperature magnitude to a kelvin readout. The explicit storage unit prevents treating an arbitrary numerical temperature scale as kelvin without a calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[mercury Height In Millimeters]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-mercuryheightinmillimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.mercuryHeightInMillimeters}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-lengthinmillimeters, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-thermalenvironment, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup}
+  Numerical readout of the figure's mercury height difference in mm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mercury Height In Millimeters.
+\end{proof}
+\begin{definition}[freezer Temperature In Celsius]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-freezertemperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.freezerTemperatureInCelsius}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin}
+  The requested freezer-temperature readout in degrees Celsius. The offset 273.15 is written exactly as 5463 / 20
+\end{definition}
+\begin{proof}
+  This is the declared model definition of freezer Temperature In Celsius.
+\end{proof}
+\begin{definition}[Matches Supplied Manometer Figure]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedmanometerfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.MatchesSuppliedManometerFigure}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup}
+  Primary-figure evidence: a gas cell joins one arm of a mercury U-tube, the other arm is open, and the labelled positive height h has the orientation shown in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Manometer Figure.
+\end{proof}
+\begin{definition}[Matches Supplied Height Readouts]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedheightreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.MatchesSuppliedHeightReadouts}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-mercuryheightinmillimeters}
+  The two scalar height readouts stated in the problem. These are observations, not pressure or temperature conclusions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Height Readouts.
+\end{proof}
+\begin{definition}[Uses Standard Ice Point And Atmospheric Pressure]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-usesstandardicepointandatmosphericpressure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.UsesStandardIcePointAndAtmosphericPressure}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinmillimetersofmercury, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin}
+  Standard reference conditions used in the multiple-choice calculation: normal atmospheric pressure is 760 mmHg, and an ice-water mixture is at 273.15 K. No freezer-temperature value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Ice Point And Atmospheric Pressure.
+\end{proof}
+\begin{definition}[Has Physical Gas Cell Manometer Parameters]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-hasphysicalgascellmanometerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.HasPhysicalGasCellManometerParameters}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-volumeincubicmeters, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinmillimetersofmercury, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-mercuryheightinmillimeters}
+  Positivity and nondegeneracy conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Gas Cell Manometer Parameters.
+\end{proof}
+\begin{definition}[Satisfies Sealed Constant Volume Gas And Manometer Laws]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-satisfiessealedconstantvolumegasandmanometerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.SatisfiesSealedConstantVolumeGasAndManometerLaws}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinmillimetersofmercury, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-mercuryheightinmillimeters}
+  Governing laws for the apparatus. The same sealed gas cell retains a constant volume in both environments. Since the gas-side mercury surface is lower, the absolute gas pressure is atmospheric pressure plus the positive h-column head when both are read in compatible mercury units. For the fixed amount of ideal gas at constant volume, P / T is constant; the division-free cross-multiplied relation is used. All laws are quantified over environments and contain no solved freezer temperature or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Sealed Constant Volume Gas And Manometer Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.AnswerChoice}
+  The four temperature choices printed in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Freezer Temperature In Celsius]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-displayedfreezertemperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.displayedFreezerTemperatureInCelsius}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-answerchoice}
+  Celsius value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Freezer Temperature In Celsius.
+\end{proof}
+\begin{definition}[Matches Nearest Degree Answer]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchesnearestdegreeanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.MatchesNearestDegreeAnswer}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-freezertemperatureincelsius, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-answerchoice, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-displayedfreezertemperatureincelsius}
+  A displayed integral Celsius answer matches the calculated temperature when it is the nearest degree (strictly within half a degree)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Nearest Degree Answer.
+\end{proof}
+\begin{definition}[Is Unique Matching Answer]
+  \label{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-isuniquematchinganswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.IsUniqueMatchingAnswer}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-answerchoice, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchesnearestdegreeanswer}
+  A matching answer is unique among the four displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Answer.
+\end{proof}
+\begin{lemma}[gas Pressure Readouts eq]
+  \label{lem:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gaspressurereadouts-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.gasPressureReadouts_eq}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-pressureinmillimetersofmercury, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedheightreadouts, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-usesstandardicepointandatmosphericpressure, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-satisfiessealedconstantvolumegasandmanometerlaws}
+  The two manometer observations and the normal-atmosphere calibration give absolute gas-pressure readouts of 880 mmHg and 790 mmHg
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of gas Pressure Readouts eq.
+\end{proof}
+\begin{lemma}[freezer Temperature In Kelvin eq]
+  \label{lem:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-freezertemperatureinkelvin-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0365.freezerTemperatureInKelvin_eq}
+  \uses{def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-gascellmanometersetup, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-temperatureinkelvin, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-matchessuppliedheightreadouts, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-usesstandardicepointandatmosphericpressure, def:physics:phyx-mini-0365:phyxminiproblems-problemphyxmini0365-satisfiessealedconstantvolumegasandmanometerlaws}
+  The unrounded ideal-gas result is 273.15 K * 790 / 880 = 431577 / 1760 K
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of freezer Temperature In Kelvin eq.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

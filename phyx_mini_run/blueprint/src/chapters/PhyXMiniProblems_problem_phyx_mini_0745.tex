@@ -1,0 +1,416 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0745.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0745.source.json
+
+\chapter{Physics problem phyx\_mini\_0745}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0745}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a ball is thrown up onto a roof, landing \$4.00\textbackslash{} s\$ later at height \$h = 20.0\textbackslash{} m\$ above the release level. The ball's path just before landing is angled at \$\textbackslash{}theta = 60.0\textasciicircum{}\textbackslash{}circ\$ with the roof.
+
+\#\# Question
+
+What is the magnitude of the ball's initial velocity?
+
+\#\# Answer choices
+
+- A: A: 20.0 m/s
+
+- B: B: 23.0 m/s
+
+- C: C: 26.0 m/s
+
+- D: D: 29.0 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a projectile motion scenario involving a building.
+
+1. **Objects and Scenes:**
+   - A building is shown on the right side of the image. It features a brick pattern with several windows, arranged in two rows.
+   - An arrow indicates a projectile's curved path over the building, suggesting a parabolic trajectory.
+
+2. **Lines and Arrows:**
+   - A dashed line extends horizontally across the base, representing the ground level or reference plane.
+   - The projectile path is shown with a dashed orange curve, with arrows indicating the direction of motion.
+
+3. **Labels and Text:**
+   - The angle of projection from the building is marked with the Greek letter "θ".
+   - Two labeled dimensions are present:
+     - "h" represents the vertical distance between the rooftop and the projectile trajectory.
+     - "d" denotes the horizontal distance from the launch point on the ground to the base of the building.
+
+The relationships between these elements suggest a physics problem involving the calculations of trajectory, angle, and distances related to projectile motion.
+
+\#\# Dataset metadata
+
+Kinematics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 26.0 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/745.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0745.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0745:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0745.problem_phyx_mini_0745}
+\uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-speedinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesproblemdescription, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesprimaryfigure, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-usesstandardnearearthgravity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-hasphysicalprojectileparameters, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-satisfiesuniformgravityprojectilelaws, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-computedinitialspeedinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesdisplayedinitialspeed, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-isuniqueclosestinitialspeedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.velocityDimension}
+  The physical dimension of velocity, L T\textasciicircum{}-1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.accelerationDimension}
+  The physical dimension of acceleration, L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.LengthQuantity}
+  A nonnegative physical length, used for the labels h and d
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.TimeQuantity}
+  A nonnegative physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.PlanarPositionQuantity}
+  A signed planar position vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Planar Velocity Quantity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.PlanarVelocityQuantity}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-velocitydimension}
+  A signed planar velocity vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity Quantity.
+\end{proof}
+\begin{definition}[Planar Acceleration Quantity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planaraccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.PlanarAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-accelerationdimension}
+  A signed planar acceleration vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Acceleration Quantity.
+\end{proof}
+\begin{definition}[x Axis]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-xaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.xAxis}
+  The coordinate index pointing horizontally to the right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Axis.
+\end{proof}
+\begin{definition}[y Axis]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-yaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.yAxis}
+  The coordinate index pointing vertically upward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Axis.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.nonnegativeReadout}
+  Read a nonnegative physical scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[vector Readout]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-vectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.vectorReadout}
+  Read a dimensionful planar vector in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vector Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.lengthInMeters}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-nonnegativereadout}
+  Metre readout of a nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.timeInSeconds}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timequantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-nonnegativereadout}
+  Second readout of a physical elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.speedInMetersPerSecond}
+  Metres-per-second readout of a physical scalar speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.positionInMeters}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarpositionquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-vectorreadout}
+  Cartesian position readout in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarvelocityquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-vectorreadout}
+  Cartesian velocity readout in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planaraccelerationquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-vectorreadout}
+  Cartesian acceleration readout in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.degrees}
+  Convert a degree readout to an angle modulo 2 * pi
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Projectile Model]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-projectilemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.ProjectileModel}
+  The idealized projectile model intended by the kinematics problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Projectile Model.
+\end{proof}
+\begin{definition}[Projectile Kind]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-projectilekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.ProjectileKind}
+  The projectile named in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Projectile Kind.
+\end{proof}
+\begin{definition}[Landing Surface]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-landingsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.LandingSurface}
+  The surface on which the ball lands
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Landing Surface.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.FigurePoint}
+  Geometrically significant points in image 745.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.FigureLabel}
+  Literal symbolic labels shown in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.FigureElement}
+  Visible components retained from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Arrow Direction]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-arrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.ArrowDirection}
+  Qualitative directions of the two trajectory segments shown by arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arrow Direction.
+\end{proof}
+\begin{definition}[Roof Projectile Figure]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-roofprojectilefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.RoofProjectileFigure}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figurepoint, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figurelabel, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-figureelement, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-arrowdirection}
+  Schematic coordinates and incidences transcribed from the raster image. These coordinates describe the drawing and are not calibrated metre readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Roof Projectile Figure.
+\end{proof}
+\begin{definition}[Roof Landing Projectile Setup]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.RoofLandingProjectileSetup}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timequantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarpositionquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planarvelocityquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-planaraccelerationquantity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-projectilemodel, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-projectilekind, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-landingsurface, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-roofprojectilefigure}
+  Independent physical quantities of the launch-and-landing experiment. The initial speed is a genuine dimensionful observable; it is not defined from an answer choice or from the solved numerical expression below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Roof Landing Projectile Setup.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-xaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-yaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthinmeters, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timeinseconds, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-positioninmeters, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-degrees, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  The numerical data and physical incidences stated in the prose. The final two equations identify h and d as the vertical and horizontal displacements from release to the roof. No clause constrains the unknown initial speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  Primary-image evidence: launch and building base share the dashed reference level, the landing point and roof share a horizontal level, the building base is directly under the landing point, and the labelled spans are h and d
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Near Earth Gravity]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-usesstandardnearearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.UsesStandardNearEarthGravity}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-xaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-yaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  The standard near-Earth gravitational acceleration used by the answer key
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Near Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Projectile Parameters]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-hasphysicalprojectileparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.HasPhysicalProjectileParameters}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-xaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-yaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-lengthinmeters, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-timeinseconds, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-velocityinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  Positivity and direction conditions select the physical branch drawn in the figure. They contain no numerical conclusion about the initial speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Projectile Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Gravity Projectile Laws]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-satisfiesuniformgravityprojectilelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.SatisfiesUniformGravityProjectileLaws}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-xaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-yaxis, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-nonnegativereadout, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-vectorreadout, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup}
+  The two endpoint kinematic equations hold in every coherent unit system. The third law identifies scalar speed with the Euclidean norm of velocity. The last law says that, for the selected down-and-right branch, the magnitude of the vertical landing component is tan(theta) times its horizontal component. None of these general laws contains 26, a displayed choice, or the solved initial-speed formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Gravity Projectile Laws.
+\end{proof}
+\begin{definition}[computed Initial Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-computedinitialspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.computedInitialSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-degrees}
+  The exact unrounded SI speed determined by h = 20, t = 4, g = 9.8, and the 60 degree landing direction. Its local components are named to expose the calculation rather than to define the physical observable
+\end{definition}
+\begin{proof}
+  This is the declared model definition of computed Initial Speed In Meters Per Second.
+\end{proof}
+\begin{lemma}[initial Speed eq computed Expression]
+  \label{lem:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-initialspeed-eq-computedexpression}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.initialSpeed_eq_computedExpression}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-speedinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesproblemdescription, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-usesstandardnearearthgravity, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-hasphysicalprojectileparameters, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-satisfiesuniformgravityprojectilelaws, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-computedinitialspeedinmeterspersecond}
+  The constant-gravity and landing-angle laws determine the exact speed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Speed eq computed Expression.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.AnswerChoice}
+  Labels of the four initial-speed choices printed by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.AnswerChoice.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-speedinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice}
+  Metres-per-second value printed beside an answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice}
+  The answer label recorded by the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Error In Meters Per Second]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoiceerrorinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.answerChoiceErrorInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-speedinmeterspersecond, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice}
+  Error between the physical initial speed and a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Error In Meters Per Second.
+\end{proof}
+\begin{definition}[Matches Displayed Initial Speed]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-matchesdisplayedinitialspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.MatchesDisplayedInitialSpeed}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoiceerrorinmeterspersecond}
+  Agreement with a speed displayed to the nearest tenth of a metre per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Initial Speed.
+\end{proof}
+\begin{definition}[Is Unique Closest Initial Speed Choice]
+  \label{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-isuniqueclosestinitialspeedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0745.IsUniqueClosestInitialSpeedChoice}
+  \uses{def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-rooflandingprojectilesetup, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoice, def:physics:phyx-mini-0745:phyxminiproblems-problemphyxmini0745-answerchoiceerrorinmeterspersecond}
+  A displayed choice is strictly closer than every other printed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Initial Speed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

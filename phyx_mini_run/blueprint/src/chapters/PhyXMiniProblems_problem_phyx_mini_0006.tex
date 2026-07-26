@@ -1,0 +1,251 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0006.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0006.source.json
+
+\chapter{Physics problem phyx\_mini\_0006}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0006}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A laser beam is incident on a \textbackslash{}( 45\textasciicircum{}\textbackslash{}circ-45\textasciicircum{}\textbackslash{}circ-90\textasciicircum{}\textbackslash{}circ \textbackslash{}) prism perpendicular to one of its faces as shown in figure. The transmitted beam that exits the hypotenuse of the prism makes an angle of \textbackslash{}( \textbackslash{}theta = 15.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) with the direction of the incident beam.
+
+\#\# Question
+
+Find the index of refraction of the prism.
+
+\#\# Answer choices
+
+- A: A: 1.09
+
+- B: B: 1.38
+
+- C: C: 1.22
+
+- D: D: 1.45
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a right-angled triangle with a 45-degree angle marked inside it. The triangle's base is horizontal, and a thin blue line with an arrow represents a ray entering from the left horizontally. 
+
+This ray hits the hypotenuse of the triangle and refracts, bending downwards. The refracted ray is indicated by another blue arrow, and the angle of refraction is labeled as θ (theta) with a dashed line showing the angle between the refracted ray and the normal. The right-angle is marked with a square symbol at the bottom-left corner of the triangle.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.22
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/6.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0006.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0006:target}
+\lean{PhyXMiniProblems.ProblemPhyxMini0006.prismRefractiveIndexIsAnswerC}
+\uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-matchesprismfigure, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-hasphysicalopticalparameters, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-obeyssnellslaw, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-matchesprismraygeometry, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-roundstonearesthundredth, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-isnearestanswerchoice}
+For the pictured right-isosceles prism, assume normal entry from air, a
+$45^\circ$ incidence angle at the hypotenuse, a $15^\circ$ downward deviation
+from the original ray direction, positive refractive indices, and Snell's law
+at each crossed interface. Then the prism index is $\sqrt{3/2}$ and hence
+rounds to $1.22$, answer C. The model must distinguish media, interfaces,
+rays, and physical angles from the dimensionless scalar index readout, and it
+must inspect Physlib before introducing a local optics-law interface.
+\end{theorem}
+\begin{proof}
+Normal entry leaves the internal ray horizontal. The hypotenuse normal makes
+$45^\circ$ with that direction, while the emergent ray is $15^\circ$ below it,
+so the exit refraction angle is $60^\circ$. Snell's law at the exit gives
+$n\sin 45^\circ=\sin 60^\circ$, whence
+$n=\sin 60^\circ/\sin 45^\circ=\sqrt{3/2}$. This value is approximately
+$1.2247$, so nearest-hundredth reporting selects $1.22$ uniquely.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[angle From Degrees]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-anglefromdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.angleFromDegrees}
+  Convert a degree readout to Mathlib's physical angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle From Degrees.
+\end{proof}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.DiagramPlane}
+  The Cartesian plane in which the cross-section of the prism is drawn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.RaySegment}
+  The three directed portions of the laser path distinguished in the primary image and its physical interpretation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[Prism Face]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismface}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.PrismFace}
+  The three faces of the triangular prism cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Face.
+\end{proof}
+\begin{definition}[Refracting Interface]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-refractinginterface}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.RefractingInterface}
+  The interfaces at which the laser passes between homogeneous media
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refracting Interface.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.OpticalMedium}
+  The two homogeneous optical media traversed by the laser
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Figure Angle Label]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-figureanglelabel}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.FigureAngleLabel}
+  The two numerical angle labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Angle Label.
+\end{proof}
+\begin{definition}[incident Medium]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-incidentmedium}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.incidentMedium}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-refractinginterface, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-opticalmedium}
+  Incident medium along the shown propagation direction at each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Medium.
+\end{proof}
+\begin{definition}[transmitted Medium]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-transmittedmedium}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.transmittedMedium}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-refractinginterface, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-opticalmedium}
+  Transmitted medium along the shown propagation direction at each interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of transmitted Medium.
+\end{proof}
+\begin{definition}[Prism Refraction Diagram]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.PrismRefractionDiagram}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-diagramplane, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-raysegment, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismface, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-refractinginterface, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-opticalmedium, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-figureanglelabel}
+  Physical quantities and labelled geometry carried by the prism diagram. Incidence and refraction angles are measured from the normal directed toward the transmitted medium. exitDeviationAngle is instead the angle between the transmitted ray and the original incident-ray direction, as indicated by the horizontal dashed reference line in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Prism Refraction Diagram.
+\end{proof}
+\begin{definition}[Matches Prism Figure]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-matchesprismfigure}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.MatchesPrismFigure}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-anglefromdegrees, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram}
+  Textual and primary-image readouts. These premises record the right-isosceles prism, normal entry, the 45° and θ = 15° labels, and the ambient-air index. They do not assign any value to the prism's refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Prism Figure.
+\end{proof}
+\begin{definition}[Is Physical Ray Angle]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-isphysicalrayangle}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.IsPhysicalRayAngle}
+  An incidence or refraction angle lies on the physical branch used in the drawing, including normal incidence and excluding grazing incidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Ray Angle.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-isphysicalrayangle}
+  Positivity and acute-branch assumptions for the elementary optical model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Snells Law At]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-snellslawat}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.SnellsLawAt}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-refractinginterface, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-incidentmedium, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-transmittedmedium, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram}
+  Snell's law n₁ sin θ₁ = n₂ sin θ₂ at one labelled interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Snells Law At.
+\end{proof}
+\begin{definition}[Obeys Snells Law]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-obeyssnellslaw}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.ObeysSnellsLaw}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-snellslawat}
+  The laser obeys Snell's law when entering and leaving the prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Snells Law.
+\end{proof}
+\begin{definition}[Matches Prism Ray Geometry]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-matchesprismraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.MatchesPrismRayGeometry}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-anglefromdegrees, def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-prismrefractiondiagram}
+  Relations supplied by normal entry and the displayed 45-45-90 geometry. At the hypotenuse the normal is 45° above the incident direction, while the emergent ray is 15° below it, so the exit refraction angle is the sum of the exit incidence and deviation angles. No relation here fixes a refractive index or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Prism Ray Geometry.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[refractive Index Readout]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice-refractiveindexreadout}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.AnswerChoice.refractiveIndexReadout}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice}
+  Dimensionless refractive-index readout printed for each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of refractive Index Readout.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice}
+  Dataset metadata: the recorded answer label is C. This definition is not used as a premise of the target theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.RoundsToNearestHundredth}
+  A physical index rounds to the displayed value to the nearest hundredth. The strict half-hundredth bound excludes ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Is Nearest Answer Choice]
+  \label{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-isnearestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyxMini0006.IsNearestAnswerChoice}
+  \uses{def:physics:phyx-mini-0006:phyxminiproblems-problemphyxmini0006-answerchoice}
+  A displayed choice is strictly nearer to the physical refractive index than every other displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Nearest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

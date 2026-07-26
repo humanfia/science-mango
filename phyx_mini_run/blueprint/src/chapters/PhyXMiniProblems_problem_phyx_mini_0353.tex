@@ -1,0 +1,338 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0353.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0353.source.json
+
+\chapter{Physics problem phyx\_mini\_0353}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0353}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The \$pV\$-diagram in figure shows the cycle for a refrigerator operating on 0.850 mol of \$H\_2\$. Assume that the gas can be treated as ideal. Process \$ab\$ is isothermal.
+
+\#\# Question
+
+Find the coefficient of performance of this refrigerator.
+
+\#\# Answer choices
+
+- A: A: 5.12
+
+- B: B: 6.23
+
+- C: C: 2.21
+
+- D: D: 5.05
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram depicting a thermodynamic process. Here’s a detailed description:
+
+- **Axes and Labels**: 
+  - The y-axis represents pressure (p) in atmospheres (atm).
+  - The x-axis represents volume (V) in cubic meters (m³).
+  - The axes intersect at the origin labeled as \textbackslash{}( O \textbackslash{}).
+
+- **Points and Lines**:
+  - Three points are marked as \textbackslash{}( a \textbackslash{}), \textbackslash{}( b \textbackslash{}), and \textbackslash{}( c \textbackslash{}).
+  - Point \textbackslash{}( a \textbackslash{}) is at coordinates (0.0300 m³, 0.700 atm).
+  - Point \textbackslash{}( b \textbackslash{}) is at coordinates (0.100 m³, lower than 0.700 atm).
+  - Point \textbackslash{}( c \textbackslash{}) is directly above point \textbackslash{}( b \textbackslash{}) at the same volume (0.100 m³), but with a pressure of 0.700 atm.
+
+- **Process Path**:
+  - The process path is illustrated by arrows, indicating the direction of the process.
+  - The path goes from point \textbackslash{}( a \textbackslash{}) to point \textbackslash{}( b \textbackslash{}) via a curved line, suggesting an expansion process.
+  - From point \textbackslash{}( b \textbackslash{}) to point \textbackslash{}( c \textbackslash{}), a vertical line indicates an isochoric (constant volume) process.
+  - The path from point \textbackslash{}( c \textbackslash{}) to point \textbackslash{}( a \textbackslash{}) is a horizontal line, suggesting an isobaric (constant pressure) compression.
+
+- **Text**:
+  - The label \textbackslash{}( p \textbackslash{}) (atm) for pressure is on the y-axis.
+  - The label \textbackslash{}( V \textbackslash{}) (m³) for volume is on the x-axis.
+  - The point \textbackslash{}( O \textbackslash{}) is indicated at the origin.
+
+The diagram depicts a closed thermodynamic cycle with paths involving different types of processes.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 6.23
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/353.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0353.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0353:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0353.refrigerator_coefficient_of_performance}
+\uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-matchesproblemscenario, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-matchesprimaryfigure, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hasphysicalcycleparameters, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-satisfiesidealdiatomicrefrigeratorlaws, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-exactcoefficientofperformance, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answercoefficientofperformance, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-roundstodisplayedhundredth, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-isuniqueclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.GasVolume}
+  A signed physical volume, with dimension length³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Molar Energy Per Kelvin]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.MolarEnergyPerKelvin}
+  Energy per mole per kelvin. The amount of substance is recorded numerically in moles, so only the energy and temperature dimensions occur in this type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Energy Per Kelvin.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinpascals}
+  Read a physical pressure in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasvolume}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.energyInJoules}
+  Read a physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[molar Energy Per Kelvin In SI]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvininsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.molarEnergyPerKelvinInSI}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvin}
+  Read a molar energy-per-kelvin quantity in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Energy Per Kelvin In SI.
+\end{proof}
+\begin{definition}[Cycle Point]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cyclepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.CyclePoint}
+  The three labeled thermodynamic states in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Point.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.CycleLeg}
+  The three directed legs, named in their arrow direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[start Point]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-startpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.startPoint}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cyclepoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cycleleg}
+  Initial state of each directed process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Point.
+\end{proof}
+\begin{definition}[end Point]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.endPoint}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cyclepoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cycleleg}
+  Final state of each directed process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of end Point.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.ProcessKind}
+  Process classifications used by the problem and inferred from the axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.GasSpecies}
+  The working substance specified by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.GasModel}
+  Whether the working substance is modeled as an ideal gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas State]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.GasState}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasvolume}
+  A thermodynamic state with dimensionful pressure and volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas State.
+\end{proof}
+\begin{definition}[Pressure Axis Unit]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.PressureAxisUnit}
+  Unit printed on the vertical axis of the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Axis Unit.
+\end{proof}
+\begin{definition}[Volume Axis Unit]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.VolumeAxisUnit}
+  Unit printed on the horizontal axis of the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Axis Unit.
+\end{proof}
+\begin{definition}[Origin Label]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-originlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.OriginLabel}
+  Label printed where the two diagram axes meet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Origin Label.
+\end{proof}
+\begin{definition}[PVDiagram Figure]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pvdiagramfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.PVDiagramFigure}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cyclepoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cycleleg, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureaxisunit, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeaxisunit, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-originlabel}
+  Qualitative evidence transcribed from the actual raster image. A shown directed leg uses the direction encoded in CycleLeg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of PVDiagram Figure.
+\end{proof}
+\begin{definition}[Hydrogen Refrigerator Setup]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.HydrogenRefrigeratorSetup}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvin, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cyclepoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-cycleleg, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-processkind, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasspecies, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasmodel, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-gasstate, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pvdiagramfigure}
+  Independent physical quantities for the refrigerator cycle. Heat is positive when transferred into the gas, and work is positive when done by the gas. coldSpaceHeatAbsorbed and cycleWorkInput are positive energy magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hydrogen Refrigerator Setup.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup}
+  Scenario facts stated in the prose, excluding the requested coefficient
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinatmospheres, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeincubicmeters, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup}
+  Numerical and qualitative information read from the primary image. The pressure at b is deliberately only constrained to lie below the 0.700 atm line: its numerical value follows from the isothermal law rather than being a figure datum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Cycle Parameters]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hasphysicalcycleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.HasPhysicalCycleParameters}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinpascals, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeincubicmeters, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-energyinjoules, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvininsi, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup}
+  Positivity assumptions selecting the physical refrigerator branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Cycle Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Diatomic Refrigerator Laws]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-satisfiesidealdiatomicrefrigeratorlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.SatisfiesIdealDiatomicRefrigeratorLaws}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-pressureinpascals, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-volumeincubicmeters, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-energyinjoules, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-molarenergyperkelvininsi, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-startpoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-endpoint, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup}
+  Governing thermodynamic laws for this cycle, expressed in coherent SI readouts: pV = nRT at each state; C\_V = (5/2)R for ideal diatomic hydrogen; ΔU = Q - W and ΔU = n C\_V ΔT on each leg; the standard isothermal, isochoric, and isobaric work relations; cold-side heat and work-input balances for the complete refrigerator cycle; the defining relation COP · W\_in = Q\_cold. None of these fields gives a numerical value for the coefficient of performance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Diatomic Refrigerator Laws.
+\end{proof}
+\begin{definition}[exact Coefficient Of Performance]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-exactcoefficientofperformance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.exactCoefficientOfPerformance}
+  The exact dimensionless COP obtained after the common pressure scale and the gas amount cancel. The first numerator term is the isothermal heat on ab; the second is the constant-volume heat on bc; the denominator is the work input over the cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of exact Coefficient Of Performance.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Coefficient Of Performance]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answercoefficientofperformance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.answerCoefficientOfPerformance}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answerchoice}
+  Dimensionless coefficient printed by each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Coefficient Of Performance.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answerchoice}
+  Dataset metadata records answer B; this definition is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Hundredth]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-roundstodisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.RoundsToDisplayedHundredth}
+  A real value rounds to the displayed coefficient at two decimal places
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Hundredth.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-isuniqueclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0353.IsUniqueClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-hydrogenrefrigeratorsetup, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answerchoice, def:physics:phyx-mini-0353:phyxminiproblems-problemphyxmini0353-answercoefficientofperformance}
+  The selected answer is strictly closer than every other displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

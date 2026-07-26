@@ -1,0 +1,283 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0181.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0181.source.json
+
+\chapter{Physics problem phyx\_mini\_0181}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0181}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A steel wire supports a horizontal bar and an \$8.0 \textbackslash{}, \textbackslash{}text\{kg\}\$ mass, forming a \$45\textasciicircum{}\textbackslash{}circ\$ angle.
+
+\#\# Question
+
+What is the fundamental frequency of the steel wire in figure?
+
+\#\# Answer choices
+
+- A: A: 72.3 Hz
+
+- B: B: 17.4 Hz
+
+- C: C: 6.5 Hz
+
+- D: D: 13 Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physical setup involving a vertical wall, a horizontal bar, a wire, and a hanging mass. Here are the details:
+
+- A vertical wall is on the left side of the image.
+- A 4.0 kg horizontal bar is attached to the wall. The bar is 2.0 meters long.
+- At the end of the bar, a 75 g steel wire extends upwards at a 45° angle to the horizontal.
+- An 8.0 kg mass is hanging from the end of the bar, directly below the point where the wire connects.
+- The text labels indicate the mass of the bar, the mass of the wire, the angle of the wire, the length of the bar, and the mass of the hanging object.
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 13 Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/181.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0181.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0181:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0181.fundamentalFrequency_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-matchesprimaryfigure, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-usesstandardgravity, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-hasuniformbarmassdistribution, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfieswiregeometry, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfiesstatictorquebalance, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfieswirelineardensitylaw, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfiesfixedendfundamentalfrequencylaw, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-haspositivephysicalparameters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-recordedanswerchoice, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.MassQuantity}
+  A physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.LengthQuantity}
+  A physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.AccelerationMagnitude}
+  The magnitude of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude.
+\end{proof}
+\begin{definition}[Force Magnitude]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.ForceMagnitude}
+  The magnitude of a physical force, used below for the wire tension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude.
+\end{proof}
+\begin{definition}[Linear Mass Density]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.LinearMassDensity}
+  A physical mass per unit length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Mass Density.
+\end{proof}
+\begin{definition}[Frequency]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.Frequency}
+  A physical frequency, carrying the inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.massInKilograms}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.lengthInMeters}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationmagnitude}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.forceInNewtons}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forcemagnitude}
+  Newton readout of a force magnitude in coherent SI base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[linear Mass Density In Kilograms Per Meter]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensityinkilogramspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.linearMassDensityInKilogramsPerMeter}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensity}
+  Kilograms-per-metre readout of a linear mass density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Mass Density In Kilograms Per Meter.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequency}
+  Hertz readout of a physical frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[Steel Wire Bar Setup]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.SteelWireBarSetup}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massquantity, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthquantity, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationmagnitude, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forcemagnitude, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensity, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequency}
+  The dimensionful quantities in the wall--bar--wire setup. The bar is horizontal and hinged to the wall at its left endpoint. The wire joins the wall anchor to the bar's right endpoint, where the hanging mass is attached. barCenterLeverArm is the distance from the wall hinge to the bar's center of mass. The angle is measured in radians above the horizontal bar. Tension, linear density, and fundamental frequency are unknown physical quantities; this structure does not assign them their requested values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Steel Wire Bar Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massinkilograms, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  The numerical readouts printed in the primary figure: a 4.0 kg, 2.0 m horizontal bar, a 75 g steel wire at 45°, and an 8.0 kg hanging mass. No value for the wire length, tension, density, or frequency is included here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Gravity]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-usesstandardgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.UsesStandardGravity}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  The standard classroom approximation g = 9.8 m/s², kept separate because it is auxiliary calibration data rather than a number printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Gravity.
+\end{proof}
+\begin{definition}[Has Uniform Bar Mass Distribution]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-hasuniformbarmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.HasUniformBarMassDistribution}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  For the uniform bar shown in the figure, its center of mass lies halfway from the wall hinge to the wire/load junction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Uniform Bar Mass Distribution.
+\end{proof}
+\begin{definition}[Satisfies Wire Geometry]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfieswiregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.SatisfiesWireGeometry}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  Right-triangle geometry for the wire: its horizontal projection equals the distance from the wall hinge to the bar's free end. The wall anchor is vertically above the hinge, as in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Wire Geometry.
+\end{proof}
+\begin{definition}[Satisfies Static Torque Balance]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfiesstatictorquebalance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.SatisfiesStaticTorqueBalance}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massinkilograms, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forceinnewtons, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  Static torque balance about the wall hinge. The wire contributes the moment of its vertical tension component at the bar end; the hanging load acts at that end, while the uniform bar's weight acts at its center of mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Static Torque Balance.
+\end{proof}
+\begin{definition}[Satisfies Wire Linear Density Law]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfieswirelineardensitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.SatisfiesWireLinearDensityLaw}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massinkilograms, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  The wire's linear mass density is its total mass divided by its length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Wire Linear Density Law.
+\end{proof}
+\begin{definition}[Satisfies Fixed End Fundamental Frequency Law]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-satisfiesfixedendfundamentalfrequencylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.SatisfiesFixedEndFundamentalFrequencyLaw}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forceinnewtons, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequencyinhertz, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  The fundamental-mode law for a taut, uniform wire fixed at both ends: f₁ = (1 / (2 L)) * sqrt (T / μ) in coherent SI readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Fixed End Fundamental Frequency Law.
+\end{proof}
+\begin{definition}[Has Positive Physical Parameters]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-haspositivephysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.HasPositivePhysicalParameters}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-massinkilograms, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-lengthinmeters, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-forceinnewtons, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-linearmassdensityinkilogramspermeter, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-steelwirebarsetup}
+  Positivity conditions appropriate to a taut massive wire in gravity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Physical Parameters.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-answerchoice}
+  Frequency in hertz printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0181.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequency, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-frequencyinhertz, def:physics:phyx-mini-0181:phyxminiproblems-problemphyxmini0181-answerchoice}
+  Agreement with a displayed whole-hertz answer. A half-hertz tolerance models rounding to the nearest hertz rather than identifying the physical frequency with an exact integer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

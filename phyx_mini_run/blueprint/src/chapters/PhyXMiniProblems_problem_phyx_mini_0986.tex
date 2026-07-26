@@ -1,0 +1,332 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0986.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0986.source.json
+
+\chapter{Physics problem phyx\_mini\_0986}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0986}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In the circuit, the switch \textbackslash{}( S \textbackslash{}) has been open for a long time and is suddenly closed. Neither the battery nor the inductors have any appreciable resistance.
+
+\#\# Question
+
+What does the voltmeter read 0.115 ms after \textbackslash{}( S \textbackslash{}) is closed?
+
+\#\# Answer choices
+
+- A: A: 0V
+
+- B: B: 9.0V
+
+- C: C: 20.0V
+
+- D: D: 11.0V
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts an electrical circuit diagram containing the following components:
+
+1. **Voltage Source**: A 20.0 V battery is shown on the left side, indicating the source of electrical power.
+
+2. **Ammeter (A)**: Positioned at the bottom left, it measures the current flowing through the circuit.
+
+3. **Switch (S)**: Located near the top left, it controls the flow of current in the circuit.
+
+4. **Resistors**:
+   - A 50.0 Ω resistor is connected in series with the switch.
+   - A 25.0 Ω resistor is connected in series with the ammeter.
+
+5. **Voltmeter (V)**: Positioned in the center, it measures the voltage across certain components.
+
+6. **Inductors**:
+   - A 12.0 mH inductor is connected near the top right in parallel with the voltmeter.
+   - An 18.0 mH inductor is connected above another inductor.
+   - A 15.0 mH inductor is positioned toward the right, connected in series with the 18.0 mH inductor.
+
+The circuit is organized with a combination of series and parallel components, demonstrating various electrical relationships and configurations.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 9.0V
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/986.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0986.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0986:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0986.voltmeter_reads_nine_volts_at_point115_milliseconds}
+\uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchesprimarycircuitfigure, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchescircuitnumericaldata, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-hasidealcomponentphysics, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-isopenlongthenclosed, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-satisfiesidealrltransientlaws, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-hasonedecimalvoltmeterdisplay}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[voltage Dimension]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltagedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.voltageDimension}
+  The dimension M L² T⁻² C⁻¹ of electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.electricCurrentDimension}
+  The dimension C T⁻¹ of electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.electricalResistanceDimension}
+  The dimension M L² T⁻¹ C⁻² of electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.inductanceDimension}
+  The dimension M L² C⁻² of self-inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Voltage Quantity]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltagequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.VoltageQuantity}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltagedimension}
+  A signed, unit-independent voltage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electriccurrentdimension}
+  A signed, unit-independent electric current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Inductance Magnitude]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.InductanceMagnitude}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancedimension}
+  A nonnegative, unit-independent self-inductance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Magnitude.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.TimeQuantity}
+  A signed, unit-independent time coordinate relative to switch closing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[voltage In Volts]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltageinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.voltageInVolts}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltagequantity}
+  Coherent-SI voltage readout, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of voltage In Volts.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.currentInAmperes}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electriccurrentquantity}
+  Coherent-SI current readout, in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistancemagnitude}
+  Coherent-SI resistance readout, in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancemagnitude}
+  Coherent-SI inductance readout, in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[inductance In Millihenries]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinmillihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.inductanceInMillihenries}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancemagnitude, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinhenries}
+  Inductance readout in millihenries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Millihenries.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.timeInSeconds}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timequantity}
+  Coherent-SI time readout, in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[time In Milliseconds]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.timeInMilliseconds}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timequantity, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinseconds}
+  Time readout in milliseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Milliseconds.
+\end{proof}
+\begin{definition}[Circuit Node]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-circuitnode}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.CircuitNode}
+  Electrically distinct nodes visible in image 986.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Node.
+\end{proof}
+\begin{definition}[Component Label]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-componentlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.ComponentLabel}
+  Every labeled circuit element visible in image 986.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Component Label.
+\end{proof}
+\begin{definition}[Circuit Figure]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-circuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.CircuitFigure}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-circuitnode, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-componentlabel}
+  The endpoint data read directly from the supplied circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Figure.
+\end{proof}
+\begin{definition}[Switched Inductor Circuit]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.SwitchedInductorCircuit}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltagequantity, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-electriccurrentquantity, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistancemagnitude, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductancemagnitude, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timequantity, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-circuitfigure}
+  The independent physical quantities and time histories of the experiment. The equivalent resistance and inductances are included as figure-derived physical quantities; their reduction equations are laws rather than definitions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switched Inductor Circuit.
+\end{proof}
+\begin{definition}[Matches Primary Circuit Figure]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchesprimarycircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.MatchesPrimaryCircuitFigure}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  Exact component incidences transcribed from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Circuit Figure.
+\end{proof}
+\begin{definition}[Matches Circuit Numerical Data]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchescircuitnumericaldata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.MatchesCircuitNumericalData}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltageinvolts, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistanceinohms, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinmillihenries, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinseconds, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinmilliseconds, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  All numerical labels shown in the problem and its primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Circuit Numerical Data.
+\end{proof}
+\begin{definition}[Has Ideal Component Physics]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-hasidealcomponentphysics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.HasIdealComponentPhysics}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-currentinamperes, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistanceinohms, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  The negligible-resistance assumptions stated in the prose, together with the standard ideal-meter behavior used by the circuit diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Ideal Component Physics.
+\end{proof}
+\begin{definition}[Is Open Long Then Closed]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-isopenlongthenclosed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.IsOpenLongThenClosed}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-currentinamperes, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinseconds, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  The switch history and zero-current state produced by being open a long time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Open Long Then Closed.
+\end{proof}
+\begin{definition}[Satisfies Ideal RLTransient Laws]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-satisfiesidealrltransientlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.SatisfiesIdealRLTransientLaws}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltageinvolts, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-currentinamperes, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistanceinohms, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinhenries, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-timeinseconds, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  Kirchhoff laws, series/parallel reduction, and the standard closed-form voltage response for an ideal RL network after a DC step. The response law is uniform in time and in all component values; it contains neither the requested time nor the answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal RLTransient Laws.
+\end{proof}
+\begin{definition}[Has One Decimal Voltmeter Display]
+  \label{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-hasonedecimalvoltmeterdisplay}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.HasOneDecimalVoltmeterDisplay}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltageinvolts, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit}
+  Generic calibration law for a voltmeter displaying volts to one decimal place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has One Decimal Voltmeter Display.
+\end{proof}
+\begin{lemma}[total series resistance is 75 ohms]
+  \label{lem:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-total-series-resistance-is-75-ohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.total_series_resistance_is_75_ohms}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-resistanceinohms, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchescircuitnumericaldata, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-satisfiesidealrltransientlaws}
+  The two visible series resistors have equivalent resistance 75 Ω
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of total series resistance is 75 ohms.
+\end{proof}
+\begin{lemma}[parallel equivalent inductance is 10 8 millihenries]
+  \label{lem:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-parallel-equivalent-inductance-is-10-8-millihenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.parallel_equivalent_inductance_is_10_8_millihenries}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-inductanceinmillihenries, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchescircuitnumericaldata, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-satisfiesidealrltransientlaws}
+  The parallel combination 18 mH ∥ (12 mH + 15 mH) is 10.8 mH
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of parallel equivalent inductance is 10 8 millihenries.
+\end{proof}
+\begin{lemma}[observation voltage is within one millivolt of nine]
+  \label{lem:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-observation-voltage-is-within-one-millivolt-of-nine}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0986.observation_voltage_is_within_one_millivolt_of_nine}
+  \uses{def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-voltageinvolts, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-switchedinductorcircuit, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-matchescircuitnumericaldata, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-isopenlongthenclosed, def:physics:phyx-mini-0986:phyxminiproblems-problemphyxmini0986-satisfiesidealrltransientlaws}
+  At 0.115 ms, the physical voltage is within 0.001 V of 9 V
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of observation voltage is within one millivolt of nine.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

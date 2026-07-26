@@ -1,0 +1,355 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0369.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0369.source.json
+
+\chapter{Physics problem phyx\_mini\_0369}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0369}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows two different processes by which 80 mol of gas move from state 1 to state 2. The dashed line is an isotherm.
+
+\#\# Question
+
+What is the temperature of the isothermal process?
+
+\#\# Answer choices
+
+- A: A: 301K
+
+- B: B: 556K
+
+- C: C: 636K
+
+- D: D: 784K
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph displaying a pressure-volume (p-V) diagram.
+
+- **Axes**: 
+  - The vertical axis is labeled as "p (kPa)" indicating pressure in kilopascals.
+  - The horizontal axis is labeled as "V (m³)" indicating volume in cubic meters.
+
+- **Data Points and Curve**:
+  - There are two labeled points: "1" and "2".
+  - Point "1" is at a lower pressure and larger volume.
+  - Point "2" is at a higher pressure and smaller volume.
+  - A solid, curved black line connects the two points, showing the process from state 1 to state 2 and vice versa.
+  - There are arrows along the curve, indicating the direction of the process, suggesting a cyclical motion between states 1 and 2.
+
+- **Additional Features**:
+  - A dashed red curve labeled "Isotherm" passes close to points 1 and 2. This suggests that the process may occur along the same temperature.
+
+The graph likely represents a thermodynamic process or cycle between two states with constant temperature indicated by the isotherm.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 301K
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/369.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0369.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0369:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0369.isothermTemperature_matches_recordedAnswerA}
+\uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperatureinkelvins, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-matchesproblemandprimaryfigure, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-usestextbookmolargasconstant, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-obeysmolaridealgasandisothermallaws, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-roundstonearestwholekelvin, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice-kelvins, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.VolumeQuantity}
+  A nonnegative physical volume, with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.PressureQuantity}
+  A physical pressure, represented by Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.TemperatureQuantity}
+  A nonnegative absolute temperature carrying the temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Molar Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.MolarGasConstantQuantity}
+  The molar gas constant, carrying energy-per-temperature dimensions. Physlib's current Dimension has no amount-of-substance coordinate. The missing inverse-mole role is therefore paired explicitly with the gas sample's scalar readout amountInMoles below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumequantity}
+  SI cubic-metre readout of a physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.pressureInPascals}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurequantity}
+  SI pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinpascals}
+  Kilopascal readout used by the vertical axis of the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperaturequantity}
+  SI kelvin readout of an absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[molar Gas Constant In Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantinjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.molarGasConstantInJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantquantity}
+  SI joule-per-mole-kelvin readout of the molar gas constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of molar Gas Constant In Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.GasModel}
+  Equation-of-state model required to use the ideal-gas law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Gas Sample]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-gassample}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.GasSample}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-gasmodel}
+  The physical gas sample. amountInMoles is an explicitly unit-labelled readout, not a scalar replacement for the gas itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Sample.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.StateLabel}
+  The two equilibrium-state labels printed in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Process Path]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processpath}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.ProcessPath}
+  The two solid routes drawn from state 1 to state 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Path.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.ProcessKind}
+  Thermodynamic classification of a depicted process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.PathGeometry}
+  Geometric appearance of a path in the p-V plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Figure Line Style]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figurelinestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.FigureLineStyle}
+  Visible line style used for a feature of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Line Style.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.FigureAxis}
+  The two Cartesian axes in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.AxisQuantity}
+  Physical role assigned to each axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Display Unit]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axisdisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.AxisDisplayUnit}
+  Unit text printed beside an axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Display Unit.
+\end{proof}
+\begin{definition}[Axis Symbol]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axissymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.AxisSymbol}
+  Quantity symbol printed beside an axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Symbol.
+\end{proof}
+\begin{definition}[Figure Annotation Label]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figureannotationlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.FigureAnnotationLabel}
+  Text attached to the dashed red guide in the bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Annotation Label.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperaturequantity}
+  Pressure, volume, and absolute temperature at one equilibrium state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Pressure Volume Figure]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurevolumefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.PressureVolumeFigure}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processpath, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pathgeometry, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figurelinestyle, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figureaxis, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axisquantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axisdisplayunit, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-axissymbol, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-figureannotationlabel}
+  Structured transcription of image 369.png. The dashed red feature is treated as an annotation continuing the curved solid path, rather than as a third gas process. This matches the image: two solid arrowed routes connect the same labelled endpoints, while the red dashes and “Isotherm” text identify the curved route
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Figure.
+\end{proof}
+\begin{definition}[Ideal Gas Two Path Setup]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.IdealGasTwoPathSetup}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperaturequantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantquantity, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-gassample, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processpath, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processkind, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-thermodynamicstate, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressurevolumefigure}
+  The gas, its two states, and the two physical processes shown in the figure. The isotherm temperature is an independent physical observable. It is not defined from either endpoint or from an answer choice; the governing isothermal law below relates it to the endpoint temperatures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Two Path Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumeincubicmeters, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinkilopascals, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processpath, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup}
+  Data stated in the prose or read directly from the primary bitmap. Both solid paths run from state 1 to state 2; only the curved one is identified by the dashed red isotherm annotation. No numerical temperature occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Textbook Molar Gas Constant]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-usestextbookmolargasconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.UsesTextbookMolarGasConstant}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup}
+  The textbook value 8.31 J mol⁻¹ K⁻¹ for the molar gas constant. This is a calibration of a governing physical constant, not the requested temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Textbook Molar Gas Constant.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumeincubicmeters, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinpascals, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperatureinkelvins, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup}
+  Positivity conditions selecting physically meaningful thermodynamic states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Obeys Molar Ideal Gas And Isothermal Laws]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-obeysmolaridealgasandisothermallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.ObeysMolarIdealGasAndIsothermalLaws}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-volumeincubicmeters, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-pressureinpascals, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperatureinkelvins, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-molargasconstantinjoulespermolekelvin, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-statelabel, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-processpath, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup}
+  The molar ideal-gas equation pV = nRT at each labelled equilibrium state, together with the defining physical behavior of an isothermal path: each of its endpoint states has the common process temperature. These are general governing relations. They contain no numerical value for the isotherm temperature and no answer-choice conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Molar Ideal Gas And Isothermal Laws.
+\end{proof}
+\begin{definition}[Rounds To Nearest Whole Kelvin]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-roundstonearestwholekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.RoundsToNearestWholeKelvin}
+  A real-valued kelvin reading rounds to a specified whole kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Whole Kelvin.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.AnswerChoice}
+  Labels of the four answer choices in the supplied problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[kelvins]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice-kelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.AnswerChoice.kelvins}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice}
+  Whole-kelvin value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kelvins.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{lemma}[isotherm Temperature exact kelvins]
+  \label{lem:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-isothermtemperature-exact-kelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0369.isothermTemperature_exact_kelvins}
+  \uses{def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-temperatureinkelvins, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-idealgastwopathsetup, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-matchesproblemandprimaryfigure, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-usestextbookmolargasconstant, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0369:phyxminiproblems-problemphyxmini0369-obeysmolaridealgasandisothermallaws}
+  Using state 1, the ideal-gas law gives T = (100000 Pa)(2 m³) / ((80 mol)(8.31 J mol⁻¹ K⁻¹)) = 250000 / 831 K. The same product is visible at state 2. This intermediate exact result does not use the whole-kelvin answer table
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of isotherm Temperature exact kelvins.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

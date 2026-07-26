@@ -1,0 +1,246 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0161.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0161.source.json
+
+\chapter{Physics problem phyx\_mini\_0161}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0161}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a small lightbulb suspended at distance \$d\_1 = 250 \textbackslash{}text\{ cm\}\$ above the surface of the water in a swimming pool where the water depth is \$d\_2 = 200 \textbackslash{}text\{cm\}\$. The bottom of the pool is a large mirror.
+
+\#\# Question
+
+How far below the mirror surface is the image of the bulb?
+
+\#\# Answer choices
+
+- A: A: 314 cm
+
+- B: B: 326 cm
+
+- C: C: 338 cm
+
+- D: D: 351 cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram featuring a scene with a light bulb hanging above a tank of water. The tank is placed on top of a mirror. The water in the tank is represented with a blue fill. 
+
+Two measurements, \textbackslash{}(d\_1\textbackslash{}) and \textbackslash{}(d\_2\textbackslash{}), are marked with arrows:
+- \textbackslash{}(d\_1\textbackslash{}) indicates the distance from the light bulb to the surface of the water.
+- \textbackslash{}(d\_2\textbackslash{}) indicates the distance from the surface of the water to the mirror below it.
+
+The label "Mirror" is placed on the reflective surface beneath the water. The setup appears to illustrate concepts related to optics, such as reflection or refraction.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 351 cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/161.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0161.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0161:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0161.problem_phyx_mini_0161}
+\uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-matchesstatedpoolmirrorproblem, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-usesstandardairwaterindices, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-hasphysicalpoolmirrorparameters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-satisfiesparaxialpoolmirroroptics, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-matchesanswertonearestcentimeter, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.OpticalLength}
+  A physical length represented coherently in every choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.lengthReadout}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticallength}
+  Scalar readout of a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticallength, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthreadout}
+  Scalar readout of a physical length in centimetres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.OpticalMedium}
+  The homogeneous media on the two sides of the pool surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Source Model]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-sourcemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.SourceModel}
+  The small bulb is treated as a point source in the axial ray model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Model.
+\end{proof}
+\begin{definition}[Bottom Mirror Model]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-bottommirrormodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.BottomMirrorModel}
+  Qualitative model of the reflecting bottom surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bottom Mirror Model.
+\end{proof}
+\begin{definition}[Viewing Regime]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-viewingregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.ViewingRegime}
+  Optical approximation used to turn Snell's law into apparent-distance laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Viewing Regime.
+\end{proof}
+\begin{definition}[Image Nature]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-imagenature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.ImageNature}
+  The image requested by the problem is formed by backward ray extensions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Image Nature.
+\end{proof}
+\begin{definition}[Observer Side]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-observerside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.ObserverSide}
+  The observer and returning rays are on the air side above the pool
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observer Side.
+\end{proof}
+\begin{definition}[Pool Mirror Diagram]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.PoolMirrorDiagram}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticallength, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-opticalmedium, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-sourcemodel, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-bottommirrormodel, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-viewingregime, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-imagenature, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-observerside}
+  The physical lengths needed for the two-interface, one-reflection ray trace. bulbHeightAboveSurface and waterDepth are the figure labels d₁ and d₂. The remaining lengths name successive intermediate images and object distances. In particular, finalImageDistanceBelowMirror is an unknown observable; this structure stores no numerical value for it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Mirror Diagram.
+\end{proof}
+\begin{definition}[Matches Stated Pool Mirror Problem]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-matchesstatedpoolmirrorproblem}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.MatchesStatedPoolMirrorProblem}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram}
+  The two stated distance readouts and the qualitative optical layout. These are inputs from the text, not consequences about the requested image distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Stated Pool Mirror Problem.
+\end{proof}
+\begin{definition}[Uses Standard Air Water Indices]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-usesstandardairwaterindices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.UsesStandardAirWaterIndices}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram}
+  Dimensionless refractive-index readouts used by the recorded multiple-choice answer: n\_air = 1.00 and n\_water = 1.33
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Air Water Indices.
+\end{proof}
+\begin{definition}[Has Physical Pool Mirror Parameters]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-hasphysicalpoolmirrorparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.HasPhysicalPoolMirrorParameters}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram}
+  Positivity and ordering conditions for the physical branch in which the final virtual image really lies below the bottom mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pool Mirror Parameters.
+\end{proof}
+\begin{definition}[Satisfies Paraxial Pool Mirror Optics]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-satisfiesparaxialpoolmirroroptics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.SatisfiesParaxialPoolMirrorOptics}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthreadout, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram}
+  The first interface makes the bulb appear farther above the surface to rays inside the water. The plane mirror then forms an image the same axial distance behind its surface as the effective object is in front. On the return path, the water--air interface makes the submerged mirror image appear shallower. All distance relations hold in every length unit. These are general governing laws and geometric incidence relations. No field mentions 351, 46650 / 133, or any answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Paraxial Pool Mirror Optics.
+\end{proof}
+\begin{lemma}[water side image depth index relation]
+  \label{lem:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-water-side-image-depth-index-relation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.water_side_image_depth_index_relation}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthreadout, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-hasphysicalpoolmirrorparameters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-satisfiesparaxialpoolmirroroptics}
+  Before the returning rays leave the water, the plane-mirror image has axial depth governed by the bulb height and two traversals of the water depth
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of water side image depth index relation.
+\end{proof}
+\begin{lemma}[final image distance index relation]
+  \label{lem:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-final-image-distance-index-relation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.final_image_distance_index_relation}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthreadout, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-hasphysicalpoolmirrorparameters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-satisfiesparaxialpoolmirroroptics}
+  After the return refraction, subtracting the physical water depth gives the general final-image relation n\_water D = n\_water d₁ + (2 n\_air - n\_water) d₂
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final image distance index relation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Distance In Centimeters]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-displayeddistanceincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.displayedDistanceInCentimeters}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-answerchoice}
+  Distance below the mirror, in centimetres, printed beside each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Distance In Centimeters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Centimeter]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-matchesanswertonearestcentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.MatchesAnswerToNearestCentimeter}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-answerchoice, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-displayeddistanceincentimeters}
+  A displayed integer-centimetre answer is within half a centimetre of the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Centimeter.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0161.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-lengthincentimeters, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-poolmirrordiagram, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-answerchoice, def:physics:phyx-mini-0161:phyxminiproblems-problemphyxmini0161-displayeddistanceincentimeters}
+  The selected answer is strictly closer than each competing display value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

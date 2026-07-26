@@ -1,0 +1,311 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0942.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0942.source.json
+
+\chapter{Physics problem phyx\_mini\_0942}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0942}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 200\textbackslash{} \textbackslash{}Omega\textbackslash{} resistor is connected in series with a 5.0\textbackslash{} \textbackslash{}mu\textbackslash{}mathrm\{F\} capacitor. The voltage across the resistor is \textbackslash{}( v\_R = (1.20\textbackslash{} \textbackslash{}mathrm\{V\}) \textbackslash{}cos[(2500\textbackslash{} \textbackslash{}mathrm\{rad/s\})t] \textbackslash{}).
+
+\#\# Question
+
+Determine the capacitive reactance of the capacitor.
+
+\#\# Answer choices
+
+- A: A: 20\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- B: B: 80\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- C: C: 100\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+- D: D: 200\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic diagram of an electrical circuit. Here are the components and details:
+
+1. **AC Voltage Source**: Represented by a circle with a sine wave inside, indicating an alternating current source.
+
+2. **Components**:
+   - **Capacitor (C)**: Labeled with a capacitance of 5.0 µF (microfarads).
+   - **Resistor (R)**: Labeled with a resistance of 200 Ω (ohms).
+
+3. **Circuit Paths**:
+   - Current \textbackslash{}( i \textbackslash{}) is indicated by an arrow pointing to the left.
+   - Voltage across the capacitor is denoted as \textbackslash{}( v\_c \textbackslash{}).
+   - Voltage across the resistor is denoted as \textbackslash{}( v\_R \textbackslash{}).
+
+4. **Expression for Voltage**:
+   - \textbackslash{}( v\_R = (1.20 \textbackslash{}text\{ V\}) \textbackslash{}cos(2500 \textbackslash{}text\{ rad/s\})t \textbackslash{})
+   - This represents the voltage across the resistor as a function of time with a cosine waveform, an amplitude of 1.20 volts, and an angular frequency of 2500 radians per second.
+
+5. **Connections**:
+   - Wires connect the voltage source, capacitor, and resistor in series, forming a closed loop.
+
+This diagram illustrates the relationships and components in an AC circuit with given electrical properties.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 80\textbackslash{} \textbackslash{}Omega\textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/942.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0942.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0942:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0942.capacitive_reactance_eq_eighty_ohms}
+\uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistanceinohms, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-matchesseriesrcscenario, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-matchesprimaryseriesrcfigure, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-hasphysicalseriesrcparameters, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-satisfiesidealcapacitivereactancelaw}
+The capacitor's reactance magnitude is $80$ ohms.
+\end{theorem}
+\begin{proof}
+The figure gives $C=5$ microfarads and angular frequency $\omega=2500$ radians per second.  Convert the capacitance to $5/10^6$ farads and substitute both readouts into $X_C=1/(\omega C)$.  The denominator is $2500\cdot5/10^6=1/80$, hence $X_C=80$ ohms.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.electricPotentialDimension}
+  The dimension M L² T⁻² C⁻¹ of electric potential (volt)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.electricCurrentDimension}
+  The dimension C T⁻¹ of electric current (ampere)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.electricalResistanceDimension}
+  The dimension M L² T⁻¹ C⁻² of electrical resistance (ohm)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.capacitanceDimension}
+  The dimension M⁻¹ L⁻² T² C² of capacitance (farad)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Capacitance Magnitude]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.CapacitanceMagnitude}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitancedimension}
+  A nonnegative, unit-independent capacitance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Magnitude.
+\end{proof}
+\begin{definition}[Angular Frequency Magnitude]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.AngularFrequencyMagnitude}
+  A nonnegative, unit-independent angular-frequency magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Magnitude.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialdimension}
+  A signed, unit-independent electric-potential quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentdimension}
+  A signed, unit-independent electric-current quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.TimeQuantity}
+  A signed, unit-independent time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.signedSIReadout}
+  Coherent-SI readout of a signed dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistancemagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-nonnegativesireadout}
+  Coherent-SI resistance readout, in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitancemagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-nonnegativesireadout}
+  Coherent-SI capacitance readout, in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencymagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-nonnegativesireadout}
+  Coherent-SI angular-frequency readout, in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialquantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-signedsireadout}
+  Coherent-SI electric-potential readout, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[electric Current In Amperes]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.electricCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentquantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-signedsireadout}
+  Coherent-SI electric-current readout, in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current In Amperes.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.timeInSeconds}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-timequantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-signedsireadout}
+  Coherent-SI time-coordinate readout, in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.CircuitComponent}
+  The three components visible in the supplied circuit schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Voltage Symbol]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-voltagesymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.VoltageSymbol}
+  The two explicitly named component-voltage symbols in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Voltage Symbol.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.HorizontalDirection}
+  Horizontal directions used by the current arrow in the schematic
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Series RCFigure]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.SeriesRCFigure}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-circuitcomponent, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-voltagesymbol, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-horizontaldirection}
+  Literal information visible in image 942.png. Numerical fields record the numbers printed beside the physical quantities; their units are specified by their field names and tied to dimensionful quantities below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RCFigure.
+\end{proof}
+\begin{definition}[Series RCCircuit Setup]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.SeriesRCCircuitSetup}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistancemagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitancemagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencymagnitude, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialquantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electriccurrentquantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-timequantity, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrcfigure}
+  The physical objects and time-dependent observables in the displayed circuit. The capacitive reactance is independent data here, rather than an expansion of the answer formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Series RCCircuit Setup.
+\end{proof}
+\begin{definition}[Matches Series RCScenario]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-matchesseriesrcscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.MatchesSeriesRCScenario}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup}
+  The prose and schematic specify a closed series circuit with an AC source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Series RCScenario.
+\end{proof}
+\begin{definition}[Matches Primary Series RCFigure]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-matchesprimaryseriesrcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.MatchesPrimarySeriesRCFigure}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistanceinohms, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitanceinfarads, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencyinradianspersecond, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialinvolts, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-timeinseconds, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup}
+  Primary-raster evidence: component labels, the current arrow, and every numerical annotation printed in the image. The waveform equality is a calibrated transcription of the displayed v\_R(t) expression. It does not state the requested reactance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Series RCFigure.
+\end{proof}
+\begin{definition}[Has Physical Series RCParameters]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-hasphysicalseriesrcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.HasPhysicalSeriesRCParameters}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistanceinohms, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitanceinfarads, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencyinradianspersecond, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-electricpotentialinvolts, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup}
+  Positivity conditions for the nondegenerate physical circuit data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Series RCParameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Capacitive Reactance Law]
+  \label{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-satisfiesidealcapacitivereactancelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0942.SatisfiesIdealCapacitiveReactanceLaw}
+  \uses{def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-resistanceinohms, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-capacitanceinfarads, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-angularfrequencyinradianspersecond, def:physics:phyx-mini-0942:phyxminiproblems-problemphyxmini0942-seriesrccircuitsetup}
+  For an ideal capacitor driven sinusoidally at angular frequency ω, the capacitive-reactance magnitude is 1 / (ω C). This is the governing physical law, relating three independent observables; it does not assert the target numeric value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Capacitive Reactance Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

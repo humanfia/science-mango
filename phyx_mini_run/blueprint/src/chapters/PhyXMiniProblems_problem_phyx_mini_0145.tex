@@ -1,0 +1,189 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0145.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0145.source.json
+
+\chapter{Physics problem phyx\_mini\_0145}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0145}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+We wish to determine the depth of a swimming pool filled with water by measuring the width \textbackslash{}((x = 6.50\textbackslash{},\textbackslash{}mathrm\{m\})\textbackslash{}) and then noting that the far bottom edge of the pool is just visible at an angle of \textbackslash{}(13.0\textasciicircum{}\textbackslash{}circ\textbackslash{}) above the horizontal as shown in figure.
+
+\#\# Question
+
+Calculate the depth of the pool.
+
+\#\# Answer choices
+
+- A: A: 6.12m
+
+- B: B: 6.08m
+
+- C: C: 6.04m
+
+- D: D: 6.00m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a person standing on the edge of a cliff, looking down at a body of water. A line of sight extends from the person to a point beneath the water surface, making a 13.0° angle with the horizontal. The horizontal distance from the person to the point above the water is 6.50 meters. The depth of the water is labeled as "Depth ?" with a vertical arrow indicating measurement. The water is depicted in light blue, and the line of sight is shown in pink with arrows indicating direction.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 6.04m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/145.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0145.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0145:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0145.problem_phyx_mini_0145}
+\uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-matchespoolfigure, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-hasstandardairwaterindices, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-hasphysicalpoolviewingparameters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-satisfiesairwatersnelllaw, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-satisfiesfarbottomraygeometry, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-matchesanswertonearesthundredth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.DimLength}
+  A physical length represented independently of a particular unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.lengthInMeters}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-dimlength}
+  The numerical readout of a dimensionful length in SI meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.degreesToRadians}
+  Convert a degree readout to the scalar radian convention used below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.OpticalMedium}
+  The homogeneous optical media on the two sides of the pool surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Pool Viewing Setup]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.PoolViewingSetup}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-dimlength, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-opticalmedium}
+  The physical quantities and angle labels in the pool-viewing diagram. The air-side angle is measured above the horizontal interface. The incidence and refraction angles are measured from the vertical interface normal, as required by Snell's law. No numerical value for the requested depth is stored in this setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pool Viewing Setup.
+\end{proof}
+\begin{definition}[Matches Pool Figure]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-matchespoolfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.MatchesPoolFigure}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-degreestoradians, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup}
+  The measured labels and complementary-angle relation read from the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Pool Figure.
+\end{proof}
+\begin{definition}[Has Standard Air Water Indices]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-hasstandardairwaterindices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.HasStandardAirWaterIndices}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup}
+  Standard dimensionless refractive-index readouts used for air and water
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Air Water Indices.
+\end{proof}
+\begin{definition}[Is Acute Radians]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-isacuteradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.IsAcuteRadians}
+  An angle readout lies on the strictly acute geometrical-optics branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Acute Radians.
+\end{proof}
+\begin{definition}[Has Physical Pool Viewing Parameters]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-hasphysicalpoolviewingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.HasPhysicalPoolViewingParameters}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-isacuteradians}
+  Positivity and principal-branch conditions for the depicted physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pool Viewing Parameters.
+\end{proof}
+\begin{definition}[Satisfies Air Water Snell Law]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-satisfiesairwatersnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.SatisfiesAirWaterSnellLaw}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup}
+  Snell's law for transmission from air into water at the flat pool surface, with both angles measured from the surface normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Air Water Snell Law.
+\end{proof}
+\begin{definition}[Satisfies Far Bottom Ray Geometry]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-satisfiesfarbottomraygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.SatisfiesFarBottomRayGeometry}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup}
+  Right-triangle geometry for the underwater ray from the near surface point to the far bottom edge: tan θ\_water = width / depth, where θ\_water is measured from the vertical normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Far Bottom Ray Geometry.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.AnswerChoice}
+  The four pool-depth choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Depth Meters]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-answerdepthmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.answerDepthMeters}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-answerchoice}
+  Meter readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Depth Meters.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-matchesanswertonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.MatchesAnswerToNearestHundredth}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-dimlength, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-answerchoice, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-answerdepthmeters}
+  Agreement with an answer displayed to the nearest hundredth of a meter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Hundredth.
+\end{proof}
+\begin{lemma}[pool depth from far bottom geometry]
+  \label{lem:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-pool-depth-from-far-bottom-geometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0145.pool_depth_from_far_bottom_geometry}
+  \uses{def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-lengthinmeters, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-poolviewingsetup, def:physics:phyx-mini-0145:phyxminiproblems-problemphyxmini0145-satisfiesfarbottomraygeometry}
+  The far-bottom ray geometry expresses the depth as the width divided by the tangent of the underwater angle. This is a derived relation, not figure data
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of pool depth from far bottom geometry.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,394 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0982.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0982.source.json
+
+\chapter{Physics problem phyx\_mini\_0982}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0982}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A conducting spherical shell with radius \textbackslash{}( r = 10.0\textbackslash{} \textbackslash{}text\{cm\} \textbackslash{}) spins about a vertical axis twice every second in the presence of a constant magnetic field \textbackslash{}( B = 1.00\textbackslash{} \textbackslash{}text\{T\} \textbackslash{}) that points downward. Two conducting rods supported by a frame contact the sphere with conducting brushes and extend away from the sphere radially. One rod extends from the top of the sphere and the other forms a \textbackslash{}( 60.0\textasciicircum{}\textbackslash{}circ \textbackslash{}) angle with vertical, as shown. The outer ends of the rods are connected to each other by a conducting wire that includes a \textbackslash{}( 10.0\textbackslash{} \textbackslash{}Omega \textbackslash{}) resistor.
+
+\#\# Question
+
+What is the magnitude of the current in the wire?
+
+\#\# Answer choices
+
+- A: A: 0.473mA
+
+- B: B: 4.73mA
+
+- C: C: 47.3mA
+
+- D: D: 0mA
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a spherical object mounted on a conical stand. The sphere has the following labeled elements:
+
+- A vertical rod is connected to the top of the sphere, with an arrow pointing horizontally to the right, labeled "2 Hz."
+- There is another rod attached at an angle of 60 degrees from the vertical rod. This rod has a resistor symbol next to it, labeled "10.0 Ω."
+- An arrow pointing downward on the left is labeled "B = 1.00 T," indicating a magnetic field.
+- The radius of the sphere is labeled "r = 10.0 cm."
+
+The image likely represents a setup for demonstrating concepts related to rotational motion and electromagnetism.
+
+\#\# Dataset metadata
+
+Electromagnetic Induction; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 4.73mA
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/982.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0982.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0982:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0982.rotating_sphere_wire_current}
+\uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinamperes, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-matchesconductingspherescenario, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-matchesprimaryrotatingspherefigure, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-hasphysicalrotatingsphereparameters, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesrotationfrequencylaw, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesrotatingspheremotionalemflaw, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesexternalcircuitohmslaw, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-isuniqueclosestcurrentchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[inverse Time Dimension]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-inversetimedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.inverseTimeDimension}
+  Frequency and angular speed both have inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inverse Time Dimension.
+\end{proof}
+\begin{definition}[magnetic Flux Density Dimension]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.magneticFluxDensityDimension}
+  Magnetic flux density has SI dimension M T⁻¹ C⁻¹ (tesla)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.electricPotentialDimension}
+  Electric potential has SI dimension M L² T⁻² C⁻¹ (volt)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.electricCurrentDimension}
+  Electric current has SI dimension C T⁻¹ (ampere)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.electricalResistanceDimension}
+  Electrical resistance has SI dimension M L² T⁻¹ C⁻² (ohm)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[Length Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.LengthMagnitude}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Magnitude.
+\end{proof}
+\begin{definition}[Frequency Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.FrequencyMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-inversetimedimension}
+  A nonnegative, unit-independent rotation frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Magnitude.
+\end{proof}
+\begin{definition}[Angular Speed Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.AngularSpeedMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-inversetimedimension}
+  A nonnegative, unit-independent angular speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Magnitude.
+\end{proof}
+\begin{definition}[Magnetic Flux Density Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.MagneticFluxDensityMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensitydimension}
+  A nonnegative, unit-independent magnetic-flux-density magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Flux Density Magnitude.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electricalresistancedimension}
+  A nonnegative, unit-independent electrical resistance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Electromotive Force Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforcemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.ElectromotiveForceMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electricpotentialdimension}
+  A nonnegative, unit-independent electromotive-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electromotive Force Magnitude.
+\end{proof}
+\begin{definition}[Electric Current Magnitude]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.ElectricCurrentMagnitude}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentdimension}
+  A nonnegative, unit-independent electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Magnitude.
+\end{proof}
+\begin{definition}[coherent SIReadout]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.coherentSIReadout}
+  Coherent-SI scalar readout of a nonnegative dimensionful magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of coherent SIReadout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.lengthInMeters}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read a length magnitude in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencymagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read a rotation frequency in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read an angular speed in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[magnetic Flux Density In Teslas]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensityinteslas}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.magneticFluxDensityInTeslas}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensitymagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read a magnetic-flux-density magnitude in teslas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of magnetic Flux Density In Teslas.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistancemagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read an electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[electromotive Force In Volts]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforceinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.electromotiveForceInVolts}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforcemagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read an electromotive-force magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electromotive Force In Volts.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.currentInAmperes}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-coherentsireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[radians From Degrees]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-radiansfromdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.radiansFromDegrees}
+  Convert a degree readout into its dimensionless radian value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians From Degrees.
+\end{proof}
+\begin{definition}[Sphere Contact]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-spherecontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.SphereContact}
+  The two brush-contact locations on the spherical shell
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sphere Contact.
+\end{proof}
+\begin{definition}[Axis Orientation]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-axisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.AxisOrientation}
+  Orientations needed to state the axis geometry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Orientation.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.AxialDirection}
+  Directions along the vertical rotation axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Magnetic Field Regime]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfieldregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.MagneticFieldRegime}
+  Qualitative models for the applied magnetic field
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Magnetic Field Regime.
+\end{proof}
+\begin{definition}[Conductor Motion]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-conductormotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.ConductorMotion}
+  Motion of a conductor relative to the laboratory frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Conductor Motion.
+\end{proof}
+\begin{definition}[Rotating Sphere Circuit Figure]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.RotatingSphereCircuitFigure}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-spherecontact}
+  Literal presentation data visible in the primary raster. Numerical fields are the printed scalar labels; the calibration predicate below ties them to dimensionful physical magnitudes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotating Sphere Circuit Figure.
+\end{proof}
+\begin{definition}[Rotating Sphere Circuit Setup]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.RotatingSphereCircuitSetup}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencymagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensitymagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistancemagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforcemagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-spherecontact, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-axisorientation, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-axialdirection, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfieldregime, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-conductormotion, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitfigure}
+  Independent physical objects and observables in the experiment. In particular, motionalEmfMagnitude and wireCurrentMagnitude are not defined by the target formula or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotating Sphere Circuit Setup.
+\end{proof}
+\begin{definition}[Matches Conducting Sphere Scenario]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-matchesconductingspherescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.MatchesConductingSphereScenario}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  Qualitative physical setup specified by the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Conducting Sphere Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Rotating Sphere Figure]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-matchesprimaryrotatingspherefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.MatchesPrimaryRotatingSphereFigure}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthinmeters, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencyinhertz, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensityinteslas, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistanceinohms, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-radiansfromdegrees, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  Primary-raster evidence and calibrations for every printed numerical label. The polar angles are figure-derived geometry, not conclusions about current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Rotating Sphere Figure.
+\end{proof}
+\begin{definition}[Has Physical Rotating Sphere Parameters]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-hasphysicalrotatingsphereparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.HasPhysicalRotatingSphereParameters}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthinmeters, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencyinhertz, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensityinteslas, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistanceinohms, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  Positivity conditions selecting the nondegenerate physical setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Rotating Sphere Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rotation Frequency Law]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesrotationfrequencylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.SatisfiesRotationFrequencyLaw}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-frequencyinhertz, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedinradianspersecond, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  Conversion from rotation frequency to angular speed: ω = 2πf
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rotation Frequency Law.
+\end{proof}
+\begin{definition}[Satisfies Rotating Sphere Motional Emf Law]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesrotatingspheremotionalemflaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.SatisfiesRotatingSphereMotionalEmfLaw}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-lengthinmeters, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-angularspeedinradianspersecond, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-magneticfluxdensityinteslas, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforceinvolts, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  For an axially magnetized conducting sphere rotating about that axis, the motional-emf magnitude between polar angles θ₁ and θ₂ is (1/2) B ω r² |sin² θ₂ - sin² θ₁|. This relates independent observables and does not state the requested current or its numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rotating Sphere Motional Emf Law.
+\end{proof}
+\begin{definition}[Satisfies External Circuit Ohms Law]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-satisfiesexternalcircuitohmslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.SatisfiesExternalCircuitOhmsLaw}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-resistanceinohms, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electromotiveforceinvolts, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinamperes, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup}
+  Ohm's law for the current magnitude in the closed external circuit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies External Circuit Ohms Law.
+\end{proof}
+\begin{definition}[Current Answer Choice]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.CurrentAnswerChoice}
+  The four current choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Current Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Milliamperes]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-answerchoiceinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.answerChoiceInMilliamperes}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentanswerchoice}
+  Printed magnitude of each answer choice, in milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Milliamperes.
+\end{proof}
+\begin{definition}[current In Milliamperes]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinmilliamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.currentInMilliamperes}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-electriccurrentmagnitude, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinamperes}
+  Coherent-SI current readout converted from amperes to milliamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Milliamperes.
+\end{proof}
+\begin{definition}[Is Unique Closest Current Choice]
+  \label{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-isuniqueclosestcurrentchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0982.IsUniqueClosestCurrentChoice}
+  \uses{def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-rotatingspherecircuitsetup, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentanswerchoice, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-answerchoiceinmilliamperes, def:physics:phyx-mini-0982:phyxminiproblems-problemphyxmini0982-currentinmilliamperes}
+  A listed choice is uniquely closest to the physical current readout. This definition does not privilege any particular choice or prescribe the current
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Current Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

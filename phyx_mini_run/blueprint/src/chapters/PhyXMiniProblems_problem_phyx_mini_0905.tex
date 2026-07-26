@@ -1,0 +1,323 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0905.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0905.source.json
+
+\chapter{Physics problem phyx\_mini\_0905}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0905}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An electric field \textbackslash{}( \textbackslash{}vec\{E\} = 200\{,\}000\textbackslash{},\textbackslash{}hat\{i\}\textbackslash{},\textbackslash{}mathrm\{N/C\} \textbackslash{}) causes the point charge in figure to hang at a angle.
+
+\#\# Question
+
+What is the charge on the ball?
+
+\#\# Answer choices
+
+- A: A: 3\textasciicircum{}\textbackslash{}circ
+
+- B: B: 9\textasciicircum{}\textbackslash{}circ
+
+- C: C: 14\textasciicircum{}\textbackslash{}circ
+
+- D: D: 20\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram involving a charged object suspended by a string. Here is a detailed description:
+
+- **Suspension Setup**: The top of the image depicts a fixed horizontal surface from which a string is hanging.
+  
+- **Mass and Charge**: Attached at the end of the string is a spherical object. This object is labeled with a positive charge symbol (+) and the text "25 nC" (nanocoulombs), indicating it has a net positive charge. It also notes a mass of "2.0 g" (grams).
+
+- **String and Angle**: The string is depicted at an angle \textbackslash{}(\textbackslash{}theta\textbackslash{}) from the vertical. A dashed line indicates the vertical reference line.
+
+- **Electric Field**: To the right of the charged object, there are arrows pointing horizontally to the right, labeled with an electric field symbol \textbackslash{}(\textbackslash{}vec\{E\}\textbackslash{}). These arrows show the direction of the electric field acting on the charge.
+
+- **Force Indicators**: The arrows around the charge and along the string suggest forces in action, related to the charge being in an electric field and affected by gravity, as well as the string's tension.
+
+This setup likely represents a problem involving equilibrium where the electric field, gravitational forces, and string tension are balanced.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 14\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/905.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0905.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0905:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0905.problem_phyx_mini_0905}
+\uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchesprimaryfigure, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchessourcescenario, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasstandardterrestrialgravity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasphysicaldeflectionbranch, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-satisfiesstaticforcebalance, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-radianstodegrees, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-isuniqueclosestdisplayedangle}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.accelerationDimension}
+  The physical dimension L T⁻² of acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[electric Field Strength Dimension]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldstrengthdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.electricFieldStrengthDimension}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcedimension}
+  The physical dimension M L T⁻² C⁻¹ of electric-field strength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field Strength Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.SignedChargeQuantity}
+  A signed, unit-independent physical electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Planar Electric Field Quantity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planarelectricfieldquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.PlanarElectricFieldQuantity}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldstrengthdimension}
+  A planar electric-field vector with its physical dimension retained
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Electric Field Quantity.
+\end{proof}
+\begin{definition}[Planar Acceleration Quantity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planaraccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.PlanarAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationdimension}
+  A planar acceleration vector with its physical dimension retained
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Acceleration Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcedimension}
+  A nonnegative magnitude of string tension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[x Axis]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-xaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.xAxis}
+  Coordinate 0, horizontal and positive to the right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Axis.
+\end{proof}
+\begin{definition}[y Axis]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-yaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.yAxis}
+  Coordinate 1, vertical and positive upward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Axis.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.massInKilograms}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massquantity}
+  Read a mass in coherent SI units, kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-signedchargequantity}
+  Read a signed charge in coherent SI units, coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[electric Field In Newtons Per Coulomb]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldinnewtonspercoulomb}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.electricFieldInNewtonsPerCoulomb}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planarelectricfieldquantity}
+  Read the planar electric-field vector in newtons per coulomb
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Field In Newtons Per Coulomb.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planaraccelerationquantity}
+  Read the planar gravitational acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force In Newtons]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.forceInNewtons}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcemagnitudequantity}
+  Read a tension magnitude in coherent SI units, newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force In Newtons.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.FigureElement}
+  Visible geometric and force-diagram elements in image 905.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Suspended Charge Figure]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.SuspendedChargeFigure}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massquantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-signedchargequantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planarelectricfieldquantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-figureelement}
+  Typed content of the primary raster. The mass and charge values printed beside the ball are stated independently in MatchesPrimaryFigure. The field symbol denotes the applied field, but its magnitude comes from the source scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suspended Charge Figure.
+\end{proof}
+\begin{definition}[Suspended Charge Setup]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.SuspendedChargeSetup}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massquantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-signedchargequantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planarelectricfieldquantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-planaraccelerationquantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forcemagnitudequantity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargefigure}
+  Independent physical quantities in the suspended-ball experiment. In particular, the unknown angle is not defined from answer C or from 14
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Suspended Charge Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massinkilograms, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-chargeincoulombs, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  The visible objects and numerical labels transcribed from the primary image. The angle arc and field label are only symbolic: no numerical angle or field magnitude is included here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Source Scenario]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchessourcescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.MatchesSourceScenario}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-xaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-yaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldinnewtonspercoulomb, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  The uniform electric-field components supplied by the accompanying problem statement rather than by the raster itself
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Source Scenario.
+\end{proof}
+\begin{definition}[Has Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.HasStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-xaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-yaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  The standard near-Earth gravity calibration used by the numerical textbook answer. It is separated from the image evidence because g is not printed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Has Physical Deflection Branch]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasphysicaldeflectionbranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.HasPhysicalDeflectionBranch}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  The branch shown in the figure: the string deflects right by an acute angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Deflection Branch.
+\end{proof}
+\begin{definition}[Satisfies Static Force Balance]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-satisfiesstaticforcebalance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.SatisfiesStaticForceBalance}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-xaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-yaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massinkilograms, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-chargeincoulombs, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldinnewtonspercoulomb, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-forceinnewtons, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup}
+  Static force balance on the ball. The tension points up and left along the string, so its components are -T sin θ and T cos θ; electric force is q E, and weight is m g. These are governing laws, not the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Static Force Balance.
+\end{proof}
+\begin{lemma}[equilibrium angle arctan]
+  \label{lem:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-equilibrium-angle-arctan}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.equilibrium_angle_arctan}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-xaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-yaxis, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-massinkilograms, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-chargeincoulombs, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-electricfieldinnewtonspercoulomb, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-suspendedchargesetup, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchesprimaryfigure, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-matchessourcescenario, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasstandardterrestrialgravity, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-hasphysicaldeflectionbranch, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-satisfiesstaticforcebalance}
+  Resolving the two balance equations and selecting the acute physical branch gives the usual arctangent expression. This is derived rather than assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equilibrium angle arctan.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.AnswerChoice}
+  Letter labels of the four displayed angle choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.AnswerChoice.degrees}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice}
+  Degree value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.radiansToDegrees}
+  Convert the acute radian representative used by the setup to degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Angle]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-isuniqueclosestdisplayedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.IsUniqueClosestDisplayedAngle}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice, def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-radianstodegrees}
+  A displayed choice is uniquely closest to the physical angle when its absolute degree error is strictly smaller than that of every other displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Angle.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0905.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0905:phyxminiproblems-problemphyxmini0905-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,292 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0748.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0748.source.json
+
+\chapter{Physics problem phyx\_mini\_0748}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0748}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two highways intersect as shown in figure. At the instant shown, a police car \$P\$ is distance \$d\_P = 800\textbackslash{} m\$ from the intersection and moving at speed \$v\_P = 80\textbackslash{} km/h\$. Motorist \$M\$ is distance \$d\_M = 600\textbackslash{} m\$ from the intersection and moving at speed \$v\_M = 60\textbackslash{} km/h\$.
+
+\#\# Question
+
+In unit-vector notation, what is the velocity of the motorist with respect to the police car?
+
+\#\# Answer choices
+
+- A: A: \$(60\textbackslash{} km/h)\textbackslash{}hat\{i\}-(80\textbackslash{} km/h)\textbackslash{}hat\{j\}\$
+
+- B: B: \$(80\textbackslash{} km/h)\textbackslash{}hat\{i\}+(60\textbackslash{} km/h)\textbackslash{}hat\{j\}\$
+
+- C: C: \$(80\textbackslash{} km/h)\textbackslash{}hat\{i\}-(60\textbackslash{} km/h)\textbackslash{}hat\{j\}\$
+
+- D: D: \$(60\textbackslash{} km/h)\textbackslash{}hat\{i\}+(80\textbackslash{} km/h)\textbackslash{}hat\{j\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram of two cars on intersecting roads, forming an L-shape.
+
+- **Cars**: 
+  - A red car labeled "M" is on the vertical road moving downward along the y-axis.
+  - A white car labeled "P" is on the horizontal road moving leftward along the negative x-axis.
+
+- **Roads**: 
+  - The roads are portrayed as gray rectangles intersecting at the origin of the coordinate system.
+
+- **Text and Labels**: 
+  - The red car's velocity is labeled \textbackslash{}( v\_M \textbackslash{}) and the distance from the intersection to the car is \textbackslash{}( d\_M \textbackslash{}).
+  - The white car's velocity is labeled \textbackslash{}( v\_P \textbackslash{}) and the distance from the intersection to the car is \textbackslash{}( d\_P \textbackslash{}).
+  - Axes are labeled with \textbackslash{}( x \textbackslash{}) and \textbackslash{}( y \textbackslash{}).
+
+- **Arrows**: 
+  - Arrow \textbackslash{}( v\_M \textbackslash{}) points downward indicating the direction of the red car's movement.
+  - Arrow \textbackslash{}( v\_P \textbackslash{}) points left indicating the direction of the white car's movement.
+
+- **Distances**: 
+  - \textbackslash{}( d\_M \textbackslash{}) is marked on the y-axis from the intersection to the red car.
+  - \textbackslash{}( d\_P \textbackslash{}) is marked on the x-axis from the intersection to the white car.
+
+The diagram is likely illustrating a scenario involving movement and distances at an intersection.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$(80\textbackslash{} km/h)\textbackslash{}hat\{i\}-(60\textbackslash{} km/h)\textbackslash{}hat\{j\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/748.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0748.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0748:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0748.motorist_velocity_relative_to_police}
+\uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-velocityinkilometersperhour, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-ihat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-jhat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-hasphysicalparameters, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-matchesproblemreadouts, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-matchessuppliedfigure, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-obeysclassicalrelativekinematics}
+The motorist's velocity relative to the police car is
+\(80\hat{\imath}-60\hat{\jmath}\,\mathrm{km/h}\), answer C.
+\end{theorem}
+\begin{proof}
+The figure makes the police velocity \(-80\hat{\imath}\) and the motorist
+velocity \(-60\hat{\jmath}\), in kilometres per hour.  Classical relative
+kinematics therefore gives
+\[
+ \vec v_{M/P}=\vec v_M-\vec v_P
+ =-60\hat{\jmath}-(-80\hat{\imath})
+ =80\hat{\imath}-60\hat{\jmath}.
+\]
+Substitution into the unit-uniform velocity law gives the claimed SI-backed
+readout.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Diagram Vector]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.DiagramVector}
+  The two-dimensional Euclidean vector space of the road diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Vector.
+\end{proof}
+\begin{definition}[Distance Quantity]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.DistanceQuantity}
+  A nonnegative, unit-independent physical distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Distance Quantity.
+\end{proof}
+\begin{definition}[Planar Position]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.PlanarPosition}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  A unit-independent planar position carrying the dimension of length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position.
+\end{proof}
+\begin{definition}[Planar Velocity]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.PlanarVelocity}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  A unit-independent planar velocity carrying dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity.
+\end{proof}
+\begin{definition}[kilometer Hour Units]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-kilometerhourunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.kilometerHourUnits}
+  Unit choices used for kilometer-per-hour readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kilometer Hour Units.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.distanceInMeters}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distancequantity}
+  Read a physical distance in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[speed In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-speedinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.speedInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-kilometerhourunits}
+  Read a nonnegative physical speed in kilometers per hour
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.positionInMeters}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarposition}
+  Read a planar position as its (x,y) coordinate vector in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[velocity In Kilometers Per Hour]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-velocityinkilometersperhour}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.velocityInKilometersPerHour}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarvelocity, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-kilometerhourunits}
+  Read a planar velocity as its (x,y) component vector in km/h
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Kilometers Per Hour.
+\end{proof}
+\begin{definition}[i Hat]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-ihat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.iHat}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  The unit vector iHat in the positive horizontal direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of i Hat.
+\end{proof}
+\begin{definition}[j Hat]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-jhat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.jHat}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  The unit vector jHat in the positive vertical direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of j Hat.
+\end{proof}
+\begin{definition}[intersection Origin]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectionorigin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.intersectionOrigin}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector}
+  The coordinate vector of the highway intersection
+\end{definition}
+\begin{proof}
+  This is the declared model definition of intersection Origin.
+\end{proof}
+\begin{definition}[Vehicle Label]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-vehiclelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.VehicleLabel}
+  The two vehicles labelled in the problem and primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vehicle Label.
+\end{proof}
+\begin{definition}[Highway Label]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-highwaylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.HighwayLabel}
+  The perpendicular highways drawn through the coordinate origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Highway Label.
+\end{proof}
+\begin{definition}[highway Direction]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-highwaydirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.highwayDirection}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-ihat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-jhat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-highwaylabel}
+  The positive coordinate direction of each highway
+\end{definition}
+\begin{proof}
+  This is the declared model definition of highway Direction.
+\end{proof}
+\begin{definition}[Intersecting Highways Setup]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.IntersectingHighwaysSetup}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distancequantity, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarposition, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-planarvelocity, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-vehiclelabel, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-highwaylabel}
+  The relative velocity is stored independently from both laboratory-frame velocities. Its relation to them is supplied later by a governing law, so no answer component is built into this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Intersecting Highways Setup.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distanceinmeters, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-speedinkilometersperhour, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup}
+  Positivity and unit-direction conditions for a nondegenerate snapshot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distanceinmeters, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup}
+  The four numerical physical data stated in the prose. The distance readouts are in metres. The speed equalities use Physlib's dimensionful constant for one kilometer per hour, rather than treating speeds as bare real scalars
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-distanceinmeters, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-positioninmeters, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-ihat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-jhat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectionorigin, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup}
+  Primary-image geometry. Both cars are shown on positive coordinate rays, while both velocity arrows point toward the origin: P leftward and M downward. This predicate contains no relative-velocity answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Obeys Classical Relative Kinematics]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-obeysclassicalrelativekinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.ObeysClassicalRelativeKinematics}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-vehiclelabel, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-intersectinghighwayssetup}
+  The governing instantaneous kinematics. The first field interprets each speed magnitude and unit direction as a vector velocity in any unit system. The second is the classical Galilean definition velocity of M relative to P = velocity of M - velocity of P. Neither law contains the requested numerical relative-velocity components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Classical Relative Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.AnswerChoice}
+  Labels of the four answers displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[velocity Vector]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-answerchoice-velocityvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.AnswerChoice.velocityVector}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-diagramvector, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-ihat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-jhat, def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-answerchoice}
+  The kilometer-per-hour vector printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Vector.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0748.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0748:phyxminiproblems-problemphyxmini0748-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

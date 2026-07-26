@@ -1,0 +1,243 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0324.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0324.source.json
+
+\chapter{Physics problem phyx\_mini\_0324}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0324}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Ultrasound, which consists of sound waves with frequencies above the human audible range, can be used to produce an image of the interior of a human body. Moreover, ultrasound can be used to measure the speed of the blood in the body; it does so by comparing the frequency of the ultrasound sent into the body with the frequency of the ultrasound reflected back to the body's surface by the blood. As the blood pulses, this detected frequency varies.
+
+Suppose that an ultrasound image of the arm of a patient shows an artery that is angled at \textbackslash{}(\textbackslash{}theta = 20\textasciicircum{}\textbackslash{}circ\textbackslash{}) to the ultrasound's line of travel. Suppose also that the frequency of the ultrasound reflected by the blood in the artery is increased by a maximum of \textbackslash{}(5495\textbackslash{},\textbackslash{}mathrm\{Hz\}\textbackslash{}) from the original ultrasound frequency of \textbackslash{}(5.000\textbackslash{},000\textbackslash{},\textbackslash{}mathrm\{MHz\}\textbackslash{}).
+
+\#\# Question
+
+The speed of sound in the human arm is \textbackslash{}(1540\textbackslash{},\textbackslash{}mathrm\{m/s\}\textbackslash{}). What is the maximum speed of the blood?
+
+\#\# Answer choices
+
+- A: A: 0.60 m/s
+
+- B: B: 0.70 m/s
+
+- C: C: 0.80 m/s
+
+- D: D: 0.90 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a diagram featuring two horizontal areas with a labeled boundary between them. The upper area is labeled "Incident ultrasound" and shows a dashed line representing ultrasound waves striking the boundary at an angle. The angle of incidence is indicated by the symbol "θ". The lower area is labeled "Artery". The diagram visually represents the interaction between incident ultrasound waves and an artery, with the wave angle highlighted.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.90 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/324.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0324.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0324:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0324.maximumBloodSpeed_matches_recordedAnswerD}
+\uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-degrees, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesprimaryfigureandscenario, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesproblemreadouts, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-hasphysicalultrasoundparameters, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-satisfiespulseechodopplerlaw, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-recordeddatasetanswer, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.FrequencyQuantity}
+  A nonnegative physical acoustic frequency with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.SpeedQuantity}
+  A nonnegative physical speed, independent of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.frequencyReadout}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyquantity}
+  Read a physical frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.speedReadout}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedquantity}
+  Read a physical speed in the selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyquantity, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyreadout}
+  Hertz readout of a physical acoustic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedquantity, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedreadout}
+  Metres-per-second readout of a physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.degrees}
+  Convert a numerical degree readout into Mathlib's physical angle type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.AcousticMedium}
+  The acoustic propagation medium named in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Echo Target]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-echotarget}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.EchoTarget}
+  The physical target that returns the detected ultrasound echo
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Echo Target.
+\end{proof}
+\begin{definition}[Figure Region Label]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-figureregionlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.FigureRegionLabel}
+  The two region labels printed in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region Label.
+\end{proof}
+\begin{definition}[Ultrasound Artery Figure]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-ultrasoundarteryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.UltrasoundArteryFigure}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-figureregionlabel}
+  Discrete information visible in the primary bitmap. The image is schematic, so it supplies an upper/lower ordering and a labelled angle but no metric distance or pixel-derived physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ultrasound Artery Figure.
+\end{proof}
+\begin{definition}[Pulsed Blood Doppler Setup]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.PulsedBloodDopplerSetup}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyquantity, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedquantity, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-acousticmedium, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-echotarget, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-ultrasoundarteryfigure}
+  Physical quantities throughout one blood-pulse cycle. PulsePhase is kept abstract because the source specifies variation and a phase attaining the maximum shift, but gives no time parametrization. The reflected frequencies and blood speeds are independent physical quantities; the Doppler law below relates them rather than defining either from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pulsed Blood Doppler Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure And Scenario]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesprimaryfigureandscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.MatchesPrimaryFigureAndScenario}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup}
+  The qualitative geometry read directly from the primary image and prose. It contains no frequency or blood-speed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure And Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyinhertz, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-degrees, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup}
+  Numerical data from the problem statement. The selected phase is characterized by the largest measured reflected-frequency increase and has the stated 5495 Hz increase. No numerical value of blood speed occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Has Physical Ultrasound Parameters]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-hasphysicalultrasoundparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.HasPhysicalUltrasoundParameters}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyinhertz, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup}
+  Positivity, an acute beam/artery angle, and the low-Mach condition for every pulse phase. These conditions select the physical branch on which a larger positive Doppler increase corresponds to a larger blood-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Ultrasound Parameters.
+\end{proof}
+\begin{definition}[Satisfies Pulse Echo Doppler Law]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-satisfiespulseechodopplerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.SatisfiesPulseEchoDopplerLaw}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-frequencyreadout, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedreadout, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup}
+  The standard low-speed pulse-echo Doppler law used for medical ultrasound. The factor 2 accounts for the outgoing interaction with moving blood and the returning echo. Only the component of blood velocity parallel to the ultrasound beam contributes, giving the factor cos θ. The relation is stated in every compatible choice of length and time units and contains no answer choice or requested numerical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Pulse Echo Doppler Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.AnswerChoice}
+  Labels of the four speed choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-answerchoice}
+  Metres-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedquantity, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-answerchoice}
+  A physical speed matches a two-decimal-place displayed choice when its SI readout lies within half of 0.01 m/s of the printed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[blood Speed At Peak Shift formula]
+  \label{lem:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-bloodspeedatpeakshift-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0324.bloodSpeedAtPeakShift_formula}
+  \uses{def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-speedinmeterspersecond, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-degrees, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-pulsedblooddopplersetup, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesprimaryfigureandscenario, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-matchesproblemreadouts, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-hasphysicalultrasoundparameters, def:physics:phyx-mini-0324:phyxminiproblems-problemphyxmini0324-satisfiespulseechodopplerlaw}
+  At the phase of greatest measured frequency increase, the pulse-echo law gives the exact symbolic SI speed readout used for the numerical evaluation
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of blood Speed At Peak Shift formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

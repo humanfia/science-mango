@@ -1,0 +1,304 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0303.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0303.source.json
+
+\chapter{Physics problem phyx\_mini\_0303}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0303}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two sinusoidal \$120\$ Hz waves, of the same frequency and amplitude, are to be sent in the positive direction of an \$x\$ axis that is directed along a cord under tension. The waves can be sent in phase, or they can be phase-shifted. Figure shows the amplitude \$y'\$ of the resulting wave versus the distance of the shift (how far one wave is shifted from the other wave). The scale of the vertical axis is set by \$y\_s' = 6.0\$ mm.
+
+\#\# Question
+
+If the equations for the two waves are of the form \$y(x, t) = y\_m \textbackslash{}sin(kx \textbackslash{}pm \textbackslash{}omega t)\$, what is \$\textbackslash{}omega\$
+
+\#\# Answer choices
+
+- A: A: 742 rad/s
+
+- B: B: 746 rad/s
+
+- C: C: 750 rad/s
+
+- D: D: 754 rad/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a smooth curve that resembles an inverted parabola. Here are the details:
+
+- **Axes**:
+  - The horizontal axis is labeled "Shift distance (cm)." The main ticks on this axis are marked at 10 cm and 20 cm.
+  - The vertical axis is labeled "y' (mm)."
+
+- **Curve**:
+  - The curve starts at the top left, at \textbackslash{}(y'\_s\textbackslash{}) on the y-axis, and descends continuously, crossing the x-axis between 0 cm and 10 cm.
+  - It continues downward, crossing the y-axis again between 10 cm and 20 cm and nearing a point labeled \textbackslash{}(-y'\_s\textbackslash{}) on the y-axis.
+
+- **Grid**:
+  - The graph contains grid lines for easier distinction of values, although specific vertical and horizontal increments are not labeled apart from the main axis ticks.
+
+- **Text and Labels**:
+  - The curve is oriented in such a way that it spans from the top left to the lower right of the graph, indicating a decreasing relationship between y' and shift distance over the observed range.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 754 rad/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/303.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0303.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0303:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0303.problem_phyx_mini_0303}
+\uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyinradianspersecond, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-twowaveinterferencesetup, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-matchesproblemandprimaryfigure, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-hasphysicalwaveparameters, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-satisfiestwowaveinterferencelaws, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-recordedanswerchoice, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-matchesnearestwholeradianpersecond}
+Two waves of cyclic frequency \(120\,\mathrm{Hz}\) have angular frequency
+\(\omega=240\pi\,\mathrm{rad/s}\), whose nearest displayed whole-number value
+is \(754\,\mathrm{rad/s}\), answer D.
+\end{theorem}
+\begin{proof}
+The cyclic-to-angular-frequency law gives
+\[
+ \omega=2\pi f=2\pi(120)=240\pi.
+\]
+Certified rational bounds for \(\pi\) imply
+\(753.5<240\pi<754.5\).  Consequently
+\(|240\pi-754|<1/2\), which is exactly the declared nearest-whole-radian
+relation for the recorded answer D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.LengthQuantity}
+  A nonnegative physical length, used for amplitudes and shift distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Signed Length Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.SignedLengthQuantity}
+  A signed length component, used for the graph's signed coefficient y'
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Length Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.FrequencyQuantity}
+  A nonnegative cyclic frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Angular Frequency Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.AngularFrequencyQuantity}
+  A nonnegative angular frequency; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Frequency Quantity.
+\end{proof}
+\begin{definition}[Wave Number Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.WaveNumberQuantity}
+  A nonnegative wave number; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Number Quantity.
+\end{proof}
+\begin{definition}[Tension Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-tensionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.TensionQuantity}
+  Cord tension, with force dimension M L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tension Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.lengthReadout}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthquantity}
+  Read a nonnegative physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[signed Length Readout]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.signedLengthReadout}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthquantity}
+  Read a signed physical length component in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Length Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyquantity}
+  Read a cyclic frequency in hertz, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[angular Frequency In Radians Per Second]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.angularFrequencyInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyquantity}
+  Read an angular frequency in radians per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Frequency In Radians Per Second.
+\end{proof}
+\begin{definition}[wave Number In Radians Per Meter]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberinradianspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.waveNumberInRadiansPerMeter}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberquantity}
+  Read a wave number in radians per SI metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Number In Radians Per Meter.
+\end{proof}
+\begin{definition}[tension In Newtons]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-tensioninnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.tensionInNewtons}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-tensionquantity}
+  Read the cord tension in SI newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tension In Newtons.
+\end{proof}
+\begin{definition}[Wave Index]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-waveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.WaveIndex}
+  The two equal-amplitude, equal-frequency waves described in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Index.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.PropagationDirection}
+  Direction in which a wave propagates along the cord's x axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[Graph Axis]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-graphaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.GraphAxis}
+  The coordinate axes explicitly labelled in the primary graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Axis.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.AxisQuantity}
+  Physical roles of the two graph coordinates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Graph Landmark]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-graphlandmark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.GraphLandmark}
+  Three directly readable landmarks of the plotted curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Landmark.
+\end{proof}
+\begin{definition}[Shift Amplitude Graph]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-shiftamplitudegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.ShiftAmplitudeGraph}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-graphaxis, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-axisquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-graphlandmark}
+  The graph's independent dimensionful data. Its amplitude function returns a signed coefficient because the plotted curve extends from y'\_s to -y'\_s; it is not being used as a nonnegative amplitude magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Shift Amplitude Graph.
+\end{proof}
+\begin{definition}[Two Wave Interference Setup]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-twowaveinterferencesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.TwoWaveInterferenceSetup}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-tensionquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-waveindex, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-propagationdirection, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-shiftamplitudegraph}
+  Independent apparatus quantities and scalar field readouts. The single fields amplitudeYm, frequency, waveNumber, and angularFrequency encode that the two waves share those quantities. Their values are otherwise independent: in particular, angularFrequency is not defined to be the requested answer. The displacement functions return the signed transverse component in metres at SI coordinates and time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Wave Interference Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthreadout, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthreadout, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyinhertz, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-waveindex, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-twowaveinterferencesetup}
+  Numerical and qualitative data stated in the prose together with calibrated evidence from the primary bitmap. The graph data constrain only shift distances and signed resultant amplitudes; no angular-frequency or answer value appears among the figure premises
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Wave Parameters]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-hasphysicalwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.HasPhysicalWaveParameters}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthreadout, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyinhertz, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyinradianspersecond, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberinradianspermeter, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-tensioninnewtons, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-twowaveinterferencesetup}
+  Positivity assumptions selecting a nondegenerate cord and two-wave setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wave Parameters.
+\end{proof}
+\begin{definition}[Satisfies Two Wave Interference Laws]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-satisfiestwowaveinterferencelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.SatisfiesTwoWaveInterferenceLaws}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthquantity, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-lengthreadout, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-signedlengthreadout, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-frequencyinhertz, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-angularfrequencyinradianspersecond, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-wavenumberinradianspermeter, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-waveindex, def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-twowaveinterferencesetup}
+  The standard laws for equal-frequency sinusoidal waves on a linear cord: cyclic and angular frequency obey omega = 2 pi f; wave number and wavelength obey k lambda = 2 pi; positive-x propagation uses the temporal phase -omega t; translating the second wave by s contributes phase -k s; transverse displacements superpose linearly; the signed coefficient of the resultant is 2 y\_m cos (k s / 2). These are general relations.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Two Wave Interference Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.AnswerChoice}
+  Labels printed beside the four candidate angular frequencies
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radians Per Second]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-answerchoice-radianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.AnswerChoice.radiansPerSecond}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-answerchoice}
+  Radian-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Nearest Whole Radian Per Second]
+  \label{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-matchesnearestwholeradianpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0303.MatchesNearestWholeRadianPerSecond}
+  \uses{def:physics:phyx-mini-0303:phyxminiproblems-problemphyxmini0303-answerchoice}
+  Agreement with an answer displayed to the nearest whole radian per second. The strict half-width also excludes a midpoint tie
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Nearest Whole Radian Per Second.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

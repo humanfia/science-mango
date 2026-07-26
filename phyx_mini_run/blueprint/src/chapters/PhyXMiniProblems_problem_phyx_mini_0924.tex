@@ -1,0 +1,317 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0924.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0924.source.json
+
+\chapter{Physics problem phyx\_mini\_0924}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0924}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure gives the parameter \textbackslash{}( eta \textbackslash{}) versus the sine of the angle \textbackslash{}( 	heta \textbackslash{}) in a two-slit interference experiment using light of wavelength 435\textbackslash{},\textbackslash{}text\{nm\}. The vertical axis scale is set by \textbackslash{}( eta\_s = 80.0\textbackslash{},\textbackslash{}text\{rad\} \textbackslash{}).Assume that none of the interference maxima are completely eliminated by a diffraction minimum.
+
+\#\# Question
+
+What is the greatest angle for a minimum?
+
+\#\# Answer choices
+
+- A: A: 77.5\textasciicircum{}\textbackslash{}circ
+
+- B: B: 80.0\textasciicircum{}\textbackslash{}circ
+
+- C: C: 79.0\textasciicircum{}\textbackslash{}circ
+
+- D: D: 75.0\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with the following details:
+
+- **Axes**: 
+  - The horizontal axis is labeled as "sin θ", with markings at 0, 0.5, and 1.
+  - The vertical axis is labeled as "β (rad)", with a specific mark labeled as "βₛ".
+
+- **Line**:
+  - A thick, black, diagonal line runs from the origin (0,0) to the top right, at the point (1, β).
+
+- **Grid**:
+  - The graph contains a grid with equal-sized rectangular cells.
+
+- **Text and Labels**:
+  - The label for the vertical axis includes "βₛ", indicating a specific point or value on that axis.
+
+This represents a direct linear relationship between "sin θ" and "β".
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 79.0\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/924.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0924.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0924:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0924.problem_phyx_mini_0924}
+\uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-hasphysicaldoubleslitparameters, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesproblemwavelengthreadout, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesprimarybetaversussinefigure, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-satisfiesfinitedoubleslitphaselaws, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-nointerferencemaximumeliminatedbydiffraction, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isgreatestinterferenceminimum, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isuniquematchingdisplayedangle}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.LengthQuantity}
+  A nonnegative physical length, independent of the chosen readout unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.lengthReadout}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Nanometers]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthinnanometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.lengthInNanometers}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthquantity, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthreadout}
+  The nanometre readout used for the stated wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Nanometers.
+\end{proof}
+\begin{definition}[angle In Degrees]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-angleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.angleInDegrees}
+  Convert an angle readout in radians to its numerical degree readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle In Degrees.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.FigureAxis}
+  The two quantities labelling the axes of the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Axis Unit]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-figureaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.FigureAxisUnit}
+  The units explicitly printed beside the graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis Unit.
+\end{proof}
+\begin{definition}[Vertical Scale Label]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-verticalscalelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.VerticalScaleLabel}
+  The symbol printed at the top of the vertical scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Scale Label.
+\end{proof}
+\begin{definition}[Trace Style]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-tracestyle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.TraceStyle}
+  The line style visible in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trace Style.
+\end{proof}
+\begin{definition}[Beta Versus Sine Figure]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-betaversussinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.BetaVersusSineFigure}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-figureaxis, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-figureaxisunit, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-verticalscalelabel, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-tracestyle}
+  Literal graph metadata and its scalar plot readout. The plot function is an observable supplied by the figure; it is not defined from a desired angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Beta Versus Sine Figure.
+\end{proof}
+\begin{definition}[Finite Double Slit Setup]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.FiniteDoubleSlitSetup}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthquantity, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-betaversussinefigure}
+  Physical lengths, phase observables, and the supplied figure for the finite double-slit experiment. betaRadiansAt is the full phase difference between the two slit contributions; alphaRadiansAt is the phase governing the single-slit diffraction envelope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Finite Double Slit Setup.
+\end{proof}
+\begin{definition}[Is Forward Angle]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsForwardAngle}
+  The nonnegative forward angular branch represented by 0 ≤ sin θ ≤ 1
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Forward Angle.
+\end{proof}
+\begin{definition}[Has Physical Double Slit Parameters]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-hasphysicaldoubleslitparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.HasPhysicalDoubleSlitParameters}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthinnanometers, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup}
+  Positive wavelength, slit separation, and slit width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Double Slit Parameters.
+\end{proof}
+\begin{definition}[Matches Problem Wavelength Readout]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesproblemwavelengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.MatchesProblemWavelengthReadout}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthinnanometers, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup}
+  The wavelength stated in the prose is 435 nm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Wavelength Readout.
+\end{proof}
+\begin{definition}[Matches Primary Beta Versus Sine Figure]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesprimarybetaversussinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.MatchesPrimaryBetaVersusSineFigure}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  The primary image has axes sin θ and β (rad), horizontal markings 0, 0.5, 1, a four-by-four rectangular grid, and a thick black diagonal from the origin to (1, βₛ). The prose calibrates βₛ as 80.0 rad. The final conjunct connects the plotted ordinate at sin θ to the physical phase observable. It is a general graph readout on the whole forward branch, not the requested minimum-angle conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Beta Versus Sine Figure.
+\end{proof}
+\begin{definition}[Satisfies Finite Double Slit Phase Laws]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-satisfiesfinitedoubleslitphaselaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.SatisfiesFiniteDoubleSlitPhaseLaws}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthreadout, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  The two general phase laws for equal finite-width slits: the full inter-slit path phase is β = 2π(d/λ) sin θ; the single-slit diffraction phase is α = π(a/λ) sin θ. They are stated in every common length unit. Neither law singles out an order, a greatest angle, or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Finite Double Slit Phase Laws.
+\end{proof}
+\begin{definition}[Is Interference Minimum]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isinterferenceminimum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsInterferenceMinimum}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  A destructive two-source fringe: the full phase is an odd multiple of π
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Interference Minimum.
+\end{proof}
+\begin{definition}[Is Interference Maximum]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isinterferencemaximum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsInterferenceMaximum}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  A constructive two-source fringe: the full phase is an even multiple of π
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Interference Maximum.
+\end{proof}
+\begin{definition}[Is Diffraction Minimum]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isdiffractionminimum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsDiffractionMinimum}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isforwardangle}
+  A noncentral minimum of the single-slit diffraction envelope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Diffraction Minimum.
+\end{proof}
+\begin{definition}[No Interference Maximum Eliminated By Diffraction]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-nointerferencemaximumeliminatedbydiffraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.NoInterferenceMaximumEliminatedByDiffraction}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isinterferencemaximum, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isdiffractionminimum}
+  The explicit source assumption that no interference maximum is completely eliminated by a diffraction minimum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of No Interference Maximum Eliminated By Diffraction.
+\end{proof}
+\begin{definition}[Is Greatest Interference Minimum]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isgreatestinterferenceminimum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsGreatestInterferenceMinimum}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isinterferenceminimum}
+  A forward interference minimum greater than or equal to every other one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Greatest Interference Minimum.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.AnswerChoice}
+  Labels of the four answer choices in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Angle In Degrees]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-displayedangleindegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.displayedAngleInDegrees}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-answerchoice}
+  Numerical degree readout printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Angle In Degrees.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-answerchoice}
+  The answer label recorded in the dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Matches Displayed Tenth Degree]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesdisplayedtenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.MatchesDisplayedTenthDegree}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-angleindegrees, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-answerchoice, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-displayedangleindegrees}
+  Agreement with a value displayed to the nearest tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Tenth Degree.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Angle]
+  \label{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isuniquematchingdisplayedangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.IsUniqueMatchingDisplayedAngle}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-answerchoice, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesdisplayedtenthdegree}
+  A displayed choice is the unique tenth-degree match to an angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Angle.
+\end{proof}
+\begin{lemma}[slit Center Separation In Nanometers eq]
+  \label{lem:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-slitcenterseparationinnanometers-eq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.slitCenterSeparationInNanometers_eq}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-lengthinnanometers, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-hasphysicaldoubleslitparameters, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesproblemwavelengthreadout, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesprimarybetaversussinefigure, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-satisfiesfinitedoubleslitphaselaws}
+  Combining the graph endpoint, wavelength calibration, and general full-phase law determines the slit-center separation. This intermediate result retains the stated wavelength even though it cancels from the requested angle
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of slit Center Separation In Nanometers eq.
+\end{proof}
+\begin{lemma}[twenty Five Pi is largest visible odd phase]
+  \label{lem:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-twentyfivepi-is-largest-visible-odd-phase}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.twentyFivePi_is_largest_visible_odd_phase}
+  The largest odd multiple of π below the graph's phase ceiling 80 is 25π, corresponding to interference-minimum order 12
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of twenty Five Pi is largest visible odd phase.
+\end{proof}
+\begin{lemma}[greatest Interference Minimum Angle exact]
+  \label{lem:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-greatestinterferenceminimumangle-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0924.greatestInterferenceMinimumAngle_exact}
+  \uses{def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-finitedoubleslitsetup, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-hasphysicaldoubleslitparameters, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesproblemwavelengthreadout, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-matchesprimarybetaversussinefigure, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-satisfiesfinitedoubleslitphaselaws, def:physics:phyx-mini-0924:phyxminiproblems-problemphyxmini0924-isgreatestinterferenceminimum}
+  The greatest forward interference minimum therefore has sin θ = 25π/80, hence θ = arcsin(25π/80) radians
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of greatest Interference Minimum Angle exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,415 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0991.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0991.source.json
+
+\chapter{Physics problem phyx\_mini\_0991}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0991}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider the circuit shown in figure. Switch \textbackslash{}( S \textbackslash{}) is closed at time \textbackslash{}( t = 0 \textbackslash{}), causing a current \textbackslash{}( i\_1 \textbackslash{}) through the inductive branch and a current \textbackslash{}( i\_2 \textbackslash{}) through the capacitive branch. The initial charge on the capacitor is zero, and the charge at time \textbackslash{}( t \textbackslash{}) is \textbackslash{}( q\_2 \textbackslash{}).
+
+\#\# Question
+
+The total current through the battery is \textbackslash{}( i = i\_1 + i\_2 \textbackslash{}). At what time \textbackslash{}( t\_2 \textbackslash{}) (accurate to two significant figures) will \textbackslash{}( i \textbackslash{}) equal one-half of its final value?
+
+\#\# Answer choices
+
+- A: A: 0.02s
+
+- B: B: 0.22s
+
+- C: C: 0.16s
+
+- D: D: 0.11s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic diagram of an electrical circuit. It includes the following components:
+
+1. **Switch (S)**: Located on the left side, it is used to open or close the circuit.
+
+2. **Voltage Source (𝓔)**: Positioned at the top, it provides electrical energy to the circuit. It's marked with a positive (+) sign and has a blue color.
+
+3. **Resistors (R1 and R2)**: Two resistors, labeled \textbackslash{}( R\_1 \textbackslash{}) and \textbackslash{}( R\_2 \textbackslash{}), are shown in pink. They are connected in series/parallel with the other components.
+
+4. **Inductor (L)**: Denoted with a coil symbol and colored green, it stores energy in a magnetic field.
+
+5. **Capacitor (C)**: Located at the bottom right with two parallel lines and colored gold, it stores energy in an electric field.
+
+The circuit is arranged in a way that suggests a series-parallel configuration where these components interact with each other.
+
+\#\# Dataset metadata
+
+Electric Circuits; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.22s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/991.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0991.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0991:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0991.problem_phyx_mini_0991}
+\uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-elapsedtimeinseconds, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-matchesswitchclosingscenario, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-matchesprimaryparallelrlrcfigure, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasphysicalparallelrlrcparameters, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasunenergizedinitialstate, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-satisfiesidealparallelrlrctransientlaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricPotentialDimension}
+  Electric potential has dimension M L² T⁻² C⁻¹ (volt)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricCurrentDimension}
+  Electric current has dimension C T⁻¹ (ampere)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electrical Resistance Dimension]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricalresistancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricalResistanceDimension}
+  Electrical resistance has dimension M L² T⁻¹ C⁻² (ohm)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrical Resistance Dimension.
+\end{proof}
+\begin{definition}[capacitance Dimension]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.capacitanceDimension}
+  Capacitance has dimension M⁻¹ L⁻² T² C² (farad)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance Dimension.
+\end{proof}
+\begin{definition}[inductance Dimension]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductancedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.inductanceDimension}
+  Inductance has dimension M L² C⁻² (henry)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Magnitude]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ElectricPotentialMagnitude}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialdimension}
+  A nonnegative, unit-independent emf magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Magnitude.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentdimension}
+  A signed, unit-independent electric-current quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Electric Charge Quantity]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ElectricChargeQuantity}
+  A signed, unit-independent electric-charge quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Charge Quantity.
+\end{proof}
+\begin{definition}[Resistance Magnitude]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ResistanceMagnitude}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricalresistancedimension}
+  A nonnegative, unit-independent resistance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistance Magnitude.
+\end{proof}
+\begin{definition}[Capacitance Magnitude]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.CapacitanceMagnitude}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitancedimension}
+  A nonnegative, unit-independent capacitance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capacitance Magnitude.
+\end{proof}
+\begin{definition}[Inductance Magnitude]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductancemagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.InductanceMagnitude}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductancedimension}
+  A nonnegative, unit-independent inductance magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Inductance Magnitude.
+\end{proof}
+\begin{definition}[Elapsed Time Quantity]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-elapsedtimequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ElapsedTimeQuantity}
+  A nonnegative elapsed time after the switch-closing event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Elapsed Time Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.signedSIReadout}
+  Coherent-SI readout of a signed dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialmagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  Read an emf magnitude in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[electric Current In Amperes]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentquantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-signedsireadout}
+  Read signed conventional current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current In Amperes.
+\end{proof}
+\begin{definition}[electric Charge In Coulombs]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.electricChargeInCoulombs}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargequantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-signedsireadout}
+  Read signed electric charge in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Charge In Coulombs.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  Read resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[capacitance In Farads]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.capacitanceInFarads}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  Read capacitance in farads
+\end{definition}
+\begin{proof}
+  This is the declared model definition of capacitance In Farads.
+\end{proof}
+\begin{definition}[inductance In Henries]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.inductanceInHenries}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  Read inductance in henries
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inductance In Henries.
+\end{proof}
+\begin{definition}[elapsed Time In Seconds]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-elapsedtimeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.elapsedTimeInSeconds}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-elapsedtimequantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-nonnegativesireadout}
+  Read an elapsed time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of elapsed Time In Seconds.
+\end{proof}
+\begin{definition}[Circuit Component]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-circuitcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.CircuitComponent}
+  Electrical components explicitly drawn in 991.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Component.
+\end{proof}
+\begin{definition}[Circuit Branch]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-circuitbranch}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.CircuitBranch}
+  The three horizontal paths between the common left and right nodes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Circuit Branch.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.FigureLabel}
+  Symbolic labels printed in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Side]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-horizontalside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.HorizontalSide}
+  Horizontal sides used to record the source polarity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Side.
+\end{proof}
+\begin{definition}[Figure Color]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-figurecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.FigureColor}
+  Colors carrying literal component-identification information in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Color.
+\end{proof}
+\begin{definition}[Parallel RLRCCircuit Figure]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ParallelRLRCCircuitFigure}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-circuitcomponent, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-circuitbranch, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-figurelabel, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-horizontalside, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-figurecolor}
+  Typed transcription of the topology and labels visible in 991.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel RLRCCircuit Figure.
+\end{proof}
+\begin{definition}[Switch State]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-switchstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.SwitchState}
+  Switch state as a function of coherent-SI time in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Switch State.
+\end{proof}
+\begin{definition}[Parallel RLRCCircuit Setup]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.ParallelRLRCCircuitSetup}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialmagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentquantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargequantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductancemagnitude, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-elapsedtimequantity, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitfigure, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-switchstate}
+  The queried time is an independent physical field. In particular, it is not defined as a root of the half-current equation and is not fixed to an answer choice by construction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel RLRCCircuit Setup.
+\end{proof}
+\begin{definition}[Matches Switch Closing Scenario]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-matchesswitchclosingscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.MatchesSwitchClosingScenario}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  The switch is open before t = 0 and is closed from t = 0 onward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Switch Closing Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Parallel RLRCFigure]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-matchesprimaryparallelrlrcfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.MatchesPrimaryParallelRLRCFigure}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  Every qualitative datum read directly from the primary image. None of these fields contains a component value, a transient time, or a current formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Parallel RLRCFigure.
+\end{proof}
+\begin{definition}[Has Physical Parallel RLRCParameters]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasphysicalparallelrlrcparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.HasPhysicalParallelRLRCParameters}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  Positive, nondegenerate ideal-component parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parallel RLRCParameters.
+\end{proof}
+\begin{definition}[Has Unenergized Initial State]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasunenergizedinitialstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.HasUnenergizedInitialState}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargeincoulombs, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  The capacitor is explicitly initially uncharged. The zero initial inductor current records the usual idealization that the branch was disconnected and unenergized while the switch was open
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Unenergized Initial State.
+\end{proof}
+\begin{definition}[Satisfies Ideal Parallel RLRCTransient Laws]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-satisfiesidealparallelrlrctransientlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.SatisfiesIdealParallelRLRCTransientLaws}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricchargeincoulombs, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup}
+  Ideal transient circuit laws after closure. Derivatives are taken within the closed half-line t ≥ 0, so the laws also have the physically relevant right derivative at the switching instant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Parallel RLRCTransient Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.AnswerChoice}
+  The four answer labels printed with the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Time In Seconds]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-displayedanswertimeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.displayedAnswerTimeInSeconds}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-answerchoice}
+  Numerical time in seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Time In Seconds.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-answerchoice}
+  The source dataset records choice B; this is metadata, not a circuit law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[inductive Branch Current formula]
+  \label{lem:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductivebranchcurrent-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.inductiveBranchCurrent_formula}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasphysicalparallelrlrcparameters, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasunenergizedinitialstate, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-satisfiesidealparallelrlrctransientlaws}
+  For nonnegative coherent-SI time, the ideal series-RL branch has its standard switch-on transient. The exponential argument is dimensionless: R₁/L has units of inverse seconds
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of inductive Branch Current formula.
+\end{proof}
+\begin{lemma}[capacitive Branch Current formula]
+  \label{lem:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitivebranchcurrent-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.capacitiveBranchCurrent_formula}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasphysicalparallelrlrcparameters, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasunenergizedinitialstate, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-satisfiesidealparallelrlrctransientlaws}
+  For nonnegative coherent-SI time, the ideal series-RC branch current decays exponentially from E/R₂. The time constant R₂ C is measured in seconds
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of capacitive Branch Current formula.
+\end{proof}
+\begin{lemma}[battery Current formula]
+  \label{lem:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-batterycurrent-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0991.batteryCurrent_formula}
+  \uses{def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electricpotentialinvolts, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-electriccurrentinamperes, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-resistanceinohms, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-capacitanceinfarads, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-inductanceinhenries, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-parallelrlrccircuitsetup, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasphysicalparallelrlrcparameters, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-hasunenergizedinitialstate, def:physics:phyx-mini-0991:phyxminiproblems-problemphyxmini0991-satisfiesidealparallelrlrctransientlaws}
+  The battery current is the sum of the two independently derived transients
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of battery Current formula.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

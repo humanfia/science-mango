@@ -1,0 +1,282 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0642.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0642.source.json
+
+\chapter{Physics problem phyx\_mini\_0642}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0642}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+As shown in figure.
+
+\#\# Question
+
+How many photoelectrons are ejected per second in the experiment represented by the graph of figure?
+
+\#\# Answer choices
+
+- A: A: \$6.2 \textbackslash{}times 10\textasciicircum{}\{13\}\$
+
+- B: B: \$6.25 \textbackslash{}times 10\textasciicircum{}\{13\}\$
+
+- C: C: \$6.3 \textbackslash{}times 10\textasciicircum{}\{13\}\$
+
+- D: D: \$6.35 \textbackslash{}times 10\textasciicircum{}\{13\}\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a relationship between current (I) in microamperes (µA) and voltage (ΔV) in volts (V). The axes are labeled as follows: the vertical axis is labeled "I (µA)" and the horizontal axis is labeled "ΔV (V)".
+
+The graph features a purple line. Here are the details of its behavior:
+
+- For ΔV values less than around -2 V, the current (I) remains at 0 µA, showing a horizontal line along the x-axis.
+- As ΔV increases from approximately -2 V to 0 V, the current increases linearly up to 10 µA.
+- For ΔV greater than 0 V, the current remains constant at 10 µA, forming another horizontal line.
+
+The graph shows a typical diode-like I-V characteristic. The text "10" is labeled on the vertical axis at 10 µA.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \$6.25 \textbackslash{}times 10\textasciicircum{}\{13\}\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/642.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0642.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0642:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0642.photoelectrons_ejected_per_second}
+\uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratepersecond, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-matchesphotoelectricexperiment, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-matchessuppliedphotoelectricgraph, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-usesroundedelectronchargedatum, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-satisfiessaturationchargeflowlaw}
+The \(10\,\mu\mathrm A\) saturation plateau corresponds to
+\(6.25\times10^{13}\) emitted photoelectrons per second, answer B.
+\end{theorem}
+\begin{proof}
+At saturation the charge-flow law is \(I=qN\).  The graph gives
+\(I=10\,\mu\mathrm A=10^{-5}\,\mathrm A\), and the rounded electron-charge
+datum gives \(q=1.6\times10^{-19}\,\mathrm C\).  Positivity makes \(q\)
+nonzero, so
+\[
+ N=\frac{10^{-5}}{1.6\times10^{-19}}
+  =6.25\times10^{13}\,\mathrm{s^{-1}}.
+\]
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[electric Current Dimension]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.electricCurrentDimension}
+  Electric current has physical dimension charge divided by time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.electricPotentialDimension}
+  Electric potential has dimension energy divided by charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialdimension}
+  A signed physical electric potential difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.ElectricCurrentQuantity}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentdimension}
+  A nonnegative physical electric-current magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Charge Magnitude Quantity]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.ChargeMagnitudeQuantity}
+  A nonnegative physical electric-charge magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude Quantity.
+\end{proof}
+\begin{definition}[Particle Rate Quantity]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.ParticleRateQuantity}
+  A nonnegative particle-emission rate, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Rate Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.nonnegativeSIReadout}
+  Coherent-SI readout of a nonnegative dimensionful quantity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialquantity}
+  Read an applied potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[electric Current In Amperes]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.electricCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentquantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-nonnegativesireadout}
+  Read an electric-current magnitude in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current In Amperes.
+\end{proof}
+\begin{definition}[electric Current In Microamperes]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinmicroamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.electricCurrentInMicroamperes}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentquantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinamperes}
+  Read an electric-current magnitude in microamperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Current In Microamperes.
+\end{proof}
+\begin{definition}[charge Magnitude In Coulombs]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.chargeMagnitudeInCoulombs}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudequantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-nonnegativesireadout}
+  Read a charge magnitude in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Coulombs.
+\end{proof}
+\begin{definition}[charge Magnitude In Elementary Charges]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudeinelementarycharges}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.chargeMagnitudeInElementaryCharges}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudequantity}
+  Read a charge magnitude in Physlib elementary-charge units. The theorem's numerical premise separately records the rounded textbook coulomb conversion used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Elementary Charges.
+\end{proof}
+\begin{definition}[particle Rate Per Second]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratepersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.particleRatePerSecond}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratequantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-nonnegativesireadout}
+  Read a particle-emission rate as particles per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of particle Rate Per Second.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.AnswerChoice}
+  The answer-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Rate For Choice]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-displayedrateforchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.displayedRateForChoice}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-answerchoice}
+  The four displayed candidate emission rates, in particles per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Rate For Choice.
+\end{proof}
+\begin{definition}[Figure Axis]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figureaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.FigureAxis}
+  The horizontal and vertical axes of the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Axis.
+\end{proof}
+\begin{definition}[Figure Quantity Label]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figurequantitylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.FigureQuantityLabel}
+  Physical quantities named by the two graph-axis labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Quantity Label.
+\end{proof}
+\begin{definition}[Figure Unit Label]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figureunitlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.FigureUnitLabel}
+  Units printed in parentheses beside the graph-axis labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Unit Label.
+\end{proof}
+\begin{definition}[Photoelectric Current Voltage Figure]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectriccurrentvoltagefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.PhotoelectricCurrentVoltageFigure}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figureaxis, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figurequantitylabel, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-figureunitlabel}
+  Calibrated scalar data and visual attributes of image 642.png. The curve is a graph readout in microamperes as a function of volts; it is not used as a replacement for the dimensionful saturation current in the experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Photoelectric Current Voltage Figure.
+\end{proof}
+\begin{definition}[Photoelectric Experiment]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.PhotoelectricExperiment}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialquantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentquantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudequantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratequantity, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectriccurrentvoltagefigure}
+  Independent physical quantities of the experiment. In particular, photoelectronEmissionRate is stored independently rather than defined from the saturation current or from any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Photoelectric Experiment.
+\end{proof}
+\begin{definition}[Matches Photoelectric Experiment]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-matchesphotoelectricexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.MatchesPhotoelectricExperiment}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialinvolts, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinamperes, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudeincoulombs, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratepersecond, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment}
+  Qualitative physical conditions for the represented photoelectric setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Photoelectric Experiment.
+\end{proof}
+\begin{definition}[Matches Supplied Photoelectric Graph]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-matchessuppliedphotoelectricgraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.MatchesSuppliedPhotoelectricGraph}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electricpotentialinvolts, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinmicroamperes, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment}
+  Labels, ticks, calibrated readouts, and qualitative curve geometry read from the primary image. The hand-drawn saturation onset lies strictly between the displayed 0 V and 1 V ticks; the exact onset is irrelevant to the requested plateau-current calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Photoelectric Graph.
+\end{proof}
+\begin{definition}[Uses Rounded Electron Charge Datum]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-usesroundedelectronchargedatum}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.UsesRoundedElectronChargeDatum}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudeincoulombs, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment}
+  The conventional rounded charge magnitude used in the textbook arithmetic. It is reference data, not the requested emission rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Rounded Electron Charge Datum.
+\end{proof}
+\begin{definition}[Satisfies Saturation Charge Flow Law]
+  \label{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-satisfiessaturationchargeflowlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0642.SatisfiesSaturationChargeFlowLaw}
+  \uses{def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-electriccurrentinamperes, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-chargemagnitudeincoulombs, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-particleratepersecond, def:physics:phyx-mini-0642:phyxminiproblems-problemphyxmini0642-photoelectricexperiment}
+  At saturation, every emitted photoelectron contributes its charge to the collected charge per unit time, so the current magnitude is q N
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Saturation Charge Flow Law.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,332 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0110.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0110.source.json
+
+\chapter{Physics problem phyx\_mini\_0110}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0110}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A transparent cylindrical tube with radius \$r = 1.50 \textbackslash{}, 	ext\{cm\}\$ has a flat circular bottom and a top that is convex as seen in figure. The cylinder is filled with quinoline, a colorless highly refractive liquid with index of refraction \$n = 1.627\$. Near the bottom of the tube, immersed in the liquid, is a luminescent LED display mounted on a platform whose height may be varied. The display is the letter A inside a circle that has a diameter of \$1.00 \textbackslash{}, 	ext\{cm\}\$. A real image of this display is formed at a height \$s'\$ above the top of the tube, as shown in figure.
+
+\#\# Question
+
+What is the diameter of the image when it is at its largest size?
+
+\#\# Answer choices
+
+- A: A: 24.1cm
+
+- B: B: 23.8cm
+
+- C: C: 22.7cm
+
+- D: D: 25.3cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a vertical cylindrical object with a hemispherical top. There is an arrow labeled "n" inside the cylinder, pointing upwards. At the bottom of the cylinder, there is an ellipse with an upward and downward pointing arrow inside, labeled "A."
+
+There are two vertical lines along the left side of the cylinder, indicating distances. The upper segment is labeled "s'," and the longer lower segment is labeled "s." The height of the entire cylinder is labeled "H."
+
+Above the cylinder, there is an ellipse containing the letter "A," which is mirrored in the ellipse at the bottom of the cylinder. There is a vertical double-headed arrow near this upper ellipse, indicating an upward and downward relationship.
+
+This is likely a representation of refraction or reflection in an optics-related diagram.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 24.1cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/110.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0110.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0110:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0110.problem_phyx_mini_0110}
+\uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-matchesproblemandfigurereadouts, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hasphysicaltubeparameters, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-haslocalaxialsnelllinearization, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-admitssomerealimage, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-attainableimagediameterscm, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-roundstodisplayedtenthcm, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isuniquecorrectroundedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Length]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticallength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.OpticalLength}
+  A signed physical length, independent of the units used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Length.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.lengthReadout}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticallength}
+  Scalar readout of a physical length in the selected system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[centimeter Readout]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.centimeterReadout}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticallength, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-lengthreadout}
+  Scalar centimeter readout, obtained from the SI meter readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Readout.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.OpticalMedium}
+  The two homogeneous media separated by the convex top surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Tube Body Shape]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-tubebodyshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.TubeBodyShape}
+  The shape of the long transparent body shown in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Body Shape.
+\end{proof}
+\begin{definition}[Top Surface Shape]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-topsurfaceshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.TopSurfaceShape}
+  The shape of the tube's upper liquid--air interface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Top Surface Shape.
+\end{proof}
+\begin{definition}[Tube Wall Optical Character]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-tubewallopticalcharacter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.TubeWallOpticalCharacter}
+  Optical character of the tube wall stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tube Wall Optical Character.
+\end{proof}
+\begin{definition}[Display Pattern]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-displaypattern}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.DisplayPattern}
+  The luminous pattern shown both on the display and in its real image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Display Pattern.
+\end{proof}
+\begin{definition}[Quinoline Tube Setup]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.QuinolineTubeSetup}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticallength, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticalmedium, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-tubebodyshape, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-topsurfaceshape, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-tubewallopticalcharacter, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-displaypattern}
+  Fixed physical data of the tube, liquid, and circular LED display. tubeHeightH is retained because it is the label H in the primary figure, even though the recorded largest diameter does not mention it explicitly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Quinoline Tube Setup.
+\end{proof}
+\begin{definition}[Axial Image Configuration]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.AxialImageConfiguration}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticallength}
+  One setting of the variable-height platform and the resulting real image. The fields objectDistanceS and imageDistanceSPrime are precisely the figure labels s and s'
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Image Configuration.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup}
+  Numerical data and geometry stated in the problem or read from the figure. The equality of cap curvature radius and tube radius records that the convex top is a hemisphere. No image distance or image diameter is fixed here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Physical Tube Parameters]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hasphysicaltubeparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.HasPhysicalTubeParameters}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-opticalmedium, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup}
+  Positivity, optical-density ordering, and the requirement that the display fits inside the cylindrical tube. The unspecified figure height H remains a positive physical parameter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Tube Parameters.
+\end{proof}
+\begin{definition}[Has Depicted Axial Placement]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hasdepictedaxialplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.HasDepictedAxialPlacement}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-lengthreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration}
+  The platform is inside the tube, the object-to-vertex distance s and the real-image height s' are positive, and platform height plus s equals the figure height H. The last equation is required in every unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Depicted Axial Placement.
+\end{proof}
+\begin{definition}[Has Local Axial Snell Linearization]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-haslocalaxialsnelllinearization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.HasLocalAxialSnellLinearization}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup}
+  The exact Snell relation has a differentiable transmitted-angle branch near the axial ray. The derivative n\_quinoline / n\_air is the paraxial angular law, but it is asserted only at zero incidence. The neighborhood equations continue to use sin, so no first-order approximation is globalized into an exact law at finite angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Local Axial Snell Linearization.
+\end{proof}
+\begin{definition}[Meridional Cap Ray]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.MeridionalCapRay}
+  A meridional ray, represented by centimeter coordinates. The cap vertex is at axial coordinate zero; the cap center is one radius below it. Straight segments join the source point to the surface point and then to the target point, so only their three transverse/axial endpoints need to be stored
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Meridional Cap Ray.
+\end{proof}
+\begin{definition}[norm2 D]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-norm2d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.norm2D}
+  Euclidean norm of a two-dimensional scalar coordinate vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of norm2 D.
+\end{proof}
+\begin{definition}[cross2 D]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-cross2d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.cross2D}
+  Oriented two-dimensional cross product
+\end{definition}
+\begin{proof}
+  This is the declared model definition of cross2 D.
+\end{proof}
+\begin{definition}[dot2 D]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-dot2d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.dot2D}
+  Two-dimensional dot product
+\end{definition}
+\begin{proof}
+  This is the declared model definition of dot2 D.
+\end{proof}
+\begin{definition}[Hits Finite Hemispherical Cap]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hitsfinitehemisphericalcap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.HitsFiniteHemisphericalCap}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray}
+  The ray's surface point lies on the finite upper hemispherical cap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hits Finite Hemispherical Cap.
+\end{proof}
+\begin{definition}[Connects Display Point To Image Point]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-connectsdisplaypointtoimagepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.ConnectsDisplayPointToImagePoint}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray}
+  The source lies on the circular display and the target is the corresponding point of an inverted circular image. Cross multiplication retains the physical diameter roles and avoids defining a magnification by division
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connects Display Point To Image Point.
+\end{proof}
+\begin{definition}[Obeys Snell Law At Hemispherical Cap]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-obeyssnelllawathemisphericalcap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.ObeysSnellLawAtHemisphericalCap}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-norm2d, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-cross2d, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-dot2d}
+  Exact vector form of Snell's law at the ray's point on the cap. The incident vector runs from (source, -s) to the cap, the transmitted vector runs from the cap to (target, s'), and the outward normal runs from the hemispherical center to the cap point. Positive dot products select outward-propagating rays; equality of index-weighted tangential unit-vector components is Snell's law without introducing scalar angle aliases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Snell Law At Hemispherical Cap.
+\end{proof}
+\begin{definition}[Is Physical Cap Ray]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isphysicalcapray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.IsPhysicalCapRay}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hitsfinitehemisphericalcap, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-connectsdisplaypointtoimagepoint, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-obeyssnelllawathemisphericalcap}
+  One physically outgoing display-to-image ray through the finite cap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Cap Ray.
+\end{proof}
+\begin{definition}[Forms Resolved Real Image Through Finite Cap]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-formsresolvedrealimagethroughfinitecap}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.FormsResolvedRealImageThroughFiniteCap}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-meridionalcapray, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isphysicalcapray}
+  Every meridional point of the display is focused to its corresponding image point by two rays meeting distinct points of the finite cap. This separates the aperture/sharp-image criterion implicit in the phrase "a real image is formed" from both Gaussian imaging and the requested maximum
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Forms Resolved Real Image Through Finite Cap.
+\end{proof}
+\begin{definition}[Is Attainable Real Image]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isattainablerealimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.IsAttainableRealImage}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-hasdepictedaxialplacement, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-haslocalaxialsnelllinearization, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-formsresolvedrealimagethroughfinitecap}
+  A configuration is physically attainable when it obeys the depicted axial layout and the exact finite-cap Snell-ray focusing criterion. The local derivative contract records why paraxial reasoning is available near the axis, without treating it as an exact finite-angle equation. No largest diameter or answer-choice value is built into this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Attainable Real Image.
+\end{proof}
+\begin{definition}[Admits Some Real Image]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-admitssomerealimage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.AdmitsSomeRealImage}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isattainablerealimage}
+  The scenario's assertion that at least one real image is formed above the cap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Admits Some Real Image.
+\end{proof}
+\begin{definition}[attainable Image Diameters Cm]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-attainableimagediameterscm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.attainableImageDiametersCm}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-centimeterreadout, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-axialimageconfiguration, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isattainablerealimage}
+  The set of centimeter readouts of all physically attainable image diameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of attainable Image Diameters Cm.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.AnswerChoice}
+  Labels printed beside the four multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Diameter Cm]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerdiametercm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.answerDiameterCm}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerchoice}
+  Image-diameter centimeter readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Diameter Cm.
+\end{proof}
+\begin{definition}[Rounds To Displayed Tenth Cm]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-roundstodisplayedtenthcm}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.RoundsToDisplayedTenthCm}
+  An exact centimeter value rounds to the displayed value at one decimal place. The half-open interval makes the convention unambiguous at half-tenth ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Tenth Cm.
+\end{proof}
+\begin{definition}[Is Correct Rounded Answer Choice]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-iscorrectroundedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.IsCorrectRoundedAnswerChoice}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-attainableimagediameterscm, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerchoice, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerdiametercm, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-roundstodisplayedtenthcm}
+  A printed choice is correct when a greatest attainable diameter rounds to it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Rounded Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Correct Rounded Answer Choice]
+  \label{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-isuniquecorrectroundedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0110.IsUniqueCorrectRoundedAnswerChoice}
+  \uses{def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-quinolinetubesetup, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-answerchoice, def:physics:phyx-mini-0110:phyxminiproblems-problemphyxmini0110-iscorrectroundedanswerchoice}
+  Exactly one of the four displayed choices is correct after rounding
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Correct Rounded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

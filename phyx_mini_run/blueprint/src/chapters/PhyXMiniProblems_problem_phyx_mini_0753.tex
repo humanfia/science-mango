@@ -1,0 +1,350 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0753.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0753.source.json
+
+\chapter{Physics problem phyx\_mini\_0753}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0753}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a lump of wet putty moves in uniform circular motion as it rides at a radius of \$20.0\textbackslash{} cm\$ on the rim of a wheel rotating counterclockwise with a period of \$5.00\textbackslash{} ms\$. The lump then happens to fly off the rim at the 5 o'clock position (as if on a clock face). It leaves the rim at a height of \$h = 1.20\textbackslash{} m\$ from the floor and at a distance \$d = 2.50\textbackslash{} m\$ from a wall.
+
+\#\# Question
+
+At what height on the wall does the lump hit?
+
+\#\# Answer choices
+
+- A: A: 2.56 m
+
+- B: B: 2.60 m
+
+- C: C: 2.64 m
+
+- D: D: 2.66 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram showing a wheel with putty attached to it, positioned at the top of a ramp. The wheel is indicated to have a clockwise rotational motion. The putty is marked on one side of the wheel. 
+
+There is a horizontal surface at the bottom of the ramp, with a vertical wall at the end. The distances "h" and "d" are indicated with double-headed arrows, where "h" is the vertical height from the top of the surface to the level of the wheel, and "d" is the horizontal distance from the wall to the point directly below the wheel. 
+
+Text labels identify the "Wheel" and "Putty," and arrows are used to indicate the direction of movement and position. The setup suggests a physics-related scenario involving motion and impact.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 2.64 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/753.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0753.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0753:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0753.puttyImpactHeightAtWall}
+\uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthinmetres, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-matchesproblemstatement, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-matchessuppliedwheelfigure, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-usesstandardterrestrialgravity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-hasphysicalwheelputtyparameters, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-satisfiescircularreleaseandprojectilelaws, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-isuniqueroundedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.DurationQuantity}
+  A nonnegative, unit-independent elapsed time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.SignedVelocityQuantity}
+  A signed component of velocity along a chosen Cartesian axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationmagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.AccelerationMagnitude}
+  A nonnegative acceleration magnitude, used for terrestrial gravity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.lengthReadout}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.durationReadout}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationquantity}
+  Read a physical duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.speedReadout}
+  Read a nonnegative physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityquantity}
+  Read a signed velocity component in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.accelerationReadout}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationmagnitude}
+  Read an acceleration magnitude in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[length In Metres]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthinmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.lengthInMetres}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Metres.
+\end{proof}
+\begin{definition}[length In Centimetres]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthincentimetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.lengthInCentimetres}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthreadout}
+  Centimetre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimetres.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.durationInSeconds}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationreadout}
+  Second readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[duration In Milliseconds]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationinmilliseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.durationInMilliseconds}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationreadout}
+  Millisecond readout of a physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Milliseconds.
+\end{proof}
+\begin{definition}[speed In Metres Per Second]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-speedinmetrespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.speedInMetresPerSecond}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-speedreadout}
+  Metres-per-second readout of a nonnegative physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Metres Per Second.
+\end{proof}
+\begin{definition}[signed Velocity In Metres Per Second]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityinmetrespersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.signedVelocityInMetresPerSecond}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityreadout}
+  Metres-per-second readout of a signed velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Metres Per Second.
+\end{proof}
+\begin{definition}[acceleration In Metres Per Second Squared]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationinmetrespersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.accelerationInMetresPerSecondSquared}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationmagnitude, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationreadout}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Metres Per Second Squared.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.RotationSense}
+  Sense in which the wheel rotates in the plane of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Clock Position]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-clockposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.ClockPosition}
+  Clock-face location at which the putty leaves the rim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Clock Position.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.FigureObject}
+  Physical objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.FigureLabel}
+  Symbolic dimension labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Supplied Wheel Figure]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-suppliedwheelfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.SuppliedWheelFigure}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-rotationsense, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-figureobject, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-figurelabel}
+  Data transcribed from image 753. The image supplies visible objects, orientations, and the meanings of h and d; it contains no numerical impact height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Wheel Figure.
+\end{proof}
+\begin{definition}[Wheel Putty Setup]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.WheelPuttySetup}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationmagnitude, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-rotationsense, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-clockposition, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-suppliedwheelfigure}
+  All independent physical quantities in the experiment. In particular, flightDurationToWall and impactHeight are observables, not definitions made from an answer choice; the governing laws below constrain them
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wheel Putty Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthinmetres, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthincentimetres, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationinmilliseconds, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  Numerical and qualitative data stated in the problem prose. No flight time, velocity, or impact-height value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Wheel Figure]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-matchessuppliedwheelfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.MatchesSuppliedWheelFigure}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  Evidence read from the primary raster. The h and d labels denote setup quantities without assigning the unknown impact height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Wheel Figure.
+\end{proof}
+\begin{definition}[Uses Standard Terrestrial Gravity]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-usesstandardterrestrialgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.UsesStandardTerrestrialGravity}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationinmetrespersecondsquared, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  The standard near-Earth gravitational acceleration used implicitly by this elementary projectile problem. It is environmental input, not the requested height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Terrestrial Gravity.
+\end{proof}
+\begin{definition}[Has Physical Wheel Putty Parameters]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-hasphysicalwheelputtyparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.HasPhysicalWheelPuttyParameters}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthinmetres, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationinseconds, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-speedinmetrespersecond, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityinmetrespersecond, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationinmetrespersecondsquared, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  Positivity and branch conditions selecting the depicted motion. These fields rule out degenerate solutions without fixing the impact height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wheel Putty Parameters.
+\end{proof}
+\begin{definition}[Satisfies Circular Release And Projectile Laws]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-satisfiescircularreleaseandprojectilelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.SatisfiesCircularReleaseAndProjectileLaws}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthreadout, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationreadout, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-speedreadout, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-signedvelocityreadout, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-accelerationreadout, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup}
+  The governing uniform-circular-motion, tangential-release, and constant-gravity projectile laws. Each dimensional equation is stated for arbitrary compatible length and time units. These laws contain no supplied numerical measurement, displayed answer, or specialized impact-height result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Circular Release And Projectile Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.AnswerChoice}
+  Labels of the four metre-valued answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Impact Height Metres]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-displayedimpactheightmetres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.displayedImpactHeightMetres}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-answerchoice}
+  Height in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Impact Height Metres.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-answerchoice}
+  Answer label recorded in the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Hundredth]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-roundstodisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.RoundsToDisplayedHundredth}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthinmetres, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-answerchoice, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-displayedimpactheightmetres}
+  A physical height agrees with a value displayed to the nearest hundredth of a metre when its metre readout differs by less than half a hundredth
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Hundredth.
+\end{proof}
+\begin{definition}[Is Unique Rounded Answer]
+  \label{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-isuniqueroundedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.IsUniqueRoundedAnswer}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-lengthquantity, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-answerchoice, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-roundstodisplayedhundredth}
+  A choice is the unique displayed hundredth matching the impact height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Rounded Answer.
+\end{proof}
+\begin{lemma}[flight Duration To Wall In Seconds]
+  \label{lem:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-flightdurationtowallinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0753.flightDurationToWallInSeconds}
+  \uses{def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-durationinseconds, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-wheelputtysetup, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-matchesproblemstatement, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-hasphysicalwheelputtyparameters, def:physics:phyx-mini-0753:phyxminiproblems-problemphyxmini0753-satisfiescircularreleaseandprojectilelaws}
+  The wall is reached after horizontal distance divided by the horizontal tangent-speed component. This is a derived conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of flight Duration To Wall In Seconds.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

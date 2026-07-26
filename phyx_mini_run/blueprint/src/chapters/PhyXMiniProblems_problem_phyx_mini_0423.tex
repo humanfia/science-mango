@@ -1,0 +1,319 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0423.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0423.source.json
+
+\chapter{Physics problem phyx\_mini\_0423}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0423}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+This problem focuses on evaluating the performance of a refrigerator by analyzing the heat extracted from the cold reservoir and the corresponding work input over one complete cycle.
+
+\#\# Question
+
+What is the coefficient of performance for the refrigerator shown in figure?
+
+\#\# Answer choices
+
+- A: A: 2.90
+
+- B: B: 0.61
+
+- C: C: 2.56
+
+- D: D: 1.6
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram illustrating a thermodynamic process with adiabatic paths. There are two curves with arrows indicating the direction of a cyclic process. 
+
+Key elements:
+
+1. **Axes**:
+   - The vertical axis is labeled "p" (pressure).
+   - The horizontal axis is labeled "V" (volume).
+
+2. **Curves**:
+   - There are two adiabatic curves.
+   - The left curve shows the process where work done, \textbackslash{}( W\_s \textbackslash{}), is \textbackslash{}(-119 \textbackslash{}, \textbackslash{}text\{J\}\textbackslash{}).
+   - The right curve shows the process where work done, \textbackslash{}( W\_s \textbackslash{}), is \textbackslash{}(78 \textbackslash{}, \textbackslash{}text\{J\}\textbackslash{}).
+
+3. **Arrows**:
+   - Arrows on the curves indicate the direction of the process.
+   - A horizontal arrow labeled "105 J" pointing to the left suggests heat input or work done in this direction.
+
+4. **Labels**:
+   - The word "Adiabat" is written next to the curves to indicate their nature.
+   - Numerical values of work done during each process (\textbackslash{}( W\_s = -119 \textbackslash{}, \textbackslash{}text\{J\} \textbackslash{}) and \textbackslash{}( W\_s = 78 \textbackslash{}, \textbackslash{}text\{J\} \textbackslash{})) are provided.
+
+The diagram likely represents a cycle involving compression and expansion in an adiabatic context.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1.6
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/423.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0423.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0423:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0423.refrigerator_coefficient_of_performance}
+\uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesproblemscenario, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesprimaryfigure, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-satisfiesrefrigeratorcyclelaws, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answercoefficientofperformance, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-roundstodisplayedtenth, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-isuniqueclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.GasVolume}
+  Physical volume, represented as a dimensionful quantity of dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.energyInJoules}
+  Read a physical energy as a signed number of joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.pressureInPascals}
+  Read a physical pressure as a signed number of pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-gasvolume}
+  Read a physical volume as a signed number of cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[Cycle Point]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cyclepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.CyclePoint}
+  The four unlabeled corners of the supplied diagram, named by their drawn positions. The directed cycle is upperRight → upperLeft → lowerLeft → lowerRight → upperRight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Point.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.CycleLeg}
+  The four directed legs of the refrigerator cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[start Point]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-startpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.startPoint}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cyclepoint, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycleleg}
+  Initial point of each directed leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Point.
+\end{proof}
+\begin{definition}[end Point]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-endpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.endPoint}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cyclepoint, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycleleg}
+  Final point of each directed leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of end Point.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.ProcessKind}
+  Process classifications visible in the pressure--volume diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Axis Label]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-axislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.AxisLabel}
+  Physical quantity denoted by an axis label in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Label.
+\end{proof}
+\begin{definition}[Heat Arrow Direction]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-heatarrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.HeatArrowDirection}
+  Direction of the purple 105 J heat arrow relative to the working substance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Arrow Direction.
+\end{proof}
+\begin{definition}[Work Label]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-worklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.WorkLabel}
+  The symbol printed beside the two signed work readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Work Label.
+\end{proof}
+\begin{definition}[Energy Sign Convention]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energysignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.EnergySignConvention}
+  Sign conventions used for all energy readouts in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Sign Convention.
+\end{proof}
+\begin{definition}[Device Kind]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-devicekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.DeviceKind}
+  The role of the cyclic device in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Device Kind.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-gasvolume}
+  A thermodynamic state carrying dimensionful pressure and volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Refrigerator PVDiagram]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorpvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.RefrigeratorPVDiagram}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cyclepoint, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycleleg, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-processkind, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-axislabel, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-heatarrowdirection, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-worklabel}
+  Qualitative labels and arrows transcribed from the primary raster image. The direction of an arrow on a leg is the direction already encoded by CycleLeg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerator PVDiagram.
+\end{proof}
+\begin{definition}[Refrigerator Cycle Setup]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.RefrigeratorCycleSetup}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cyclepoint, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycleleg, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-processkind, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energysignconvention, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-devicekind, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-thermodynamicstate, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorpvdiagram}
+  Independent physical quantities for the refrigerator cycle. heatIntoSystem is positive into the working substance and workDoneBySystem is positive when done by it. cycleWorkInput and coldReservoirHeatAbsorbed are positive energy magnitudes. The dimensionless COP is an independent field rather than a definition equal to the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refrigerator Cycle Setup.
+\end{proof}
+\begin{definition}[Matches Problem Scenario]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesproblemscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.MatchesProblemScenario}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup}
+  Scenario facts and branch conditions, excluding every requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-pressureinpascals, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-volumeincubicmeters, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup}
+  Numerical and qualitative evidence read from the primary image. The purple arrow points out of the working substance, so under the setup sign convention its 105 J label is recorded as a positive rejected-heat magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Refrigerator Cycle Laws]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-satisfiesrefrigeratorcyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.SatisfiesRefrigeratorCycleLaws}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup}
+  Governing thermodynamic laws for the directed cycle, stated in coherent joule readouts: ΔU = Q - W on each leg; total internal-energy change vanishes on returning to the initial state; adiabatic legs exchange no heat and isochoric legs do no boundary work; work input is the negative of net work done by the working substance; cold-reservoir heat is the heat entering on the right isochore; COP · W\_in = Q\_cold.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Refrigerator Cycle Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.AnswerChoice}
+  Labels of the four answer choices displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Coefficient Of Performance]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answercoefficientofperformance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.answerCoefficientOfPerformance}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answerchoice}
+  Dimensionless coefficient printed by each displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Coefficient Of Performance.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answerchoice}
+  Dataset metadata records answer D; this definition is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Tenth]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-roundstodisplayedtenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.RoundsToDisplayedTenth}
+  A real value rounds to the displayed coefficient at one decimal place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Tenth.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-isuniqueclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.IsUniqueClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answerchoice, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-answercoefficientofperformance}
+  A coefficient is strictly closer to one choice than to every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Answer.
+\end{proof}
+\begin{theorem}[cycle work input in joules]
+  \label{thm:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cycle-work-input-in-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.cycle_work_input_in_joules}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesproblemscenario, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesprimaryfigure, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-satisfiesrefrigeratorcyclelaws}
+  The two signed adiabatic works give a work input of 41 J per cycle
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cycle work input in joules.
+\end{proof}
+\begin{theorem}[cold reservoir heat absorbed in joules]
+  \label{thm:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-cold-reservoir-heat-absorbed-in-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.cold_reservoir_heat_absorbed_in_joules}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-energyinjoules, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesproblemscenario, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesprimaryfigure, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-satisfiesrefrigeratorcyclelaws}
+  The first law then gives 64 J absorbed from the cold reservoir
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cold reservoir heat absorbed in joules.
+\end{proof}
+\begin{theorem}[refrigerator coefficient of performance exact]
+  \label{thm:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigerator-coefficient-of-performance-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0423.refrigerator_coefficient_of_performance_exact}
+  \uses{def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-refrigeratorcyclesetup, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesproblemscenario, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-matchesprimaryfigure, def:physics:phyx-mini-0423:phyxminiproblems-problemphyxmini0423-satisfiesrefrigeratorcyclelaws}
+  The exact dimensionless refrigerator COP is Q\_cold / W\_in = 64 / 41
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of refrigerator coefficient of performance exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

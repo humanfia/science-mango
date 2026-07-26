@@ -1,0 +1,219 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0094.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0094.source.json
+
+\chapter{Physics problem phyx\_mini\_0094}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0094}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Light of original intensity \$I\_0\$ passes through two ideal polarizing filters having their polarizing axes oriented as shown in figure.You want to adjust the angle \$\textbackslash{}varphi\$ so that the intensity at point \$P\$ is equal to \$I\_0 / 10\$.
+
+\#\# Question
+
+If the original light is linearly polarized in the same direction as the polarizing axis of the first polarizer the light reaches, what should \$\textbackslash{}varphi\$ be?
+
+\#\# Answer choices
+
+- A: A: 71.6°
+
+- B: B: 72.3°
+
+- C: C: 71.9°
+
+- D: D: 72.2°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two main sections, each showing an optical setup:
+
+1. **Left Section:**
+   - A linear, horizontal arrow representing a beam of light labeled \textbackslash{}( I\_0 \textbackslash{}) is directed towards a vertical polarizer.
+   - The polarizer is depicted as an oval shape with a vertical line through the center.
+
+2. **Right Section:**
+   - Another identical polarizer is positioned with a vertical line, but the angle is indicated with an arrow showing the polarizer is at an angle \textbackslash{}(\textbackslash{}phi\textbackslash{}).
+   - A line extends from the center of the polarizer at angle \textbackslash{}(\textbackslash{}phi\textbackslash{}) with respect to the vertical axis.
+   - To the right of the polarizer, there is a point labeled \textbackslash{}( P \textbackslash{}).
+
+These elements suggest a setup in which light passes through polarizers, with the angle \textbackslash{}(\textbackslash{}phi\textbackslash{}) indicating the orientation of polarization.
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 71.6°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/94.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0094.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0094:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0094.problem_phyx_mini_0094}
+\uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesproblemandfigure, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasphysicalparameters, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-satisfiesidealpolarizerlaws, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasrequestedirradianceatp, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesanswertonearesttenth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Irradiance Quantity]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradiancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.IrradianceQuantity}
+  A nonnegative physical optical irradiance (power per area)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Irradiance Quantity.
+\end{proof}
+\begin{definition}[irradiance In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradianceinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.irradianceInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradiancequantity}
+  The numerical irradiance readout in SI units, watts per square meter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of irradiance In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Linearly Polarized Light]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-linearlypolarizedlight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.LinearlyPolarizedLight}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradiancequantity}
+  A beam together with its physical irradiance and polarization direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linearly Polarized Light.
+\end{proof}
+\begin{definition}[Ideal Linear Polarizer]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-ideallinearpolarizer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.IdealLinearPolarizer}
+  An ideal linear polarizer, specified by its axis direction in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Linear Polarizer.
+\end{proof}
+\begin{definition}[Two Polarizer Setup]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.TwoPolarizerSetup}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradiancequantity, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-linearlypolarizedlight, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-ideallinearpolarizer}
+  The quantities and figure labels in the two-polarizer setup. The reference direction for axis angles is the vertical axis of the first polarizer in the figure. relativeAnglePhiRadians is the displayed φ, and irradianceAtP is the physical irradiance at the displayed point P
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Polarizer Setup.
+\end{proof}
+\begin{definition}[radians To Degrees]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-radianstodegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.radiansToDegrees}
+  Convert a radian angle readout to degrees
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians To Degrees.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup}
+  The source statement and figure geometry: the incident polarization is aligned with the first polarizer, the first axis is the vertical reference, and φ is the directed rotation from the first polarizer to the second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradianceinwattspersquaremeter, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup}
+  Positive incident light and the acute angle branch depicted in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Obeys Malus Law]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-obeysmaluslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.ObeysMalusLaw}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradiancequantity, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradianceinwattspersquaremeter}
+  Malus's law for an ideal polarizer. The output irradiance equals the input irradiance multiplied by the dimensionless factor cos² θ, where θ is the angle between the incident polarization and the polarizer axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Malus Law.
+\end{proof}
+\begin{definition}[Satisfies Ideal Polarizer Laws]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-satisfiesidealpolarizerlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.SatisfiesIdealPolarizerLaws}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-obeysmaluslaw}
+  The two governing ideal-polarizer laws. After the first polarizer the outgoing polarization is along its axis, so that axis is the incident direction for the second application of Malus's law. No requested value of φ occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Polarizer Laws.
+\end{proof}
+\begin{definition}[Has Requested Irradiance At P]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasrequestedirradianceatp}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.HasRequestedIrradianceAtP}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradianceinwattspersquaremeter, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup}
+  The experimental adjustment condition from the question: point P is to receive one tenth of the original irradiance. This is input data for solving for φ, not an assumption about the requested angle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Requested Irradiance At P.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.AnswerChoice}
+  Labels of the four answer choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Angle Degrees]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-answerangledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.answerAngleDegrees}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-answerchoice}
+  The degree value displayed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Angle Degrees.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Tenth]
+  \label{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesanswertonearesttenth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.MatchesAnswerToNearestTenth}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-radianstodegrees, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-answerchoice, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-answerangledegrees}
+  Agreement with a displayed angle to the nearest tenth of a degree
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Tenth.
+\end{proof}
+\begin{lemma}[aligned first polarizer preserves irradiance]
+  \label{lem:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-aligned-first-polarizer-preserves-irradiance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.aligned_first_polarizer_preserves_irradiance}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-irradianceinwattspersquaremeter, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesproblemandfigure, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-satisfiesidealpolarizerlaws}
+  Alignment makes the first ideal polarizer transmit the full irradiance
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of aligned first polarizer preserves irradiance.
+\end{proof}
+\begin{lemma}[malus equation for relative angle]
+  \label{lem:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-malus-equation-for-relative-angle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.malus_equation_for_relative_angle}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-twopolarizersetup, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesproblemandfigure, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasphysicalparameters, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-satisfiesidealpolarizerlaws, def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-hasrequestedirradianceatp}
+  The requested detector readout reduces Malus's law to cos² φ = 1/10
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of malus equation for relative angle.
+\end{proof}
+\begin{lemma}[acute exact angle matches choice A]
+  \label{lem:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-acute-exact-angle-matches-choice-a}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0094.acute_exact_angle_matches_choice_A}
+  \uses{def:physics:phyx-mini-0094:phyxminiproblems-problemphyxmini0094-matchesanswertonearesttenth}
+  The acute exact solution rounds to the degree value printed for choice A
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of acute exact angle matches choice A.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

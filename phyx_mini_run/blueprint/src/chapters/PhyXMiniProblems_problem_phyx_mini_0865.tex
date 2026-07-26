@@ -1,0 +1,303 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0865.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0865.source.json
+
+\chapter{Physics problem phyx\_mini\_0865}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0865}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A proton’s speed as it passes point A is 50,000 m/s. It follows the trajectory shown in the figure.
+
+\#\# Question
+
+What is the speed of the proton at point B?
+
+\#\# Answer choices
+
+- A: A: 0.59\textbackslash{}times 10\textasciicircum{}\{5\}m/s
+
+- B: B: 1.49\textbackslash{}times 10\textasciicircum{}\{5\}m/s
+
+- C: C: 0.19\textbackslash{}times 10\textasciicircum{}\{5\}m/s
+
+- D: D: 1\textbackslash{}times 10\textasciicircum{}\{5\}m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image appears to be a diagram involving electric potentials and a field.
+
+- **Curved Lines**: There are three green dashed lines representing equipotential lines. They have labels indicating voltages: 30 V, 10 V, and -10 V, from left to right.
+
+- **Blue Curved Arrow**: A blue curved arrow crosses the equipotential lines, depicting the path of a charged object's motion. The arrow starts near the 30 V line and ends near the -10 V line.
+
+- **Points A and B**: There are two black dots labeled "A" and "B" positioned along the blue path. Point A is near the 30 V line, and Point B is near the -10 V line.
+
+- **Red Circle with Plus Sign**: Positioned between points A and B, this likely represents a source of positive charge affecting the field.
+
+This diagram likely illustrates the concept of electric potential lines and the field around a positive charge, showing how a test charge might move through the field from a higher to a lower potential.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 1\textbackslash{}times 10\textasciicircum{}\{5\}m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/865.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0865.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0865:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0865.proton_speed_at_point_B}
+\uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedinmeterspersecond, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-matchesproblemandfigurereadouts, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-hasstandardprotoncalibration, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-hasphysicalparticleparameters, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-satisfieselectrostaticenergyconservation, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-isuniquenearestdisplayedspeedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-energydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.energyDimension}
+  The physical dimension of energy, M L\textasciicircum{}2 T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.electricPotentialDimension}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-energydimension}
+  Electric potential has the physical dimension energy per charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Signed Charge Quantity]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-signedchargequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.SignedChargeQuantity}
+  A signed, unit-independent electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Charge Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialdimension}
+  A signed, unit-independent electrostatic potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.SpeedQuantity}
+  A nonnegative, unit-independent physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedquantity}
+  Coherent-SI readout of a physical speed, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.massInKilograms}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massquantity}
+  Coherent-SI readout of a physical mass, in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[charge In Coulombs]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.chargeInCoulombs}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-signedchargequantity}
+  Coherent-SI readout of a signed physical charge, in coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge In Coulombs.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.potentialInVolts}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialquantity}
+  Coherent-SI readout of electrostatic potential, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[Trajectory Point]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.TrajectoryPoint}
+  The two black points labelled on the proton trajectory
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Trajectory Point.
+\end{proof}
+\begin{definition}[Equipotential Curve]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-equipotentialcurve}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.EquipotentialCurve}
+  The three green dashed equipotential curves, ordered left to right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Curve.
+\end{proof}
+\begin{definition}[Charge Glyph]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeglyph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.ChargeGlyph}
+  The sign glyph drawn in the red moving-particle marker
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Glyph.
+\end{proof}
+\begin{definition}[Particle Species]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-particlespecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.ParticleSpecies}
+  Particle species distinguished by this problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Particle Species.
+\end{proof}
+\begin{definition}[displayed Potential In Volts]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-displayedpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.displayedPotentialInVolts}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-equipotentialcurve}
+  The volt number printed under each dashed equipotential curve
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Potential In Volts.
+\end{proof}
+\begin{definition}[Equipotential Trajectory Figure]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-equipotentialtrajectoryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.EquipotentialTrajectoryFigure}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialquantity, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-equipotentialcurve, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeglyph, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-particlespecies}
+  Literal typed content of image 865.png. The curve potentials are physical dimensionful quantities; their printed volt values are imposed separately by MatchesProblemAndFigureReadouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Equipotential Trajectory Figure.
+\end{proof}
+\begin{definition}[Proton Electrostatic Setup]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.ProtonElectrostaticSetup}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massquantity, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-signedchargequantity, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedquantity, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-particlespecies, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-equipotentialtrajectoryfigure}
+  Independent physical quantities of the experiment. In particular, speedAt .B is an unknown observable and is not defined from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Proton Electrostatic Setup.
+\end{proof}
+\begin{definition}[potential At]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-potentialat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.potentialAt}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electricpotentialquantity, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  Electrostatic potential at a named point, read from its equipotential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential At.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedinmeterspersecond, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-potentialinvolts, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-displayedpotentialinvolts, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  Problem-statement and primary-image readouts. This predicate records no speed at B and no answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Has Standard Proton Calibration]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-hasstandardprotoncalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.HasStandardProtonCalibration}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massinkilograms, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeincoulombs, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  Standard coherent-SI calibration of a proton. The elementary charge is exact in SI; the proton mass is the standard measured value used by the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Standard Proton Calibration.
+\end{proof}
+\begin{definition}[Has Physical Particle Parameters]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-hasphysicalparticleparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.HasPhysicalParticleParameters}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massinkilograms, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeincoulombs, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  Positivity conditions for the physical particle parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Particle Parameters.
+\end{proof}
+\begin{definition}[kinetic Energy In Joules]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-kineticenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.kineticEnergyInJoules}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-speedinmeterspersecond, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-massinkilograms, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup}
+  Nonrelativistic kinetic energy readout, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kinetic Energy In Joules.
+\end{proof}
+\begin{definition}[electrostatic Potential Energy In Joules]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electrostaticpotentialenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.electrostaticPotentialEnergyInJoules}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-chargeincoulombs, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-potentialinvolts, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-trajectorypoint, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-potentialat}
+  Electrostatic potential energy readout q V, in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electrostatic Potential Energy In Joules.
+\end{proof}
+\begin{definition}[Satisfies Electrostatic Energy Conservation]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-satisfieselectrostaticenergyconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.SatisfiesElectrostaticEnergyConservation}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-protonelectrostaticsetup, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-kineticenergyinjoules, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-electrostaticpotentialenergyinjoules}
+  The governing law used by the question: mechanical energy K + q V is conserved between the two named points. This law does not mention a target speed or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Electrostatic Energy Conservation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-displayedanswerspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.displayedAnswerSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-answerchoice}
+  Displayed answer speeds, all read as metre-per-second numbers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Is Unique Nearest Displayed Speed Answer]
+  \label{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-isuniquenearestdisplayedspeedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0865.IsUniqueNearestDisplayedSpeedAnswer}
+  \uses{def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-answerchoice, def:physics:phyx-mini-0865:phyxminiproblems-problemphyxmini0865-displayedanswerspeedinmeterspersecond}
+  selected is the unique displayed answer numerically closest to an actual SI speed readout. This generic rounding predicate does not privilege answer D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Nearest Displayed Speed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

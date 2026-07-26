@@ -1,0 +1,329 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0419.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0419.source.json
+
+\chapter{Physics problem phyx\_mini\_0419}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0419}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+This problem involves analyzing a heat engine operating in a closed \$p\$-\$V\$ cycle.
+
+\#\# Question
+
+What is the thermal efficiency for the heat engine shown in figure?
+
+\#\# Answer choices
+
+- A: A: 0.79
+
+- B: B: 0.42
+
+- C: C: 0.21
+
+- D: D: 0.33
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram, illustrating a closed loop cycle with four distinct segments connected by black lines and arrows indicating the process direction. The axes are labeled as "p (kPa)" for pressure, with increments of 200 kPa, and "V (cm³)" for volume, with increments of 100 cm³.
+
+The cycle forms a rectangle with four points at approximately (100 cm³, 200 kPa), (200 cm³, 200 kPa), (200 cm³, 400 kPa), and (100 cm³, 400 kPa).
+
+- The segment from (100 cm³, 200 kPa) to (200 cm³, 200 kPa) is horizontal.
+- The segment from (200 cm³, 200 kPa) to (200 cm³, 400 kPa) is vertical.
+- The segment from (200 cm³, 400 kPa) to (100 cm³, 400 kPa) is horizontal.
+- The segment from (100 cm³, 400 kPa) to (100 cm³, 200 kPa) is vertical. 
+
+Text annotations and arrows on the diagram indicate heat transfer values:
+- An arrow and text "Q = -25 J" are shown near the bottom left segment.
+- An arrow and text "Q = -90 J" are near the right segment.
+
+The black arrows indicate the cycle proceeds in a counterclockwise direction, which typically denotes work done on the system.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.21
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/419.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0419.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0419:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0419.thermalEfficiency_eq_answerChoiceC}
+\uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-matchesproblemstatement, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-matchesprimarypvdiagram, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-hasphysicalstatereadouts, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-hasfigureindicatedheatflowpattern, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesquasistaticboundaryworklaw, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesfirstlawandcycleclosure, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermalefficiency, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-displayedefficiency, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-recordedanswerchoice, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-roundstodisplayedhundredth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.VolumeQuantity}
+  A signed physical volume, carrying the dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumequantity}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumequantity, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubicmeters}
+  Read the same physical volume in the cm³ unit printed on the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinpascals}
+  Read the same physical pressure in the kPa unit printed on the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.energyInJoules}
+  Read a signed physical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[joules Per Kilopascal Cubic Centimeter]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-joulesperkilopascalcubiccentimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.joulesPerKilopascalCubicCentimeter}
+  The conversion 1 kPa · cm³ = 10⁻³ J
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules Per Kilopascal Cubic Centimeter.
+\end{proof}
+\begin{definition}[Thermodynamic Device Role]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermodynamicdevicerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.ThermodynamicDeviceRole}
+  The thermodynamic role explicitly assigned to the cyclic device
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Device Role.
+\end{proof}
+\begin{definition}[Cycle State]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-cyclestate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.CycleState}
+  The four unlabeled corner markers, named by their positions in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle State.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.CycleLeg}
+  The four directed legs in the order shown by the black arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.ProcessKind}
+  Constant-coordinate thermodynamic character of a rectangular leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.PathGeometry}
+  Geometric appearance of a leg in the supplied p-V plot
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.AxisQuantity}
+  Physical quantity and unit literally printed on a diagram axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Heat Arrow Direction]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-heatarrowdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.HeatArrowDirection}
+  Direction of a purple heat-transfer arrow, or absence of an annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Arrow Direction.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumequantity}
+  A dimensionful equilibrium state represented by a corner of the rectangle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Rectangular PVHeat Engine Cycle]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.RectangularPVHeatEngineCycle}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermodynamicdevicerole, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-cyclestate, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-cycleleg, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-processkind, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pathgeometry, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-axisquantity, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-heatarrowdirection, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermodynamicstate}
+  The working system, its four states, and the signed energy transfers on each leg. The heat and work fields are independent physical observables; no field assigns the requested efficiency or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular PVHeat Engine Cycle.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  The prose identifies the cyclic device as a heat engine
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary PVDiagram]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-matchesprimarypvdiagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.MatchesPrimaryPVDiagram}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubiccentimeters, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinkilopascals, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  Exact transcription of the primary raster: axis units, corner coordinates, clockwise path, and the two signed outward-heat annotations. The raster is used instead of the contradictory approximate auxiliary caption
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary PVDiagram.
+\end{proof}
+\begin{definition}[Has Physical State Readouts]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-hasphysicalstatereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.HasPhysicalStateReadouts}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubicmeters, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinpascals, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  Positivity conditions selecting genuine pressure-volume states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical State Readouts.
+\end{proof}
+\begin{definition}[Has Figure Indicated Heat Flow Pattern]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-hasfigureindicatedheatflowpattern}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.HasFigureIndicatedHeatFlowPattern}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  The image shows the only two outward heat-transfer arrows on the right and bottom legs. The remaining left and top legs therefore comprise the heat input of the depicted engine. These sign facts identify heat-input versus heat-rejection legs without assigning the total input or the efficiency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Figure Indicated Heat Flow Pattern.
+\end{proof}
+\begin{definition}[Satisfies Quasi Static Boundary Work Law]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesquasistaticboundaryworklaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.SatisfiesQuasiStaticBoundaryWorkLaw}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-volumeincubiccentimeters, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-pressureinkilopascals, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-joulesperkilopascalcubiccentimeter, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  Quasi-static boundary-work laws for isobaric and isochoric legs. The isobaric formula is W\_by = p (V\_finish - V\_start) with the diagram-unit conversion shown explicitly; an isochoric leg does no boundary work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Quasi Static Boundary Work Law.
+\end{proof}
+\begin{definition}[Satisfies First Law And Cycle Closure]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesfirstlawandcycleclosure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.SatisfiesFirstLawAndCycleClosure}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  First law on every directed leg, with Q = ΔU + W\_by, together with the state-function closure relation Σ ΔU = 0 for one complete cycle. These are governing laws and do not assert any requested work, heat-input, or efficiency value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies First Law And Cycle Closure.
+\end{proof}
+\begin{definition}[net Work By Gas In Joules]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-networkbygasinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.netWorkByGasInJoules}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  Net work done by the gas during one clockwise traversal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of net Work By Gas In Joules.
+\end{proof}
+\begin{definition}[total Heat Input In Joules]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-totalheatinputinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.totalHeatInputInJoules}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-energyinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle}
+  Total heat input, obtained by summing the positive parts of all leg heats
+\end{definition}
+\begin{proof}
+  This is the declared model definition of total Heat Input In Joules.
+\end{proof}
+\begin{definition}[thermal Efficiency]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-thermalefficiency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.thermalEfficiency}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-networkbygasinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-totalheatinputinjoules}
+  Dimensionless heat-engine efficiency W\_net / Q\_in
+\end{definition}
+\begin{proof}
+  This is the declared model definition of thermal Efficiency.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.AnswerChoice}
+  Labels of the four choices displayed beside the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Efficiency]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-displayedefficiency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.displayedEfficiency}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-answerchoice}
+  Dimensionless decimal value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Efficiency.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-answerchoice}
+  The dataset records answer label C
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Hundredth]
+  \label{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-roundstodisplayedhundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.RoundsToDisplayedHundredth}
+  Agreement with a value displayed after rounding to two decimal places
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Hundredth.
+\end{proof}
+\begin{lemma}[cycle Work And Heat Input Readouts]
+  \label{lem:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-cycleworkandheatinputreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0419.cycleWorkAndHeatInputReadouts}
+  \uses{def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-rectangularpvheatenginecycle, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-matchesprimarypvdiagram, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-hasfigureindicatedheatflowpattern, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesquasistaticboundaryworklaw, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-satisfiesfirstlawandcycleclosure, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-networkbygasinjoules, def:physics:phyx-mini-0419:phyxminiproblems-problemphyxmini0419-totalheatinputinjoules}
+  The diagram and boundary-work law give 40 J on the upper expansion, -10 J on the lower compression, and zero work on both vertical legs, hence W\_net = 30 J. The two rejected heats sum to -115 J; first-law closure then forces the two heat-input legs to supply 145 J in total
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of cycle Work And Heat Input Readouts.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

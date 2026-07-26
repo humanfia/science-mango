@@ -1,0 +1,373 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0397.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0397.source.json
+
+\chapter{Physics problem phyx\_mini\_0397}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0397}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two tanks are connected as shown in figure, both containing water. Tank A is at 200 kPa, \$v = 0.5\$ m\$\textasciicircum{}3\$/kg, \$V\_A = 1\$ m\$\textasciicircum{}3\$, and tank B contains 3.5 kg at 0.5 MPa and \$400\textasciicircum{}\{\textbackslash{}circ\}C\$. The valve is now opened and the two tanks come to a uniform state.
+
+\#\# Question
+
+Find the final specific volume.
+
+\#\# Answer choices
+
+- A: A: 0.5963\$ m\$\textasciicircum{}3\$/kg
+
+- B: B: 0.5746\$ m\$\textasciicircum{}3\$/kg
+
+- C: C: 0.5024\$ m\$\textasciicircum{}3\$/kg
+
+- D: D: 0.5123\$ m\$\textasciicircum{}3\$/kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image consists of two rectangular boxes labeled "A" and "B," each filled with a light blue color, representing containers or areas. These boxes are connected by a horizontal line, indicating a link between them. In the center of this line, there is a circle with an "X," suggesting a valve or intersection point. The overall design appears simplistic, with clear labeling and consistent color fills to distinguish elements.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.5746\$ m\$\textasciicircum{}3\$/kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/397.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0397.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0397:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0397.final_specific_volume_after_opening_valve}
+\uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchestwotankwaterscenario, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchessuppliedtwotankfigure, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchesproblemreadouts, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-satisfiestankbwaterpropertymodel, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchesreferencewaterpropertydata, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-hasphysicaltwotankparameters, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-satisfiesrigidtankmassvolumelaws, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-answerchoice, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-isreportedspecificvolumechoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.volumeDimension}
+  The physical dimension of volume, L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[specific Volume Dimension]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.specificVolumeDimension}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumedimension}
+  The physical dimension of specific volume, L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Dimension.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.VolumeQuantity}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumedimension}
+  A nonnegative, unit-independent physical volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.SpecificVolumeQuantity}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumedimension}
+  A nonnegative, unit-independent thermodynamic specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[volume Readout]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.volumeReadout}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumequantity}
+  Read a physical volume in the cube of the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Readout.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.massReadout}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massquantity}
+  Read a physical mass in the selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[specific Volume Readout]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.specificVolumeReadout}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumequantity}
+  Read a specific volume in cubic selected-length-units per selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume Readout.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumequantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumereadout}
+  Cubic-metre readout used by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.massInKilograms}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massquantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massreadout}
+  Kilogram readout used by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Meters Per Kilogram]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.specificVolumeInCubicMetersPerKilogram}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumequantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumereadout}
+  Cubic-metre-per-kilogram readout used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Meters Per Kilogram.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.pressureInPascals}
+  Read a dimensionful pressure in coherent SI units (pascals)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-pressureinpascals}
+  Kilopascal readout used for both initial pressures
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[Celsius Temperature Reading]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-celsiustemperaturereading}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.CelsiusTemperatureReading}
+  Physlib supplies an absolute nonnegative Temperature, but not an affine Celsius measurement API. This interface attaches a Celsius readout to the same absolute physical temperature and records the affine calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Celsius Temperature Reading.
+\end{proof}
+\begin{definition}[Tank Label]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-tanklabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.TankLabel}
+  The two tank labels printed in the raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tank Label.
+\end{proof}
+\begin{definition}[Fluid Substance]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-fluidsubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.FluidSubstance}
+  The substance occupying either tank
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fluid Substance.
+\end{proof}
+\begin{definition}[Water Region]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-waterregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.WaterRegion}
+  Thermodynamic region of a water state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Region.
+\end{proof}
+\begin{definition}[Valve Status]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-valvestatus}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.ValveStatus}
+  Closed or open status of the valve joining the tanks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Status.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumequantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-celsiustemperaturereading, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-waterregion}
+  An equilibrium thermodynamic state of the tank contents
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Rigid Tank]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-rigidtank}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.RigidTank}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumequantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massquantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-tanklabel, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-fluidsubstance, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-thermodynamicstate}
+  One rigid tank together with its independent initial observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Tank.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.FigureObject}
+  Objects visibly present in the supplied two-tank raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Two Tank Figure]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-suppliedtwotankfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.SuppliedTwoTankFigure}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-tanklabel, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-figureobject}
+  Qualitative geometry of the primary figure. It contains no numerical specific-volume answer or thermodynamic property-table entry
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Two Tank Figure.
+\end{proof}
+\begin{definition}[Water Property Table]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-waterpropertytable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.WaterPropertyTable}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumequantity}
+  An external equilibrium-water property table. The lookup returns a physical specific volume from physical pressure and absolute temperature inputs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Property Table.
+\end{proof}
+\begin{definition}[Uniform Final Condition]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-uniformfinalcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.UniformFinalCondition}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumequantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massquantity, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-thermodynamicstate}
+  The combined final condition has one thermodynamic state shared by both tanks. Its total mass, total occupied volume, and specific volume are independent physical fields until the governing conservation laws are assumed below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Final Condition.
+\end{proof}
+\begin{definition}[Two Tank Valve Setup]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.TwoTankValveSetup}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-tanklabel, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-valvestatus, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-rigidtank, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-suppliedtwotankfigure, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-waterpropertytable, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-uniformfinalcondition}
+  The complete two-rigid-tank valve-opening experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Tank Valve Setup.
+\end{proof}
+\begin{definition}[Matches Two Tank Water Scenario]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchestwotankwaterscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.MatchesTwoTankWaterScenario}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  Qualitative facts stated by the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Two Tank Water Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Two Tank Figure]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchessuppliedtwotankfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.MatchesSuppliedTwoTankFigure}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-suppliedtwotankfigure}
+  Qualitative labels, objects, and left-to-right geometry read from the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Two Tank Figure.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumeincubicmeters, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massinkilograms, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-pressureinkilopascals, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  The six numerical readouts explicitly stated in the problem. In particular, the mass of tank A and volume of tank B are not supplied here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Satisfies Tank BWater Property Model]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-satisfiestankbwaterpropertymodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.SatisfiesTankBWaterPropertyModel}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  Physical interpretation of the 0.5 MPa, 400 °C water state: it is in the superheated-vapor region and its specific volume is obtained from the water property table. This is a constitutive state relation, not the requested final combined specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Tank BWater Property Model.
+\end{proof}
+\begin{definition}[Matches Reference Water Property Data]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-matchesreferencewaterpropertydata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.MatchesReferenceWaterPropertyData}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  Reference property-table readout needed to make the numerical problem determinate: superheated water at 0.5 MPa and 400 °C has specific volume 0.6173 m³/kg at the precision used by the source exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Reference Water Property Data.
+\end{proof}
+\begin{definition}[Has Physical Two Tank Parameters]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-hasphysicaltwotankparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.HasPhysicalTwoTankParameters}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumeincubicmeters, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massinkilograms, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-pressureinpascals, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  Positivity conditions selecting physically meaningful tank states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Two Tank Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rigid Tank Mass Volume Laws]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-satisfiesrigidtankmassvolumelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.SatisfiesRigidTankMassVolumeLaws}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-volumereadout, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-massreadout, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumereadout, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-tanklabel, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup}
+  Governing laws for opening a valve between two closed rigid tanks: each tank obeys V = m v in any coherent mass/length units; rigidity makes the final occupied volume the sum of tank volumes; total water mass is conserved; the uniform final state also obeys V\_total = m\_total v\_final. No field mentions an answer choice or the requested numerical final value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Tank Mass Volume Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.AnswerChoice}
+  Labels printed beside the four candidate final specific volumes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Specific Volume In Cubic Meters Per Kilogram]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-displayedspecificvolumeincubicmetersperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.displayedSpecificVolumeInCubicMetersPerKilogram}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-answerchoice}
+  Specific volume in m³/kg printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Specific Volume In Cubic Meters Per Kilogram.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-answerchoice}
+  Dataset answer metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Reported Specific Volume Choice]
+  \label{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-isreportedspecificvolumechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0397.IsReportedSpecificVolumeChoice}
+  \uses{def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-twotankvalvesetup, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-answerchoice, def:physics:phyx-mini-0397:phyxminiproblems-problemphyxmini0397-displayedspecificvolumeincubicmetersperkilogram}
+  A choice agrees with the physical final specific volume when both are reported to the four decimal places used by the answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Reported Specific Volume Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,338 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0469.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0469.source.json
+
+\chapter{Physics problem phyx\_mini\_0469}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0469}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In an automobile engine, a mixture of air and vaporized gasoline is compressed in the cylinders before being ignited. A typical engine has a compression ratio of 9.00 to 1; that is, the gas in the cylinders is compressed to \textbackslash{}frac\{1\}\{9.00\} of its original volume (figure). The intake and exhaust valves are closed during the compression, so the quantity of gas is constant.Its initial temperature is 27\textasciicircum{}\textbackslash{}circ \textbackslash{}mathrm\{C\} and the initial and final pressures are 1.00 \textbackslash{}, \textbackslash{}text\{atm\} and 21.7 \textbackslash{}, \textbackslash{}text\{atm\}, respectively.
+
+\#\# Question
+
+What is the final temperature of the compressed gas?
+
+\#\# Answer choices
+
+- A: A: 420°C
+
+- B: B: 450°C
+
+- C: C: 530°C
+
+- D: D: 500°C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a cross-sectional diagram of an internal combustion engine. It illustrates various components and their placement within the engine. Key features include:
+
+- **Intake Valve**: Shown at the top of the cylinders, these valves allow air or an air-fuel mixture into the combustion chamber.
+- **Exhaust Valve**: Also positioned at the top, these valves release exhaust gases after combustion.
+- **Fuel Injector**: Located near the top of each cylinder, responsible for spraying fuel into the combustion chamber.
+- **Combustion Chamber**: The enclosed area within the cylinder where fuel combustion occurs.
+- **Fuel Pump**: Indicated by a label, this component supplies fuel to the fuel injectors.
+- **Pistons**: Illustrated as cylindrical devices within the cylinders, moving up and down to convert fuel energy into mechanical motion.
+- **Gear Assembly**: Visible on the left, indicating parts of the timing or drive mechanism.
+
+The labels point to their respective parts, providing an educational overview of engine components and function.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 450°C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/469.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0469.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0469:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0469.problem_phyx_mini_0469}
+\uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureinkelvin, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchesautomobileenginecompressionscenario, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchesproblemreadouts, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchessuppliedenginefigure, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-hasphysicalcompressionparameters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesclosedcylinderamountconservation, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesendpointidealgaslaw, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-roundstodisplayedtendegrees, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-isuniqueclosestdisplayedtemperature}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.VolumeQuantity}
+  A nonnegative physical volume carrying the dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.pressureInPascals}
+  Read a physical pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-pressureinpascals}
+  Read a physical pressure in standard atmospheres by comparison with Physlib's dimensionful DimPressure.standardAtmosphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.temperatureInKelvin}
+  Read an absolute temperature in kelvins. Physlib's Temperature stores a nonnegative magnitude in an arbitrary zero-preserving unit, so the storage unit remains explicit in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-temperatureinkelvin}
+  The affine Celsius readout attached to an absolute temperature. The offset is 273.15 K = 5463/20 K; Celsius is not treated as an absolute scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Compression State]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.CompressionState}
+  The two equilibrium states before and after compression
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Compression State.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.GasModel}
+  Thermodynamic model selected for the cylinder contents
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[Cylinder Contents]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-cylindercontents}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.CylinderContents}
+  Composition of the gas in the cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Contents.
+\end{proof}
+\begin{definition}[Valve Position]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-valveposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.ValvePosition}
+  Position of an intake or exhaust valve during the compression stroke
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Valve Position.
+\end{proof}
+\begin{definition}[Engine Figure Label]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginefigurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.EngineFigureLabel}
+  Literal component labels printed in the supplied engine raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Engine Figure Label.
+\end{proof}
+\begin{definition}[Engine Figure Object]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginefigureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.EngineFigureObject}
+  Physical engine components visibly depicted in the cross section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Engine Figure Object.
+\end{proof}
+\begin{definition}[Engine Cross Section Figure]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginecrosssectionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.EngineCrossSectionFigure}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginefigurelabel, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginefigureobject}
+  Qualitative information retained from the primary raster. The geometric fields describe component placement and connectivity; they contain no pressure, volume, or temperature readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Engine Cross Section Figure.
+\end{proof}
+\begin{definition}[Cylinder Gas State]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-cylindergasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.CylinderGasState}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-volumequantity}
+  Pressure, volume, and absolute temperature of one endpoint gas state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Gas State.
+\end{proof}
+\begin{definition}[Automobile Engine Compression Setup]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.AutomobileEngineCompressionSetup}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-gasmodel, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-cylindercontents, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-valveposition, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginecrosssectionfigure, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-cylindergasstate}
+  The physical setup. GasAmount remains abstract and has a separate mole readout, so amount of substance is not identified with a bare scalar type. The state-dependent amount makes conservation during the closed-valve stroke an explicit law rather than a fact hidden by construction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Automobile Engine Compression Setup.
+\end{proof}
+\begin{definition}[state Pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statepressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.statePressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-pressureinatmospheres, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Pressure in atmospheres at a named endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Pressure In Atmospheres.
+\end{proof}
+\begin{definition}[state Volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statevolumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.stateVolumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-volumeincubicmeters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Volume in cubic metres at a named endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Volume In Cubic Meters.
+\end{proof}
+\begin{definition}[state Temperature In Kelvin]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.stateTemperatureInKelvin}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-temperatureinkelvin, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Absolute temperature in kelvins at a named endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature In Kelvin.
+\end{proof}
+\begin{definition}[state Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.stateTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-temperatureindegreescelsius, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-compressionstate, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Celsius temperature at a named endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Matches Automobile Engine Compression Scenario]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchesautomobileenginecompressionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.MatchesAutomobileEngineCompressionScenario}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Qualitative physical information from the prose. Closed valves are recorded here, while their consequence for gas amount is stated separately as a process law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Automobile Engine Compression Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statepressureinatmospheres, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statevolumeincubicmeters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius}
+  The four numerical readouts printed in the problem. The final temperature and all answer choices are absent. 9.00 : 1 is expressed as V\_final = V\_initial / 9
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Engine Figure]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchessuppliedenginefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.MatchesSuppliedEngineFigure}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-enginecrosssectionfigure}
+  Facts read directly from the supplied cross-sectional engine raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Engine Figure.
+\end{proof}
+\begin{definition}[Has Physical Compression Parameters]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-hasphysicalcompressionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.HasPhysicalCompressionParameters}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statepressureinatmospheres, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statevolumeincubicmeters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureinkelvin}
+  Positivity and nondegeneracy conditions for both gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Compression Parameters.
+\end{proof}
+\begin{definition}[Satisfies Closed Cylinder Amount Conservation]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesclosedcylinderamountconservation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.SatisfiesClosedCylinderAmountConservation}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup}
+  Closed intake and exhaust valves make the amount of gas at the two endpoint states equal. This is a process law, not a final-temperature relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Cylinder Amount Conservation.
+\end{proof}
+\begin{definition}[Satisfies Endpoint Ideal Gas Law]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesendpointidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.SatisfiesEndpointIdealGasLaw}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statepressureinatmospheres, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statevolumeincubicmeters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureinkelvin}
+  The ideal-gas equation pV = nRT, applied uniformly at both endpoints in coherent atmosphere, cubic-metre, mole, and kelvin readouts. It does not assign the unknown final temperature or select an answer choice. Physlib's IdealGas.ideal\_gas\_law is specialized to its unitless statistical mechanics model with R = 1; this local law preserves the dimensional engine state and explicit unit readouts needed here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Endpoint Ideal Gas Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.AnswerChoice}
+  Labels of the four choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-displayedtemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.displayedTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-answerchoice}
+  Celsius value displayed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Ten Degrees]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-roundstodisplayedtendegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.RoundsToDisplayedTenDegrees}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-answerchoice, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-displayedtemperatureindegreescelsius}
+  A computed temperature matches a choice printed to the nearest ten degrees when it lies within five degrees of that displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Ten Degrees.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Temperature]
+  \label{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-isuniqueclosestdisplayedtemperature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.IsUniqueClosestDisplayedTemperature}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-answerchoice, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-displayedtemperatureindegreescelsius}
+  The selected displayed temperature is strictly closer than every rival
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Temperature.
+\end{proof}
+\begin{lemma}[final temperature exact]
+  \label{lem:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-final-temperature-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0469.final_temperature_exact}
+  \uses{def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-automobileenginecompressionsetup, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureinkelvin, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-statetemperatureindegreescelsius, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-matchesproblemreadouts, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-hasphysicalcompressionparameters, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesclosedcylinderamountconservation, def:physics:phyx-mini-0469:phyxminiproblems-problemphyxmini0469-satisfiesendpointidealgaslaw}
+  The endpoint ideal-gas equations, conservation of gas amount, and supplied ratios give the exact model value T\_final = 144739/200 K = 90109/200 °C = 450.545 °C
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final temperature exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

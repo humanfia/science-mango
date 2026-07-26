@@ -1,0 +1,201 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0363.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0363.source.json
+
+\chapter{Physics problem phyx\_mini\_0363}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0363}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+0.020 mol of gas undergoes the process shown in the figure.
+
+\#\# Question
+
+What is the final temperature?
+
+\#\# Answer choices
+
+- A: A: 458\textasciicircum{}\textbackslash{}circ C
+
+- B: B: 756\textasciicircum{}\textbackslash{}circ C
+
+- C: C: 356\textasciicircum{}\textbackslash{}circ C
+
+- D: D: 584\textasciicircum{}\textbackslash{}circ C
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with the x-axis labeled as \textbackslash{}( V \textbackslash{}, (\textbackslash{}text\{cm\}\textasciicircum{}3) \textbackslash{}) and the y-axis labeled as \textbackslash{}( p \textbackslash{}, (\textbackslash{}text\{atm\}) \textbackslash{}). The graph illustrates a downward curving line representing a process between two points, labeled 1 and 2.
+
+- Point 1 is at a higher pressure and lower volume.
+- Point 2 is at a lower pressure and higher volume.
+- An arrow indicates the direction from point 1 to point 2, suggesting a decrease in pressure and an increase in volume.
+- The x-axis is marked at 0 and \textbackslash{}( V\_2 \textbackslash{}).
+- The y-axis ranges from 0 to 3.
+
+The curve illustrates an inverse relationship between the pressure and volume, likely representing an isothermal or adiabatic process in thermodynamics.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 458\textasciicircum{}\textbackslash{}circ C
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/363.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0363.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0363:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0363.finalTemperatureRoundsTo458C}
+\uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinatmospheres, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumeincubiccentimeters, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperatureinkelvins, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-directedgasprocess, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-haspositivereadouts, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-satisfiesidealgaslaw, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-followsinversepvcurve, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-roundstonearestdegreecelsius}
+For the directed inverse-\(pV\) process with \(n=0.020\) mole,
+\(R=82.057\,\mathrm{atm\,cm^3/(mol\,K)}\), and first-state readouts
+\(p_1=3\,\mathrm{atm}\), \(V_1=400\,\mathrm{cm^3}\), the final absolute
+temperature rounds to \(458^\circ\mathrm C\).
+\end{theorem}
+\begin{proof}
+The inverse-curve hypothesis makes \(p_1V_1=p_2V_2\).  Applying the ideal-gas
+law at both states with the same positive \(nR\) therefore gives
+\(T_2=T_1\).  At state one,
+\[
+ T_1=\frac{3\cdot400}{(20/1000)(82057/1000)}
+     =\frac{60000000}{82057}\ {\rm K}.
+\]
+Subtract \(273.15\) to obtain the Celsius readout.  Direct rational
+comparison shows that its distance from \(458\) is strictly below one half,
+which is precisely the declared nearest-degree predicate.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.VolumeQuantity}
+  A physical volume, tagged with dimension length cubed and a nonnegative value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Pressure Quantity]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressurequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.PressureQuantity}
+  Physical pressure, using Physlib's dimensionful pressure type
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.TemperatureQuantity}
+  Absolute thermodynamic temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.pressureInPascals}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressurequantity}
+  Coherent-SI pressure readout in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressurequantity, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinpascals}
+  Pressure readout in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumequantity}
+  Volume readout in cubic centimetres; 1 m³ = 10⁶ cm³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperaturequantity}
+  Convert the stored absolute-temperature scale to a kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Gas State]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-gasstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.GasState}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumequantity, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressurequantity, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperaturequantity}
+  A thermodynamic state with physical pressure, volume, and absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas State.
+\end{proof}
+\begin{definition}[Directed Gas Process]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-directedgasprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.DirectedGasProcess}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-gasstate}
+  The directed process arrow in the figure, from point 1 to point 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Directed Gas Process.
+\end{proof}
+\begin{definition}[Has Positive Readouts]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-haspositivereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.HasPositiveReadouts}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinatmospheres, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumeincubiccentimeters, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperatureinkelvins, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-gasstate}
+  Positivity of the pressure, volume, and kelvin readouts of a state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Positive Readouts.
+\end{proof}
+\begin{definition}[Satisfies Ideal Gas Law]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-satisfiesidealgaslaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.SatisfiesIdealGasLaw}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinatmospheres, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumeincubiccentimeters, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-temperatureinkelvins, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-gasstate}
+  The ideal-gas law written in the chart units atm, cm³, mol, and K
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Gas Law.
+\end{proof}
+\begin{definition}[Follows Inverse PVcurve]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-followsinversepvcurve}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.FollowsInversePVcurve}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-pressureinatmospheres, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-volumeincubiccentimeters, def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-directedgasprocess}
+  Model the pictured inverse p-V curve by a constant pressure-volume product between its labeled endpoints
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Follows Inverse PVcurve.
+\end{proof}
+\begin{definition}[kelvin To Celsius]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-kelvintocelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.kelvinToCelsius}
+  Convert an absolute-temperature readout in kelvin to degrees Celsius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of kelvin To Celsius.
+\end{proof}
+\begin{definition}[Rounds To Nearest Degree Celsius]
+  \label{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-roundstonearestdegreecelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0363.RoundsToNearestDegreeCelsius}
+  \uses{def:physics:phyx-mini-0363:phyxminiproblems-problemphyxmini0363-kelvintocelsius}
+  A Celsius value rounds to the displayed whole-degree answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Degree Celsius.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

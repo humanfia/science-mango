@@ -1,0 +1,201 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0023.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0023.source.json
+
+\chapter{Physics problem phyx\_mini\_0023}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0023}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A light ray enters a rectangular block of plastic at an angle \textbackslash{}( \textbackslash{}theta\_1 = 45.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{}) and emerges at an angle \textbackslash{}( \textbackslash{}theta\_2 = 76.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{}) as shown in figure.
+
+\#\# Question
+
+If the light ray enters the plastic at a point \textbackslash{}( L = 50.0 \textbackslash{}text\{ cm\} \textbackslash{}) from the bottom edge, what time interval is required for the light ray to travel through the plastic?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 2.85 \textbackslash{}text\{ ns\} \textbackslash{})
+
+- B: B: \textbackslash{}( 3.91 \textbackslash{}text\{ ns\} \textbackslash{})
+
+- C: C: \textbackslash{}( 3.40 \textbackslash{}text\{ ns\} \textbackslash{})
+
+- D: D: \textbackslash{}( 4.12 \textbackslash{}text\{ ns\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a diagram related to optics, likely demonstrating refraction. Here’s a detailed description:
+
+1. **Objects and Shapes**:
+   - A rectangular block is shaded, likely to represent a medium with a refractive index, labeled as "n".
+   - A line with arrows, indicating the path of light, enters and exits the block.
+
+2. **Angles**:
+   - Two angles are marked:
+     - \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}): The angle of incidence, measured between the incoming light ray and the perpendicular (dashed line) to the surface of the block.
+     - \textbackslash{}(\textbackslash{}theta\_2\textbackslash{}): The angle of refraction, measured between the refracted light ray inside the medium and the perpendicular.
+
+3. **Text and Labels**:
+   - The medium is labeled with "n".
+   - The angles are labeled as \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}) and \textbackslash{}(\textbackslash{}theta\_2\textbackslash{}).
+   - A distance is labeled as \textbackslash{}(L\textbackslash{}), extending vertically from the surface to the line indicating \textbackslash{}(\textbackslash{}theta\_1\textbackslash{}).
+
+4. **Line Details**:
+   - The incoming light ray travels towards the rectangle, bends at the interface, and continues through the medium at a different angle.
+   - The path of light is depicted with arrows, indicating the direction of travel.
+
+This diagram likely represents the refraction of light as it passes from one medium into another, demonstrating the change in direction according to Snell's law.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 3.40 \textbackslash{}text\{ ns\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/23.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0023.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0023:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0023.travel_time_through_rectangular_plastic_block}
+\uses{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimlengthreal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimtimereal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimspeedreal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-centimeterunitchoices, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-degrees, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-rectangularplasticblock, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-matchesanswerchoice, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-rectangularblocktransitlaws}
+For the rectangular plastic block with \(45^\circ\) entry, \(76^\circ\)
+emergence geometry, and \(50\,\mathrm{cm}\) vertical drop, the Snell,
+right-triangle, propagation-speed, and constant-speed laws give a transit
+time within \(0.005\,\mathrm{ns}\) of \(3.40\,\mathrm{ns}\), answer C.
+\end{theorem}
+\begin{proof}
+Use the two interface equations and the complementary bottom-face incidence
+angle to solve for the acute internal ray angle and the plastic index.  The
+right-triangle law then gives the internal path length as
+\(0.50/\sin r\) metres.  The material-speed law gives
+\(v=c/n\), so constant-speed travel yields
+\[
+ t=\frac{n(0.50)}{c\sin r}.
+\]
+Substitute the solved trigonometric relations, keep all denominators positive
+using the branch hypotheses, and use certified bounds for the fixed
+\(45^\circ\) and \(76^\circ\) values.  The resulting interval lies inside
+\([3.395,3.405]\,\mathrm{ns}\), exactly the answer-C tolerance.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length Real]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimlengthreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.DimLengthReal}
+  A real-valued length whose dimension is tracked by PhysLean
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length Real.
+\end{proof}
+\begin{definition}[Dim Time Real]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimtimereal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.DimTimeReal}
+  A real-valued duration whose dimension is tracked by PhysLean
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Time Real.
+\end{proof}
+\begin{definition}[Dim Speed Real]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimspeedreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.DimSpeedReal}
+  A real-valued speed whose dimension is tracked by PhysLean
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Speed Real.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.centimeterUnitChoices}
+  Unit choices in which length is read in centimeters and all other units are SI
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[nanosecond Unit Choices]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-nanosecondunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.nanosecondUnitChoices}
+  Unit choices in which time is read in nanoseconds and all other units are SI
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanosecond Unit Choices.
+\end{proof}
+\begin{definition}[degrees]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-degrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.degrees}
+  Convert a scalar degree readout to the radian value used by Real.sin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees.
+\end{proof}
+\begin{definition}[air Refractive Index]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-airrefractiveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.airRefractiveIndex}
+  The refractive index of the surrounding air in the idealized problem model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of air Refractive Index.
+\end{proof}
+\begin{definition}[Rectangular Plastic Block]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-rectangularplasticblock}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.RectangularPlasticBlock}
+  \uses{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-airrefractiveindex}
+  A rectangular plastic block, represented by its dimensionless refractive index
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Plastic Block.
+\end{proof}
+\begin{definition}[Within Absolute Tolerance]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-withinabsolutetolerance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.WithinAbsoluteTolerance}
+  Absolute scalar tolerance, used to state the precision of a displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Within Absolute Tolerance.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.AnswerChoice}
+  The four displayed transit-time choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[time Nanoseconds]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-answerchoice-timenanoseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.AnswerChoice.timeNanoseconds}
+  \uses{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-answerchoice}
+  The nanosecond readout printed next to an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Nanoseconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimtimereal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-nanosecondunitchoices, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-withinabsolutetolerance, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-answerchoice}
+  A dimensionful time agrees with a displayed choice to its hundredth-nanosecond precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Rectangular Block Transit Laws]
+  \label{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-rectangularblocktransitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0023.RectangularBlockTransitLaws}
+  \uses{def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimlengthreal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimtimereal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-dimspeedreal, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-airrefractiveindex, def:physics:phyx-mini-0023:phyxminiproblems-problemphyxmini0023-rectangularplasticblock}
+  The governing physical laws for the ray shown in the figure. entryAngle is measured from the horizontal normal to the left face, internalAngle is the corresponding angle inside the block, bottomIncidenceAngle is measured from the vertical normal to the bottom face, and exitAngle is the outgoing angle from that normal. The scalar equations involving dimensional quantities are their SI readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rectangular Block Transit Laws.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

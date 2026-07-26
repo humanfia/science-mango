@@ -1,0 +1,276 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0638.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0638.source.json
+
+\chapter{Physics problem phyx\_mini\_0638}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0638}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A particle is described by the wave function \$\textbackslash{}psi(x) = \textbackslash{}begin\{cases\} 0 \& x < 0 \textbackslash{}\textbackslash{} c e\textasciicircum{}\{-x/L\} \& x \textbackslash{}geq 0 \textbackslash{}end\{cases\}\$ where \$L = 1\textbackslash{};nm\$.
+
+\#\# Question
+
+If \$10\textasciicircum{}6\$ particles are detected, how many are expected to be found in the region \$x \textbackslash{}geq 1\textbackslash{};nm\$?
+
+\#\# Answer choices
+
+- A: A: 125
+
+- B: B: 135
+
+- C: C: 145
+
+- D: D: 155
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image contains two graphs, one above the other, showing mathematical functions and their relationships on a shared x-axis labeled in nanometers (nm).
+
+\#\#\# Top Graph:
+- **Title:** Ψ(x) (nm⁻¹/²)
+- **Y-axis Values:** Starts at 1.414 and decreases.
+- **X-axis Range:** From 0 to 2 nm.
+- **Curve:** A red decaying exponential curve starting at (0, 1.414) and approaching zero as x increases.
+- **Equation Shown:** Ψ(x) = (1.414 nm⁻¹/²)e⁻ˣ/¹.⁰ⁿᵐ
+- **Text and Arrows:** Indicates the equation.
+
+\#\#\# Bottom Graph:
+- **Title:** P(x) (nm⁻¹)
+- **Y-axis Values:** Starts at 2 and decreases.
+- **X-axis Range:** From 0 to 2 nm.
+- **Curve:** A green decaying exponential curve starting at (0, 2) and approaching zero over x.
+- **Annotation:** The area under the curve is labeled as "The area under the curve is Prob(x ≥ 1 nm)."
+- **Arrow:** Points to the area under the curve starting from x = 1 nm.
+
+Both graphs are depicting exponential decay functions with their respective annotations and are functions of x in nanometers.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 135
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/638.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0638.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0638:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0638.problem_phyx_mini_0638}
+\uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-matchesproblemdata, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-matchesprimaryfigure, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-satisfiesexponentialwavebornandcountinglaws, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-roundstonearestparticle}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Position Quantity]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.PositionQuantity}
+  A signed physical position on the one-dimensional axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Position Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.LengthQuantity}
+  A nonnegative physical length, used for the exponential decay length L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Wave Amplitude Quantity]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.WaveAmplitudeQuantity}
+  A position-wavefunction amplitude, with physical dimension L⁻¹ᐟ²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Amplitude Quantity.
+\end{proof}
+\begin{definition}[Probability Density Quantity]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.ProbabilityDensityQuantity}
+  A one-dimensional position-probability density, of dimension L⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Probability Density Quantity.
+\end{proof}
+\begin{definition}[nanometer Unit]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-nanometerunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.nanometerUnit}
+  The physical unit used on the horizontal axes of both supplied plots
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometer Unit.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.positionReadout}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity}
+  Numerical coordinate of a physical position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.lengthReadout}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthquantity}
+  Numerical value of a nonnegative physical length in a selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[wave Amplitude Readout]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.waveAmplitudeReadout}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudequantity}
+  Numerical wave-amplitude readout in inverse square-root selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of wave Amplitude Readout.
+\end{proof}
+\begin{definition}[probability Density Readout]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.probabilityDensityReadout}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityquantity}
+  Numerical probability-density readout in inverse selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of probability Density Readout.
+\end{proof}
+\begin{definition}[position From Readout]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionfromreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.positionFromReadout}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity}
+  Construct a physical position from its coordinate in a selected unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position From Readout.
+\end{proof}
+\begin{definition}[origin Position]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-originposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.originPosition}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-nanometerunit, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionfromreadout}
+  The physical origin used by the piecewise wavefunction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of origin Position.
+\end{proof}
+\begin{definition}[Figure Curve Shape]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-figurecurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.FigureCurveShape}
+  The qualitative curve shape shown in each panel of the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Curve Shape.
+\end{proof}
+\begin{definition}[One Dimensional Position State]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-onedimensionalpositionstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.OneDimensionalPositionState}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudequantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityquantity}
+  The state exposes independent amplitude, density, and tail-probability observables. Born's rule below relates them; none is defined from the requested answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of One Dimensional Position State.
+\end{proof}
+\begin{definition}[Exponential Tail Figure]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtailfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.ExponentialTailFigure}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-figurecurveshape}
+  Labels, numerical ticks, curve styles, and annotation visible in image 638.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exponential Tail Figure.
+\end{proof}
+\begin{definition}[Exponential Tail Detection Setup]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.ExponentialTailDetectionSetup}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthquantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudequantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-onedimensionalpositionstate, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtailfigure}
+  The physical experiment. The expected count is an independent observable and is related to probability only by the general counting law stated below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exponential Tail Detection Setup.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-nanometerunit, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup}
+  Exact problem data: L = 1 nm, the query begins at 1 nm, and the run contains 10⁶ detected particles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-nanometerunit, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudereadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-originposition, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup}
+  Primary-image evidence. The upper origin label 1.414 is a three-decimal display, so it is connected to the physical amplitude by its rounding interval. The plotted wave curve is positive and real at the origin. The lower origin label 2 is the exact density value shown by the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Satisfies Exponential Wave Born And Counting Laws]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-satisfiesexponentialwavebornandcountinglaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.SatisfiesExponentialWaveBornAndCountingLaws}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionquantity, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-lengthreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-waveamplitudereadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-probabilitydensityreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-positionfromreadout, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup}
+  The stated piecewise exponential profile, square-integrability, normalization, Born position-density law, tail-event integral, and expected-count scaling. All formulas are stated for arbitrary calibrated length units. Consequently the physical laws are not tied to the nanometre readout used by the particular figure. No field contains exp (-2), 135, or the derived expected count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Exponential Wave Born And Counting Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Expected Count]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-displayedexpectedcount}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.displayedExpectedCount}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-answerchoice}
+  Particle counts printed beside the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Expected Count.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-answerchoice}
+  The dataset's recorded label, retained only as source metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Particle]
+  \label{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-roundstonearestparticle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.RoundsToNearestParticle}
+  Usual half-up rounding of a real-valued expectation to a natural count
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Particle.
+\end{proof}
+\begin{lemma}[one Nanometer Tail Probability]
+  \label{lem:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-onenanometertailprobability}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0638.oneNanometerTailProbability}
+  \uses{def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-exponentialtaildetectionsetup, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-matchesproblemdata, def:physics:phyx-mini-0638:phyxminiproblems-problemphyxmini0638-satisfiesexponentialwavebornandcountinglaws}
+  For the normalized exponential state with L = 1 nm, Born's rule assigns the dimensionless tail probability exp (-2) to the event x ≥ 1 nm
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of one Nanometer Tail Probability.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

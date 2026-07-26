@@ -1,0 +1,339 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0710.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0710.source.json
+
+\chapter{Physics problem phyx\_mini\_0710}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0710}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A typical can of food is \textbackslash{}(7.5\textbackslash{},\textbackslash{}mathrm\{cm\}\textbackslash{}) in diameter. The can rest on a \textbackslash{}(30\textasciicircum{}\textbackslash{}circ\textbackslash{}) incline without falling over.
+
+\#\# Question
+
+What is the tallest can of food.
+
+\#\# Answer choices
+
+- A: A: 8cm
+
+- B: B: 10cm
+
+- C: C: 13cm
+
+- D: D: 15cm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a can placed on a sloped surface. The slope is angled at 30 degrees, and there is a rectangle representing the can with its center of mass marked by a circle with an "x" inside it. A red arrow labeled "F⃗\_G" points downward from the center of mass, indicating the force of gravity.
+
+A dashed line labeled "Line of action" extends vertically through the center of mass. The rectangle is tilted, and its height is marked as "h\_max" and its base as "b."
+
+The diagram includes a blue dotted arc indicating a rotation angle of 30 degrees from the vertical to the tilted can. Accompanying text explains, "The tallest possible can has its center of mass directly over the pivot point."
+
+\#\# Dataset metadata
+
+Statics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 13cm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/710.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0710.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0710:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0710.problem_phyx_mini_0710}
+\uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchescanoninclinescenario, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchescanproblemreadouts, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchessuppliedcanfigure, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-hasphysicalcanparameters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfiescenteredcangeometry, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfieslimitinglineofactiongeometry, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfiesstaticstabilitylaw, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-istalleststableheight, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-isuniqueclosestdisplayedheight}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.forceDimension}
+  The physical dimension of force, M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Force Magnitude Quantity]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.ForceMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcedimension}
+  A nonnegative physical force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Magnitude Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.lengthReadout}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthreadout}
+  Centimeter readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcemagnitudequantity}
+  SI readout of a force magnitude, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.degreesToRadians}
+  Convert a dimensionless degree readout to a dimensionless radian readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Can Shape]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.CanShape}
+  Three-dimensional shape of the food container
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Shape.
+\end{proof}
+\begin{definition}[Can Mass Distribution]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.CanMassDistribution}
+  Mass-distribution idealization represented by the central mass mark
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Mass Distribution.
+\end{proof}
+\begin{definition}[Can Orientation]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.CanOrientation}
+  Orientation of the can axis relative to the support plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Orientation.
+\end{proof}
+\begin{definition}[Support Surface Kind]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-supportsurfacekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.SupportSurfaceKind}
+  Kind of support surface used in the statics model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Support Surface Kind.
+\end{proof}
+\begin{definition}[Can Point]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.CanPoint}
+  Distinguished points in the axial cross-section of the can
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can Point.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.VerticalDirection}
+  Vertical direction of the gravitational-force arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.FigureObject}
+  Physical objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.FigureLabel}
+  Literal and numerical annotations visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Gravitational Force]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-gravitationalforce}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.GravitationalForce}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcemagnitudequantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canpoint, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-verticaldirection}
+  The gravitational load pictured on the can. Its dimensional magnitude, point of application, and spatial direction are retained separately
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gravitational Force.
+\end{proof}
+\begin{definition}[Supplied Can Figure]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-suppliedcanfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.SuppliedCanFigure}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canpoint, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-verticaldirection, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-figureobject, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-figurelabel}
+  Data transcribed from image 710. The two Boolean incidence fields record which distinguished points lie on the dashed gravity line; their analytic coordinate meaning is supplied separately by the limiting-line geometry law. The image itself contains no numerical height answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Can Figure.
+\end{proof}
+\begin{definition}[Can On Incline Setup]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.CanOnInclineSetup}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canshape, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canmassdistribution, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canorientation, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-supportsurfacekind, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-gravitationalforce, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-suppliedcanfigure}
+  The independent physical quantities of the can-on-incline experiment. centerOfMassAlongBaseFromDownhillPivot and centerOfMassAboveBaseNormal are the two components of the center-of-mass position in coordinates tangent and normal to the incline. The predicate restsWithoutFallingAtHeight describes the family of otherwise identical, centered cylindrical cans with varying height. It is constrained by the general statics law below rather than being defined from the desired answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Can On Incline Setup.
+\end{proof}
+\begin{definition}[Matches Can On Incline Scenario]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchescanoninclinescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.MatchesCanOnInclineScenario}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  Qualitative physical assignments stated by the prose and picture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Can On Incline Scenario.
+\end{proof}
+\begin{definition}[Matches Can Problem Readouts]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchescanproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.MatchesCanProblemReadouts}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-degreestoradians, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  The numerical input from the problem statement: diameter 7.5 cm and slope angle 30° = π/6 radians. No height value occurs in these readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Can Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Can Figure]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-matchessuppliedcanfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.MatchesSuppliedCanFigure}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-degreestoradians, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  Objects, labels, arrow direction, and incidences read from the primary image. The symbols b and h\_max denote setup fields but do not assign the unknown height a numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Can Figure.
+\end{proof}
+\begin{definition}[Has Physical Can Parameters]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-hasphysicalcanparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.HasPhysicalCanParameters}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-forcemagnitudeinnewtons, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  Positivity and acute-angle conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Can Parameters.
+\end{proof}
+\begin{definition}[Satisfies Centered Can Geometry]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfiescenteredcangeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.SatisfiesCenteredCanGeometry}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthreadout, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  Axial cross-section geometry for a centered right circular cylinder. The base chord b equals the cylinder diameter, and the center of mass lies halfway across the base and halfway up the can. The equations are stated in every length unit and contain no solved value of h\_max
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Centered Can Geometry.
+\end{proof}
+\begin{definition}[Satisfies Limiting Line Of Action Geometry]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfieslimitinglineofactiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.SatisfiesLimitingLineOfActionGeometry}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthreadout, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  Analytic meaning of the figure statement that the vertical gravity line through the center of mass passes through the downhill pivot. In coordinates tangent and normal to the incline, the two horizontal projections cancel. This is the limiting tipping geometry, not the requested solved height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Limiting Line Of Action Geometry.
+\end{proof}
+\begin{definition}[Satisfies Static Stability Law]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfiesstaticstabilitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.SatisfiesStaticStabilityLaw}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  The governing static-stability law for otherwise identical centered cans of varying height. A can remains upright exactly while the vertical gravity line meets the base footprint. In the chosen incline coordinates this is height * sin θ ≤ b * cos θ; equality is the downhill tipping threshold. No numerical height or answer label occurs in the law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Static Stability Law.
+\end{proof}
+\begin{definition}[Is Tallest Stable Height]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-istalleststableheight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.IsTallestStableHeight}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthquantity, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup}
+  A physical height is stable and is at least as tall as every stable one
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Tallest Stable Height.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.AnswerChoice}
+  Labels of the four centimeter-valued answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Height Centimeters]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-displayedheightcentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.displayedHeightCentimeters}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-answerchoice}
+  Centimeter value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Height Centimeters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Closest Displayed Height]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-isclosestdisplayedheight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.IsClosestDisplayedHeight}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-answerchoice, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-displayedheightcentimeters}
+  A choice is at least as close to the exact limiting height as every choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Height.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Height]
+  \label{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-isuniqueclosestdisplayedheight}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.IsUniqueClosestDisplayedHeight}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-answerchoice, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-isclosestdisplayedheight}
+  A choice is the unique closest displayed height
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Height.
+\end{proof}
+\begin{lemma}[limiting Height In Centimeters eq base div tan]
+  \label{lem:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-limitingheightincentimeters-eq-base-div-tan}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0710.limitingHeightInCentimeters_eq_base_div_tan}
+  \uses{def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-lengthincentimeters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-canoninclinesetup, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-hasphysicalcanparameters, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfiescenteredcangeometry, def:physics:phyx-mini-0710:phyxminiproblems-problemphyxmini0710-satisfieslimitinglineofactiongeometry}
+  The centered-mass and limiting-line geometry give the general threshold formula h\_max = b / tan θ. This is a derived relation, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of limiting Height In Centimeters eq base div tan.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

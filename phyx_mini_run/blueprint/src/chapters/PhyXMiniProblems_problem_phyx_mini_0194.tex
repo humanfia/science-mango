@@ -1,0 +1,282 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0194.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0194.source.json
+
+\chapter{Physics problem phyx\_mini\_0194}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0194}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A listener L is at rest and the siren is moving away from L at 30 \textbackslash{}, \textbackslash{}mathrm\{m/s\}.
+
+\#\# Question
+
+What frequency does the listener hear?
+
+\#\# Answer choices
+
+- A: A: 267Hz
+
+- B: B: 276Hz
+
+- C: C: 283Hz
+
+- D: D: 296Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scenario illustrating the Doppler effect. It shows a police car and a listener.
+
+1. **Listener at Left:**
+   - The listener is depicted as a simple stick figure on the left, labeled "L."
+   - Above this figure, there is text saying "Listener at rest" with "v\_L = 0" indicating the listener is stationary.
+   - It is also asked "f\_L = ?," indicating the frequency perceived by the listener is unknown.
+
+2. **Police Car:**
+   - The police car is depicted on the right, labeled "S."
+   - An arrow above the car points to the right, indicating the direction of its movement.
+   - Above the car, there's the text "Police car" and "v\_S = 30 m/s," indicating the speed of the car.
+
+3. **Arrow and Text:**
+   - There’s an arrow labeled "L to S" pointing from the listener to the car, indicating the direction from the listener to the source.
+
+Overall, the image visualizes a typical Doppler effect scenario where a source of sound (the police car) moves towards a stationary observer (the listener).
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 276Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/194.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0194.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0194:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0194.recedingSiren_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-matchesproblemandprimaryfigure, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesstandardstillair, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesnominalsirenemission, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-hasphysicaldopplerparameters, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-satisfiesleftwardacousticdopplerlaw, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recordedanswerchoice, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Frequency]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-acousticfrequency}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AcousticFrequency}
+  A nonnegative physical acoustic frequency, with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Frequency.
+\end{proof}
+\begin{definition}[Axial Position]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AxialPosition}
+  A signed physical coordinate along the horizontal L-to-S axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Position.
+\end{proof}
+\begin{definition}[Axial Velocity]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AxialVelocity}
+  A signed physical velocity along the horizontal axis. Positive velocity points from listener L toward source S in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Velocity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.frequencyReadout}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-acousticfrequency}
+  Read a physical acoustic frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-acousticfrequency, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyreadout}
+  Hertz readout of a physical acoustic frequency
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.positionReadout}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialposition}
+  Read a signed axial position in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.positionInMeters}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialposition, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-positionreadout}
+  Metre readout of an axial position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[axial Velocity Readout]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.axialVelocityReadout}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocity}
+  Read a signed axial velocity in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity Readout.
+\end{proof}
+\begin{definition}[axial Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.axialVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocity, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityreadout}
+  Metres-per-second readout of a signed axial velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of axial Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.speedInMetersPerSecond}
+  Read Physlib's nonnegative dimensionful speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.FigurePoint}
+  The two labelled locations in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Sound Source Kind]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-soundsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.SoundSourceKind}
+  The physical kind of sound source drawn at S
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Sound Source Kind.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AxialDirection}
+  The two orientations along the one-dimensional figure axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Receding Siren Setup]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.RecedingSirenSetup}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-acousticfrequency, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialposition, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocity, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-figurepoint, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-soundsourcekind, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialdirection}
+  Independent physical quantities and qualitative labels for the Doppler experiment. In particular, heardFrequencyAtL is an unknown physical frequency and is not assigned a numerical value by this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Receding Siren Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-positioninmeters, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  Problem-statement and primary-figure data. The listener L is left of S and at rest; source S is a police-car siren moving at 30 m/s in the L-to-S direction, hence away from L. The sound that reaches L travels from S toward L. No emitted-frequency calibration, sound-speed value, or requested heard frequency occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Still Air]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesstandardstillair}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.UsesStandardStillAir}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-speedinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  Standard still-air calibration used for the numerical multiple-choice evaluation. It is kept separate because neither still air nor 343 m/s is printed in the supplied problem or bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Still Air.
+\end{proof}
+\begin{definition}[Uses Nominal Siren Emission]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesnominalsirenemission}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.UsesNominalSirenEmission}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  Nominal source-frequency calibration required by the supplied answer table. The source and bitmap omit this datum, so it is deliberately separated from MatchesProblemAndPrimaryFigure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Nominal Siren Emission.
+\end{proof}
+\begin{definition}[Has Physical Doppler Parameters]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-hasphysicaldopplerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.HasPhysicalDopplerParameters}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-speedinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  Positivity and subsonic conditions for the classical acoustic model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Doppler Parameters.
+\end{proof}
+\begin{definition}[Satisfies Leftward Acoustic Doppler Law]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-satisfiesleftwardacousticdopplerlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.SatisfiesLeftwardAcousticDopplerLaw}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-axialvelocityinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-speedinmeterspersecond, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup}
+  The one-dimensional classical Doppler law for sound travelling leftward from S to L. Signed listener and source velocities are measured relative to the air. This governing law relates independent physical quantities and does not mention 276 Hz or any answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Leftward Acoustic Doppler Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[hertz]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-answerchoice-hertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.AnswerChoice.hertz}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-answerchoice}
+  Whole-hertz frequency printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hertz.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-answerchoice}
+  The recorded answer label in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-acousticfrequency, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-answerchoice}
+  Agreement with a displayed whole-hertz answer to half a hertz, representing rounding to the nearest integer rather than an exact-integer physical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[heard Frequency In Hertz eq exact Model Value]
+  \label{lem:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-heardfrequencyinhertz-eq-exactmodelvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0194.heardFrequencyInHertz_eq_exactModelValue}
+  \uses{def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-frequencyinhertz, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-recedingsirensetup, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-matchesproblemandprimaryfigure, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesstandardstillair, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-usesnominalsirenemission, def:physics:phyx-mini-0194:phyxminiproblems-problemphyxmini0194-satisfiesleftwardacousticdopplerlaw}
+  Under the stated figure data and the two explicit auxiliary calibrations, the classical Doppler model predicts the exact SI readout 102900 / 373 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of heard Frequency In Hertz eq exact Model Value.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

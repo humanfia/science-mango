@@ -1,0 +1,397 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0737.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0737.source.json
+
+\chapter{Physics problem phyx\_mini\_0737}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0737}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure gives the path of a squirrel moving about on level ground, from point \$A\$ (at time \$t = 0\$), to points \$B\$ (at \$t = 5.00\textbackslash{} min\$), \$C\$ (at \$t = 10.0\textbackslash{} min\$), and finally \$D\$ (at \$t = 15.0\textbackslash{} min\$).
+
+\#\# Question
+
+Consider the average velocities of the squirrel from point \$A\$ to each of the other three points. Of them, what is the magnitude of the one with the least magnitude?
+
+\#\# Answer choices
+
+- A: A: 0.0056 m/s
+
+- B: B: 0.0062 m/s
+
+- C: C: 0.0083 m/s
+
+- D: D: 0.0097 m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a path on an x-y coordinate plane. The axes are labeled "x (m)" and "y (m)" with grid lines marked at intervals of 25 from -50 to 50. 
+
+There are four labeled points on the path:
+- Point A
+- Point B
+- Point C
+- Point D
+
+The path is a smooth, curved line that connects these points, starting at A, moving to B, then C, and finally to D. The path shows a meandering form, suggesting a progression from left to right and bottom to top across the grid.
+
+The overall graph provides a visual representation of movement along a set path in a plane, marked by specific distinct points.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.0083 m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/737.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0737.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0737:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0737.least_averageVelocityMagnitude_is_one_over_oneHundredTwenty}
+\uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchessquirrelscenario, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchesprimaryfigure, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-satisfiesaveragevelocitylaw, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-hasphysicalaveragevelocitymagnitudes, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-recordeddatasetanswer, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchesanswerchoice, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-isuniqueleastaveragevelocitymagnitude}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.velocityDimension}
+  Velocity has physical dimension length divided by time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.PlanarPositionQuantity}
+  A signed position vector in the level-ground plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.TimeQuantity}
+  A physical observation time measured from the stated time origin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Planar Velocity Quantity]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.PlanarVelocityQuantity}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocitydimension}
+  A signed planar average-velocity vector
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity Quantity.
+\end{proof}
+\begin{definition}[position Readout]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-positionreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.positionReadout}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarpositionquantity}
+  Read a physical planar position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.timeReadout}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timequantity}
+  Read a physical time in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.velocityReadout}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarvelocityquantity}
+  Read a planar velocity in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.speedReadout}
+  Read a nonnegative speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.positionInMeters}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarpositionquantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-positionreadout}
+  Coherent-SI position-vector readout, in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[time In Minutes]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timeinminutes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.timeInMinutes}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timequantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timereadout}
+  Minute readout of a physical observation time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Minutes.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.timeInSeconds}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timequantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timereadout}
+  Second readout of a physical observation time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarvelocityquantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocityreadout}
+  Coherent-SI average-velocity readout, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedreadout}
+  Metres-per-second readout of a nonnegative physical speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Diagram Axis]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-diagramaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.DiagramAxis}
+  Cartesian axes printed on the level-ground diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis.
+\end{proof}
+\begin{definition}[to Fin]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-diagramaxis-tofin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.DiagramAxis.toFin}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-diagramaxis}
+  Coordinate index associated with a printed Cartesian axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of to Fin.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.AxisQuantity}
+  The physical quantity named by an axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.AxisUnit}
+  Units printed beside the two spatial axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Squirrel Point]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.SquirrelPoint}
+  The four labelled locations on the squirrel's path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Squirrel Point.
+\end{proof}
+\begin{definition}[Destination]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.Destination}
+  The three destinations whose average velocities from A are compared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Destination.
+\end{proof}
+\begin{definition}[to Squirrel Point]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination-tosquirrelpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.Destination.toSquirrelPoint}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpoint, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination}
+  Forget that a destination is restricted to one of B, C, and D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of to Squirrel Point.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.PathGeometry}
+  Qualitative geometry of the trace drawn through the four points
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Ground Surface]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-groundsurface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.GroundSurface}
+  The type of ground surface named in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ground Surface.
+\end{proof}
+\begin{definition}[Moving Animal]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-movinganimal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.MovingAnimal}
+  The moving animal named in the physical scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moving Animal.
+\end{proof}
+\begin{definition}[Squirrel Path Figure]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpathfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.SquirrelPathFigure}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarpositionquantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-diagramaxis, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-axisquantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-axisunit, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpoint, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-pathgeometry}
+  Literal coordinate-plot content of the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Squirrel Path Figure.
+\end{proof}
+\begin{definition}[point Coordinate In Meters]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-pointcoordinateinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.pointCoordinateInMeters}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-positioninmeters, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-diagramaxis, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpoint, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpathfigure}
+  Read one Cartesian coordinate of a labelled point in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of point Coordinate In Meters.
+\end{proof}
+\begin{definition}[Squirrel Motion Setup]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.SquirrelMotionSetup}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timequantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-planarvelocityquantity, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpoint, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-groundsurface, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-movinganimal, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpathfigure}
+  Independent physical data for the motion. Average-velocity vectors and their magnitudes are fields because they are observables constrained by the two governing-law premises below; no requested numerical result is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Squirrel Motion Setup.
+\end{proof}
+\begin{definition}[Matches Squirrel Scenario]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchessquirrelscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.MatchesSquirrelScenario}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timeinminutes, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  Prose data: animal, level ground, and the four observation times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Squirrel Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelpathfigure, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-pointcoordinateinmeters}
+  Exact transcription of image 737.png. Coordinate 0 is horizontal and coordinate 1 is vertical. The raster grid has five-metre cells; its marked points are A = (15,-15), B = (30,-45), C = (20,-15), and D = (45,45), all in metres. These are displacement data, not velocity or answer assumptions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[displacement From AIn Meters]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-displacementfromainmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.displacementFromAInMeters}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-positioninmeters, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  SI displacement vector from A to one of the three destinations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displacement From AIn Meters.
+\end{proof}
+\begin{definition}[elapsed Time From AIn Seconds]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-elapsedtimefromainseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.elapsedTimeFromAInSeconds}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-timeinseconds, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  Elapsed SI time from the observation at A to a destination
+\end{definition}
+\begin{proof}
+  This is the declared model definition of elapsed Time From AIn Seconds.
+\end{proof}
+\begin{definition}[Satisfies Average Velocity Law]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-satisfiesaveragevelocitylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.SatisfiesAverageVelocityLaw}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocityinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-displacementfromainmeters, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-elapsedtimefromainseconds}
+  Average velocity is displacement divided by elapsed time. Scalar inverse followed by scalar multiplication expresses that quotient for a vector. The law is uniform over B, C, and D and contains no endpoint comparison or answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Average Velocity Law.
+\end{proof}
+\begin{definition}[Has Physical Average Velocity Magnitudes]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-hasphysicalaveragevelocitymagnitudes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.HasPhysicalAverageVelocityMagnitudes}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-velocityinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  The magnitude of each average-velocity vector is its Euclidean norm. This is a general magnitude law and does not identify which destination is least
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Average Velocity Magnitudes.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.AnswerChoice}
+  Labels of the four values printed as possible answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Meters Per Second]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-answerchoice-displayedmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.AnswerChoice.displayedMetersPerSecond}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-answerchoice}
+  Metres-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Four Decimal Places]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-roundstofourdecimalplaces}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.RoundsToFourDecimalPlaces}
+  Agreement with a decimal printed to four places. The half-unit rounding radius at that precision is 0.00005 = 1/20000 metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Four Decimal Places.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-answerchoice, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-roundstofourdecimalplaces}
+  A physical speed rounds to the value printed beside an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Least Average Velocity Magnitude]
+  \label{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-isuniqueleastaveragevelocitymagnitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0737.IsUniqueLeastAverageVelocityMagnitude}
+  \uses{def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-speedinmeterspersecond, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-destination, def:physics:phyx-mini-0737:phyxminiproblems-problemphyxmini0737-squirrelmotionsetup}
+  A destination has strictly smaller average-velocity magnitude than both alternatives
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Least Average Velocity Magnitude.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

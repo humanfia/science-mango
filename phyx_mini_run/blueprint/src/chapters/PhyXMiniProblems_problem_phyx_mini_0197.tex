@@ -1,0 +1,324 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0197.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0197.source.json
+
+\chapter{Physics problem phyx\_mini\_0197}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0197}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The police car is moving toward a warehouse at 30 \textbackslash{}, \textbackslash{}mathrm\{m/s\}.
+
+\#\# Question
+
+What frequency does the driver hear reflected from the warehouse?
+
+\#\# Answer choices
+
+- A: A: 377Hz
+
+- B: B: 358Hz
+
+- C: C: 342Hz
+
+- D: D: 367Hz
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a schematic depicting a scenario related to motion and waves. Here's a detailed description:
+
+1. **Objects and Scenes**:
+   - There is a road or track represented in the image.
+   - A blue car, labeled with an "S," is on the left side, moving to the left.
+   - A tan stationary object is on the right side, labeled with "L."
+
+2. **Relationships and Directions**:
+   - The car (S) has a velocity (\textbackslash{}(v\_S\textbackslash{})) of \textbackslash{}(-30 \textbackslash{}, \textbackslash{}text\{m/s\}\textbackslash{}), indicating it is moving to the left.
+   - An arrow along with the velocity value indicates the direction of movement for the car.
+   - The tan object's velocity (\textbackslash{}(v\_L\textbackslash{})) is \textbackslash{}(0\textbackslash{}), indicating it is stationary.
+
+3. **Additional Elements**:
+   - A green arrow is pointing from the car towards the tan object along the velocity direction.
+   - Blue sound wave lines are depicted emanating from the tan object, signifying it might be the source of sound.
+
+4. **Text Elements**:
+   - Near the car, it states: \textbackslash{}( v\_S = -30 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}).
+   - Near the tan object, it states: \textbackslash{}( v\_L = 0 \textbackslash{}).
+   - An equation or notation is displayed with a plus sign and "L to S" under it, showing the relative direction or reference.
+
+This image likely represents a Doppler effect scenario, where the car is moving towards or away from a sound source, and the effects on frequency or wavelength might be illustrated.
+
+\#\# Dataset metadata
+
+Sound; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 358Hz
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/197.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0197.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0197:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0197.problem_phyx_mini_0197}
+\uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchesshareddopplercalibration, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchessuppliedwarehousefigure, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-hasphysicaldopplerparameters, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-satisfieswarehousereflectionlaws, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-displayedanswerfrequencyhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-isclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.FrequencyQuantity}
+  A nonnegative physical frequency, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.SpeedQuantity}
+  A nonnegative physical speed, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Velocity Quantity]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.VelocityQuantity}
+  A signed one-dimensional velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Quantity.
+\end{proof}
+\begin{definition}[frequency Readout]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.frequencyReadout}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyquantity}
+  Read a frequency in inverse units of the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.speedReadout}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedquantity}
+  Read a speed in a selected length unit per selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.velocityReadout}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityquantity}
+  Read a signed velocity component in compatible length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyreadout}
+  Hertz readout, i.e. cycles per SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedreadout}
+  Meter-per-second readout of a nonnegative speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityreadout}
+  Meter-per-second readout of a signed axial velocity component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Entity]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-figureentity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.FigureEntity}
+  The two distinguished objects carrying the figure labels S and L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Entity.
+\end{proof}
+\begin{definition}[Propagation Direction]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.PropagationDirection}
+  The two directions along the road between the labels S and L
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Propagation Direction.
+\end{proof}
+\begin{definition}[propagation Sign]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationsign}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.propagationSign}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationdirection}
+  Sign of a direction in the displayed axis, which is positive from L to S
+\end{definition}
+\begin{proof}
+  This is the declared model definition of propagation Sign.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.AcousticMedium}
+  Qualitative acoustic medium used by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[Reflector Kind]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-reflectorkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.ReflectorKind}
+  The reflecting object's physical role in the acoustic model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reflector Kind.
+\end{proof}
+\begin{definition}[Doppler Reflection Figure]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-dopplerreflectionfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.DopplerReflectionFigure}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-figureentity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationdirection}
+  The discrete geometry and numerical annotations visible in the supplied bitmap. The velocity labels are explicitly scalar readouts in meters per second; physical velocities themselves remain dimensionful setup fields
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Doppler Reflection Figure.
+\end{proof}
+\begin{definition}[Warehouse Reflection Setup]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.WarehouseReflectionSetup}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityquantity, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationdirection, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-acousticmedium, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-reflectorkind, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-dopplerreflectionfigure}
+  Physical quantities for the outgoing and reflected legs. In particular, the three post-emission frequencies are independent fields: none is defined to have the requested numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Warehouse Reflection Setup.
+\end{proof}
+\begin{definition}[Matches Shared Doppler Calibration]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchesshareddopplercalibration}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.MatchesSharedDopplerCalibration}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedinmeterspersecond, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityinmeterspersecond, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup}
+  The calibration inherited from the common setup of the immediately preceding Doppler questions: a 300 Hz siren, 340 m/s sound speed, and still air. It contains no incident, reflected, or driver-heard frequency conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Shared Doppler Calibration.
+\end{proof}
+\begin{definition}[Matches Supplied Warehouse Figure]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchessuppliedwarehousefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.MatchesSuppliedWarehouseFigure}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityinmeterspersecond, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup}
+  Data read directly from the current problem statement and primary bitmap. The car/source S is drawn on the left, the warehouse/reflector L on the right, the displayed positive axis is L to S, the car moves from S to L, and the reflected wave returns from L to S. The velocity labels are v\_S = -30 m/s and v\_L = 0 in that displayed sign convention
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Warehouse Figure.
+\end{proof}
+\begin{definition}[Has Physical Doppler Parameters]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-hasphysicaldopplerparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.HasPhysicalDopplerParameters}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedinmeterspersecond, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityinmeterspersecond, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup}
+  Positivity and subsonic conditions for the two Doppler legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Doppler Parameters.
+\end{proof}
+\begin{definition}[Satisfies Warehouse Reflection Laws]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-satisfieswarehousereflectionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.SatisfiesWarehouseReflectionLaws}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyreadout, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-speedreadout, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-velocityreadout, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-propagationsign, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup}
+  General one-dimensional acoustic laws used in the solution. For a wave traveling with sign d through a medium at speed c, source and receiver velocity components are measured relative to the medium. The received-to-emitted frequency ratio is (c - d * v\_receiver) / (c - d * v\_source). The rigid warehouse preserves frequency in its own rest frame. Applying the general Doppler law first from car to warehouse and then from warehouse to car models the double shift without assuming the requested numerical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Warehouse Reflection Laws.
+\end{proof}
+\begin{lemma}[incident Frequency At Warehouse eq 10200 over 31]
+  \label{lem:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-incidentfrequencyatwarehouse-eq-10200-over-31}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.incidentFrequencyAtWarehouse_eq_10200_over_31}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchesshareddopplercalibration, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchessuppliedwarehousefigure, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-hasphysicaldopplerparameters, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-satisfieswarehousereflectionlaws}
+  On the incident leg, the moving siren approaches the stationary warehouse. The first Doppler shift therefore raises 300 Hz to 10200/31 Hz in the warehouse frame
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of incident Frequency At Warehouse eq 10200 over 31.
+\end{proof}
+\begin{lemma}[driver Heard Frequency eq 11100 over 31]
+  \label{lem:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-driverheardfrequency-eq-11100-over-31}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.driverHeardFrequency_eq_11100_over_31}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchesshareddopplercalibration, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchessuppliedwarehousefigure, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-hasphysicaldopplerparameters, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-satisfieswarehousereflectionlaws}
+  After frequency-preserving reflection, the driver approaches the returning wave. Combining the two general Doppler factors gives the unrounded heard frequency 11100/31 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of driver Heard Frequency eq 11100 over 31.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.AnswerChoice}
+  Labels of the four frequency choices printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Frequency Hertz]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-displayedanswerfrequencyhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.displayedAnswerFrequencyHertz}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answerchoice}
+  Displayed frequency beside an answer label, in hertz
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Frequency Hertz.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answerchoice}
+  The answer label recorded by the source dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[answer Error Hertz]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answererrorhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.answerErrorHertz}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answerchoice, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-displayedanswerfrequencyhertz}
+  Absolute discrepancy between the physical heard frequency and a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Error Hertz.
+\end{proof}
+\begin{definition}[Is Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-isclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.IsClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answerchoice, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-answererrorhertz}
+  A displayed choice is strictly closer than every other displayed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Choice.
+\end{proof}
+\begin{lemma}[driver Heard Frequency rounds To 358]
+  \label{lem:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-driverheardfrequency-roundsto-358}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0197.driverHeardFrequency_roundsTo_358}
+  \uses{def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-frequencyinhertz, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-warehousereflectionsetup, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchesshareddopplercalibration, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-matchessuppliedwarehousefigure, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-hasphysicaldopplerparameters, def:physics:phyx-mini-0197:phyxminiproblems-problemphyxmini0197-satisfieswarehousereflectionlaws}
+  The exact Doppler result lies within half a hertz of the printed 358 Hz
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of driver Heard Frequency rounds To 358.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,577 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0768.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0768.source.json
+
+\chapter{Physics problem phyx\_mini\_0768}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0768}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In a shipping company distribution center, an open cart of mass 50.0 kg is rolling to the left at a speed of 5.00 m/s as shown in figure. Ignore friction between the cart and the floor. A 15.0 kg package slides down a chute that is inclined at 37\textbackslash{}(\textbackslash{}degree\textbackslash{}) from the horizontal and leaves the end of the chute with a speed of 3.00 m/s. The package lands in the cart and they roll together. If the lower end of the chute is a vertical distance of 4.00 m above the bottom of the cart.
+
+\#\# Question
+
+What are the final speed of the cart?
+
+\#\# Answer choices
+
+- A: A: 2.15m/s
+
+- B: B: 3.29m/s
+
+- C: C: 4.08m/s
+
+- D: D: 4.14m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics scenario involving an inclined plane and a cart:
+
+1. **Inclined Plane and Block**: A block (shown in orange) is on an inclined plane. The incline has an angle of 37° from the horizontal.
+
+2. **Distance**: There is a vertical line with an arrow indicating a distance of 4.00 meters, suggesting the height of the block above the ground.
+
+3. **Arrows**: Arrows show the expected motion of the block down the ramp and towards the cart, hinting at a physics problem involving gravitational pull and possibly kinetic energy transfer.
+
+4. **Cart**: To the right of the inclined plane, there is an outline of a cart with wheels, suggesting that the block is likely meant to interact with or land in the cart following its descent.
+
+The image is likely used to illustrate concepts such as projectile motion, energy conservation, or Newton's laws in physics problems.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 3.29m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/768.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0768.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0768:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0768.final_cart_speed_after_package_capture}
+\uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-degreestoradians, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesproblemreadouts, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesqualitativescenario, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesprimaryfigure, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesphysicalgeometry, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-hasphysicalparameters, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinitialvelocitygeometry, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-usesstandardnearearthgravity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesprojectilemotion, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinelasticcapturelaws, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesanswerchoice, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[velocity Dimension]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.velocityDimension}
+  The physical dimension of velocity, L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Dimension.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.accelerationDimension}
+  The physical dimension of acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MassQuantity}
+  A nonnegative physical mass, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.TimeQuantity}
+  A nonnegative physical duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.SpeedQuantity}
+  A nonnegative physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.SignedVelocityQuantity}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocitydimension}
+  A signed velocity component along the horizontal floor
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Planar Position Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.PlanarPositionQuantity}
+  A signed physical position vector in the plane of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Position Quantity.
+\end{proof}
+\begin{definition}[Planar Velocity Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.PlanarVelocityQuantity}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocitydimension}
+  A signed physical velocity vector in the plane of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Velocity Quantity.
+\end{proof}
+\begin{definition}[Planar Acceleration Quantity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planaraccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.PlanarAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationdimension}
+  A signed physical acceleration vector in the plane of the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Acceleration Quantity.
+\end{proof}
+\begin{definition}[x Axis]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.xAxis}
+  Coordinate 0, horizontal and positive to the right
+\end{definition}
+\begin{proof}
+  This is the declared model definition of x Axis.
+\end{proof}
+\begin{definition}[y Axis]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-yaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.yAxis}
+  Coordinate 1, vertical and positive upward
+\end{definition}
+\begin{proof}
+  This is the declared model definition of y Axis.
+\end{proof}
+\begin{definition}[nonnegative Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.nonnegativeReadout}
+  Read a nonnegative dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative Readout.
+\end{proof}
+\begin{definition}[signed Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.signedReadout}
+  Read a signed dimensionful scalar in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Readout.
+\end{proof}
+\begin{definition}[planar Vector Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.planarVectorReadout}
+  Read a dimensionful planar vector in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of planar Vector Readout.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.massReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.lengthReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout}
+  Read a physical length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.timeReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timequantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout}
+  Read a physical duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.speedReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[signed Velocity Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.signedVelocityReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedreadout}
+  Read a signed velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity Readout.
+\end{proof}
+\begin{definition}[position Vector Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-positionvectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.positionVectorReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarpositionquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvectorreadout}
+  Read a planar position in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position Vector Readout.
+\end{proof}
+\begin{definition}[velocity Vector Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityvectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.velocityVectorReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvectorreadout}
+  Read a planar velocity in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Vector Readout.
+\end{proof}
+\begin{definition}[acceleration Vector Readout]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationvectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.accelerationVectorReadout}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planaraccelerationquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvectorreadout}
+  Read a planar acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Vector Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.massInKilograms}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massreadout}
+  Kilogram readout used in the stated data and final calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.lengthInMeters}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthreadout}
+  Metre readout used for the displayed vertical separation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.timeInSeconds}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timequantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timereadout}
+  Second readout of the package flight time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedreadout}
+  Metres-per-second readout of a scalar speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[signed Velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.signedVelocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityreadout}
+  Metres-per-second readout of a signed horizontal velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.positionInMeters}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarpositionquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-positionvectorreadout}
+  Cartesian metre readout of a planar position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityvectorreadout}
+  Cartesian metres-per-second readout of a planar velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planaraccelerationquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationvectorreadout}
+  Cartesian metres-per-second-squared readout of a planar acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.degreesToRadians}
+  Convert a dimensionless angle readout in degrees to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[Projectile Model]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-projectilemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.ProjectileModel}
+  Idealization used for the airborne package
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Projectile Model.
+\end{proof}
+\begin{definition}[Floor Condition]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-floorcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.FloorCondition}
+  Condition of the horizontal floor supporting the cart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Floor Condition.
+\end{proof}
+\begin{definition}[Capture Outcome]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-captureoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.CaptureOutcome}
+  Outcome of the package--cart encounter
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Capture Outcome.
+\end{proof}
+\begin{definition}[Motion Direction]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-motiondirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MotionDirection}
+  Qualitative directions distinguished by the two grey arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Direction.
+\end{proof}
+\begin{definition}[Figure Arrow]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurearrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.FigureArrow}
+  The two motion arrows visible in image 768.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.FigureElement}
+  Visible physical objects and geometric annotations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.FigureLabel}
+  Literal numerical labels printed in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.FigurePoint}
+  Distinguished endpoints used by the height annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Shipping Cart Figure]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.ShippingCartFigure}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-motiondirection, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurearrow, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figureelement, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurelabel, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-figurepoint}
+  Qualitative and schematic content transcribed from the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Shipping Cart Figure.
+\end{proof}
+\begin{definition}[Shipping Cart Capture Setup]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.ShippingCartCaptureSetup}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timequantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarpositionquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvelocityquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planaraccelerationquantity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-projectilemodel, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-floorcondition, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-captureoutcome, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartfigure}
+  Independent physical quantities and intermediate states in the two-stage model. finalCartSpeed is an unconstrained observable here; no answer-choice value or solved numerical expression is stored in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Shipping Cart Capture Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massinkilograms, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthinmeters, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  The five numerical givens in the prose. Neither final speed nor common final velocity is constrained here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Qualitative Scenario]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesqualitativescenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MatchesQualitativeScenario}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  The qualitative idealizations and encounter outcome stated in the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Qualitative Scenario.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  Primary-image evidence: a right-descending chute and package lie above and to the left of an open cart; the package arrow points down-right, the cart arrow points left, and the 37 degrees and 4.00 m annotations are present
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Physical Geometry]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesphysicalgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MatchesPhysicalGeometry}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-yaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthinmeters, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-positioninmeters, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  Physical geometry associated with the 4.00 m annotation and capture point. The package moves to the right while falling from the chute exit to the cart
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Physical Geometry.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-yaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massinkilograms, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-lengthinmeters, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-timeinseconds, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  Positivity and direction conditions selecting the physical branch in the figure. They contain no numerical claim about the final speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Initial Velocity Geometry]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinitialvelocitygeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.SatisfiesInitialVelocityGeometry}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-yaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityvectorreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-degreestoradians, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  The stated directions and chute angle determine the initial signed cart velocity and the two components of the package's chute-exit velocity. These relations hold in every coherent choice of length and time units and contain no post-capture speed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Initial Velocity Geometry.
+\end{proof}
+\begin{definition}[Uses Standard Near Earth Gravity]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-usesstandardnearearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.UsesStandardNearEarthGravity}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-yaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  The standard gravitational field used for the package's flight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Near Earth Gravity.
+\end{proof}
+\begin{definition}[Satisfies Projectile Motion]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesprojectilemotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.SatisfiesProjectileMotion}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-nonnegativereadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-planarvectorreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  Endpoint position and velocity equations for constant acceleration. The height datum participates through the independent physical-geometry predicate; in particular, it determines the flight time and vertical impact velocity but does not alter the conserved horizontal component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Projectile Motion.
+\end{proof}
+\begin{definition}[Satisfies Inelastic Capture Laws]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinelasticcapturelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.SatisfiesInelasticCaptureLaws}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-massreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityvectorreadout, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup}
+  During the short completely inelastic capture, the frictionless floor supplies no horizontal impulse, so horizontal momentum is conserved. The floor may supply a vertical impulse; no false vertical-momentum conservation law is assumed. The last field is only the generic definition of speed as the magnitude of the common horizontal velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Inelastic Capture Laws.
+\end{proof}
+\begin{lemma}[package horizontal velocity at impact]
+  \label{lem:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-package-horizontal-velocity-at-impact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.package_horizontal_velocity_at_impact}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-xaxis, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-velocityinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-degreestoradians, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesproblemreadouts, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinitialvelocitygeometry, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-usesstandardnearearthgravity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesprojectilemotion}
+  Gravity has no horizontal component, so the package retains the horizontal component supplied by the chute until impact
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of package horizontal velocity at impact.
+\end{proof}
+\begin{lemma}[common final horizontal velocity exact]
+  \label{lem:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-common-final-horizontal-velocity-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.common_final_horizontal_velocity_exact}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-signedvelocityinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-degreestoradians, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesproblemreadouts, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinitialvelocitygeometry, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-usesstandardnearearthgravity, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesprojectilemotion, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-satisfiesinelasticcapturelaws}
+  Substitution into horizontal momentum conservation gives the signed common velocity. The negative sign selected by the data means the loaded cart still moves left
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of common final horizontal velocity exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.AnswerChoice}
+  Labels attached to the four final speeds printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-displayedspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.displayedSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-answerchoice}
+  Displayed final speed for each choice, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-answerchoice}
+  The answer label recorded by the dataset; it is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.RoundsToNearestHundredth}
+  Agreement of an actual speed with a displayed value to the nearest 0.01 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-answerchoice, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-displayedspeedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-roundstonearesthundredth}
+  The physical final speed rounds to the number printed by a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0768.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-speedinmeterspersecond, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-shippingcartcapturesetup, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-answerchoice, def:physics:phyx-mini-0768:phyxminiproblems-problemphyxmini0768-displayedspeedinmeterspersecond}
+  The selected displayed speed is strictly closer than every other choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

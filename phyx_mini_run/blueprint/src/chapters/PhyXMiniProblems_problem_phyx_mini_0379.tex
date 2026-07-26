@@ -1,0 +1,198 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0379.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0379.source.json
+
+\chapter{Physics problem phyx\_mini\_0379}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0379}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The figure shows the thermal energy of 0.14 mol of gas as a function of temperature.
+
+\#\# Question
+
+What is the \textbackslash{}C\_V\textbackslash{} for this gas?
+
+\#\# Answer choices
+
+- A: A: 29\textbackslash{} \textbackslash{}mathrm\{J\textbackslash{}cdot\textbackslash{}mol\textasciicircum{}\{-1\}\textbackslash{}cdot\textbackslash{}K\textasciicircum{}\{-1\}\}
+
+- B: B: 2.97\textbackslash{} \textbackslash{}mathrm\{J\textbackslash{}cdot\textbackslash{}mol\textasciicircum{}\{-1\}\textbackslash{}cdot\textbackslash{}K\textasciicircum{}\{-1\}\}
+
+- C: C: 2.9\textbackslash{} \textbackslash{}mathrm\{J\textbackslash{}cdot\textbackslash{}mol\textasciicircum{}\{-1\}\textbackslash{}cdot\textbackslash{}K\textasciicircum{}\{-1\}\}
+
+- D: D: 129\textbackslash{} \textbackslash{}mathrm\{J\textbackslash{}cdot\textbackslash{}mol\textasciicircum{}\{-1\}\textbackslash{}cdot\textbackslash{}K\textasciicircum{}\{-1\}\}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph depicting a linear relationship between two variables: \textbackslash{}( E\_\{\textbackslash{}text\{th\}\} \textbackslash{}) on the y-axis and \textbackslash{}( T \textbackslash{}) on the x-axis. Here are the details:
+
+- **Axes:**
+  - The y-axis is labeled \textbackslash{}( E\_\{\textbackslash{}text\{th\}\} \textbackslash{}) (Joules) and has values at 0, 1092, 1492, and 1892.
+  - The x-axis is labeled \textbackslash{}( T \textbackslash{}) (°C) and includes values at 0, 100, and 200.
+
+- **Data Representation:**
+  - A linear, orange line represents the relationship, starting at approximately (0, 1092) and ending at (200, 1892). 
+  - Dashed lines extend from points on the line to the axes to indicate values, such as from the x-axis points 100 and 200 to the line, and from the line to the y-axis at 1492 and 1892.
+
+- **Additional Features:**
+  - There is a small break (a jagged line) in the y-axis near the origin, indicating a skipped scale between 0 and 1092.
+
+\#\# Dataset metadata
+
+Specific Heat and Calorimetry; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 29\textbackslash{} \textbackslash{}mathrm\{J\textbackslash{}cdot\textbackslash{}mol\textasciicircum{}\{-1\}\textbackslash{}cdot\textbackslash{}K\textasciicircum{}\{-1\}\}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/379.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0379.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0379:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0379.constantVolumeMolarHeatCapacity_from_thermalEnergyGraph}
+\uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-matchesgasthermalenergyscenario, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-hasphysicalthermalparameters, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-obeysconstantvolumethermalenergylaw, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-matchesprimarythermalenergyfigure, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-answermolarheatcapacityjoulespermolekelvin}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.energyInJoules}
+  Read a dimensionful thermal energy in SI joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[temperature In Celsius]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-temperatureincelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.temperatureInCelsius}
+  Read an absolute Physlib temperature in degrees Celsius. Celsius and kelvin increments have the same numerical size, which is used by the difference law below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Celsius.
+\end{proof}
+\begin{definition}[Temperature Mark]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-temperaturemark}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.TemperatureMark}
+  The three temperature coordinates singled out by the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Mark.
+\end{proof}
+\begin{definition}[Axis Label]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-axislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.AxisLabel}
+  Literal roles of the labels on the horizontal and vertical axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Label.
+\end{proof}
+\begin{definition}[Heat Capacity Kind]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-heatcapacitykind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.HeatCapacityKind}
+  The thermodynamic heat-capacity distinction relevant to the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Capacity Kind.
+\end{proof}
+\begin{definition}[Curve Shape]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-curveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.CurveShape}
+  The shape of the orange data curve drawn in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Shape.
+\end{proof}
+\begin{definition}[Thermal Energy Temperature Graph]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-thermalenergytemperaturegraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.ThermalEnergyTemperatureGraph}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-temperaturemark, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-axislabel, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-curveshape}
+  The plotted curve together with the numerical scale and visible guide marks. The curve itself maps physical absolute temperatures to dimensionful thermal energies; reals in the remaining fields are explicitly labeled axis readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Energy Temperature Graph.
+\end{proof}
+\begin{definition}[Gas Thermal Energy Experiment]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.GasThermalEnergyExperiment}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-heatcapacitykind, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-thermalenergytemperaturegraph}
+  The gas sample whose molar heat capacity is to be inferred. The two real fields are named numerical readouts in mol and J/(mol K); they are not transparent aliases for physical temperature or energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Thermal Energy Experiment.
+\end{proof}
+\begin{definition}[Matches Gas Thermal Energy Scenario]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-matchesgasthermalenergyscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.MatchesGasThermalEnergyScenario}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment}
+  The prose setup, excluding the graph's measured energy values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Gas Thermal Energy Scenario.
+\end{proof}
+\begin{definition}[Has Physical Thermal Parameters]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-hasphysicalthermalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.HasPhysicalThermalParameters}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment}
+  Positivity and nondegeneracy conditions for the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermal Parameters.
+\end{proof}
+\begin{definition}[Obeys Constant Volume Thermal Energy Law]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-obeysconstantvolumethermalenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.ObeysConstantVolumeThermalEnergyLaw}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-energyinjoules, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment}
+  The constant-volume thermal-energy law ΔE\_th = n C\_V ΔT. It is stated for arbitrary pairs of temperatures on the sample's curve and does not assign a numerical value to C\_V
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Constant Volume Thermal Energy Law.
+\end{proof}
+\begin{definition}[Matches Primary Thermal Energy Figure]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-matchesprimarythermalenergyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.MatchesPrimaryThermalEnergyFigure}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-energyinjoules, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-temperatureincelsius, def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-gasthermalenergyexperiment}
+  Exact scalar readouts and visible features transcribed from the primary image. The plotted points are (0,1092), (100,1492), and (200,1892) in (°C,J). No heat-capacity value occurs in this figure-data structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Thermal Energy Figure.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.AnswerChoice}
+  The four answer labels printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Molar Heat Capacity Joules Per Mole Kelvin]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-answermolarheatcapacityjoulespermolekelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.answerMolarHeatCapacityJoulesPerMoleKelvin}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-answerchoice}
+  Numerical value beside each answer, in joules per mole-kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Molar Heat Capacity Joules Per Mole Kelvin.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0379.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0379:phyxminiproblems-problemphyxmini0379-answerchoice}
+  The dataset metadata records answer choice A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

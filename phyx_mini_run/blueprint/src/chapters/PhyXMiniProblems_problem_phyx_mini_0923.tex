@@ -1,0 +1,306 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0923.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0923.source.json
+
+\chapter{Physics problem phyx\_mini\_0923}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0923}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure is a hypothetical plot of the recessional speeds \$v\$ of galaxies against their distance \$r\$ from us; the best-fit straight line through the data points is shown.
+
+\#\# Question
+
+From this plot determine the age of the universe, assuming that Hubble's law holds and that Hubble's constant has always had the same value.
+
+\#\# Answer choices
+
+- A: A: 5.3 \textbackslash{}times 10\textasciicircum{}9 \textbackslash{}
+
+- B: B: 1.3 \textbackslash{}times 10\textasciicircum{}\{10\} \textbackslash{}
+
+- C: C: 13 \textbackslash{}times 10\textasciicircum{}9 \textbackslash{}
+
+- D: D: 2.12 \textbackslash{}times 10\textasciicircum{}9 \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a scatter plot graph with a linear trend line. 
+
+- **Axes and Labels**:
+  - The x-axis is labeled "Distance r (10\textasciicircum{}9 ly)" and has an indicated value of 5.3.
+  - The y-axis is labeled "Speed v" with an indicated value of "0.40c" where "c" represents the speed of light.
+
+- **Data Points**:
+  - There are red dots representing data points scattered in an upward trend from the origin towards the top-right of the graph.
+
+- **Trend Line**:
+  - A blue line represents the trend, showing a positive correlation between distance and speed.
+
+- **Dashed Lines**:
+  - Dashed horizontal and vertical lines intersect at the top-right of the graph at the values 0.40c and 5.3 on their respective axes.
+
+The overall graph demonstrates a relationship between increasing distance and speed, possibly illustrating a scientific concept or study.
+
+\#\# Dataset metadata
+
+Electromagnetic Waves; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 13 \textbackslash{}times 10\textasciicircum{}9 \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/923.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0923.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0923:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0923.universeAge_from_hubblePlot}
+\uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-matcheshubbleplotfigure, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hasphysicalexpansionparameters, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-satisfieshubblelaw, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratehasalwaysbeenconstant, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-satisfieshubbletimeagemodel, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-roundstonearestbillionyears, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-matchesdisplayedbillionyearprecision}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.LengthQuantity}
+  A physical distance, independent of the unit in which it is read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.TimeQuantity}
+  A physical duration, independent of the unit in which it is read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.SpeedQuantity}
+  A physical speed, carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Hubble Rate Quantity]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.HubbleRateQuantity}
+  A Hubble expansion rate, carrying inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hubble Rate Quantity.
+\end{proof}
+\begin{definition}[units With Length]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitswithlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.unitsWithLength}
+  Unit choices used to read a length in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units With Length.
+\end{proof}
+\begin{definition}[units With Time]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitswithtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.unitsWithTime}
+  Unit choices used to read a duration or inverse-time rate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units With Time.
+\end{proof}
+\begin{definition}[units For Speed]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitsforspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.unitsForSpeed}
+  Unit choices used to read a speed in lengthUnit / timeUnit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of units For Speed.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.lengthReadout}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthquantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitswithlength}
+  Real readout of a physical distance in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.timeReadout}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitswithtime}
+  Real readout of a physical duration in a selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.speedReadout}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedquantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitsforspeed}
+  Real readout of a physical speed in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[hubble Rate Readout]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.hubbleRateReadout}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-unitswithtime}
+  Real readout of a Hubble rate in inverse selected time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of hubble Rate Readout.
+\end{proof}
+\begin{definition}[julian Years]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.julianYears}
+  A Julian year (365.25 days), the year used by the light-year unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of julian Years.
+\end{proof}
+\begin{lemma}[speed Of Light in light Years Per Julian Year]
+  \label{lem:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedoflight-in-lightyearsperjulianyear}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.speedOfLight_in_lightYearsPerJulianYear}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears}
+  Physlib's exact light speed is one light-year per Julian year
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of speed Of Light in light Years Per Julian Year.
+\end{proof}
+\begin{definition}[Plot Axis Label]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-plotaxislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.PlotAxisLabel}
+  The two axis labels printed on the graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Axis Label.
+\end{proof}
+\begin{definition}[Plot Feature]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-plotfeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.PlotFeature}
+  Visually distinct features of the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plot Feature.
+\end{proof}
+\begin{definition}[Hubble Plot]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleplot}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.HubblePlot}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthquantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedquantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-plotaxislabel, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-plotfeature}
+  Typed content of the graph. bestFitSpeedAt is the speed represented by the blue fitted line at a physical distance; it is not a raw scalar graph slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hubble Plot.
+\end{proof}
+\begin{definition}[Universe Expansion Setup]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.UniverseExpansionSetup}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleplot}
+  The unknown universe age and expansion quantities used by the problem. hubbleRateAt records the rate throughout elapsed cosmic time, allowing the stated time-independence assumption to be represented explicitly
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Universe Expansion Setup.
+\end{proof}
+\begin{definition}[Matches Hubble Plot Figure]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-matcheshubbleplotfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.MatchesHubblePlotFigure}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  Primary-image evidence: the axes, scatter, best-fit line, dashed guides, and their intersection at 5.3 * 10\textasciicircum{}9 ly and 0.40 c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Hubble Plot Figure.
+\end{proof}
+\begin{definition}[Has Physical Expansion Parameters]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hasphysicalexpansionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.HasPhysicalExpansionParameters}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  Positivity conditions for the distance, fitted speed, rate, and age
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Expansion Parameters.
+\end{proof}
+\begin{definition}[Satisfies Hubble Law]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-satisfieshubblelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.SatisfiesHubbleLaw}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthquantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-lengthreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-speedreadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  Hubble's law v = H r for the blue best-fit line, stated in every compatible choice of length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hubble Law.
+\end{proof}
+\begin{definition}[Hubble Rate Has Always Been Constant]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratehasalwaysbeenconstant}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.HubbleRateHasAlwaysBeenConstant}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  The problem's assumption that the Hubble rate has had its present value at every modeled elapsed time from the big bang through the present age
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hubble Rate Has Always Been Constant.
+\end{proof}
+\begin{definition}[Satisfies Hubble Time Age Model]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-satisfieshubbletimeagemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.SatisfiesHubbleTimeAgeModel}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-hubbleratereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-universeexpansionsetup}
+  The elementary Hubble-time inference used by the question: under the stated constant-rate model, the universe age is the reciprocal expansion timescale. This is a governing relation in arbitrary time units, not the requested numerical age
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Hubble Time Age Model.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.AnswerChoice}
+  Labels of the four answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Age In Years]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-displayedageinyears}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.displayedAgeInYears}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-answerchoice}
+  The year count printed beside each answer choice in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Age In Years.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-answerchoice}
+  Dataset metadata; this definition is not used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Billion Years]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-roundstonearestbillionyears}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.RoundsToNearestBillionYears}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears}
+  The age rounds to a given whole number of billions of Julian years
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Billion Years.
+\end{proof}
+\begin{definition}[Matches Displayed Billion Year Precision]
+  \label{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-matchesdisplayedbillionyearprecision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0923.MatchesDisplayedBillionYearPrecision}
+  \uses{def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timequantity, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-timereadout, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-julianyears, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-answerchoice, def:physics:phyx-mini-0923:phyxminiproblems-problemphyxmini0923-displayedageinyears}
+  A displayed answer agrees with the age to the nearest billion years
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Billion Year Precision.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

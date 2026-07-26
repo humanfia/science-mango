@@ -1,0 +1,262 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0672.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0672.source.json
+
+\chapter{Physics problem phyx\_mini\_0672}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0672}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An object is at \textbackslash{}( x = 0 \textbackslash{}) at \textbackslash{}( t = 0 \textbackslash{}) and moves along the \textbackslash{}( x \textbackslash{}) axis according to the velocity--time graph in figure.
+
+\#\# Question
+
+Through what total distance has the object moved between \textbackslash{}( t = 0 \textbackslash{}) and \textbackslash{}( t = 18.0 \textbackslash{}text\{ s\} \textbackslash{})?
+
+\#\# Answer choices
+
+- A: A: 272m
+
+- B: B: 136m
+
+- C: C: 204m
+
+- D: D: 182m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a velocity-time graph showing the velocity \textbackslash{}( v\_x \textbackslash{}) (in meters per second) on the y-axis and time \textbackslash{}( t \textbackslash{}) (in seconds) on the x-axis. The graph consists of a series of linear segments:
+
+1. From \textbackslash{}( t = 0 \textbackslash{}) to \textbackslash{}( t = 5 \textbackslash{}) seconds, the velocity increases linearly from -10 m/s to 20 m/s.
+2. From \textbackslash{}( t = 5 \textbackslash{}) to \textbackslash{}( t = 10 \textbackslash{}) seconds, the velocity remains constant at 20 m/s.
+3. From \textbackslash{}( t = 10 \textbackslash{}) to \textbackslash{}( t = 15 \textbackslash{}) seconds, the velocity decreases linearly back to -10 m/s.
+
+The grid is labeled at intervals of 5 for time and 10 for velocity. The path of the graph is highlighted by a thick brown line.
+
+\#\# Dataset metadata
+
+Kinematics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 204m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/672.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0672.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0672:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0672.problem_phyx_mini_0672}
+\uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distanceinmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchessuppliedvelocitytimefigure, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchesproblemstatement, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-satisfiesonedimensionalkinematics, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-recordedanswerchoice, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchesdisplayeddistance, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-isuniquematchingdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Signed Position Quantity]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedpositionquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.SignedPositionQuantity}
+  A signed position on the x-axis, with physical dimension length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Position Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.TimeQuantity}
+  A nonnegative physical time or duration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Signed Velocity Quantity]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.SignedVelocityQuantity}
+  A signed x-component of velocity, with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Velocity Quantity.
+\end{proof}
+\begin{definition}[Distance Quantity]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.DistanceQuantity}
+  A nonnegative total path length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Distance Quantity.
+\end{proof}
+\begin{definition}[position In Meters]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-positioninmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.positionInMeters}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedpositionquantity}
+  Metre readout of a signed x-position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of position In Meters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.timeInSeconds}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timequantity}
+  Second readout of a physical time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[velocity In Meters Per Second]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocityinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.velocityInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedvelocityquantity}
+  Metre-per-second readout of a signed x-velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Meters Per Second.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.distanceInMeters}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distancequantity}
+  Metre readout of a nonnegative total distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.AxisQuantity}
+  Physical quantities assigned to the two graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.AxisUnit}
+  Units printed beside the graph axes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Velocity Curve Shape]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocitycurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.VelocityCurveShape}
+  Qualitative geometry of the thick plotted trace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Curve Shape.
+\end{proof}
+\begin{definition}[Curve Color]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-curvecolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.CurveColor}
+  Color of the velocity trace in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Curve Color.
+\end{proof}
+\begin{definition}[Velocity Time Figure]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocitytimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.VelocityTimeFigure}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedvelocityquantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-axisquantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-axisunit, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocitycurveshape, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-curvecolor}
+  Typed transcription of the velocity--time plot. Its real argument is a time coordinate read in seconds, while the plotted ordinate remains a dimensionful signed velocity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Time Figure.
+\end{proof}
+\begin{definition}[One Dimensional Motion]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.OneDimensionalMotion}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-signedpositionquantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timequantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distancequantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocitytimefigure}
+  The one-dimensional motion and the independent total-distance observable. positionAtSeconds is indexed by the numerical SI time coordinate needed for calculus. The two queried endpoints themselves remain physical times
+\end{definition}
+\begin{proof}
+  This is the declared model definition of One Dimensional Motion.
+\end{proof}
+\begin{definition}[plotted Velocity Meters Per Second]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-plottedvelocitymeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.plottedVelocityMetersPerSecond}
+  Velocity readout represented by the thick brown graph in image 672.png. The line is constant at -12 m/s through 4 s, rises with slope 6 m/s² to 18 m/s at 9 s, stays there through 13 s, and then falls linearly to zero at 18 s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of plotted Velocity Meters Per Second.
+\end{proof}
+\begin{definition}[Matches Supplied Velocity Time Figure]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchessuppliedvelocitytimefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.MatchesSuppliedVelocityTimeFigure}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocityinmeterspersecond, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocitytimefigure, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-plottedvelocitymeterspersecond}
+  Axis metadata and quantitative curve data read from the primary bitmap. The velocity equality is restricted to the displayed interval, so this predicate makes no assertion about an unplotted continuation of the motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Velocity Time Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-positioninmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timeinseconds, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion}
+  The stated initial condition and requested physical time interval. No total distance or answer-choice value occurs in these data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Satisfies One Dimensional Kinematics]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-satisfiesonedimensionalkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.SatisfiesOneDimensionalKinematics}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timequantity, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-positioninmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-timeinseconds, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-velocityinmeterspersecond, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distanceinmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion}
+  Standard one-dimensional kinematics in coherent SI coordinates. The first field identifies the plotted signed velocity with the time derivative of x-position. The second states the general path-length law for every ordered pair of physical times. It does not prescribe the result for the interval in the question or any answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies One Dimensional Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.AnswerChoice}
+  Labels printed beside the four candidate distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[distance In Meters]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice-distanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.AnswerChoice.distanceInMeters}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distanceinmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice}
+  Distance in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of distance In Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice}
+  Answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Distance]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchesdisplayeddistance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.MatchesDisplayedDistance}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-distanceinmeters, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice}
+  The queried physical distance agrees with a displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Distance.
+\end{proof}
+\begin{definition}[Is Unique Matching Displayed Choice]
+  \label{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-isuniquematchingdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0672.IsUniqueMatchingDisplayedChoice}
+  \uses{def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-onedimensionalmotion, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-answerchoice, def:physics:phyx-mini-0672:phyxminiproblems-problemphyxmini0672-matchesdisplayeddistance}
+  Exactly one displayed label agrees with the queried physical distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

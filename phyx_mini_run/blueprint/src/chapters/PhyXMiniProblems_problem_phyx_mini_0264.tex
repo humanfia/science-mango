@@ -1,0 +1,387 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0264.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0264.source.json
+
+\chapter{Physics problem phyx\_mini\_0264}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0264}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a physical pendulum consists of a uniform solid disk (of radius \$R = 2.35\textbackslash{} cm\$) supported in a vertical plane by a pivot located a distance \$d = 1.75\textbackslash{} cm\$ from the center of the disk. The disk is displaced by a small angle and released.
+
+\#\# Question
+
+What is the period of the resulting simple harmonic motion?
+
+\#\# Answer choices
+
+- A: A: 0.322 s
+
+- B: B: 0.344 s
+
+- C: C: 0.366 s
+
+- D: D: 0.388 s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram featuring a large pink circle with the following elements:
+
+1. **Circle and Labels:**
+   - A large pink circle labeled with a black dot at the top marked as "Pivot."
+   - An arrow labeled "R" extending from the pivot to the perimeter of the circle, indicating the radius.
+
+2. **Measurement:**
+   - Two horizontal black lines to the right of the circle, with a vertical double-headed arrow between them, labeled "d."
+
+3. **Arrows:**
+   - A gray curved arrow beneath the circle, pointing counterclockwise, indicating rotation.
+
+The diagram illustrates a rotational system with a pivot point, radius, and the labeled distance "d."
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 0.366 s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/264.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0264.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0264:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0264.linearizedUniformSolidDiskPendulumPeriod_is_recordedAnswerC}
+\uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthinmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timeinseconds, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-matchesprimarydiskpendulumfigure, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-matchesuniformdiskpendulumscenario, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-hasuniformdiskpendulumproblemdata, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-usesstandardgravity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-satisfiesuniformdiskpendulumlaws, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-hascontrolledsmallangletorquelinearization, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-recordedanswerchoice, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-roundstonearestmillisecond, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-isclosestdisplayedperiod}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.TimeQuantity}
+  A nonnegative physical time interval
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.AccelerationMagnitudeQuantity}
+  A nonnegative acceleration magnitude, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Angular Velocity Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-angularvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.AngularVelocityQuantity}
+  A signed angular velocity; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Velocity Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.MomentOfInertiaQuantity}
+  A scalar moment of inertia about the axis normal to the disk plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Torque Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torquequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.TorqueQuantity}
+  A signed torque about the axis normal to the disk plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Torque Quantity.
+\end{proof}
+\begin{definition}[Restoring Torque Coefficient Quantity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringtorquecoefficientquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.RestoringTorqueCoefficientQuantity}
+  The coefficient multiplying angular displacement in the linearized restoring torque. Its dimension is torque, M L² T⁻², because radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Restoring Torque Coefficient Quantity.
+\end{proof}
+\begin{definition}[centimeter Unit Choices]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-centimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.centimeterUnitChoices}
+  Unit choices in which lengths are read in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of centimeter Unit Choices.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.massInKilograms}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.lengthInMeters}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthquantity}
+  Read a physical length in meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-centimeterunitchoices}
+  Read a physical length in centimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[time In Seconds]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timeinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.timeInSeconds}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timequantity}
+  Read a physical duration in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time In Seconds.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationmagnitudequantity}
+  Read an acceleration magnitude in meters per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Velocity In Radians Per Second]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-angularvelocityinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.angularVelocityInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-angularvelocityquantity}
+  Read a signed angular velocity in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Velocity In Radians Per Second.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-momentofinertiaquantity}
+  Read a moment of inertia in kilogram meters squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[torque In Newton Meters]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.torqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torquequantity}
+  Read a signed torque in newton meters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque In Newton Meters.
+\end{proof}
+\begin{definition}[restoring Coefficient In Newton Meters]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringcoefficientinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.restoringCoefficientInNewtonMeters}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringtorquecoefficientquantity}
+  Read a restoring-torque coefficient in newton meters per radian
+\end{definition}
+\begin{proof}
+  This is the declared model definition of restoring Coefficient In Newton Meters.
+\end{proof}
+\begin{definition}[Disk Mass Distribution]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-diskmassdistribution}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.DiskMassDistribution}
+  The mass distribution specified for the pendulum body
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Mass Distribution.
+\end{proof}
+\begin{definition}[Motion Plane]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-motionplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.MotionPlane}
+  Plane in which the disk is supported and swings
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Plane.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.FigurePoint}
+  Distinguished points present in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.FigureLabel}
+  Text or mathematical labels visible in the primary diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Rotation Direction]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-rotationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.RotationDirection}
+  The two arrowheads on the curved oscillation arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Direction.
+\end{proof}
+\begin{definition}[Pivot Placement]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-pivotplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.PivotPlacement}
+  Relative placement of the pivot and the center in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pivot Placement.
+\end{proof}
+\begin{definition}[Disk Pendulum Figure Readout]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-diskpendulumfigurereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.DiskPendulumFigureReadout}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-figurepoint, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-figurelabel, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-rotationdirection, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-pivotplacement}
+  Readout of labels and geometric incidences in the supplied image. Distances are genuine physical lengths; the endpoint data distinguish the center-to-rim radius arrow from the pivot-to-center offset bracket
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Disk Pendulum Figure Readout.
+\end{proof}
+\begin{definition}[Uniform Disk Pendulum Setup]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.UniformDiskPendulumSetup}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timequantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationmagnitudequantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-angularvelocityquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-momentofinertiaquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torquequantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringtorquecoefficientquantity, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-diskmassdistribution, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-motionplane, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-diskpendulumfigurereadout}
+  All physical quantities used to model the disk pendulum. The scalar Physlib harmonic oscillator represents the linearized angular coordinate; its m and k fields are connected to the dimensionful generalized inertia and restoring coefficient only by the governing laws below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Disk Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Primary Disk Pendulum Figure]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-matchesprimarydiskpendulumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.MatchesPrimaryDiskPendulumFigure}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  The primary-image incidences and labels. In particular, the image—not its auxiliary prose caption—shows R from the center to the rim and d from the pivot level to the center level
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Disk Pendulum Figure.
+\end{proof}
+\begin{definition}[Matches Uniform Disk Pendulum Scenario]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-matchesuniformdiskpendulumscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.MatchesUniformDiskPendulumScenario}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-angularvelocityinradianspersecond, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  Categorical apparatus and release information from the verbal problem. The release angle lies in a declared validity window for the local linearization; the corresponding relative torque-error tolerance is nonnegative and less than one. A nonzero angle excludes the equilibrium trajectory, while zero initial angular velocity formalizes “released.”
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Uniform Disk Pendulum Scenario.
+\end{proof}
+\begin{definition}[Has Uniform Disk Pendulum Problem Data]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-hasuniformdiskpendulumproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.HasUniformDiskPendulumProblemData}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massinkilograms, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthinmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthincentimeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  Numerical lengths printed in the problem and positivity of the physical parameters. The radius is 2.35 cm = 47/20 cm; the pivot offset is 1.75 cm = 7/4 cm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Uniform Disk Pendulum Problem Data.
+\end{proof}
+\begin{definition}[Uses Standard Gravity]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-usesstandardgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.UsesStandardGravity}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  The conventional terrestrial value g = 9.8 m/s², needed to distinguish the four numerical answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Gravity.
+\end{proof}
+\begin{definition}[Satisfies Uniform Disk Pendulum Laws]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-satisfiesuniformdiskpendulumlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.SatisfiesUniformDiskPendulumLaws}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-massinkilograms, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-lengthinmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-timeinseconds, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torqueinnewtonmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringcoefficientinnewtonmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  The physical laws used for the small-angle calculation: a uniform solid disk has center-axis inertia M R² / 2; moving the parallel axis to the pivot adds M d²; the exact signed gravitational torque is -M g d sin θ; gravity supplies the positive linearized restoring coefficient M g d; the generalized oscillator mass and stiffness are the pivot inertia and restoring coefficient; and the physical duration has the generic Physlib harmonic-oscillator period.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Disk Pendulum Laws.
+\end{proof}
+\begin{definition}[Has Controlled Small Angle Torque Linearization]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-hascontrolledsmallangletorquelinearization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.HasControlledSmallAngleTorqueLinearization}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-torqueinnewtonmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-restoringcoefficientinnewtonmeters, def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-uniformdiskpendulumsetup}
+  A mathematically local small-angle contract for the gravitational torque. The derivative identifies the tangent restoring torque at equilibrium, the little-o clause records first-order asymptotic validity, and the last field controls the relative remainder throughout the declared release window. This predicate does not assert a period or any displayed answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Controlled Small Angle Torque Linearization.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.AnswerChoice}
+  Labels of the four displayed period choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-answerchoice}
+  Period in seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-answerchoice}
+  The answer label recorded in the supplied dataset
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Millisecond]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-roundstonearestmillisecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.RoundsToNearestMillisecond}
+  Agreement with a displayed period after rounding to the nearest millisecond
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Millisecond.
+\end{proof}
+\begin{definition}[Is Closest Displayed Period]
+  \label{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-isclosestdisplayedperiod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0264.IsClosestDisplayedPeriod}
+  \uses{def:physics:phyx-mini-0264:phyxminiproblems-problemphyxmini0264-answerchoice}
+  A displayed choice is at least as close as every listed alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Period.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

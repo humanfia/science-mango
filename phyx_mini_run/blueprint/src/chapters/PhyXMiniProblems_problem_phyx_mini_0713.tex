@@ -1,0 +1,516 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0713.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0713.source.json
+
+\chapter{Physics problem phyx\_mini\_0713}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0713}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}) block hangs from the end of a \textbackslash{}(1.5\textbackslash{},\textbackslash{}mathrm\{kg\}\textbackslash{}), \textbackslash{}(1.0\textbackslash{},\textbackslash{}mathrm\{m\}\textbackslash{})-long rod, together forming a pendulum that swings from a frictionless pivot at the top end of the rod. A \textbackslash{}(10\textbackslash{},\textbackslash{}mathrm\{g\}\textbackslash{}) bullet is fired horizontally into the block, where it sticks, causing the pendulum to swing out to a \textbackslash{}(30\textasciicircum{}\textbackslash{}circ\textbackslash{}) angle.
+
+\#\# Question
+
+What was the speed of the bullet?
+
+\#\# Answer choices
+
+- A: A: 240m/s
+
+- B: B: 245m/s
+
+- C: C: 251m/s
+
+- D: D: 262m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physics problem involving a collision and subsequent swing of a rigid bar pivoted at the top. The process is divided into two main stages: collision and swing.
+
+\#\#\# Left Panel (Collision):
+- **Objects**: There is a bullet and a rigid bar with a block at the bottom.
+- **Labels**: 
+  - \textbackslash{}( m\_b = 0.010 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}) (mass of the bullet).
+  - \textbackslash{}( v\_\{0b\} \textbackslash{}) (initial velocity of the bullet).
+  - \textbackslash{}( m\_B = 2.0 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}) (mass of the block).
+  - \textbackslash{}( v\_\{0B\} = 0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}) (initial velocity of the block).
+- **Process**: The bullet moves towards the block with velocity \textbackslash{}( v\_\{0b\} \textbackslash{}).
+
+\#\#\# Middle Panel:
+- **Bar Properties**:
+  - Length \textbackslash{}( d = 1.0 \textbackslash{}, \textbackslash{}text\{m\} \textbackslash{}).
+  - Mass \textbackslash{}( m\_R = 1.5 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}).
+- **Motion**: After collision, the block combines with the bullet and moves with angular velocity \textbackslash{}( \textbackslash{}omega\_1 \textbackslash{}) and linear velocity \textbackslash{}( v\_1 = d\textbackslash{}omega\_1 \textbackslash{}).
+- **Position**: The distance from the pivot to the center of mass and block is \textbackslash{}( y\_1 \textbackslash{}).
+
+\#\#\# Right Panel (Swing):
+- **Label**: When the bar swings to an angle \textbackslash{}( \textbackslash{}theta = 30\textasciicircum{}\textbackslash{}circ \textbackslash{}).
+- **Parameters**:
+  - \textbackslash{}( \textbackslash{}omega\_2 = 0 \textbackslash{}, \textbackslash{}text\{rad/s\} \textbackslash{}).
+  - \textbackslash{}( v\_2 = 0 \textbackslash{}, \textbackslash{}text\{m/s\} \textbackslash{}) (top of the swing).
+  - Vertical displacement of the center of mass \textbackslash{}( \textbackslash{}Delta y\_\{\textbackslash{}text\{cm\}\} \textbackslash{}).
+  - Distance \textbackslash{}( \textbackslash{}Delta y \textbackslash{}) from the lowest point to the highest position of the block.
+- **Objective**: 
+  - Find \textbackslash{}( v\_\{0b\} \textbackslash{}).
+
+\#\#\# Equations:
+- **Collision**: "Angular momentum".
+- **Swing**: "Mechanical energy".
+
+Overall, the image illustrates a physics scenario to determine the initial velocity of a bullet based on conserved angular momentum during collision and mechanical energy during the swing.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 251m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/713.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0713.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0713:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0713.problem_phyx_mini_0713}
+\uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesproblemreadouts, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesboundaryconditions, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesscenarioandprimaryfigure, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-hasphysicalparameters, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesrigidrotationkinematics, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesswinggeometry, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesrigidassemblyinertiamodel, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesangularmomentumconservationatimpact, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesmechanicalenergyconservationduringswing, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Height Coordinate Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightcoordinatequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.HeightCoordinateQuantity}
+  A signed vertical coordinate with physical dimension length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Height Coordinate Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SpeedQuantity}
+  A nonnegative speed magnitude, with dimension length per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension length per time squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MomentOfInertiaQuantity}
+  An axial moment of inertia, with dimension mass times length squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.massReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massquantity}
+  Read a mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.lengthReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthquantity}
+  Read a nonnegative length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[height Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.heightReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightcoordinatequantity}
+  Read a signed height coordinate in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.speedReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedquantity}
+  Read a speed in a coherent selected length-per-time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedquantity}
+  Read an angular speed in a selected inverse-time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.accelerationReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationquantity}
+  Read an acceleration in a coherent selected length-per-time-squared unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[moment Of Inertia Readout]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiareadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.momentOfInertiaReadout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiaquantity}
+  Read a moment of inertia in coherent mass-times-length-squared units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.massInKilograms}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.massInGrams}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout}
+  Gram readout used for the prose value of the bullet mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.lengthInMeters}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[height In Meters]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.heightInMeters}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightcoordinatequantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightreadout}
+  Metre readout of a signed vertical coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of height In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedreadout}
+  Metres-per-second readout of a speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedreadout}
+  Radians-per-second readout of an angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationreadout}
+  Metres-per-second-squared readout of an acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiaquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiareadout}
+  Kilogram-metre-squared readout of an axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[Motion Stage]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-motionstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MotionStage}
+  The three configurations separated in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Stage.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.FigureObject}
+  Physical objects visibly distinguished in image 713.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.FigureLabel}
+  Mathematical labels printed in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.HorizontalDirection}
+  Horizontal direction of the incident bullet and immediate post-impact motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Rod Orientation]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rodorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.RodOrientation}
+  Orientation of the rod in a panel of the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Orientation.
+\end{proof}
+\begin{definition}[Pivot Condition]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-pivotcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.PivotCondition}
+  Idealized condition at the upper support
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pivot Condition.
+\end{proof}
+\begin{definition}[Rod Model]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rodmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.RodModel}
+  Mass-distribution model for the rod
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Model.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.CollisionOutcome}
+  Qualitative result of the bullet--block collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Rigid Pendulum Figure]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.RigidPendulumFigure}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-motionstage, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-figureobject, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-figurelabel, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-horizontaldirection, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rodorientation}
+  Raw qualitative and labelling evidence supplied by the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Pendulum Figure.
+\end{proof}
+\begin{definition}[Rigid Pendulum Impact Setup]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.RigidPendulumImpactSetup}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightcoordinatequantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiaquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-pivotcondition, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rodmodel, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-collisionoutcome, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumfigure}
+  All independent quantities used by the two-stage textbook model. In particular, initialBulletSpeed is an unconstrained dimensionful speed here; no setup field assigns it an answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rigid Pendulum Impact Setup.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massinkilograms, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massingrams, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthinmeters, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Literal numerical readouts from the prose and figure. The acceleration 9.8 m/s² is the usual terrestrial textbook calibration needed to turn the symbolic model into a numerical speed; it is not printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Boundary Conditions]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesboundaryconditions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MatchesBoundaryConditions}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedinradianspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Rest conditions printed or implied in the three panels. The first panel prints v₀B = 0; the last prints both ω₂ = 0 and v₂ = 0
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Boundary Conditions.
+\end{proof}
+\begin{definition}[Matches Scenario And Primary Figure]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesscenarioandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MatchesScenarioAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Facts transcribed from the primary image together with the prose idealizations. The labels y₁, y₂, Δy, and Δy\_cm are retained explicitly. No numerical value of v₀b is included
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Scenario And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massinkilograms, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthinmeters, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedinradianspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Positivity and nondegeneracy assumptions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rigid Rotation Kinematics]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesrigidrotationkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SatisfiesRigidRotationKinematics}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Rigid rotation relates the lower-end tangential speed to angular speed at each relevant stage. These are kinematic laws, not numerical speed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Rotation Kinematics.
+\end{proof}
+\begin{definition}[Satisfies Swing Geometry]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesswinggeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SatisfiesSwingGeometry}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-heightreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Geometry of a rod rotating through θ from the downward vertical. The lower end rises by d(1-cos θ), while the center of mass of a uniform rod rises by (d/2)(1-cos θ). The y₁ and y₂ relation records the figure's two height labels rather than defining away either rise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Swing Geometry.
+\end{proof}
+\begin{definition}[Satisfies Rigid Assembly Inertia Model]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesrigidassemblyinertiamodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SatisfiesRigidAssemblyInertiaModel}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiareadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  The uniform rod has pivot inertia (1/3)m\_R d²; after the bullet sticks, the block and bullet are point masses at distance d. Both formulas are required in every coherent mass/length unit choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rigid Assembly Inertia Model.
+\end{proof}
+\begin{definition}[Satisfies Angular Momentum Conservation At Impact]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesangularmomentumconservationatimpact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SatisfiesAngularMomentumConservationAtImpact}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiareadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Angular momentum about the pivot during the short collision. The support force has zero moment about the pivot. The rod and block terms are retained before impact even though the boundary data later set them to rest
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Angular Momentum Conservation At Impact.
+\end{proof}
+\begin{definition}[Satisfies Mechanical Energy Conservation During Swing]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesmechanicalenergyconservationduringswing}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.SatisfiesMechanicalEnergyConservationDuringSwing}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-angularspeedreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationreadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiareadout, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup}
+  Mechanical energy is conserved from just after embedding to the turning point. It is intentionally not asserted across the inelastic impact. The right side retains the top rotational kinetic term even though ω₂ = 0 is a separate boundary readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Mechanical Energy Conservation During Swing.
+\end{proof}
+\begin{lemma}[initial Bullet Speed squared balance]
+  \label{lem:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-initialbulletspeed-squared-balance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.initialBulletSpeed_squared_balance}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-massinkilograms, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-lengthinmeters, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesboundaryconditions, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesangularmomentumconservationatimpact, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesmechanicalenergyconservationduringswing}
+  Eliminating the intermediate angular speed gives a squared relation for the unknown incident speed. This is a derived conclusion, not a law field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Bullet Speed squared balance.
+\end{proof}
+\begin{lemma}[initial Bullet Speed exact standard model readout]
+  \label{lem:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-initialbulletspeed-exact-standard-model-readout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.initialBulletSpeed_exact_standard_model_readout}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesproblemreadouts, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesboundaryconditions, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-hasphysicalparameters, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesswinggeometry, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesrigidassemblyinertiamodel, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesangularmomentumconservationatimpact, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-satisfiesmechanicalenergyconservationduringswing}
+  Substitution of the standard rigid-body model and the printed data yields the exact SI expression below. Real.cos\_pi\_div\_six can later reduce its angle factor to √3 / 2
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Bullet Speed exact standard model readout.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.AnswerChoice}
+  Labels of the four displayed speed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-displayedspeedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.displayedSpeedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice}
+  Numerical value printed beside each answer label, in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Speed In Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice}
+  The answer label recorded in the source dataset; this is metadata, not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Meter Per Second]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-roundstonearestmeterpersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.RoundsToNearestMeterPerSecond}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedquantity, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond}
+  Agreement with a displayed integral speed after rounding to the nearest m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Meter Per Second.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-displayedspeedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-roundstonearestmeterpersecond}
+  The physical incident speed rounds to the number printed by a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0713.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-speedinmeterspersecond, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-rigidpendulumimpactsetup, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-answerchoice, def:physics:phyx-mini-0713:phyxminiproblems-problemphyxmini0713-displayedspeedinmeterspersecond}
+  A displayed choice is strictly closer than each of the other choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

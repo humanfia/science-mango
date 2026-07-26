@@ -1,0 +1,176 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0083.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0083.source.json
+
+\chapter{Physics problem phyx\_mini\_0083}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0083}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure gives \textbackslash{}( \textbackslash{}alpha \textbackslash{}) versus the sine of the angle \textbackslash{}( \textbackslash{}theta \textbackslash{}) in a single-slit diffraction experiment using light of wavelength 610\textbackslash{},\textbackslash{}text\{nm\}. The vertical axis scale is set by \textbackslash{}( \textbackslash{}alpha\_s = 12\textbackslash{},\textbackslash{}text\{rad\} \textbackslash{}).
+
+\#\# Question
+
+What is the slit width?
+
+\#\# Answer choices
+
+- A: A: 2.10μm
+
+- B: B: 2.50μm
+
+- C: C: 2.33μm
+
+- D: D: 1.95μm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with the following elements:
+
+- **Axes:**
+  - The x-axis is labeled "sin θ" with values ranging from 0 to 1.
+  - The y-axis is labeled "α (rad)" with a specific point labeled as "αₛ".
+
+- **Line:**
+  - A bold diagonal line runs from the origin (0, 0) to the point (1, αₛ) at the top right corner of the grid.
+
+- **Grid:**
+  - The background has a regular grid with vertical and horizontal lines, creating smaller squares.
+
+The graph depicts a linear relationship between "sin θ" and "α" in radians, illustrating that as "sin θ" increases from 0 to 1, "α" increases linearly to "αₛ".
+
+\#\# Dataset metadata
+
+Wave Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 2.33μm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/83.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0083.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0083:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0083.slitWidth_rounds_to_recordedAnswerC}
+\uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-micrometersvalue, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-singleslitexperiment, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-alphaversussinethetagraph, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-satisfiessingleslitphaselaw, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-hasstatedwavelengthandgraphreadouts, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-answerslitwidthhundredthsmicrometers}
+For wavelength \(610\,\mathrm{nm}\) and the linear graph
+\(\alpha=12\sin\theta\), the single-slit phase law determines the slit width;
+its micrometre readout rounds to \(2.33\,\mu\mathrm m\), answer C.
+\end{theorem}
+\begin{proof}
+The graph slope is \(12\) radians per unit of \(\sin\theta\).  The phase law
+\(\alpha=\pi a\sin\theta/\lambda\) therefore gives
+\(a=12\lambda/\pi\).  Insert \(\lambda=610\,\mathrm{nm}\) and convert
+nanometres to micrometres, obtaining \(a=7.32/\pi\,\mu\mathrm m\).
+Certified rational bounds for \(\pi\) place
+\(100a\) in the half-open rounding interval for the integer \(233\).
+Consequently the nearest-integer readout equals the hundredths-of-a-
+micrometre value attached to answer C.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.DimLength}
+  A signed physical length represented independently of a chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[length Value In]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-lengthvaluein}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.lengthValueIn}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength}
+  Read a physical length as a real scalar in the specified length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Value In.
+\end{proof}
+\begin{definition}[meters Value]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-metersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.metersValue}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-lengthvaluein}
+  The metre readout used in the dimensionless single-slit phase law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Value.
+\end{proof}
+\begin{definition}[nanometers Value]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-nanometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.nanometersValue}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-lengthvaluein}
+  The nanometre readout used for the stated wavelength
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nanometers Value.
+\end{proof}
+\begin{definition}[micrometers Value]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-micrometersvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.micrometersValue}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-lengthvaluein}
+  The micrometre readout used by the four answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of micrometers Value.
+\end{proof}
+\begin{definition}[Single Slit Experiment]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-singleslitexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.SingleSlitExperiment}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-dimlength}
+  The monochromatic illumination and single slit. The wavelength is the stated 610 nm; the slit width is the physical quantity requested by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Single Slit Experiment.
+\end{proof}
+\begin{definition}[Alpha Versus Sine Theta Graph]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-alphaversussinethetagraph}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.AlphaVersusSineThetaGraph}
+  The plotted graph. Its horizontal coordinate is a scalar value of sin θ, and its vertical coordinate is the phase parameter α read in radians. The field alphaScaleRadians is the figure label αₛ at the top of the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Alpha Versus Sine Theta Graph.
+\end{proof}
+\begin{definition}[Satisfies Single Slit Phase Law]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-satisfiessingleslitphaselaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.SatisfiesSingleSlitPhaseLaw}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-metersvalue, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-singleslitexperiment, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-alphaversussinethetagraph}
+  The Fraunhofer single-slit phase-parameter law α = (π a / λ) sin θ on the displayed interval 0 ≤ sin θ ≤ 1. Metre readouts are used for both lengths, so their quotient is dimensionless. This governing law contains no numerical value for the requested slit width
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Single Slit Phase Law.
+\end{proof}
+\begin{definition}[Has Stated Wavelength And Graph Readouts]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-hasstatedwavelengthandgraphreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.HasStatedWavelengthAndGraphReadouts}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-nanometersvalue, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-singleslitexperiment, def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-alphaversussinethetagraph}
+  The problem-text and primary-figure readouts: λ = 610 nm, αₛ = 12 rad, and the bold line from (0, 0) to (1, αₛ). The universal equation records the displayed straight line throughout the horizontal range. No slit-width readout occurs in this predicate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Stated Wavelength And Graph Readouts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.AnswerChoice}
+  Labels of the four multiple-choice answers printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Slit Width Hundredths Micrometers]
+  \label{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-answerslitwidthhundredthsmicrometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0083.answerSlitWidthHundredthsMicrometers}
+  \uses{def:physics:phyx-mini-0083:phyxminiproblems-problemphyxmini0083-answerchoice}
+  Each displayed slit-width choice, in hundredths of a micrometre. Thus the recorded value for choice C is 233 / 100 μm = 2.33 μm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Slit Width Hundredths Micrometers.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

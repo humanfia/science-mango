@@ -1,0 +1,327 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0216.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0216.source.json
+
+\chapter{Physics problem phyx\_mini\_0216}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0216}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A fireworks shell explodes \textbackslash{}( 100\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) above the ground, creating colorful sparks. The sound of the explosion for a person directly beneath the blast is compared to that for a person located \textbackslash{}( 200\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}) away horizontally(figure).
+
+\#\# Question
+
+How much greater is the sound level?
+
+\#\# Answer choices
+
+- A: A: 13dB
+
+- B: B: 11dB
+
+- C: C: 9dB
+
+- D: D: 7dB
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene with the following elements:
+
+1. **Objects and Scene**:
+   - Two people standing on a grassy terrain.
+   - A depiction of a fireworks burst in the sky.
+   
+2. **Measurements and Relationships**:
+   - The fireworks are labeled with a height of "100 m" above the person on the left.
+   - The horizontal distance between the two people is marked as "200 m".
+   
+3. **Text**:
+   - "100 m" is displayed vertically, indicating the height of the fireworks.
+   - "200 m" is displayed horizontally, indicating the distance between the two people.
+
+4. **Background**:
+   - The sky has a gradient from light to darker tones, with the fireworks having colorful patterns indicating movement or explosion.
+
+The scene illustrates a spatial relationship between the two people and the fireworks in terms of height and distance.
+
+\#\# Dataset metadata
+
+Sound; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 7dB
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/216.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0216.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0216:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0216.problem_phyx_mini_0216}
+\uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchesfireworksscenario, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchessuppliedfigure, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-sourcedistancesfollowfiguregeometry, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-hasphysicalacousticparameters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-satisfiesisotropicinversesquarelaw, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-directlybelowsoundleveladvantageindecibels, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchesanswertonearestwholedecibel}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Acoustic Length]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticLength}
+  A nonnegative physical distance, independent of the chosen unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Length.
+\end{proof}
+\begin{definition}[Acoustic Power Quantity]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticPowerQuantity}
+  Effective acoustic power of the explosion, with SI unit watt and dimension mass * length\textasciicircum{}2 / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Power Quantity.
+\end{proof}
+\begin{definition}[Acoustic Intensity Quantity]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticIntensityQuantity}
+  Acoustic intensity, with SI unit watt per square metre and dimension mass / time\textasciicircum{}3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Intensity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.lengthReadout}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticlength}
+  Read a physical length in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[acoustic Power Readout]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.acousticPowerReadout}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerquantity}
+  Read an acoustic power in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power Readout.
+\end{proof}
+\begin{definition}[acoustic Intensity Readout]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.acousticIntensityReadout}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityquantity}
+  Read an acoustic intensity in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.lengthInMeters}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticlength, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthreadout}
+  SI-metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acoustic Power In Watts]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.acousticPowerInWatts}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerquantity, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerreadout}
+  SI-watt readout of the effective emitted acoustic power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Power In Watts.
+\end{proof}
+\begin{definition}[acoustic Intensity In Watts Per Square Meter]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityinwattspersquaremeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.acousticIntensityInWattsPerSquareMeter}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityquantity, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityreadout}
+  SI watt-per-square-metre readout of an acoustic intensity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acoustic Intensity In Watts Per Square Meter.
+\end{proof}
+\begin{definition}[Listener Label]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.ListenerLabel}
+  The two people whose received sound levels are compared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Listener Label.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.FigureLabel}
+  All labeled physical objects in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Role]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurerole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.FigureRole}
+  Physical roles assigned to the three figure labels
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Role.
+\end{proof}
+\begin{definition}[Acoustic Source Kind]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticsourcekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticSourceKind}
+  Type of acoustic source used by the idealized problem model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Source Kind.
+\end{proof}
+\begin{definition}[Acoustic Spreading Model]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticspreadingmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticSpreadingModel}
+  Propagation geometry used to compare the two sound intensities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Spreading Model.
+\end{proof}
+\begin{definition}[Acoustic Medium]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AcousticMedium}
+  Medium through which the explosion sound reaches both listeners
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acoustic Medium.
+\end{proof}
+\begin{definition}[figure Label Of Listener]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurelabeloflistener}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.figureLabelOfListener}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurelabel}
+  Associate each listener with the corresponding person in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of figure Label Of Listener.
+\end{proof}
+\begin{definition}[Fireworks Figure]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworksfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.FireworksFigure}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurelabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurerole}
+  Qualitative roles and metre-coordinate positions read from the primary image. The horizontal coordinate is index 0 and the vertical coordinate is index 1; the ground is represented by vertical coordinate zero
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fireworks Figure.
+\end{proof}
+\begin{definition}[Fireworks Sound Setup]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.FireworksSoundSetup}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticlength, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerquantity, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityquantity, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticsourcekind, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticspreadingmodel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticmedium, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworksfigure}
+  Physical quantities for the common explosion and the two listeners. The two source-to-listener distances and intensities are independent fields until the Euclidean-geometry and inverse-square premises below relate them. In particular, neither the factor-five intensity ratio nor a decibel answer is stored in the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Fireworks Sound Setup.
+\end{proof}
+\begin{definition}[Matches Fireworks Scenario]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchesfireworksscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.MatchesFireworksScenario}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  The idealized physical model used by the textbook comparison: the one fireworks explosion is an isotropic source in ambient air with free-field spherical spreading
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Fireworks Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthinmeters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  Primary-image evidence and the two printed measurements. This predicate places the shell 100 m above the directly-below person and places the second person 200 m away along level ground. It contains no path-length ratio, intensity ratio, logarithmic value, or selected answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Source Distances Follow Figure Geometry]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-sourcedistancesfollowfiguregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.SourceDistancesFollowFigureGeometry}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthinmeters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-figurelabeloflistener, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  The physical source-to-listener path length is the Euclidean distance between the corresponding metre-coordinate points in the depicted vertical section. This general geometry bridge does not state the problem-specific ratio of the two distances
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Source Distances Follow Figure Geometry.
+\end{proof}
+\begin{definition}[Has Physical Acoustic Parameters]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-hasphysicalacousticparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.HasPhysicalAcousticParameters}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthinmeters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerinwatts, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  Positivity and nondegeneracy conditions for the physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Acoustic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Isotropic Inverse Square Law]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-satisfiesisotropicinversesquarelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.SatisfiesIsotropicInverseSquareLaw}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthreadout, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticpowerreadout, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityreadout, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-listenerlabel, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  The general inverse-square intensity law for an isotropic point source. In every coherent unit system, the common source power equals the received intensity times the area of the sphere through the listener. This premise does not state a factor-five intensity ratio or any decibel conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Isotropic Inverse Square Law.
+\end{proof}
+\begin{definition}[directly Below Sound Level Advantage In Decibels]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-directlybelowsoundleveladvantageindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.directlyBelowSoundLevelAdvantageInDecibels}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup}
+  How many decibels greater the sound intensity level is for the person directly below the shell than for the horizontally displaced person. This is the standard general conversion 10 log10 (I\_near / I\_far) and has no built-in numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of directly Below Sound Level Advantage In Decibels.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.AnswerChoice}
+  Labels of the four answer choices printed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Sound Level Difference In Decibels]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-displayedsoundleveldifferenceindecibels}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.displayedSoundLevelDifferenceInDecibels}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-answerchoice}
+  The displayed whole-decibel value beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Sound Level Difference In Decibels.
+\end{proof}
+\begin{definition}[Matches Answer To Nearest Whole Decibel]
+  \label{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchesanswertonearestwholedecibel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.MatchesAnswerToNearestWholeDecibel}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-directlybelowsoundleveladvantageindecibels, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-answerchoice, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-displayedsoundleveldifferenceindecibels}
+  Agreement with a displayed answer after rounding the exact level difference to the nearest whole decibel. This predicate is generic in the answer choice and does not select D by definition
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer To Nearest Whole Decibel.
+\end{proof}
+\begin{lemma}[displaced Distance sq eq five mul direct Distance sq]
+  \label{lem:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-displaceddistance-sq-eq-five-mul-directdistance-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.displacedDistance_sq_eq_five_mul_directDistance_sq}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-lengthinmeters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchessuppliedfigure, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-sourcedistancesfollowfiguregeometry}
+  The 100 m vertical leg and 200 m horizontal leg imply that the squared slant distance to the displaced listener is five times the squared vertical distance to the directly-below listener. This is a derived geometric result, not a premise of the physical model
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of displaced Distance sq eq five mul direct Distance sq.
+\end{proof}
+\begin{lemma}[displaced Intensity eq one Fifth direct Intensity]
+  \label{lem:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-displacedintensity-eq-onefifth-directintensity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0216.displacedIntensity_eq_oneFifth_directIntensity}
+  \uses{def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-acousticintensityinwattspersquaremeter, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-fireworkssoundsetup, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-matchessuppliedfigure, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-sourcedistancesfollowfiguregeometry, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-hasphysicalacousticparameters, def:physics:phyx-mini-0216:phyxminiproblems-problemphyxmini0216-satisfiesisotropicinversesquarelaw}
+  Combining the derived distance relation with spherical spreading makes the far listener's acoustic intensity one fifth of the directly-below listener's intensity. This is an intermediate conclusion, not a governing-law field
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of displaced Intensity eq one Fifth direct Intensity.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

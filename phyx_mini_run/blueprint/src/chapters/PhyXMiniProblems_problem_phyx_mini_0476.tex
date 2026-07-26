@@ -1,0 +1,320 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0476.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0476.source.json
+
+\chapter{Physics problem phyx\_mini\_0476}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0476}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A gas at \textbackslash{}(2.0\textbackslash{},\textbackslash{}mathrm\{atm\}\textbackslash{}) pressure and a temperature of \textbackslash{}(200\textasciicircum{}\textbackslash{}circ\textbackslash{}mathrm\{C\}\textbackslash{}) is first expanded isothermally until its volume has doubled. It then undergoes an isobaric compression until it returns to its original volume.
+
+\#\# Question
+
+Find the final pressure.
+
+\#\# Answer choices
+
+- A: A: 3.0atm
+
+- B: B: 2.0atm
+
+- C: C: 1.0atm
+
+- D: D: 4.0atm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a pressure-volume (p-V) diagram illustrating a thermodynamic process involving a gas. 
+
+- **Axes**: 
+  - The vertical axis represents pressure (p) in atmospheres (atm).
+  - The horizontal axis represents volume (V).
+  
+- **Curves and Isotherms**:
+  - There are two red dashed lines labeled as isotherms at temperatures \textbackslash{}( T\_1 \textbackslash{}) and \textbackslash{}( T\_3 \textbackslash{}), with \textbackslash{}( T\_1 > T\_3 \textbackslash{}).
+  
+- **Points and Process**:
+  - Point 1: Located on the \textbackslash{}( T\_1 \textbackslash{}) isotherm.
+  - Point 2: Below point 1, at volume \textbackslash{}( V\_2 = 2V\_1 \textbackslash{}) and pressure 1 atm.
+  - Point 3: On the \textbackslash{}( T\_3 \textbackslash{}) isotherm, at the same pressure as point 2, but at volume \textbackslash{}( V\_1 = V\_3 \textbackslash{}).
+
+- **Process Path**:
+  - From point 1 to 2: The gas expands isothermally (constant temperature).
+  - From point 2 to 3: The gas is compressed isobarically (constant pressure).
+
+- **Text Annotations**:
+  - "The gas expands isothermally from 1 to 2. . . then is compressed isobarically from 2 to 3."
+  - Labels for isotherms and temperatures: \textbackslash{}( T\_1 \textbackslash{}) and \textbackslash{}( T\_3 \textbackslash{}).
+  
+This diagram shows a cycle involving expansion and compression of a gas at different temperatures and pressures.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.0atm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/476.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0476.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0476:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0476.finalPressure_is_one_atmosphere}
+\uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-matchesproblemstatement, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-matchesprimarypressurevolumediagram, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-hasphysicalthermodynamicparameters, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-obeysidealgasandprocesslaws, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-finalpressureinatmospheres, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-isuniquematchingpressurechoice}
+The final pressure is one atmosphere and uniquely matches choice C.
+\end{theorem}
+\begin{proof}
+The diagram identifies state 2 as one atmosphere, and the second leg from state 2 to state 3 is isobaric.  The isobaric pressure law therefore transfers the one-atmosphere pressure to state 3.  Inspecting the four displayed values $3,2,1,4$ shows that only choice C equals one.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Gas Volume]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasvolume}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.GasVolume}
+  A nonnegative physical volume with length-cubed dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Volume.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.AmountOfSubstanceScale}
+  Physlib does not currently expose amount of substance as a base dimension. This interface therefore keeps the gas amount abstract while exposing its calibrated scalar readout in moles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasvolume}
+  Read a physical volume in coherent SI cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.pressureInPascals}
+  Read a physical pressure in coherent SI pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.pressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinpascals}
+  Read a physical pressure in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Atmospheres.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.temperatureInKelvins}
+  Convert a stored absolute temperature to a kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureinkelvins}
+  Convert a stored absolute temperature to a degrees-Celsius readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Gas Model]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.GasModel}
+  The equation-of-state model used for the gas
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Model.
+\end{proof}
+\begin{definition}[State Label]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-statelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.StateLabel}
+  Labels printed beside the three black points in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of State Label.
+\end{proof}
+\begin{definition}[Process Leg]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-processleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.ProcessLeg}
+  Directed legs of the two-step process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Leg.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.ProcessKind}
+  Thermodynamic constraint imposed on a process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Axis Quantity]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-axisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.AxisQuantity}
+  Physical quantity represented by an axis of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Quantity.
+\end{proof}
+\begin{definition}[Axis Unit]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-axisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.AxisUnit}
+  Unit or scale printed on an axis of the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Unit.
+\end{proof}
+\begin{definition}[Path Geometry]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pathgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.PathGeometry}
+  Geometric appearance of a process path in the primary raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Path Geometry.
+\end{proof}
+\begin{definition}[Isotherm Label]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-isothermlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.IsothermLabel}
+  Names of the two red dashed isotherms in the supplied diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Isotherm Label.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasvolume}
+  A thermodynamic equilibrium state with dimensionful observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.PressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-statelabel, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-processleg, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-axisquantity, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-axisunit, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pathgeometry, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-isothermlabel}
+  Scalar coordinate fields are literal readouts from the supplied raster. A volume coordinate is measured in units of V₁; a pressure coordinate is measured in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Two Step Ideal Gas Process]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.TwoStepIdealGasProcess}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasmodel, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-statelabel, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-processleg, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-processkind, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-thermodynamicstate, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressurevolumediagram}
+  The gas sample, its three states, the named processes, and the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Step Ideal Gas Process.
+\end{proof}
+\begin{definition}[gas Amount In Moles]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasamountinmoles}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.gasAmountInMoles}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess}
+  Mole readout of the physical gas amount
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gas Amount In Moles.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-volumeincubicmeters, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinatmospheres, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureindegreescelsius, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess}
+  The data stated in the problem prose. The initial pressure and temperature, the two volume relations, and the identities of the process legs are fixed; the final pressure is deliberately absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Pressure Volume Diagram]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-matchesprimarypressurevolumediagram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.MatchesPrimaryPressureVolumeDiagram}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-volumeincubicmeters, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinatmospheres, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureinkelvins, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess}
+  Exact qualitative and quantitative information transcribed from the primary pressure--volume diagram. In particular, state 2 is plotted at 1 atm, while no numeric pressure is assigned here to the final state 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Pressure Volume Diagram.
+\end{proof}
+\begin{definition}[Has Physical Thermodynamic Parameters]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-hasphysicalthermodynamicparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.HasPhysicalThermodynamicParameters}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-volumeincubicmeters, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinpascals, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureinkelvins, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasamountinmoles}
+  Positivity assumptions selecting physically admissible gas states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Thermodynamic Parameters.
+\end{proof}
+\begin{definition}[Obeys Ideal Gas And Process Laws]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-obeysidealgasandprocesslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.ObeysIdealGasAndProcessLaws}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-volumeincubicmeters, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinpascals, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-temperatureinkelvins, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-gasamountinmoles}
+  Macroscopic laws used by the calculation: the SI ideal-gas equation pV = nRT at every labeled equilibrium state; equal endpoint temperatures for every isothermal leg; equal endpoint pressures for every isobaric leg. These are general governing laws. No field fixes the pressure of state 3 or identifies an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Ideal Gas And Process Laws.
+\end{proof}
+\begin{definition}[final Pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-finalpressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.finalPressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-amountofsubstancescale, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-pressureinatmospheres, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-twostepidealgasprocess}
+  Pressure of the final state, read in standard atmospheres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of final Pressure In Atmospheres.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.AnswerChoice}
+  Labels of the four choices in the supplied problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Pressure In Atmospheres]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-displayedpressureinatmospheres}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.displayedPressureInAtmospheres}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-answerchoice}
+  Pressure in atmospheres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Pressure In Atmospheres.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-answerchoice}
+  Answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Matching Pressure Choice]
+  \label{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-isuniquematchingpressurechoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0476.IsUniqueMatchingPressureChoice}
+  \uses{def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-answerchoice, def:physics:phyx-mini-0476:phyxminiproblems-problemphyxmini0476-displayedpressureinatmospheres}
+  A choice is the unique displayed pressure equal to the physical result
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Matching Pressure Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

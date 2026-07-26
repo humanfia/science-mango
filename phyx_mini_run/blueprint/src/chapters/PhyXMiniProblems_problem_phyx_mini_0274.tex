@@ -1,0 +1,295 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0274.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0274.source.json
+
+\chapter{Physics problem phyx\_mini\_0274}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0274}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the kinetic energy \$K\$ of a simple pendulum versus its angle \$\textbackslash{}theta\$ from the vertical. The vertical axis scale is set by \$K\_s = 10.0\textbackslash{} mJ\$. The pendulum bob has mass \$0.200\textbackslash{} kg\$.
+
+\#\# Question
+
+What is the length of the pendulum?
+
+\#\# Answer choices
+
+- A: A: 1.47 m
+
+- B: B: 1.50 m
+
+- C: C: 1.53 m
+
+- D: D: 1.56 m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a graph with a thick parabolic curve. Here's the detailed content:
+
+- **Axes**: 
+  - The horizontal axis is labeled as \textbackslash{}( \textbackslash{}theta \textbackslash{}) (mrad), ranging from -100 to 100, with tick marks at -100, -50, 0, 50, and 100.
+  - The vertical axis is labeled as \textbackslash{}( K \textbackslash{}) (mJ).
+
+- **Curve**: 
+  - The curve is symmetrical and peaks at the center, aligned with the vertical axis.
+  - The apex of the curve is labeled with the value \textbackslash{}( K\_s \textbackslash{}).
+
+- **Grid**: 
+  - A light grid is present in the background which aids in estimating the coordinates.
+
+Overall, the graph represents a parabola indicating a relationship between \textbackslash{}( \textbackslash{}theta \textbackslash{}) (angle in milliradians) and \textbackslash{}( K \textbackslash{}) (energy in millijoules).
+
+\#\# Dataset metadata
+
+Resonance and Harmonics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1.53 m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/274.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0274.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0274:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0274.problem_phyx_mini_0274}
+\uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-matchesproblemandprimaryfigure, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-usesstandardearthgravity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-hasphysicalpendulumparameters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-satisfiesidealpendulumenergylaw, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-recordedanswerchoice, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-matchesdisplayedlength, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.AccelerationQuantity}
+  A nonnegative physical acceleration, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.EnergyQuantity}
+  Physical energy, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.massInKilograms}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.lengthInMeters}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthquantity}
+  Metre readout of a physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationquantity}
+  Metre-per-second-squared readout of a physical acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.energyInJoules}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyquantity}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Milli Joules]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinmillijoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.energyInMilliJoules}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyquantity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinjoules}
+  Millijoule readout used on the graph's vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Milli Joules.
+\end{proof}
+\begin{definition}[milli Radians To Radians]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-milliradianstoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.milliRadiansToRadians}
+  Convert a scalar graph coordinate in milliradians to radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of milli Radians To Radians.
+\end{proof}
+\begin{definition}[Horizontal Axis Role]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-horizontalaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.HorizontalAxisRole}
+  Physical quantity assigned to the graph's horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Axis Role.
+\end{proof}
+\begin{definition}[Vertical Axis Role]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-verticalaxisrole}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.VerticalAxisRole}
+  Physical quantity assigned to the graph's vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Axis Role.
+\end{proof}
+\begin{definition}[Angle Display Unit]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-angledisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.AngleDisplayUnit}
+  Unit printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angle Display Unit.
+\end{proof}
+\begin{definition}[Energy Display Unit]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energydisplayunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.EnergyDisplayUnit}
+  Unit printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Display Unit.
+\end{proof}
+\begin{definition}[Graph Curve Shape]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-graphcurveshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.GraphCurveShape}
+  Qualitative shape of the heavy curve drawn in the supplied graph
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Graph Curve Shape.
+\end{proof}
+\begin{definition}[Pendulum Kinetic Energy Figure]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-pendulumkineticenergyfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.PendulumKineticEnergyFigure}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyquantity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-horizontalaxisrole, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-verticalaxisrole, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-angledisplayunit, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energydisplayunit, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-graphcurveshape}
+  The labeled graph and the energy curve it displays. The angular argument of kineticEnergyAtRadians is an SI radian readout; the endpoint fields retain the milliradian coordinates printed in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pendulum Kinetic Energy Figure.
+\end{proof}
+\begin{definition}[Simple Pendulum Setup]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.SimplePendulumSetup}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massquantity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthquantity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationquantity, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-pendulumkineticenergyfigure}
+  The simple pendulum and the graph supplied with the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Simple Pendulum Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massinkilograms, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinjoules, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinmillijoules, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-milliradianstoradians, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup}
+  Numerical and qualitative evidence stated in the problem or read from the primary image. The image, rather than its auxiliary caption, places K\_s on the second horizontal grid line and the apex on the third, giving the 3 / 2 relation below. No pendulum-length value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup}
+  The standard near-Earth gravitational acceleration used by the answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Pendulum Parameters]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-hasphysicalpendulumparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.HasPhysicalPendulumParameters}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massinkilograms, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinjoules, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-milliradianstoradians, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup}
+  Positivity and nondegeneracy conditions for the physical experiment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Pendulum Parameters.
+\end{proof}
+\begin{definition}[Satisfies Ideal Pendulum Energy Law]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-satisfiesidealpendulumenergylaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.SatisfiesIdealPendulumEnergyLaw}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-massinkilograms, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-energyinjoules, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-milliradianstoradians, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup}
+  The exact ideal-simple-pendulum energy law on the interval shown in the figure. Conservation of mechanical energy and U(θ) - U(0) = m g L (1 - cos θ) give the decrease of kinetic energy away from the vertical. The plotted arc is visually parabola-like over its small angular range, but no small-angle approximation is promoted to an equality. This is a governing law, not the requested numerical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Ideal Pendulum Energy Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.AnswerChoice}
+  Labels printed beside the four candidate lengths
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.AnswerChoice.lengthInMeters}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice}
+  Length in metres printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Length]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-matchesdisplayedlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.MatchesDisplayedLength}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice}
+  Agreement with a displayed two-decimal length to the nearest centimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Length.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0274.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-lengthinmeters, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-simplependulumsetup, def:physics:phyx-mini-0274:phyxminiproblems-problemphyxmini0274-answerchoice}
+  The selected length is strictly closer than every other displayed choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

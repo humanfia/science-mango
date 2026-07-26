@@ -1,0 +1,266 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0804.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0804.source.json
+
+\chapter{Physics problem phyx\_mini\_0804}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0804}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+You push a \textbackslash{}( 1.00 \textbackslash{}mathrm\{kg\} \textbackslash{}) food tray through the cafeteria line with a constant \textbackslash{}( 9.0 \textbackslash{}mathrm\{N\} \textbackslash{}) force. The tray pushes a \textbackslash{}( 0.50 \textbackslash{}mathrm\{kg\} \textbackslash{}) milk carton as shown in figure. The tray and carton slide on a horizontal surface so greasy that friction can be ignored.
+
+\#\# Question
+
+Find the the horizontal force that the tray exerts on the carton.
+
+\#\# Answer choices
+
+- A: A: 4.0N
+
+- B: B: 3.0N
+
+- C: C: 6.0N
+
+- D: D: 2.0N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a scene with a tray on which various objects are placed. There is a carton of milk with a cow illustration, a glass filled with liquid, and a set of cutlery including a fork, knife, and spoon. A plate is also present on the tray. The tray is labeled with a mass \textbackslash{}( m\_T = 1.00 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}), and the milk carton is labeled \textbackslash{}( m\_C = 0.50 \textbackslash{}, \textbackslash{}text\{kg\} \textbackslash{}). To the right, there is an illustration of a hand applying a force, labeled as \textbackslash{}( F = 9.0 \textbackslash{}, \textbackslash{}text\{N\} \textbackslash{}).
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 3.0N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/804.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0804.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0804:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0804.answer_choice_B_matches}
+\uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentinnewtons, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-displayedforceinnewtons, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-matchesfigure, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-satisfiesfrictionlessnewtoniandynamics}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.accelerationDimension}
+  The physical dimension L T⁻² of an acceleration component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.forceDimension}
+  The physical dimension M L T⁻² of a force component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.MassQuantity}
+  A unit-independent physical mass. Positivity is imposed by the setup data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Component Quantity]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.AccelerationComponentQuantity}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationdimension}
+  A signed, unit-independent horizontal acceleration component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Component Quantity.
+\end{proof}
+\begin{definition}[Force Component Quantity]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.ForceComponentQuantity}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcedimension}
+  A signed, unit-independent horizontal force component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Force Component Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.massReadout}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massquantity}
+  Read a physical mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[acceleration Component Readout]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.accelerationComponentReadout}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentquantity}
+  Read a horizontal acceleration in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Component Readout.
+\end{proof}
+\begin{definition}[force Component Readout]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.forceComponentReadout}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentquantity}
+  Read a horizontal force component in the coherent unit induced by the selected base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Component Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.massInKilograms}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massreadout}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentreadout}
+  Metre-per-second-squared readout of a horizontal acceleration component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[force Component In Newtons]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.forceComponentInNewtons}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentreadout}
+  Newton readout of a horizontal force component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Component In Newtons.
+\end{proof}
+\begin{definition}[Body Label]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-bodylabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.BodyLabel}
+  The two bodies whose horizontal force balances are used
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Body Label.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.FigureLabel}
+  Literal physical labels shown in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Readouts]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.FigureReadouts}
+  Numeric label readouts printed in the figure, in the units indicated there
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Readouts.
+\end{proof}
+\begin{definition}[Tray Side]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-trayside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.TraySide}
+  The side of the tray on which a pictured object appears
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tray Side.
+\end{proof}
+\begin{definition}[Figure Orientation]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figureorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.FigureOrientation}
+  Orientations relevant to the surface and force arrow in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Orientation.
+\end{proof}
+\begin{definition}[Figure Geometry]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figuregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.FigureGeometry}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-trayside, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figureorientation}
+  Geometric facts directly read from the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Geometry.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.AnswerChoice}
+  The four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Force In Newtons]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-displayedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.displayedForceInNewtons}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-answerchoice}
+  Force value printed beside each answer choice, measured in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Force In Newtons.
+\end{proof}
+\begin{definition}[Cafeteria Push Setup]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.CafeteriaPushSetup}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationcomponentquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentquantity, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-bodylabel, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figurereadouts, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-figuregeometry}
+  The physical quantities for the tray-carton experiment. Horizontal components are signed relative to an axis chosen along the applied push. Both bodies use one acceleration field because contact is maintained and they slide together
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cafeteria Push Setup.
+\end{proof}
+\begin{definition}[Matches Figure]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-matchesfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.MatchesFigure}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-massinkilograms, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentinnewtons, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup}
+  Figure-derived geometry and numerical data. These premises record the raster without assigning any value to the unknown tray-on-carton contact force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure.
+\end{proof}
+\begin{definition}[Satisfies Frictionless Newtonian Dynamics]
+  \label{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-satisfiesfrictionlessnewtoniandynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.SatisfiesFrictionlessNewtonianDynamics}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup}
+  Frictionless one-dimensional Newtonian dynamics for the two-body system. The force-accounting equations list the actual signed horizontal forces on each body. Newton's third law relates the two independently stored contact forces, and UnitExamples.NewtonsSecondWithDim states F = m a with the correct dimensions for every coherent choice of base units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Frictionless Newtonian Dynamics.
+\end{proof}
+\begin{lemma}[common acceleration is six meters per second squared]
+  \label{lem:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-common-acceleration-is-six-meters-per-second-squared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.common_acceleration_is_six_meters_per_second_squared}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-matchesfigure, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-satisfiesfrictionlessnewtoniandynamics}
+  The figure data and governing laws imply a common horizontal acceleration of 6 m/s². This is a derived intermediate result, not a setup assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of common acceleration is six meters per second squared.
+\end{proof}
+\begin{theorem}[tray exerts three newtons on carton]
+  \label{thm:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-tray-exerts-three-newtons-on-carton}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0804.tray_exerts_three_newtons_on_carton}
+  \uses{def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-forcecomponentinnewtons, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-cafeteriapushsetup, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-matchesfigure, def:physics:phyx-mini-0804:phyxminiproblems-problemphyxmini0804-satisfiesfrictionlessnewtoniandynamics}
+  The tray exerts a horizontal force of 3 N on the carton. This declaration formalizes from the blueprint chapter
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of tray exerts three newtons on carton.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

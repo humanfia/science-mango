@@ -1,0 +1,262 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0099.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0099.source.json
+
+\chapter{Physics problem phyx\_mini\_0099}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0099}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The prism shown in figure has a refractive index of 1.66, and the angles \$A\$ are \$25.0\textasciicircum{}\textbackslash{}circ\$. Two light rays \$m\$ and \$n\$ are parallel as they enter the prism.
+
+\#\# Question
+
+What is the angle between them after they emerge?
+
+\#\# Answer choices
+
+- A: A: 39.1°
+
+- B: B: 35.9°
+
+- C: C: 37.3°
+
+- D: D: 38.2°
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a geometric diagram with the following components:
+
+- There are two arrows on the left side, labeled "m" and "n," pointing towards a triangular shape.
+- The triangular shape has a shaded interior and is pointing to the right.
+- Inside the triangular shape, there are two curved arrows, both labeled "A," that suggest a rotational or angular relationship.
+- The overall context suggests interaction or transformation of the inputs "m" and "n" as they affect the angles labeled "A" in the triangular region.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 39.1°
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/99.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0099.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0099:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0099.emergentRaysSeparation_isAnswerA}
+\uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-matchesproblemandfigure, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-hasphysicalopticalparameters, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-satisfiessymmetricprismgeometry, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-obeysprismopticslaws, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-emergentseparationradians, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-answerchoice, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-roundstotenthdegree}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Diagram Plane]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-diagramplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.DiagramPlane}
+  The Euclidean plane containing the prism diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Plane.
+\end{proof}
+\begin{definition}[Ray Direction]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-raydirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.RayDirection}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-diagramplane}
+  A propagation direction is a nonzero vector in the diagram plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Direction.
+\end{proof}
+\begin{definition}[Refractive Index]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-refractiveindex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.RefractiveIndex}
+  A refractive index is a real physical quantity with trivial dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Refractive Index.
+\end{proof}
+\begin{definition}[Figure Ray]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-figureray}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.FigureRay}
+  The two light rays labelled in the source figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Ray.
+\end{proof}
+\begin{definition}[Ray Segment]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-raysegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.RaySegment}
+  The three directed portions of either ray's path
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ray Segment.
+\end{proof}
+\begin{definition}[Exit Face]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-exitface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.ExitFace}
+  The symmetric sloping faces through which the two rays leave the prism
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Exit Face.
+\end{proof}
+\begin{definition}[ray At Exit Face]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-rayatexitface}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.rayAtExitFace}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-figureray, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-exitface}
+  The ray which meets each sloping exit face in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ray At Exit Face.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.OpticalMedium}
+  The two homogeneous optical media traversed by each ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[degrees To Radians]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-degreestoradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.degreesToRadians}
+  Convert an angle readout in degrees to the radian scalar used in the model
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees To Radians.
+\end{proof}
+\begin{definition}[angle Between Directions]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-anglebetweendirections}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.angleBetweenDirections}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-raydirection}
+  The undirected radian angle between two nonzero propagation directions
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Between Directions.
+\end{proof}
+\begin{definition}[Is Physical Optics Angle]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-isphysicalopticsangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.IsPhysicalOpticsAngle}
+  A scalar radian readout belongs to the physical geometrical-optics branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Physical Optics Angle.
+\end{proof}
+\begin{definition}[Two Ray Prism Setup]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.TwoRayPrismSetup}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-raydirection, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-refractiveindex, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-figureray, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-raysegment, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-exitface, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-opticalmedium}
+  Physical objects and measured angle/index data in the prism experiment. The exit-face normals point from the glass toward the air. Incidence and refraction angles are measured from those normals, as required by Snell's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Two Ray Prism Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-degreestoradians, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-anglebetweendirections, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  Numerical and directional information supplied by the problem text and primary figure. In particular, this records n = 1.66, A = 25°, the ambient-air index, parallel codirected inputs, and normal incidence at the vertical face. No emergent separation or answer-choice value occurs in this data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-isphysicalopticsangle, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  Positivity and principal-branch conditions for the optical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Symmetric Prism Geometry]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-satisfiessymmetricprismgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.SatisfiesSymmetricPrismGeometry}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-rayatexitface, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-anglebetweendirections, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  Geometric content of the symmetric prism drawing. The scalar incidence/refraction readouts are tied to actual vector angles. Both internal incidence angles equal the displayed A. Because the upper and lower rays bend on opposite sides of their common internal direction, their emergent separation is the sum of the two deviations refraction - incidence. This is a general figure relation and contains no numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Symmetric Prism Geometry.
+\end{proof}
+\begin{definition}[Satisfies Snells Law At Exit]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-satisfiessnellslawatexit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.SatisfiesSnellsLawAtExit}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-exitface, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  Snell's law at one of the two glass-to-air exit faces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Snells Law At Exit.
+\end{proof}
+\begin{definition}[Obeys Prism Optics Laws]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-obeysprismopticslaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.ObeysPrismOpticsLaws}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-satisfiessnellslawatexit}
+  Governing ray-optics laws used by the experiment. Normal entry preserves each ray's direction, and Snell's law holds independently at both exit faces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Prism Optics Laws.
+\end{proof}
+\begin{definition}[emergent Separation Radians]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-emergentseparationradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.emergentSeparationRadians}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-anglebetweendirections, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup}
+  The actual angular separation of the emerged rays, measured in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of emergent Separation Radians.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.AnswerChoice}
+  The four answer labels displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[separation Degrees]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-answerchoice-separationdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.AnswerChoice.separationDegrees}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-answerchoice}
+  Angular-separation readout, in degrees, printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of separation Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-answerchoice}
+  Dataset metadata: the recorded answer label, never used as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Tenth Degree]
+  \label{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-roundstotenthdegree}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.RoundsToTenthDegree}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-degreestoradians}
+  actualRadians agrees with a degree display rounded to the nearest tenth. The strict half-tenth-degree tolerance avoids asserting that the rounded multiple-choice number is the exact transcendental Snell-law value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Tenth Degree.
+\end{proof}
+\begin{lemma}[emergent Separation symbolic]
+  \label{lem:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-emergentseparation-symbolic}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0099.emergentSeparation_symbolic}
+  \uses{def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-tworayprismsetup, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-matchesproblemandfigure, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-hasphysicalopticalparameters, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-satisfiessymmetricprismgeometry, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-obeysprismopticslaws, def:physics:phyx-mini-0099:phyxminiproblems-problemphyxmini0099-emergentseparationradians}
+  Snell's law and the symmetric figure geometry give the exact (unrounded) angular separation: twice the deviation of either ray from its original direction. This auxiliary conclusion contains no selected answer value
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of emergent Separation symbolic.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

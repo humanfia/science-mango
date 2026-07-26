@@ -1,0 +1,319 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0307.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0307.source.json
+
+\chapter{Physics problem phyx\_mini\_0307}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0307}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A continuous traveling wave with amplitude \$A\$ is incident on a boundary. The continuous reflection, with a smaller amplitude \$B\$, travels back through the incoming wave. The resulting interference pattern is displayed in figure. The standing wave ratio is defined to be \$\$SWR = \textbackslash{}frac\{A + B\}\{A - B\}.\$\$ The reflection coefficient \$R\$ is the ratio of the power of the reflected wave to the power of the incoming wave and is thus proportional to the ratio \$(B/A)\textasciicircum{}2\$.
+
+\#\# Question
+
+For SWR = \$1.50\$, what is \$R\$ expressed as a percentage?
+
+\#\# Answer choices
+
+- A: A: 3.2\%
+
+- B: B: 3.5\%
+
+- C: C: 3.8\%
+
+- D: D: 4.0\%
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a wavy green line resembling a sinusoidal wave with peaks and troughs. Three vertical, black double-headed arrows mark specific points on the wave:
+
+1. The first arrow points between a peak and a trough, labeled "A\_max" (maximum amplitude).
+2. The middle arrow points between a trough and a peak, labeled "A\_min" (minimum amplitude).
+3. The third arrow, similar to the first, points between a peak and a trough and is also labeled "A\_max."
+
+The green wave appears to smoothly oscillate, illustrating amplitude changes across its length.
+
+\#\# Dataset metadata
+
+Wave Properties; Multi-Formula Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 4.0\%
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/307.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0307.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0307:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0307.problem_phyx_mini_0307}
+\uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesproblemandfiguredata, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-hasphysicalwaveparameters, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiesstandingwaveinterferencelaw, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiescommonmediumpowerreflectionlaw, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectioncoefficientpercentage, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesanswerchoice, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-recordeddatasetanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.powerDimension}
+  Physical dimension of power: mass times length squared per time cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[Wave Amplitude]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-waveamplitude}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.WaveAmplitude}
+  A nonnegative, unit-independent amplitude of a wave of unspecified kind
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Amplitude.
+\end{proof}
+\begin{definition}[Wave Power]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavepower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.WavePower}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-powerdimension}
+  A nonnegative, unit-independent wave power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Power.
+\end{proof}
+\begin{definition}[Wave Speed]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavespeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.WaveSpeed}
+  A nonnegative, unit-independent propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wave Speed.
+\end{proof}
+\begin{definition}[amplitude SIReadout]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.amplitudeSIReadout}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-waveamplitude}
+  Coherent SI scalar readout of an amplitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of amplitude SIReadout.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.powerInWatts}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavepower}
+  Watt readout of a wave power
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavespeed}
+  Metres-per-second readout of a propagation speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.HorizontalDirection}
+  Horizontal directions used only to distinguish the two propagation senses
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[opposite Direction]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-oppositedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.oppositeDirection}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-horizontaldirection}
+  The direction opposite to a given horizontal propagation direction
+\end{definition}
+\begin{proof}
+  This is the declared model definition of opposite Direction.
+\end{proof}
+\begin{definition}[Continuous Traveling Wave]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-continuoustravelingwave}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.ContinuousTravelingWave}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-waveamplitude, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavepower, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-wavespeed, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-horizontaldirection}
+  A traveling-wave component. The dimensionless profile gives its shape as a function of phase; continuity records the source's description of both the incident and reflected waves as continuous. Amplitude and power remain genuine physical quantities rather than scalar aliases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Continuous Traveling Wave.
+\end{proof}
+\begin{definition}[Figure Arrow]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-figurearrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.FigureArrow}
+  The three vertical amplitude arrows visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Arrow.
+\end{proof}
+\begin{definition}[Envelope Label]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-envelopelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.EnvelopeLabel}
+  Text labels printed beside the figure's amplitude arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Envelope Label.
+\end{proof}
+\begin{definition}[Standing Wave Envelope Figure]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-standingwaveenvelopefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.StandingWaveEnvelopeFigure}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-waveamplitude, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-figurearrow, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-envelopelabel}
+  The standing-wave envelope read from the bitmap. Arrow amplitudes are physical quantities; no pixel length is interpreted as a calibrated physical measurement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Standing Wave Envelope Figure.
+\end{proof}
+\begin{definition}[Boundary Reflection Setup]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.BoundaryReflectionSetup}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-continuoustravelingwave, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-standingwaveenvelopefigure}
+  The boundary-reflection experiment. The dimensionless standing-wave ratio and reflection coefficient are independent measured/model quantities here; neither is defined from the requested numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boundary Reflection Setup.
+\end{proof}
+\begin{definition}[incident Amplitude SI]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-incidentamplitudesi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.incidentAmplitudeSI}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  SI readout of the incident amplitude A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of incident Amplitude SI.
+\end{proof}
+\begin{definition}[reflected Amplitude SI]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectedamplitudesi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.reflectedAmplitudeSI}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  SI readout of the reflected amplitude B
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflected Amplitude SI.
+\end{proof}
+\begin{definition}[maximum Envelope Amplitude SI]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-maximumenvelopeamplitudesi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.maximumEnvelopeAmplitudeSI}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  Figure readout denoted by the left-hand A\_max label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of maximum Envelope Amplitude SI.
+\end{proof}
+\begin{definition}[minimum Envelope Amplitude SI]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-minimumenvelopeamplitudesi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.minimumEnvelopeAmplitudeSI}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  Figure readout denoted by the central A\_min label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of minimum Envelope Amplitude SI.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Data]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesproblemandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.MatchesProblemAndFigureData}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-amplitudesireadout, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-oppositedirection, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-maximumenvelopeamplitudesi}
+  Direct prose and image evidence. The two component waves propagate in opposite directions, the bitmap labels its two outer arrows A\_max and its central arrow A\_min, and the supplied SWR readout is exactly 1.50 = 3/2. No reflection coefficient or answer percentage is asserted here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Data.
+\end{proof}
+\begin{definition}[Has Physical Wave Parameters]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-hasphysicalwaveparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.HasPhysicalWaveParameters}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-powerinwatts, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-speedinmeterspersecond, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-incidentamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectedamplitudesi}
+  Nondegeneracy conditions from the physical scenario. In particular, the reflected amplitude B is smaller than the positive incident amplitude A
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Wave Parameters.
+\end{proof}
+\begin{definition}[Satisfies Standing Wave Interference Law]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiesstandingwaveinterferencelaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.SatisfiesStandingWaveInterferenceLaw}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-incidentamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectedamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-maximumenvelopeamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-minimumenvelopeamplitudesi}
+  Constructive and destructive interference give envelope amplitudes A + B and A - B. Their ratio is the standing-wave ratio. These are symbolic governing laws and contain no substituted SWR or requested percentage
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Standing Wave Interference Law.
+\end{proof}
+\begin{definition}[Satisfies Common Medium Power Reflection Law]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiescommonmediumpowerreflectionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.SatisfiesCommonMediumPowerReflectionLaw}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-powerinwatts, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-incidentamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectedamplitudesi}
+  Incident and reflected waves in the same medium share a power scale k, so each power is k times amplitude squared. The reflection coefficient is independently constrained to be reflected power divided by incident power. This exposes the proportionality invoked by the source without assuming its numerical consequence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Common Medium Power Reflection Law.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.AnswerChoice}
+  Labels of the four answer choices printed in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Reflection Percentage]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-displayedreflectionpercentage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.displayedReflectionPercentage}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-answerchoice}
+  Percentage printed beside each multiple-choice label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Reflection Percentage.
+\end{proof}
+\begin{definition}[reflection Coefficient Percentage]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectioncoefficientpercentage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.reflectionCoefficientPercentage}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup}
+  Convert a dimensionless power reflection coefficient to percent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of reflection Coefficient Percentage.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-answerchoice, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-displayedreflectionpercentage, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectioncoefficientpercentage}
+  The modeled percentage agrees with one of the displayed choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-answerchoice}
+  Answer label recorded by the source dataset; this is not a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{lemma}[reflected to incident amplitude ratio]
+  \label{lem:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflected-to-incident-amplitude-ratio}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.reflected_to_incident_amplitude_ratio}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-incidentamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectedamplitudesi, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesproblemandfiguredata, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-hasphysicalwaveparameters, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiesstandingwaveinterferencelaw}
+  An SWR of 3/2, together with SWR = (A+B)/(A-B), yields the dimensionless amplitude ratio B/A = 1/5. This is an intermediate derived result, not a field of any assumption structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflected to incident amplitude ratio.
+\end{proof}
+\begin{lemma}[reflection Coefficient eq one twenty fifth]
+  \label{lem:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-reflectioncoefficient-eq-one-twenty-fifth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0307.reflectionCoefficient_eq_one_twenty_fifth}
+  \uses{def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-boundaryreflectionsetup, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-matchesproblemandfiguredata, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-hasphysicalwaveparameters, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiesstandingwaveinterferencelaw, def:physics:phyx-mini-0307:phyxminiproblems-problemphyxmini0307-satisfiescommonmediumpowerreflectionlaw}
+  The common-medium squared-amplitude power law turns the derived amplitude ratio into the exact power reflection coefficient R = 1/25
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of reflection Coefficient eq one twenty fifth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

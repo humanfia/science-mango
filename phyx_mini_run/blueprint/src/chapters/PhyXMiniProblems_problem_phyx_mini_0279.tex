@@ -1,0 +1,374 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0279.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0279.source.json
+
+\chapter{Physics problem phyx\_mini\_0279}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0279}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In figure, a solid cylinder attached to a horizontal spring (\$k = 3.00\$ N/m) rolls without slipping along a horizontal surface.
+
+\#\# Question
+
+If the system is released from rest when the spring is stretched by \$0.250\$ m, find the rotational kinetic energy of the cylinder as it passes through the equilibrium position.
+
+\#\# Answer choices
+
+- A: A: 0.02225J
+
+- B: B: 0.02825J
+
+- C: C: 0.03625J
+
+- D: D: 0.03125J
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physical system involving a spring, a wheel, and a wall. The key elements are:
+
+- **Wheel (or Disk):** An orange wheel labeled with the letter "M," indicating its mass. It shows an arrow curving counterclockwise, suggesting rotational motion or torque.
+
+- **Spring:** To the right of the wheel, there is a coiled spring labeled "k," representing the spring constant. The spring is connected to the wheel on the left and attached to a vertical wall on the right.
+
+- **Wall:** A vertical wall on the right side of the image serves as the boundary to which the spring is connected.
+
+The image illustrates a typical mechanics problem setup, where the wheel is positioned on a flat surface and the spring is under tension or compression. The system likely models rotational and translational dynamics.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.03125J
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/279.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0279.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0279:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0279.rotationalKineticEnergyAtEquilibrium_matches_answerD}
+\uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesprimaryfigure, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesproblemdata, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-hasphysicalparameters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-satisfiesrollingcylinderspringlaws, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesdisplayedenergy}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MassQuantity}
+  The nonnegative physical mass of the solid cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.LengthQuantity}
+  A nonnegative length magnitude, used for radius and spring extension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.SpeedQuantity}
+  A nonnegative speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.AngularSpeedQuantity}
+  Angular-speed magnitude, with dimension inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Spring Constant Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.SpringConstantQuantity}
+  Spring stiffness, of dimension force per length, equivalently M T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Constant Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MomentOfInertiaQuantity}
+  Axial moment of inertia, with dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.EnergyQuantity}
+  Physical energy, with dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.massInKilograms}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massquantity}
+  Kilogram readout of a physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.lengthInMeters}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthquantity}
+  Metre readout of a physical length magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedquantity}
+  Metre-per-second readout of a physical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedquantity}
+  Radian-per-second readout of an angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[spring Constant In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.springConstantInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantquantity}
+  Newton-per-metre readout of a physical spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spring Constant In Newtons Per Meter.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-momentofinertiaquantity}
+  Kilogram-metre-squared readout of a moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.energyInJoules}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyquantity}
+  Joule readout of a physical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Motion Event]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-motionevent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MotionEvent}
+  The two instants compared by conservation of mechanical energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Event.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.FigureObject}
+  Physical objects visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.FigureLabel}
+  Mathematical labels printed in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Spring Endpoint]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springendpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.SpringEndpoint}
+  Endpoints of the spring visible in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Endpoint.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.Orientation}
+  Orientation categories needed to transcribe the support and spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.RotationSense}
+  Sense of the curved rotation arrow in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Cylinder Shape]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-cylindershape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.CylinderShape}
+  The mass distribution stated in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Shape.
+\end{proof}
+\begin{definition}[Surface Contact]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-surfacecontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.SurfaceContact}
+  Contact regime between the cylinder and the supporting surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Contact.
+\end{proof}
+\begin{definition}[Release Protocol]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-releaseprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.ReleaseProtocol}
+  How the spring-cylinder system begins its motion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Release Protocol.
+\end{proof}
+\begin{definition}[Rolling Cylinder Figure]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.RollingCylinderFigure}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figureobject, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figurelabel, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springendpoint, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-orientation, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rotationsense}
+  Qualitative information read directly from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Cylinder Figure.
+\end{proof}
+\begin{definition}[Rolling Cylinder Spring Setup]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.RollingCylinderSpringSetup}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-momentofinertiaquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-motionevent, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-cylindershape, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-surfacecontact, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-releaseprotocol, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderfigure}
+  The independent physical quantities for the rolling cylinder at release and at the subsequent equilibrium passage. The Physlib harmonic oscillator is an SI-coordinate model for the effective one-dimensional rolling mode. The Physlib rigid body and its angular-velocity vector model the cylinder's rotation in three-dimensional SI coordinates. Neither library object is defined from the requested energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Cylinder Spring Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figureobject, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-figurelabel, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup}
+  Primary-image evidence. The mass label M is above the orange cylinder, the stiffness label k is above the spring, the spring joins the black axle to the right wall, and the cylinder rests on a horizontal surface. On the left side of a wheel, the upward-pointing curved arrow is clockwise; this primary-image readout takes precedence over the auxiliary caption's opposite description
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthinmeters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedinmeterspersecond, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedinradianspersecond, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantinnewtonspermeter, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup}
+  Numerical and qualitative data supplied by the problem. The initial stretch 0.250 m is represented exactly by 1/4 m; the equilibrium passage has zero spring extension. Release from rest is recorded by both the center-of-mass and angular-speed readouts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massinkilograms, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthinmeters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantinnewtonspermeter, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup}
+  Positivity and nondegeneracy of the physical parameters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rolling Cylinder Spring Laws]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-satisfiesrollingcylinderspringlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.SatisfiesRollingCylinderSpringLaws}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-massinkilograms, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-lengthinmeters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-speedinmeterspersecond, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-angularspeedinradianspersecond, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-springconstantinnewtonspermeter, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-motionevent, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup}
+  The governing spring, rigid-body, rolling, and conservation laws. Physlib's oscillator gives the Hooke-law spring potential energy. The solid-cylinder axial inertia is I = M R² / 2. Physlib's rigid-body definition gives rotational kinetic energy from the inertia tensor and the angular-velocity vector. Translation has kinetic energy M v² / 2, and no slip gives v = R ω. Total spring-plus-translational-plus-rotational mechanical energy agrees at release and at the equilibrium passage.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rolling Cylinder Spring Laws.
+\end{proof}
+\begin{lemma}[initial Spring Potential Energy eq three over thirty Two]
+  \label{lem:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-initialspringpotentialenergy-eq-three-over-thirtytwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.initialSpringPotentialEnergy_eq_three_over_thirtyTwo}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesproblemdata, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-satisfiesrollingcylinderspringlaws}
+  The initially stretched spring stores 3/32 J
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of initial Spring Potential Energy eq three over thirty Two.
+\end{proof}
+\begin{lemma}[rotational Kinetic Energy is one Third initial Spring Energy]
+  \label{lem:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rotationalkineticenergy-is-onethird-initialspringenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.rotationalKineticEnergy_is_oneThird_initialSpringEnergy}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesproblemdata, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-hasphysicalparameters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-satisfiesrollingcylinderspringlaws}
+  For a rolling solid cylinder, rotational kinetic energy is one third of the kinetic energy present at equilibrium, hence one third of the initially stored spring energy in this lossless release
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotational Kinetic Energy is one Third initial Spring Energy.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.AnswerChoice}
+  Labels of the four displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[joules]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-answerchoice-joules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.AnswerChoice.joules}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-answerchoice}
+  Rotational-energy readout in joules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of joules.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Energy]
+  \label{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesdisplayedenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.MatchesDisplayedEnergy}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyquantity, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-answerchoice}
+  A physical energy agrees exactly with the value printed for a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Energy.
+\end{proof}
+\begin{theorem}[rotational Kinetic Energy At Equilibrium eq one over thirty Two]
+  \label{thm:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rotationalkineticenergyatequilibrium-eq-one-over-thirtytwo}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0279.rotationalKineticEnergyAtEquilibrium_eq_one_over_thirtyTwo}
+  \uses{def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-energyinjoules, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-rollingcylinderspringsetup, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesprimaryfigure, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-matchesproblemdata, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-hasphysicalparameters, def:physics:phyx-mini-0279:phyxminiproblems-problemphyxmini0279-satisfiesrollingcylinderspringlaws}
+  At the equilibrium passage, conservation of energy and rolling without slip give the solid cylinder rotational kinetic energy K\_rot = (1/3) (1/2 k x₀²) = 1/32 J = 0.03125 J, which is answer choice D. This formalizes
+\end{theorem}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotational Kinetic Energy At Equilibrium eq one over thirty Two.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,279 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0732.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0732.source.json
+
+\chapter{Physics problem phyx\_mini\_0732}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0732}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows part of a street where traffic flow is to be controlled to allow a platoon of cars to move smoothly along the street. Suppose that the platoon leaders have just reached intersection 2, where the green appeared when they were distance \$d\$ from the intersection. They continue to travel at a certain speed \$v\_p\$ (the speed limit) to reach intersection 3, where the green appears when they are distance \$d\$ from it. The intersections are separated by distances \$D\_\{23\}\$ and \$D\_\{12\}\$.
+
+\#\# Question
+
+What should be the time delay of the onset of green at intersection 3 relative to that at intersection 2 to keep the platoon moving smoothly?
+
+\#\# Answer choices
+
+- A: A: \$D\_\{13\} / v\_p\$
+
+- B: B: \$2 D\_\{23\} / v\_p\$
+
+- C: C: \$D\_\{23\} / v\_p\$
+
+- D: D: \$D\_\{23\} / 2 v\_p\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a traffic scene with a one-way street, indicated by a black sign with a white arrow pointing to the right, labeled "ONE WAY."
+
+- **Background:**
+  - The street runs horizontally from left to right.
+  - There are three vertical intersecting roads, labeled with the numbers 1, 2, and 3 in sequence from left to right.
+
+- **Vehicles:**
+  - On the left side, there is a series of cars in different colors: black, white, yellow, red, and green. They are driving on the left lane of a two-lane road.
+
+- **Measurements:**
+  - Distances between intersections are marked with arrows labeled \textbackslash{}(D\_\{12\}\textbackslash{}) and \textbackslash{}(D\_\{23\}\textbackslash{}), denoting the distances between intersections 1 and 2, and intersections 2 and 3, respectively.
+
+The intersections, vehicles, and directional sign convey a structured traffic layout typical for urban environments.
+
+\#\# Dataset metadata
+
+Kinematics; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \$D\_\{23\} / v\_p\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/732.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0732.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0732:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0732.problem_phyx_mini_0732}
+\uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesprimarytrafficfigure, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesplatoonscenario, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-satisfiesstreetdistancegeometry, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesgreentriggerprotocol, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-hasphysicaltrafficparameters, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-satisfiesuniformplatoonmotion, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-greenonsetdelayreadout}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.LengthQuantity}
+  A unit-independent physical length or signed coordinate along the street
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Time Quantity]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.TimeQuantity}
+  A unit-independent physical time coordinate
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Time Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.SpeedQuantity}
+  The nonnegative, unit-independent physical speed type supplied by Physlib
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.lengthReadout}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthquantity}
+  Read a length or longitudinal coordinate in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[time Readout]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.timeReadout}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timequantity}
+  Read a time coordinate in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.speedReadout}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedquantity}
+  Read a speed in the coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[Intersection]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.Intersection}
+  The three numbered intersections in their left-to-right order
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Intersection.
+\end{proof}
+\begin{definition}[Street Segment]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.StreetSegment}
+  The two consecutive street segments carrying the labels D₁₂ and D₂₃
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Street Segment.
+\end{proof}
+\begin{definition}[start Intersection]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment-startintersection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.StreetSegment.startIntersection}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment}
+  The left endpoint of a directed street segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of start Intersection.
+\end{proof}
+\begin{definition}[finish Intersection]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment-finishintersection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.StreetSegment.finishIntersection}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment}
+  The right endpoint of a directed street segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of finish Intersection.
+\end{proof}
+\begin{definition}[Segment Distance Label]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-segmentdistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.SegmentDistanceLabel}
+  Literal distance labels printed below the street in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Segment Distance Label.
+\end{proof}
+\begin{definition}[expected Distance Label]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment-expecteddistancelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.StreetSegment.expectedDistanceLabel}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-segmentdistancelabel}
+  The printed label belonging to each directed segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of expected Distance Label.
+\end{proof}
+\begin{definition}[Horizontal Direction]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-horizontaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.HorizontalDirection}
+  Direction of travel along the horizontal street axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Horizontal Direction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[Traffic Control Figure]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficcontrolfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.TrafficControlFigure}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-segmentdistancelabel, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-horizontaldirection}
+  A structured transcription of the primary bitmap. It stores only discrete labels and qualitative visible features; physical distances are kept in the setup below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traffic Control Figure.
+\end{proof}
+\begin{definition}[Traffic Signal Setup]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.TrafficSignalSetup}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthquantity, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timequantity, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedquantity, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-horizontaldirection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficcontrolfigure}
+  Independent physical quantities and event observables. The green-onset times and leader trajectory are free fields here; their relations are imposed by separate protocol and kinematics predicates
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Traffic Signal Setup.
+\end{proof}
+\begin{definition}[Matches Primary Traffic Figure]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesprimarytrafficfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.MatchesPrimaryTrafficFigure}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  Qualitative labels and geometry read directly from 732.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Traffic Figure.
+\end{proof}
+\begin{definition}[Matches Platoon Scenario]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesplatoonscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.MatchesPlatoonScenario}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timereadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  The prose says that the leaders have reached intersection 2, continue in the positive street direction, and travel at the speed limit. The earlier green onset at intersection 2 remains a separate event
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Platoon Scenario.
+\end{proof}
+\begin{definition}[Satisfies Street Distance Geometry]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-satisfiesstreetdistancegeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.SatisfiesStreetDistanceGeometry}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-streetsegment, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  The marked physical segment length is the difference of its endpoint coordinates. This records both D₁₂ and D₂₃, even though only D₂₃ survives in the requested delay
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Street Distance Geometry.
+\end{proof}
+\begin{definition}[Matches Green Trigger Protocol]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-matchesgreentriggerprotocol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.MatchesGreenTriggerProtocol}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-intersection, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  At each relevant green onset, the leader is the same physical distance d upstream of that intersection. These are trigger-event readouts, not a delay formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Green Trigger Protocol.
+\end{proof}
+\begin{definition}[Has Physical Traffic Parameters]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-hasphysicaltrafficparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.HasPhysicalTrafficParameters}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timereadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  Nondegeneracy and event ordering for the physical branch depicted in the problem. No magnitude for the requested delay occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Traffic Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Platoon Motion]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-satisfiesuniformplatoonmotion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.SatisfiesUniformPlatoonMotion}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timequantity, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timereadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  Governing uniform-motion law during the interval from the onset of green at intersection 2 through the onset at intersection 3. It is deliberately quantified over arbitrary event times in that interval, rather than assuming the requested endpoint-delay formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Platoon Motion.
+\end{proof}
+\begin{definition}[green Onset Delay Readout]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-greenonsetdelayreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.greenOnsetDelayReadout}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-timereadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  Scalar readout of the onset delay of green 3 relative to green 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of green Onset Delay Readout.
+\end{proof}
+\begin{definition}[displayed Delay Readout]
+  \label{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-displayeddelayreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0732.displayedDelayReadout}
+  \uses{def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-lengthreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-speedreadout, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-answerchoice, def:physics:phyx-mini-0732:phyxminiproblems-problemphyxmini0732-trafficsignalsetup}
+  The delay expression printed beside an answer label. Choice A uses D₁₃ = D₁₂ + D₂₃, while choices B, C, and D use the stated multiples of D₂₃
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Delay Readout.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

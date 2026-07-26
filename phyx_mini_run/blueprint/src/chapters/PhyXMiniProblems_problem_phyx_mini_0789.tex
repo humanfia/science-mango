@@ -1,0 +1,459 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0789.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0789.source.json
+
+\chapter{Physics problem phyx\_mini\_0789}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0789}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A solid, uniform, spherical boulder starts from rest and rolls down a 50.0-m-high hill, as shown in as shown in figure. The top half of the hill is rough enough to cause the boulder to roll without slipping, but the lower half is covered with ice and there is no friction.
+
+\#\# Question
+
+What is the translational speed of the boulder when it reaches the bottom of the hill? Neglect rolling friction and assume the system’s total mechanical energy is conserved.
+
+\#\# Answer choices
+
+- A: A: 31.0m/s
+
+- B: B: 29.0m/s
+
+- C: C: 16.0m/s
+
+- D: D: 22.0m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a physical diagram of a slope with a ball at the top. The slope is divided into two sections: "Rough" and "Smooth." Here’s a detailed description:
+
+- **Ball**: There is an orange ball positioned at the top of the slope on the left side.
+- **Slope Sections**: 
+  - **Rough**: The initial part of the slope is labeled "Rough," suggesting it may have friction.
+  - **Smooth**: The lower part of the slope is labeled "Smooth," indicating a frictionless or less frictional surface.
+- **Height**: A vertical line with an arrowhead on both ends indicates a height of "50.0 m" from the top of the slope to the base, where the dotted horizontal line is drawn.
+- **Lines**:
+  - The slope itself is depicted with a smooth transition from rough to smooth. 
+  - The horizontal dotted line below the slope indicates a reference line or surface level.
+
+The overall diagram is likely used to represent a physics problem related to motion, friction, or potential energy.
+
+\#\# Dataset metadata
+
+Work and Energy; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 29.0m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/789.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0789.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0789:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0789.problem_phyx_mini_0789}
+\uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesrollingboulderscenario, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesproblemreadouts, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesprimaryfigure, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hasphysicalboulderparameters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiessoliduniformspheremechanics, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiesconservedmechanicalenergy, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiespiecewisecontactkinematics, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesdisplayedprecision, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.accelerationDimension}
+  The physical dimension L T⁻² of acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[angular Speed Dimension]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.angularSpeedDimension}
+  Angular speed has inverse-time dimension because radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.momentOfInertiaDimension}
+  A scalar moment of inertia has physical dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.SpeedMagnitudeQuantity}
+  A nonnegative translational-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Magnitude Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.AngularSpeedMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeeddimension}
+  A nonnegative angular-speed magnitude about the boulder's rolling axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Magnitude Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiadimension}
+  A nonnegative scalar moment of inertia about an axis through the center
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.EnergyQuantity}
+  Mechanical energy, with physical dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms NNReal]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilogramsnnreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.massInKilogramsNNReal}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massquantity}
+  Read a physical mass in coherent-SI kilograms as a nonnegative real
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms NNReal.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.massInKilograms}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilogramsnnreal}
+  Read a physical mass in coherent-SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters NNReal]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmetersnnreal}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.lengthInMetersNNReal}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthquantity}
+  Read a physical length in coherent-SI metres as a nonnegative real
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters NNReal.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.lengthInMeters}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmetersnnreal}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedmagnitudequantity}
+  Read a speed magnitude in coherent-SI metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedmagnitudequantity}
+  Read an angular-speed magnitude in radians per coherent-SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationmagnitudequantity}
+  Read an acceleration magnitude in coherent-SI metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Square Meters]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiainkilogramsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.momentOfInertiaInKilogramSquareMeters}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiaquantity}
+  Read a central moment of inertia in coherent-SI kilogram square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Square Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.energyInJoules}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-energyquantity}
+  Read a physical mechanical energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Hill Location]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.HillLocation}
+  The three states needed for the endpoint energy calculation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hill Location.
+\end{proof}
+\begin{definition}[Hill Segment]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hillsegment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.HillSegment}
+  The two halves of the hill distinguished in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hill Segment.
+\end{proof}
+\begin{definition}[Surface Regime]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-surfaceregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.SurfaceRegime}
+  Physical contact regime assigned to a hill segment by the prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Regime.
+\end{proof}
+\begin{definition}[Boulder Model]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-bouldermodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.BoulderModel}
+  The mass-distribution and shape idealization stated for the boulder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boulder Model.
+\end{proof}
+\begin{definition}[Rolling Resistance Model]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingresistancemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.RollingResistanceModel}
+  Treatment of rolling resistance requested in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Resistance Model.
+\end{proof}
+\begin{definition}[Figure Surface Label]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figuresurfacelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.FigureSurfaceLabel}
+  Literal words printed on the two portions of the slope
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Surface Label.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.FigureObject}
+  Physical objects visibly represented in image 789.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.FigureLabel}
+  Literal labels printed in image 789.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Boulder Hill Figure]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-boulderhillfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.BoulderHillFigure}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hillsegment, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figuresurfacelabel, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figureobject, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-figurelabel}
+  Qualitative and printed data transcribed from the primary bitmap. The image contains no numerical bottom-speed value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boulder Hill Figure.
+\end{proof}
+\begin{definition}[Rolling Boulder Setup]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.RollingBoulderSetup}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedmagnitudequantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedmagnitudequantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationmagnitudequantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiaquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-energyquantity, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hillsegment, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-surfaceregime, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-bouldermodel, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingresistancemodel, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-boulderhillfigure}
+  The boulder's parameters and observables at the three named locations. The SI rigid body and angular-velocity vectors provide a bridge to Physlib's three-dimensional rigid-body mechanics. No field is defined from an answer choice or from the requested bottom-speed formula
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Boulder Setup.
+\end{proof}
+\begin{definition}[translational Kinetic Energy In Joules]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-translationalkineticenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.translationalKineticEnergyInJoules}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilograms, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Coherent-SI translational kinetic energy 1/2 m v²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of translational Kinetic Energy In Joules.
+\end{proof}
+\begin{definition}[rotational Kinetic Energy In Joules]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rotationalkineticenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.rotationalKineticEnergyInJoules}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedinradianspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiainkilogramsquaremeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Coherent-SI rotational kinetic energy 1/2 I ω²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rotational Kinetic Energy In Joules.
+\end{proof}
+\begin{definition}[gravitational Potential Energy In Joules]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-gravitationalpotentialenergyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.gravitationalPotentialEnergyInJoules}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilograms, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Coherent-SI gravitational potential energy m g h, with zero at the bottom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gravitational Potential Energy In Joules.
+\end{proof}
+\begin{definition}[mechanical Energy From Components In Joules]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-mechanicalenergyfromcomponentsinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.mechanicalEnergyFromComponentsInJoules}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hilllocation, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-translationalkineticenergyinjoules, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rotationalkineticenergyinjoules, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-gravitationalpotentialenergyinjoules}
+  Sum of the translational, rotational, and gravitational energy components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mechanical Energy From Components In Joules.
+\end{proof}
+\begin{definition}[Matches Rolling Boulder Scenario]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesrollingboulderscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MatchesRollingBoulderScenario}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Qualitative physical scenario stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Rolling Boulder Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedinradianspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Numerical physical readouts from the prose. Interpreting the top and lower "halves" as equal vertical drops gives transition height 25 m, the interpretation selected by the recorded answer. No bottom speed occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Objects, labels, and qualitative geometry visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Boulder Parameters]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-hasphysicalboulderparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.HasPhysicalBoulderParameters}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilograms, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Positivity and nondegeneracy of the material boulder and gravity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Boulder Parameters.
+\end{proof}
+\begin{definition}[Satisfies Solid Uniform Sphere Mechanics]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiessoliduniformspheremechanics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.SatisfiesSolidUniformSphereMechanics}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilogramsnnreal, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-massinkilograms, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmetersnnreal, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedinradianspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-momentofinertiainkilogramsquaremeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rotationalkineticenergyinjoules}
+  Solid-uniform-sphere mechanics and the bridge to Physlib. The scalar inertia law is the axial consequence of RigidBody.solidSphere\_inertiaTensor. rigidBodyModel identifies the unit-aware problem object with Physlib's SI-coordinate solid sphere, while rotationalEnergyAgreesWithPhyslib checks the scalar energy against RigidBody.rotationalKineticEnergy. These laws mention no target speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Solid Uniform Sphere Mechanics.
+\end{proof}
+\begin{definition}[Satisfies Conserved Mechanical Energy]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiesconservedmechanicalenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.SatisfiesConservedMechanicalEnergy}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-energyinjoules, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-mechanicalenergyfromcomponentsinjoules}
+  Definition and conservation of total mechanical energy. Static friction on the no-slip segment and the frictionless ice segment do no dissipative work, so the independently stored total energy agrees with the three components and is conserved across each half of the hill
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Conserved Mechanical Energy.
+\end{proof}
+\begin{definition}[Satisfies Piecewise Contact Kinematics]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-satisfiespiecewisecontactkinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.SatisfiesPiecewiseContactKinematics}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-lengthinmeters, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-angularspeedinradianspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup}
+  Endpoint kinematics supplied by the two contact regimes. The upper relation is v = R ω at the moment the boulder reaches the ice. With no friction on the lower half, there is no torque about the center, so angular speed is preserved from the transition to the bottom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Piecewise Contact Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.AnswerChoice}
+  Labels of the four answers displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[speed Meters Per Second]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice-speedmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.AnswerChoice.speedMetersPerSecond}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice}
+  Translational-speed readout in metres per second printed by each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice}
+  Dataset metadata: the recorded answer is B; this is never a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Precision]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-matchesdisplayedprecision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.MatchesDisplayedPrecision}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice}
+  Agreement with a value printed to the nearest tenth of a metre per second. The half-tenth tolerance represents the precision of 29.0 m/s
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Precision.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0789.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-speedinmeterspersecond, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-rollingbouldersetup, def:physics:phyx-mini-0789:phyxminiproblems-problemphyxmini0789-answerchoice}
+  A displayed answer is uniquely closest to the independently derived speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

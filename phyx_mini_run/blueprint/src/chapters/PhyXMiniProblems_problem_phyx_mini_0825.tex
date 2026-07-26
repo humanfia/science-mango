@@ -1,0 +1,404 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0825.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0825.source.json
+
+\chapter{Physics problem phyx\_mini\_0825}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0825}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A bowling ball of mass \textbackslash{}( M \textbackslash{}) rolls without slipping down a ramp that is inclined at an angle \textbackslash{}( \textbackslash{}beta \textbackslash{}) to the horizontal as shown in figure.
+
+\#\# Question
+
+What are the magnitude of the friction force on the ball? Treat the ball as a uniform solid sphere, ignoring the finger holes.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( \textbackslash{}frac\{2\}\{9\} Mg \textbackslash{}sin \textbackslash{}beta \textbackslash{})
+
+- B: B: \textbackslash{}( \textbackslash{}frac\{2\}\{7\} Mg \textbackslash{}sin \textbackslash{}beta \textbackslash{})
+
+- C: C: \textbackslash{}( \textbackslash{}frac\{2\}\{5\} Mg \textbackslash{}cos \textbackslash{}beta \textbackslash{})
+
+- D: D: \textbackslash{}( \textbackslash{}frac\{2\}\{3\} Mg \textbackslash{}cos \textbackslash{}beta \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a bowling ball on an inclined plane. The scene shows the following elements:
+
+- **Bowling Ball:** An orange sphere representing the bowling ball, located on the inclined plane. The ball has three finger holes.
+  
+- **Inclined Plane:** A gray surface on which the ball rests, inclined at an angle.
+  
+- **Angle β:** The angle of inclination between the plane and the horizontal surface, marked with a dashed line and arrow.
+
+- **Label M:** Denotes the mass or a related concept associated with the ball.
+
+This image likely illustrates concepts related to physics, such as motion on an incline or forces acting on the ball.
+
+\#\# Dataset metadata
+
+Dynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: \textbackslash{}( \textbackslash{}frac\{2\}\{7\} Mg \textbackslash{}sin \textbackslash{}beta \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/825.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0825.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0825:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0825.frictionForceMagnitude_eq_twoSevenths_mass_gravity_sin_beta}
+\uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforceinnewtons, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-matchesprimaryfigure, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-matchesbowlingballproblemdata, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-hasphysicalbowlingballparameters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-satisfiesrollingspheredynamics}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.MassQuantity}
+  A nonnegative, unit-independent physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.LengthQuantity}
+  A nonnegative physical length, used for the bowling-ball radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.accelerationDimension}
+  The physical dimension of linear acceleration, L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.AccelerationMagnitudeQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Signed Acceleration Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.SignedAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationdimension}
+  A signed linear-acceleration component along the ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Acceleration Quantity.
+\end{proof}
+\begin{definition}[angular Acceleration Dimension]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularaccelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.angularAccelerationDimension}
+  The physical dimension of angular acceleration; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration Dimension.
+\end{proof}
+\begin{definition}[Signed Angular Acceleration Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedangularaccelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.SignedAngularAccelerationQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularaccelerationdimension}
+  A signed angular-acceleration component about the rolling axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Angular Acceleration Quantity.
+\end{proof}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.forceDimension}
+  The physical dimension of force, M L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Signed Force Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.SignedForceQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-forcedimension}
+  A signed force component along the ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Force Quantity.
+\end{proof}
+\begin{definition}[torque Dimension]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-torquedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.torqueDimension}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-forcedimension}
+  The physical dimension of torque, M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of torque Dimension.
+\end{proof}
+\begin{definition}[Signed Torque Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedtorquequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.SignedTorqueQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-torquedimension}
+  A signed torque component about the rolling axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Signed Torque Quantity.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.momentOfInertiaDimension}
+  The physical dimension of an axial moment of inertia, M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiadimension}
+  A nonnegative scalar moment of inertia about the rolling axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[nonnegative SIReadout]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-nonnegativesireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.nonnegativeSIReadout}
+  Read a nonnegative dimensionful quantity in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of nonnegative SIReadout.
+\end{proof}
+\begin{definition}[signed SIReadout]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedsireadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.signedSIReadout}
+  Read a signed dimensionful scalar component in coherent SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed SIReadout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.massInKilograms}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-nonnegativesireadout}
+  Kilogram readout of the ball's mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.lengthInMeters}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-nonnegativesireadout}
+  Metre readout of the ball's radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[acceleration Magnitude In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudeinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.accelerationMagnitudeInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-nonnegativesireadout}
+  Metre-per-second-squared readout of a nonnegative acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Magnitude In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[signed Acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedaccelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.signedAccelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedaccelerationquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedsireadout}
+  Metre-per-second-squared readout of a signed rampwise acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Acceleration In Radians Per Second Squared]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularaccelerationinradianspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.angularAccelerationInRadiansPerSecondSquared}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedangularaccelerationquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedsireadout}
+  Radian-per-second-squared readout of a signed angular acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Acceleration In Radians Per Second Squared.
+\end{proof}
+\begin{definition}[signed Force In Newtons]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforceinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.signedForceInNewtons}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforcequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedsireadout}
+  Newton readout of a signed rampwise force component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Force In Newtons.
+\end{proof}
+\begin{definition}[signed Torque In Newton Meters]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedtorqueinnewtonmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.signedTorqueInNewtonMeters}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedtorquequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedsireadout}
+  Newton-metre readout of a signed torque component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of signed Torque In Newton Meters.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiaquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-nonnegativesireadout}
+  Kilogram-metre-squared readout of a scalar axial moment of inertia
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[Figure Part]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurepart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.FigurePart}
+  Visible geometric or physical parts of the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Part.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.FigureLabel}
+  Literal symbolic labels printed in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Depicted Ball Placement]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-depictedballplacement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.DepictedBallPlacement}
+  The qualitative placement of the depicted ball
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Depicted Ball Placement.
+\end{proof}
+\begin{definition}[Bowling Ball Incline Figure]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-bowlingballinclinefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.BowlingBallInclineFigure}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurepart, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurelabel, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-depictedballplacement}
+  Qualitative and symbolic information read directly from image 825.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bowling Ball Incline Figure.
+\end{proof}
+\begin{definition}[Ball Model]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-ballmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.BallModel}
+  The rigid-body idealization stipulated in the problem text
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ball Model.
+\end{proof}
+\begin{definition}[Contact Regime]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-contactregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.ContactRegime}
+  Tangential contact behavior between the ball and ramp
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Contact Regime.
+\end{proof}
+\begin{definition}[Tangential Positive Direction]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-tangentialpositivedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.TangentialPositiveDirection}
+  Orientation used for signed tangential scalar components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tangential Positive Direction.
+\end{proof}
+\begin{definition}[Angular Positive Direction]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularpositivedirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.AngularPositiveDirection}
+  Orientation used for signed angular scalar components
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Positive Direction.
+\end{proof}
+\begin{definition}[Rolling Bowling Ball Setup]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.RollingBowlingBallSetup}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedaccelerationquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedangularaccelerationquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforcequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedtorquequantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiaquantity, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-bowlingballinclinefigure, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-ballmodel, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-contactregime, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-tangentialpositivedirection, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularpositivedirection}
+  Every unknown observable is an independent physical quantity. In particular, the friction component is not defined from an answer choice. rigidBodySI uses Physlib's SI-coordinate rigid-body interface, while the corresponding mass, radius, force, acceleration, torque, and scalar inertia remain unit-independent quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Bowling Ball Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurepart, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-figurelabel, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup}
+  Labels, geometry, and placement transcribed from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Bowling Ball Problem Data]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-matchesbowlingballproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.MatchesBowlingBallProblemData}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup}
+  The text identifies M as the ball's mass, specifies rolling without slip, and replaces the visibly perforated bowling ball by a uniform solid sphere. The equality to RigidBody.solidSphere is model identification, not an assumption about the requested friction force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Bowling Ball Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Bowling Ball Parameters]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-hasphysicalbowlingballparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.HasPhysicalBowlingBallParameters}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthinmeters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup}
+  Positivity and angle bounds selecting the depicted physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Bowling Ball Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rolling Sphere Dynamics]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-satisfiesrollingspheredynamics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.SatisfiesRollingSphereDynamics}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthinmeters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedaccelerationinmeterspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-angularaccelerationinradianspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedforceinnewtons, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-signedtorqueinnewtonmeters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup}
+  The signed force and acceleration components are positive down the ramp, and the signed angular quantities are positive in the corresponding rolling-down direction. Thus the torque law contains a minus sign: a positive down-ramp contact force produces torque opposite the rolling-down orientation. No field below contains the solved friction value or assumes that friction is uphill.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rolling Sphere Dynamics.
+\end{proof}
+\begin{lemma}[axial Moment Of Inertia eq two Fifths mass mul radius sq]
+  \label{lem:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-axialmomentofinertia-eq-twofifths-mass-mul-radius-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.axialMomentOfInertia_eq_twoFifths_mass_mul_radius_sq}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-lengthinmeters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-matchesbowlingballproblemdata, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-hasphysicalbowlingballparameters, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-satisfiesrollingspheredynamics}
+  Physlib's uniform-solid-sphere tensor formula gives the familiar scalar axial moment of inertia I = (2/5) M R² for the modeled bowling ball
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of axial Moment Of Inertia eq two Fifths mass mul radius sq.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-answerchoice-displayedmagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0825.AnswerChoice.displayedMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-massinkilograms, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-accelerationmagnitudeinmeterspersecondsquared, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-rollingbowlingballsetup, def:physics:phyx-mini-0825:phyxminiproblems-problemphyxmini0825-answerchoice}
+  The force magnitudes printed in the four answer choices. This records the question's answer metadata only; it does not identify any choice as correct
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Magnitude In Newtons.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

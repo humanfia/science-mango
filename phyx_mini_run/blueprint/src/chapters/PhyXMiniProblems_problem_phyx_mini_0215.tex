@@ -1,0 +1,248 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0215.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0215.source.json
+
+\chapter{Physics problem phyx\_mini\_0215}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0215}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An ocean fishing boat is drifting just above a school of tuna on a foggy day. Without warning, an engine backfire occurs on another boat \textbackslash{}( 1.55\textbackslash{},\textbackslash{}mathrm\{km\} \textbackslash{}) away (figure).
+
+\#\# Question
+
+How much time elapses before the backfire is heard by the fishermen?
+
+\#\# Answer choices
+
+- A: A: 3.52s
+
+- B: B: 6.52s
+
+- C: C: 5.52s
+
+- D: D: 4.52s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a seascape with two fishing boats and a group of fish. 
+
+1. **Foreground:**
+   - A group of four fish, labeled as (a), is shown swimming in the water.
+
+2. **Middle Ground:**
+   - A fishing boat with an orange bottom and white top is positioned to the left, near a lighthouse. This boat is labeled as (b).
+
+3. **Background:**
+   - Another fishing boat, with a green bottom and white top, is situated further away on the right side of the image.
+
+4. **Annotations:**
+   - A distance measurement of "1.55 km" is indicated between the two boats, showing the distance from the larger boat (b) to the smaller boat in the background.
+
+5. **Other Details:**
+   - The sky is depicted as partly cloudy.
+
+\#\# Dataset metadata
+
+Sound; Physical Model Grounding Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 4.52s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/215.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0215.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0215:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0215.backfire_is_heard_after_answer_D}
+\uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationinseconds, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-matchesproblemandfigure, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-hasphysicalparameters, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-usesstandardairsoundspeed, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-obeysconstantspeedsoundpropagation, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-matchesanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.LengthQuantity}
+  A real-valued physical length, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.DurationQuantity}
+  A real-valued physical duration, independent of the chosen unit readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.SpeedQuantity}
+  A real-valued physical speed, carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.lengthReadout}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthquantity}
+  Read a physical length as a real number in the selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.durationReadout}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationquantity}
+  Read a physical duration as a real number in the selected time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedquantity}
+  Read a physical speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[length In Kilometers]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthinkilometers}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.lengthInKilometers}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthreadout}
+  Kilometre readout used by the 1.55 km figure annotation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Kilometers.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.lengthInMeters}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthreadout}
+  Metre readout used with the standard sound speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.durationInSeconds}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationreadout}
+  Second readout used by the displayed answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[Scene Object]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-sceneobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.SceneObject}
+  Objects whose labels or physical roles are visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Scene Object.
+\end{proof}
+\begin{definition}[Atmospheric Condition]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-atmosphericcondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.AtmosphericCondition}
+  Atmospheric condition explicitly stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Atmospheric Condition.
+\end{proof}
+\begin{definition}[Boat Backfire Setup]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.BoatBackfireSetup}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedquantity, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-sceneobject, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-atmosphericcondition}
+  Physical quantities in the boat-to-boat sound-propagation experiment. The directlyAbove relation is an abstract geometric readout from the scene; it records the otherwise calculation-irrelevant placement of boat (b) above tuna school (a) without inventing coordinates not supplied by the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boat Backfire Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-matchesproblemandfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.MatchesProblemAndFigure}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthinkilometers, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup}
+  Problem-text and primary-figure readouts. This contains the 1.55 km annotation and the identities of (a), (b), source, and receiver, but no requested elapsed-time value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedinmeterspersecond, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthinmeters, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationinseconds, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup}
+  Positivity conditions selecting a physical sound-propagation situation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Uses Standard Air Sound Speed]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-usesstandardairsoundspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.UsesStandardAirSoundSpeed}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedinmeterspersecond, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup}
+  The standard textbook model input that sound in the ambient air travels at 343 m/s. It is kept separate from both the figure data and the target time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Air Sound Speed.
+\end{proof}
+\begin{definition}[Obeys Constant Speed Sound Propagation]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-obeysconstantspeedsoundpropagation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.ObeysConstantSpeedSoundPropagation}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup}
+  Governing constant-speed propagation law, stated in every unit system through Physlib's dimensionally correct UnitExamples.SpeedEq: v = d / t
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Constant Speed Sound Propagation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Seconds]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-answerchoice-displayedseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.AnswerChoice.displayedSeconds}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-answerchoice}
+  Number of seconds printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Seconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-answerchoice}
+  Agreement with a time displayed to the nearest hundredth of a second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{lemma}[elapsed Time eq distance div speed]
+  \label{lem:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-elapsedtime-eq-distance-div-speed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0215.elapsedTime_eq_distance_div_speed}
+  \uses{def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-speedinmeterspersecond, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-lengthinmeters, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-durationinseconds, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-boatbackfiresetup, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-hasphysicalparameters, def:physics:phyx-mini-0215:phyxminiproblems-problemphyxmini0215-obeysconstantspeedsoundpropagation}
+  Constant-speed propagation determines elapsed time as distance divided by speed when both are read in SI units. This is a derived relation, not a field of the propagation-law interface
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of elapsed Time eq distance div speed.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,430 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0457.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0457.source.json
+
+\chapter{Physics problem phyx\_mini\_0457}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0457}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A \$10 \textbackslash{}, \textbackslash{}text\{m\}\$-high cylinder, with a cross-sectional area of \$0.1 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}2\$, has a massless piston at the bottom with water at \$20 \textbackslash{}, \textasciicircum{}\{\textbackslash{}circ\}\textbackslash{}text\{C\}\$ on top of it, as shown in figure. Air at \$300 \textbackslash{}, \textbackslash{}text\{K\}\$, with a volume of \$0.3 \textbackslash{}, \textbackslash{}text\{m\}\textasciicircum{}3\$, under the piston is heated so that the piston moves up, spilling the water out over the side.
+
+\#\# Question
+
+Find the total heat transfer to the air when all the water has been pushed out.
+
+\#\# Answer choices
+
+- A: A: 101.3 kJ
+
+- B: B: 433.1 kJ
+
+- C: C: 169.8 kJ
+
+- D: D: 220.7 kJ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a vertical cylindrical container with two main sections. The upper section contains a fluid, labeled as "H₂O," representing water. The pressure at the top of this section is indicated as "P₀." Below the water is a horizontal barrier or interface with a series of lines, which separates the water from the section underneath.
+
+The lower section contains "Air," as labeled. The entire setup is enclosed within solid walls, depicted in gray. To the right of the container, there's a downward arrow labeled "g," representing gravitational force. The overall image illustrates a fluid dynamics scenario, likely focusing on the behavior of fluids under gravity and pressure.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Multi-Formula Reasoning, Physical Model Grounding Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 220.7 kJ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/457.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0457.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0457:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0457.problem_phyx_mini_0457}
+\uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinjoules, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matcheswaterexpulsionscenario, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchesproblemreadouts, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchessuppliedwaterpistonfigure, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-usesengineeringreferencedata, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-hasphysicalwaterexpulsionparameters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-allwaterhasbeenpushedout, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-satisfieswaterexpulsionlaws, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-isuniquereportedheatchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.LengthQuantity}
+  A nonnegative physical length, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.VolumeQuantity}
+  A nonnegative physical volume, with dimension L³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.MassQuantity}
+  A nonnegative physical mass
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Density Quantity]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.DensityQuantity}
+  A nonnegative mass density, with dimension M L⁻³
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Density Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.AccelerationQuantity}
+  A nonnegative acceleration magnitude, with dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.lengthInMeters}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[area In Square Meters]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-areainsquaremeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.areaInSquareMeters}
+  Read a physical area in square metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of area In Square Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumequantity}
+  Read a physical volume in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.massInKilograms}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[density In Kilograms Per Cubic Meter]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityinkilogramspercubicmeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.densityInKilogramsPerCubicMeter}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityquantity}
+  Read a physical mass density in kilograms per cubic metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of density In Kilograms Per Cubic Meter.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationquantity}
+  Read an acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.pressureInPascals}
+  Read a Physlib pressure in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.energyInJoules}
+  Read a Physlib energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Kilojoules]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.energyInKilojoules}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinjoules}
+  Read a Physlib energy in kilojoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Kilojoules.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.temperatureInKelvin}
+  Physlib's Temperature stores an absolute temperature in an arbitrary zero-preserving temperature unit. The explicit storage unit makes the kelvin and Celsius readouts unambiguous
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[celsius Zero In Kelvin]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-celsiuszeroinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.celsiusZeroInKelvin}
+  The exact offset between zero degrees Celsius and zero kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of celsius Zero In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-temperatureinkelvin, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-celsiuszeroinkelvin}
+  Read an absolute temperature on the affine Celsius scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.ProcessState}
+  The initial state and the state at which all water has been expelled
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Gas Substance]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-gassubstance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.GasSubstance}
+  Material confined below the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Substance.
+\end{proof}
+\begin{definition}[Upper Liquid]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-upperliquid}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.UpperLiquid}
+  Liquid initially resting above the piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Upper Liquid.
+\end{proof}
+\begin{definition}[Vertical Direction]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-verticaldirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.VerticalDirection}
+  Orientation of the cylinder axis and of the gravity arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Direction.
+\end{proof}
+\begin{definition}[Process Regime]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processregime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.ProcessRegime}
+  The quasistatic idealization used for the moving piston
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Regime.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.FigureObject}
+  Physical objects visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.FigureLabel}
+  Literal labels visible in the supplied raster
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Water Piston Cylinder Figure]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterpistoncylinderfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.WaterPistonCylinderFigure}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-verticaldirection, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figureobject, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figurelabel}
+  Qualitative and symbolic information transcribed from the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Piston Cylinder Figure.
+\end{proof}
+\begin{definition}[Air State]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.AirState}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumequantity}
+  One equilibrium state of the closed air sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Air State.
+\end{proof}
+\begin{definition}[Water Expulsion Setup]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.WaterExpulsionSetup}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthquantity, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massquantity, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityquantity, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationquantity, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processstate, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-gassubstance, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-upperliquid, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processregime, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterpistoncylinderfigure, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airstate}
+  The complete physical setup. The two real-valued path functions are SI readouts of a physical water height and pressure as functions of the SI air volume readout; they do not replace the corresponding physical quantities
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Water Expulsion Setup.
+\end{proof}
+\begin{definition}[air Temperature In Kelvin]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airtemperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.airTemperatureInKelvin}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-temperatureinkelvin, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processstate, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  Kelvin readout of the air temperature at a process endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of air Temperature In Kelvin.
+\end{proof}
+\begin{definition}[water Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-watertemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.waterTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-temperatureindegreescelsius, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  Celsius readout of the water temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of water Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Matches Water Expulsion Scenario]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matcheswaterexpulsionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.MatchesWaterExpulsionScenario}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massinkilograms, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  Qualitative conditions stated or conventionally idealized in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Water Expulsion Scenario.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthinmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-areainsquaremeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airtemperatureinkelvin, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-watertemperatureindegreescelsius}
+  The four numerical readouts explicitly supplied by the prose. Neither the final temperature nor the requested heat transfer appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Supplied Water Piston Figure]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchessuppliedwaterpistonfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.MatchesSuppliedWaterPistonFigure}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figureobject, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-figurelabel, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  Primary-raster evidence: P₀ is applied at the open upper water surface, water is above the piston, air is below it, and g points downward. The image contains no numerical heat-transfer readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Water Piston Figure.
+\end{proof}
+\begin{definition}[Uses Engineering Reference Data]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-usesengineeringreferencedata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.UsesEngineeringReferenceData}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityinkilogramspercubicmeter, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-pressureinpascals, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  Standard engineering reference values used at the precision of the answer choices: P₀ = 101.3 kPa, liquid-water density 1000 kg/m³, g = 9.8 m/s², dry-air R = 287 J/(kg K), and cᵥ/R = 5/2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Engineering Reference Data.
+\end{proof}
+\begin{definition}[Has Physical Water Expulsion Parameters]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-hasphysicalwaterexpulsionparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.HasPhysicalWaterExpulsionParameters}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthinmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-areainsquaremeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massinkilograms, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityinkilogramspercubicmeter, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-pressureinpascals, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airtemperatureinkelvin}
+  Positivity and endpoint ordering selecting the physical expansion branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Water Expulsion Parameters.
+\end{proof}
+\begin{definition}[All Water Has Been Pushed Out]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-allwaterhasbeenpushedout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.AllWaterHasBeenPushedOut}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup}
+  The stopping event named in the question. It fixes the final water-column height, not the final air temperature or the heat supplied
+\end{definition}
+\begin{proof}
+  This is the declared model definition of All Water Has Been Pushed Out.
+\end{proof}
+\begin{definition}[Satisfies Water Expulsion Laws]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-satisfieswaterexpulsionlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.SatisfiesWaterExpulsionLaws}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-lengthinmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-areainsquaremeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-massinkilograms, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-densityinkilogramspercubicmeter, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-pressureinpascals, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinjoules, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-processstate, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-airtemperatureinkelvin}
+  Governing geometry, hydrostatics, ideal-gas behavior, boundary work, caloric behavior, and the closed-system first law. The internal-energy relation is the general calorically-perfect ideal-air identity ΔU = (cᵥ/R) Δ(PV). The first law uses the convention that both heat transferred to the air and work done by the air are positive. No field assigns a numerical value to the requested heat transfer or chooses D
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Water Expulsion Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.AnswerChoice}
+  Labels printed beside the four candidate heat-transfer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Heat Transfer In Kilojoules]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-displayedheattransferinkilojoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.displayedHeatTransferInKilojoules}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-answerchoice}
+  Heat transfer in kilojoules printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Heat Transfer In Kilojoules.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-answerchoice}
+  Dataset answer metadata, deliberately not used as a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Is Reported Heat Choice]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-isreportedheatchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.IsReportedHeatChoice}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinkilojoules, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-answerchoice, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-displayedheattransferinkilojoules}
+  Agreement after reporting to the 0.1 kJ precision of the answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Reported Heat Choice.
+\end{proof}
+\begin{definition}[Is Unique Reported Heat Choice]
+  \label{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-isuniquereportedheatchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.IsUniqueReportedHeatChoice}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-answerchoice, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-isreportedheatchoice}
+  A displayed choice is the unique value agreeing at the stated precision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Reported Heat Choice.
+\end{proof}
+\begin{lemma}[final Air Volume In Cubic Meters]
+  \label{lem:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-finalairvolumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.finalAirVolumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-volumeincubicmeters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchesproblemreadouts, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-hasphysicalwaterexpulsionparameters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-allwaterhasbeenpushedout, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-satisfieswaterexpulsionlaws}
+  With no water remaining, the air fills the 10 m × 0.1 m² cylinder, so its final volume is 1 m³. This is a geometric consequence, not an independent final-volume readout
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Air Volume In Cubic Meters.
+\end{proof}
+\begin{lemma}[heat Transferred To Air In Joules exact]
+  \label{lem:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-heattransferredtoairinjoules-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0457.heatTransferredToAirInJoules_exact}
+  \uses{def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-energyinjoules, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-waterexpulsionsetup, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-matchesproblemreadouts, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-usesengineeringreferencedata, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-hasphysicalwaterexpulsionparameters, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-allwaterhasbeenpushedout, def:physics:phyx-mini-0457:phyxminiproblems-problemphyxmini0457-satisfieswaterexpulsionlaws}
+  The hydrostatic pressure path, ideal-air caloric relation, and first law give 220745 J = 220.745 kJ before answer-list reporting
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of heat Transferred To Air In Joules exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

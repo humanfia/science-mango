@@ -1,0 +1,222 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0510.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0510.source.json
+
+\chapter{Physics problem phyx\_mini\_0510}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0510}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Let the earth and spaceship reference frames be \textbackslash{}( S \textbackslash{}) and \textbackslash{}( S' \textbackslash{}), respectively as shown in figure; their relative velocity is \textbackslash{}( u = 0.900c \textbackslash{}).
+
+\#\# Question
+
+We are given the probe velocity \textbackslash{}( v'\_x = 0.700c \textbackslash{}) with respect to \textbackslash{}( S' \textbackslash{}), and the target variable is the velocity \textbackslash{}( v\_x \textbackslash{}) of the probe relative to \textbackslash{}( S \textbackslash{}).
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 0.937c \textbackslash{})
+
+- B: B: \textbackslash{}( 0.951c \textbackslash{})
+
+- C: C: \textbackslash{}( 0.966c \textbackslash{})
+
+- D: D: \textbackslash{}( 0.982c \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram depicting a scenario involving relativistic velocities. 
+
+- **Frames of Reference:** 
+  - Two coordinate systems labeled as \textbackslash{}( S \textbackslash{}) and \textbackslash{}( S' \textbackslash{}) are shown. 
+  - \textbackslash{}( S \textbackslash{}) is the frame associated with the Earth.
+  - \textbackslash{}( S' \textbackslash{}) is the frame that seems to be moving alongside the spaceship.
+
+- **Objects:**
+  - A "Scoutship" is depicted in yellow, moving from the Earth towards the right. It's marked with a velocity \textbackslash{}( v\_x = 0.950c \textbackslash{}).
+  - A "Spaceship" is shown in blue, aligned with the \textbackslash{}( x' \textbackslash{})-axis of frame \textbackslash{}( S' \textbackslash{}), moving with velocity \textbackslash{}( u = 0.900c \textbackslash{}).
+  - A "Robot space probe" is depicted in red, moving to the right with respect to the spaceship, with a velocity \textbackslash{}( v'\_x = 0.700c \textbackslash{}).
+
+- **Arrows and Velocities:**
+  - Green arrows illustrate the direction of movement for each object.
+  - Velocities are expressed as fractions of the speed of light \textbackslash{}( c \textbackslash{}).
+
+- **Axes and Orientation:**
+  - The axes (\textbackslash{}( x, y \textbackslash{})) for frame \textbackslash{}( S \textbackslash{}) and (\textbackslash{}( x', y' \textbackslash{})) for frame \textbackslash{}( S' \textbackslash{}) indicate the orientation and are used to measure positions and velocities.
+
+The diagram illustrates relationships between different inertial frames and objects moving at significant fractions of the speed of light, a typical setup in relativistic physics problems.
+
+\#\# Dataset metadata
+
+Relativity; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: \textbackslash{}( 0.982c \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/510.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0510.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0510:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0510.probeVelocityInEarthFrame_eq_choiceD}
+\uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityinlightspeedunits, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-answerchoiceinlightspeedunits, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesfiguregeometry, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesproblemreadouts, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesauxiliaryscoutshipreadout, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-obeyscollinearrelativisticvelocityaddition, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-roundstonearestthousandth}
+Relativistic addition of \(0.900c\) and \(0.700c\) gives the probe's
+Earth-frame speed \(160c/163\), which rounds to \(0.982c\), answer D.
+\end{theorem}
+\begin{proof}
+Substitute the two normalized velocities into the collinear addition law:
+\[
+ \beta=\frac{9/10+7/10}{1+(9/10)(7/10)}
+      =\frac{16/10}{163/100}=\frac{160}{163}.
+\]
+The denominator is positive.  Direct rational comparison gives
+\(0.9815\le160/163<0.9825\), the declared nearest-thousandth interval about
+answer D.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Velocity Quantity]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.VelocityQuantity}
+  A signed physical velocity carrying length-per-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Velocity Quantity.
+\end{proof}
+\begin{definition}[velocity Readout]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.velocityReadout}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityquantity}
+  Read a signed physical velocity in selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity Readout.
+\end{proof}
+\begin{definition}[vacuum Speed Of Light Readout]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-vacuumspeedoflightreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.vacuumSpeedOfLightReadout}
+  Physlib's exact vacuum speed of light in the selected units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vacuum Speed Of Light Readout.
+\end{proof}
+\begin{definition}[velocity In Light Speed Units]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.velocityInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityquantity, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityreadout, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-vacuumspeedoflightreadout}
+  The dimensionless signed ratio v / c, evaluated in SI units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of velocity In Light Speed Units.
+\end{proof}
+\begin{definition}[Reference Frame Label]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-referenceframelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.ReferenceFrameLabel}
+  Reference-frame labels printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reference Frame Label.
+\end{proof}
+\begin{definition}[Axis Label]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-axislabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.AxisLabel}
+  Coordinate-axis labels printed in the two frames
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axis Label.
+\end{proof}
+\begin{definition}[Figure Object Label]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-figureobjectlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.FigureObjectLabel}
+  Physical objects distinguished by the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object Label.
+\end{proof}
+\begin{definition}[Axial Direction]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-axialdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.AxialDirection}
+  The common rightward direction of all three velocity arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axial Direction.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.AnswerChoice}
+  Multiple-choice labels from the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice In Light Speed Units]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-answerchoiceinlightspeedunits}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.answerChoiceInLightSpeedUnits}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-answerchoice}
+  Displayed candidate values, as dimensionless multiples of c
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice In Light Speed Units.
+\end{proof}
+\begin{definition}[Relativistic Probe Setup]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.RelativisticProbeSetup}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityquantity, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-referenceframelabel, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-axislabel, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-figureobjectlabel, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-axialdirection}
+  All named labels and physical velocities in the scenario. In particular, probeVelocityInEarthFrame is an unknown quantity: no field assigns it a numerical value or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relativistic Probe Setup.
+\end{proof}
+\begin{definition}[Matches Figure Geometry]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesfiguregeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.MatchesFigureGeometry}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup}
+  Qualitative labels, axes, and rightward collinearity read from the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Figure Geometry.
+\end{proof}
+\begin{definition}[Matches Problem Readouts]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesproblemreadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.MatchesProblemReadouts}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityinlightspeedunits, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup}
+  The two numerical givens used by the question: the spaceship moves at 0.900 c in S, and the probe moves at 0.700 c in S'
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Readouts.
+\end{proof}
+\begin{definition}[Matches Auxiliary Scoutship Readout]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-matchesauxiliaryscoutshipreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.MatchesAuxiliaryScoutshipReadout}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityinlightspeedunits, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup}
+  The separate yellow scoutship is labeled v\_x = 0.950 c in the primary figure. It is retained as an auxiliary figure readout and is not used in the probe's velocity-transformation law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Auxiliary Scoutship Readout.
+\end{proof}
+\begin{definition}[Obeys Collinear Relativistic Velocity Addition]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-obeyscollinearrelativisticvelocityaddition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.ObeysCollinearRelativisticVelocityAddition}
+  \uses{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-velocityinlightspeedunits, def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-relativisticprobesetup}
+  The governing one-dimensional special-relativistic velocity-addition law, written in normalized variables beta = v / c: beta = (beta\_u + beta') / (1 + beta\_u * beta'). This relates the still-unknown Earth-frame probe velocity to the two given velocities; it does not assert its numerical value or select an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Collinear Relativistic Velocity Addition.
+\end{proof}
+\begin{definition}[Rounds To Nearest Thousandth]
+  \label{def:physics:phyx-mini-0510:phyxminiproblems-problemphyxmini0510-roundstonearestthousandth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0510.RoundsToNearestThousandth}
+  value rounds to displayed to the nearest thousandth, with a half-open interval fixing the convention at exact ties
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Thousandth.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

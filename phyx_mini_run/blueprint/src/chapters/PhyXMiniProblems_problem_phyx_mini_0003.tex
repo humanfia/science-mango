@@ -1,0 +1,142 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0003.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0003.source.json
+
+\chapter{Physics problem phyx\_mini\_0003}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0003}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+When the light ray illustrated in figure passes through the glass block of index of refraction \textbackslash{}( n = 1.50 \textbackslash{}), it is shifted laterally by the distance \textbackslash{}( d \textbackslash{}).
+
+\#\# Question
+
+Find the time interval required for the light to pass through the glass block.
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 1.33\textbackslash{}times 10\textasciicircum{}\{-10\} \textbackslash{}text\{ s\} \textbackslash{})
+
+- B: B: \textbackslash{}( 2.06\textbackslash{}times 10\textasciicircum{}\{-10\} \textbackslash{}text\{ s\} \textbackslash{})
+
+- C: C: \textbackslash{}( 1.06\textbackslash{}times 10\textasciicircum{}\{-10\} \textbackslash{}text\{ s\} \textbackslash{})
+
+- D: D: \textbackslash{}( 1.92\textbackslash{}times 10\textasciicircum{}\{-10\} \textbackslash{}text\{ s\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram representing the refraction of a light ray through a rectangular transparent medium. Here are the key elements:
+
+1. **Rectangular Medium**: 
+   - The medium is depicted with a light blue rectangular shape with a height labeled as "2.00 cm."
+
+2. **Incident Ray**: 
+   - An arrow pointing towards the medium at an angle, representing the light entering the medium.
+   - The angle of incidence is labeled as "30.0°" between the incident ray and the normal (dashed line).
+
+3. **Refracted Ray**:
+   - The ray bends as it enters and exits the medium, showing the change in direction due to refraction.
+
+4. **Emergent Ray**:
+   - The ray exits the medium continuing in a new direction.
+
+5. **Dashed Lines**:
+   - Two dashed lines are drawn: one normal to the surface at the point of entry and exit, showing the angles of incidence and refraction.
+   - The second dashed line, parallel to the emergent ray, is labeled with "d", representing lateral displacement.
+
+This diagram illustrates the basic principles of refraction, including angles, medium thickness, and displacement.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Spatial Relation Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 1.06\textbackslash{}times 10\textasciicircum{}\{-10\} \textbackslash{}text\{ s\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0003.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0003:target}
+\lean{PhyXMini0003.transitTime_is_answer_C}
+\uses{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabexperiment, def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabgoverninglaws, def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabfigurereadouts}
+For the \(2.00\,\mathrm{cm}\) parallel glass slab of index \(3/2\), with a
+\(30^\circ\) incident ray in air, the governing refraction, path-length,
+speed, and transit laws determine a travel time within
+\(0.005\times10^{-10}\,\mathrm s\) of \(1.06\times10^{-10}\,\mathrm s\).
+\end{theorem}
+\begin{proof}
+Snell's law gives
+\(\sin r=(2/3)\sin 30^\circ=1/3\) on the acute branch.  The ray path through
+normal thickness \(h=0.02\,\mathrm m\) therefore has length \(h/\cos r\).
+Its speed is \(c/(3/2)\), so the uniform-speed law yields
+\[
+ t=\frac{(3/2)h}{c\cos r}.
+\]
+Use \(\cos r=\sqrt{1-\sin^2r}=2\sqrt2/3\) and the exact library value of
+\(c\), then clear the positive denominators and square only nonnegative
+quantities to verify the stated rational tolerance about
+\(1.06\times10^{-10}\,\mathrm s\).
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-dimlength}
+  \lean{PhyXMini0003.DimLength}
+  A physical length, represented independently of any particular choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[Dim Time]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-dimtime}
+  \lean{PhyXMini0003.DimTime}
+  A physical time interval, represented independently of any particular choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Time.
+\end{proof}
+\begin{definition}[Dim Speed Real]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-dimspeedreal}
+  \lean{PhyXMini0003.DimSpeedReal}
+  A real-valued physical speed, represented independently of any particular choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Speed Real.
+\end{proof}
+\begin{definition}[Parallel Glass Slab Experiment]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabexperiment}
+  \lean{PhyXMini0003.ParallelGlassSlabExperiment}
+  \uses{def:physics:phyx-mini-0003:phyxmini0003-dimlength, def:physics:phyx-mini-0003:phyxmini0003-dimtime, def:physics:phyx-mini-0003:phyxmini0003-dimspeedreal}
+  The quantities in the parallel-sided glass-slab experiment. The field lateralDisplacement is the figure's distance labelled d; it is retained even though no numerical value for it is supplied and it is not needed in the final transit-time readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Glass Slab Experiment.
+\end{proof}
+\begin{definition}[Parallel Glass Slab Governing Laws]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabgoverninglaws}
+  \lean{PhyXMini0003.ParallelGlassSlabGoverningLaws}
+  \uses{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabexperiment}
+  The governing geometrical-optics laws used for this experiment. They express Snell's law, the refractive-index definition of the light speed, the projection of the in-glass path onto the slab normal, uniform-speed transit, the lateral shift geometry, and parallel emergence from the slab's parallel faces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Glass Slab Governing Laws.
+\end{proof}
+\begin{definition}[Parallel Glass Slab Figure Readouts]
+  \label{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabfigurereadouts}
+  \lean{PhyXMini0003.ParallelGlassSlabFigureReadouts}
+  \uses{def:physics:phyx-mini-0003:phyxmini0003-parallelglassslabexperiment}
+  Readouts taken from the problem statement and figure: air outside the slab, glass index 1.50, normal slab thickness 2.00 cm, and incidence angle 30.0° from the normal. The length readout is stated in SI units, hence 2.00 cm = 2/100 m
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Parallel Glass Slab Figure Readouts.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

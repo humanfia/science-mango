@@ -1,0 +1,321 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0863.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0863.source.json
+
+\chapter{Physics problem phyx\_mini\_0863}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0863}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+The two halves of the rod in figure are uniformly charged to \textbackslash{}( \textbackslash{}pm Q \textbackslash{}).
+
+\#\# Question
+
+What is the electric potential at the point indicated by the dot?
+
+\#\# Answer choices
+
+- A: A: 1.2V
+
+- B: B: 1.4V
+
+- C: C: 2V
+
+- D: D: 0V
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image features a horizontal rectangular rod divided into two sections. The left section has red plus signs indicating positive charge, and the right section has a teal dashed line indicating neutrality or separation. Above the rectangle, there's a black dot representing a point charge or a point of interest. A vertical arrow labeled "d" points from the rectangle to the dot, suggesting a distance. A horizontal double-headed arrow labeled "L" spans the rectangle's length, indicating its length. The scene is likely a physics illustration related to electric fields or potential.
+
+\#\# Dataset metadata
+
+Electrostatics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0V
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/863.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0863.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0863:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0863.electricPotentialAtDotOfOppositelyChargedRod}
+\uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialinvolts, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-matchesprimarysplitrodfigure, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-hasphysicalsplitrodparameters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-useszeropotentialatspatialinfinity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-satisfiesuniformoppositehalfchargemodel, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-satisfiescoulombpotentialsuperpositionlaw, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-isuniqueexactpotentialanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[linear Charge Density Dimension]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensitydimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.linearChargeDensityDimension}
+  The dimension C L⁻¹ of linear electric-charge density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Charge Density Dimension.
+\end{proof}
+\begin{definition}[electric Potential Dimension]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.electricPotentialDimension}
+  The dimension M L² T⁻² C⁻¹ of electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential Dimension.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.LengthQuantity}
+  A nonnegative, unit-independent physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Charge Magnitude Quantity]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.ChargeMagnitudeQuantity}
+  A nonnegative, unit-independent magnitude of electric charge
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Charge Magnitude Quantity.
+\end{proof}
+\begin{definition}[Linear Charge Density Quantity]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.LinearChargeDensityQuantity}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensitydimension}
+  A signed, unit-independent physical linear charge density
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Linear Charge Density Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.ElectricPotentialQuantity}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialdimension}
+  A signed, unit-independent physical electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.lengthInMeters}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthquantity}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[charge Magnitude In Coulombs]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudeincoulombs}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.chargeMagnitudeInCoulombs}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudequantity}
+  Read a physical charge magnitude in coherent-SI coulombs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of charge Magnitude In Coulombs.
+\end{proof}
+\begin{definition}[linear Charge Density In Coulombs Per Meter]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensityincoulombspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.linearChargeDensityInCoulombsPerMeter}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensityquantity}
+  Read a signed line-charge density in coherent-SI coulombs per metre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of linear Charge Density In Coulombs Per Meter.
+\end{proof}
+\begin{definition}[electric Potential In Volts]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.electricPotentialInVolts}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialquantity}
+  Read a signed electric potential in coherent-SI volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of electric Potential In Volts.
+\end{proof}
+\begin{definition}[Uniform Oppositely Charged Rod]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-uniformoppositelychargedrod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.UniformOppositelyChargedRod}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthquantity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudequantity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensityquantity}
+  The split rod and its independent charge observables. The argument of linearChargeDensityAt is an axial coordinate read in SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uniform Oppositely Charged Rod.
+\end{proof}
+\begin{definition}[Figure Point]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-figurepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.FigurePoint}
+  Distinguished points shown in, or determined by, the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Point.
+\end{proof}
+\begin{definition}[Figure Feature]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-figurefeature}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.FigureFeature}
+  Qualitative features visible in the supplied bitmap 863.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Feature.
+\end{proof}
+\begin{definition}[Split Charged Rod Figure]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitchargedrodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.SplitChargedRodFigure}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthquantity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-figurepoint, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-figurefeature}
+  The figure is represented in an SI-metre coordinate chart. Its physical labels L and d remain dimensionful quantities rather than scalar aliases
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Split Charged Rod Figure.
+\end{proof}
+\begin{definition}[Electric Potential Reference]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialreference}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.ElectricPotentialReference}
+  The reference convention for the scalar electric potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Reference.
+\end{proof}
+\begin{definition}[Split Rod Potential Setup]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.SplitRodPotentialSetup}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthquantity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialquantity, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-uniformoppositelychargedrod, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitchargedrodfigure, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialreference}
+  The independent physical setup. In particular, the potential at the dot is stored as an observable; it is not defined to be any displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Split Rod Potential Setup.
+\end{proof}
+\begin{definition}[Matches Primary Split Rod Figure]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-matchesprimarysplitrodfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.MatchesPrimarySplitRodFigure}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  Transcription of the primary image: the division is the coordinate origin, the rod endpoints are at ±L/2, and the dot is at (0,d). This predicate contains no potential value or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Split Rod Figure.
+\end{proof}
+\begin{definition}[Has Physical Split Rod Parameters]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-hasphysicalsplitrodparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.HasPhysicalSplitRodParameters}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudeincoulombs, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  Positivity assumptions selecting the nondegenerate depicted setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Split Rod Parameters.
+\end{proof}
+\begin{definition}[Uses Zero Potential At Spatial Infinity]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-useszeropotentialatspatialinfinity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.UsesZeroPotentialAtSpatialInfinity}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  The conventional electrostatic choice of zero potential at infinity
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Zero Potential At Spatial Infinity.
+\end{proof}
+\begin{definition}[rod Line Charge Density In Coulombs Per Meter]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-rodlinechargedensityincoulombspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.rodLineChargeDensityInCoulombsPerMeter}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-linearchargedensityincoulombspermeter, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  SI line-density readout at the axial coordinate xMeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of rod Line Charge Density In Coulombs Per Meter.
+\end{proof}
+\begin{definition}[Satisfies Uniform Opposite Half Charge Model]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-satisfiesuniformoppositehalfchargemodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.SatisfiesUniformOppositeHalfChargeModel}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-chargemagnitudeincoulombs, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-rodlinechargedensityincoulombspermeter}
+  Each half has length L/2 and total charge of magnitude Q, so its uniform density has magnitude 2Q/L. The endpoint convention at the single division point is immaterial to the line integrals. The two integral fields explicitly record that the half-rod totals are +Q and -Q
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Opposite Half Charge Model.
+\end{proof}
+\begin{definition}[source To Dot Distance In Meters]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-sourcetodotdistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.sourceToDotDistanceInMeters}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup}
+  Euclidean source-to-dot distance for a source element at axial coordinate xMeters, using the figure coordinates (x,0) and (0,d)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of source To Dot Distance In Meters.
+\end{proof}
+\begin{definition}[potential Contribution Density In Volts Per Meter]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-potentialcontributiondensityinvoltspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.potentialContributionDensityInVoltsPerMeter}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-rodlinechargedensityincoulombspermeter, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-sourcetodotdistanceinmeters}
+  The coherent-SI scalar-potential contribution density k λ/r, in volts per metre, for a rod element at xMeters. Physlib supplies Coulomb's constant as Electromagnetism.EMSystem.coulombConstant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential Contribution Density In Volts Per Meter.
+\end{proof}
+\begin{definition}[Satisfies Coulomb Potential Superposition Law]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-satisfiescoulombpotentialsuperpositionlaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.SatisfiesCoulombPotentialSuperpositionLaw}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialinvolts, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-potentialcontributiondensityinvoltspermeter}
+  Coulomb superposition for the scalar potential, with the rod supported on [-L/2,L/2]. This is a general source integral and does not state its value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Coulomb Potential Superposition Law.
+\end{proof}
+\begin{lemma}[source To Dot Distance reflection]
+  \label{lem:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-sourcetodotdistance-reflection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.sourceToDotDistance_reflection}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-sourcetodotdistanceinmeters}
+  Reflection across the division leaves the source-to-dot distance fixed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of source To Dot Distance reflection.
+\end{proof}
+\begin{lemma}[paired Potential Contributions cancel]
+  \label{lem:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-pairedpotentialcontributions-cancel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.pairedPotentialContributions_cancel}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-lengthinmeters, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-satisfiesuniformoppositehalfchargemodel, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-potentialcontributiondensityinvoltspermeter}
+  Opposite source elements have cancelling potential contributions
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of paired Potential Contributions cancel.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.AnswerChoice}
+  Labels of the four voltage answers printed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-answerchoice-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.AnswerChoice.potentialInVolts}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-answerchoice}
+  Electric potential printed beside each choice, in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[Is Unique Exact Potential Answer]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-isuniqueexactpotentialanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.IsUniqueExactPotentialAnswer}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-electricpotentialinvolts, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-splitrodpotentialsetup, def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-answerchoice}
+  A choice is the unique printed value equal to the physical potential
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Exact Potential Answer.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0863.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0863:phyxminiproblems-problemphyxmini0863-answerchoice}
+  The source dataset's recorded answer, retained only as unused metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,437 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0773.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0773.source.json
+
+\chapter{Physics problem phyx\_mini\_0773}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0773}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Engineers are designing a sys-tem by which a falling mass \textbackslash{}(m\textbackslash{}) imparts kinetic energy to a rotating uniform drum to which it is attached by thin, very light wire wrapped around the rim of the drum as shown in figure. There is no appreciable friction in the axle of the drum, and everything starts from rest. This system is being tested on earth, but it is to be used on Mars, where the ac-celeration due to gravity is \textbackslash{}(3.71\textbackslash{}text\{ m/s\}\textasciicircum{}2\textbackslash{}). In the earth tests, when \textbackslash{}(m\textbackslash{}) is set to \textbackslash{}(15.0\textbackslash{}text\{ kg\}\textbackslash{}) and allowed to fall through \textbackslash{}(5.00\textbackslash{}text\{ m\}\textbackslash{}), it gives \textbackslash{}(250.0\textbackslash{}text\{ J\}\textbackslash{}) of kinetic energy to the drum.
+
+\#\# Question
+
+How fast would the \textbackslash{}(15.0\textbackslash{}text\{ kg\}\textbackslash{}) mass be moving on Mars just as the drum gained \textbackslash{}(250.0\textbackslash{}text\{ J\}\textbackslash{}) of kinetic energy?
+
+\#\# Answer choices
+
+- A: A: 7.61m/s
+
+- B: B: 8.04m/s
+
+- C: C: 12.34m/s
+
+- D: D: 16.12m/s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image illustrates a mechanical system consisting of a vertical pulley setup. It features:
+
+1. **Drum**: A labeled circular component at the top, colored in orange with a darker orange border and a black dot at the center, representing the axis of rotation.
+
+2. **Mass**: A smaller, orange-brown shaded circular object at the bottom labeled \textbackslash{}( m \textbackslash{}), connected to the drum.
+
+3. **String/Cable**: A thin vertical line connects the drum to the mass, representing a string or cable.
+
+This setup appears to depict a basic weight and pulley system used for mechanical demonstrations or problem-solving in physics.
+
+\#\# Dataset metadata
+
+Rotational Motion; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 8.04m/s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/773.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0773.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0773:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0773.marsMassSpeedWhenDrumHas250J_matches_recordedAnswerB}
+\uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesprimaryfigure, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesproblemstatement, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-usesstandardearthgravity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-hasphysicalparameters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfiesuniformdruminertialaw, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-recordedanswerchoice, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-marsmassspeedmatcheschoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[acceleration Dimension]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.accelerationDimension}
+  Linear acceleration has physical dimension L T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Dimension.
+\end{proof}
+\begin{definition}[angular Speed Dimension]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeeddimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.angularSpeedDimension}
+  Angular speed has inverse-time dimension because radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Dimension.
+\end{proof}
+\begin{definition}[moment Of Inertia Dimension]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiadimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.momentOfInertiaDimension}
+  Axial moment of inertia has physical dimension M L\textasciicircum{}2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia Dimension.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MassQuantity}
+  A nonnegative physical mass, independent of a choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.LengthQuantity}
+  A nonnegative physical length or falling distance
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.SpeedQuantity}
+  A nonnegative linear-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.AccelerationQuantity}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationdimension}
+  A nonnegative gravitational-acceleration magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.AngularSpeedQuantity}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeeddimension}
+  A nonnegative angular-speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MomentOfInertiaQuantity}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiadimension}
+  A nonnegative scalar moment of inertia about the drum axle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.EnergyQuantity}
+  Physical energy with dimension M L\textasciicircum{}2 T\textasciicircum{}-2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.massInKilograms}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massquantity}
+  Read a physical mass in kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.lengthInMeters}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedquantity}
+  Read a linear speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationquantity}
+  Read a gravitational acceleration in metres per second squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedquantity}
+  Read an angular speed in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiaquantity}
+  Read an axial moment of inertia in kilogram metres squared
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.energyInJoules}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyquantity}
+  Read a physical energy in joules, calibrated by Physlib's joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[Location]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-location}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.Location}
+  The two planetary environments mentioned in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Location.
+\end{proof}
+\begin{definition}[Motion Stage]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-motionstage}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MotionStage}
+  The release state and the later state at which data are read
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Stage.
+\end{proof}
+\begin{definition}[Drum Mass Model]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-drummassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.DrumMassModel}
+  The drum is explicitly described as uniform
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Drum Mass Model.
+\end{proof}
+\begin{definition}[Wire Mass Model]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-wiremassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.WireMassModel}
+  The wire is described as thin and very light
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Mass Model.
+\end{proof}
+\begin{definition}[Axle Friction Model]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-axlefrictionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.AxleFrictionModel}
+  The axle friction model used by the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Friction Model.
+\end{proof}
+\begin{definition}[Wire Drum Contact]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-wiredrumcontact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.WireDrumContact}
+  The wire remains wrapped on the rim and does not slide there
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Wire Drum Contact.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.FigureLabel}
+  Literal labels visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.FigureObject}
+  Physical and graphical objects visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Supplied Drum Figure]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-supplieddrumfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.SuppliedDrumFigure}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figurelabel, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figureobject}
+  Qualitative layout transcribed from image 773.png
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Drum Figure.
+\end{proof}
+\begin{definition}[Falling Mass Drum System]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.FallingMassDrumSystem}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiaquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-drummassmodel, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-wiremassmodel, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-axlefrictionmodel, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-wiredrumcontact, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-supplieddrumfigure}
+  The physical apparatus. The drum mass and radius are not numerically given, but they remain explicit quantities because they determine its inertia. No field is defined from the requested Mars speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Falling Mass Drum System.
+\end{proof}
+\begin{definition}[Falling Mass Drum Trial]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.FallingMassDrumTrial}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyquantity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-location, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-motionstage}
+  A release-to-observation trial in one gravitational environment. Kinetic energies are independent response fields constrained by the governing laws; in particular, the observed speed is not assigned a displayed answer value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Falling Mass Drum Trial.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figurelabel, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-figureobject, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem}
+  Every literal label and qualitative relation visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massinkilograms, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthinmeters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedinradianspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyinjoules, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial}
+  Problem-text data for the common apparatus and the two trials. The Earth gravitational value is kept separate because it is standard environmental data rather than a number printed in the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Uses Standard Earth Gravity]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-usesstandardearthgravity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.UsesStandardEarthGravity}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial}
+  Standard near-Earth acceleration used to evaluate the calibration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Earth Gravity.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massinkilograms, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthinmeters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial}
+  Positivity and nondegeneracy of the physical apparatus and both trials
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Uniform Drum Inertia Law]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfiesuniformdruminertialaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.SatisfiesUniformDrumInertiaLaw}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massinkilograms, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthinmeters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem}
+  Axial inertia of a uniform drum, modeled as a uniform solid cylinder
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Uniform Drum Inertia Law.
+\end{proof}
+\begin{definition}[Satisfies Lossless Drum Trial Laws]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.SatisfiesLosslessDrumTrialLaws}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-massinkilograms, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-lengthinmeters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-angularspeedinradianspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyinjoules, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-motionstage, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial}
+  Lossless one-axis mechanics for a trial: K\_mass = m v\textasciicircum{}2 / 2; K\_drum = I omega\textasciicircum{}2 / 2; the unwinding wire imposes v = R omega at each stage; and the gravitational-potential loss plus initial kinetic energy equals final kinetic energy. These laws constrain arbitrary response fields and contain no numerical Mars speed or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Lossless Drum Trial Laws.
+\end{proof}
+\begin{lemma}[earth Observed Mass Kinetic Energy eq 485]
+  \label{lem:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-earthobservedmasskineticenergy-eq-485}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.earthObservedMassKineticEnergy_eq_485}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyinjoules, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesproblemstatement, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-usesstandardearthgravity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws}
+  The Earth energy balance leaves 485 J in the falling mass
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Observed Mass Kinetic Energy eq 485.
+\end{proof}
+\begin{lemma}[earth Observed Mass Speed squared eq 194 over 3]
+  \label{lem:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-earthobservedmassspeed-squared-eq-194-over-3}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.earthObservedMassSpeed_squared_eq_194_over_3}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesproblemstatement, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-usesstandardearthgravity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws}
+  The Earth calibration fixes the observed mass speed squared
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of earth Observed Mass Speed squared eq 194 over 3.
+\end{proof}
+\begin{lemma}[equal Drum Energy gives equal Mass Speed Squared]
+  \label{lem:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-equaldrumenergy-gives-equalmassspeedsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.equalDrumEnergy_gives_equalMassSpeedSquared}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-energyinjoules, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-hasphysicalparameters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws}
+  For the same drum and rim radius, equal drum rotational energies together with no slip give equal squared speeds of the attached mass. This is the reason the Mars gravitational acceleration affects the necessary fall distance, but not the speed at the specified drum energy
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of equal Drum Energy gives equal Mass Speed Squared.
+\end{proof}
+\begin{lemma}[mars Observed Mass Speed eq sqrt 194 over 3]
+  \label{lem:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-marsobservedmassspeed-eq-sqrt-194-over-3}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.marsObservedMassSpeed_eq_sqrt_194_over_3}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumsystem, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-matchesproblemstatement, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-usesstandardearthgravity, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-hasphysicalparameters, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfiesuniformdruminertialaw, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-satisfieslosslessdrumtriallaws}
+  Exact positive-root form of the requested Mars mass speed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of mars Observed Mass Speed eq sqrt 194 over 3.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.AnswerChoice}
+  Labels of the four mass-speed choices in the source problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[meters Per Second]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-answerchoice-meterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.AnswerChoice.metersPerSecond}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-answerchoice}
+  Metres-per-second value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of meters Per Second.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Nearest Hundredth]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-roundstonearesthundredth}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.RoundsToNearestHundredth}
+  actual rounds to displayed to the nearest hundredth. The half-open interval makes the tie convention explicit and avoids asserting that a rounded decimal is an exact solution of the mechanics equations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Hundredth.
+\end{proof}
+\begin{definition}[Mars Mass Speed Matches Choice]
+  \label{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-marsmassspeedmatcheschoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0773.MarsMassSpeedMatchesChoice}
+  \uses{def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-speedinmeterspersecond, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-fallingmassdrumtrial, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-answerchoice, def:physics:phyx-mini-0773:phyxminiproblems-problemphyxmini0773-roundstonearesthundredth}
+  The Mars speed readout selects a displayed answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mars Mass Speed Matches Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

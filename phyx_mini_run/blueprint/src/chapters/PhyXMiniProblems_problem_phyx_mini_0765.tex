@@ -1,0 +1,449 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0765.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0765.source.json
+
+\chapter{Physics problem phyx\_mini\_0765}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0765}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A 0.150 kg frame, when suspended from a coil spring, stretches the spring 0.0400 m. A 0.200 kg lump of putty is dropped from rest onto the frame from a height of 30.0 cm as shown in figure.
+
+\#\# Question
+
+Find the maximum distance the frame moves downward from its initial equilibrium position.
+
+\#\# Answer choices
+
+- A: A: 0.371m
+
+- B: B: 0.199m
+
+- C: C: 0.085m
+
+- D: D: 0.264m
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a diagram featuring a spring hanging vertically. Attached to the bottom of the spring is a conical weight or object, underneath which rests a platform. Within the conical object, a red shape resembling a car is visible. The diagram includes a double-headed arrow indicating the distance or height marked as "30.0 cm" between the tip of the conical object and the platform. The image suggests a physics-related setup, likely dealing with concepts such as tension, mechanics, or weight.
+
+\#\# Dataset metadata
+
+Dynamics; Multi-Formula Reasoning, Predictive Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: 0.199m
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/765.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0765.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0765:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0765.problem_phyx_mini_0765}
+\uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-hasphysicalinputparameters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesstaticspringequilibrium, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesfreefalllaw, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesimpulsivestickingcollision, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesmaximumdisplacementgeometry, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiespostimpactmechanicalenergy, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesanswerchoice, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-isuniqueclosestdisplayedchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SpeedQuantity}
+  A nonnegative speed magnitude. All modeled motion is along the chosen downward-positive vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.AccelerationMagnitudeQuantity}
+  A nonnegative acceleration magnitude, with dimension length/time²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Spring Stiffness Quantity]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springstiffnessquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SpringStiffnessQuantity}
+  Spring stiffness, with dimension mass/time² (N/m in SI)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Stiffness Quantity.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.massReadout}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massquantity}
+  Read a mass in a selected mass unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.lengthReadout}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthquantity}
+  Read a length in a selected length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.speedReadout}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedquantity}
+  Read a speed in coherent selected length and time units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.accelerationReadout}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationmagnitudequantity}
+  Read an acceleration magnitude in coherent length/time² units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[stiffness Readout]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.stiffnessReadout}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springstiffnessquantity}
+  Read spring stiffness in coherent mass/time² units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness Readout.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.massInKilograms}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massreadout}
+  Kilogram readout used for the source masses
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.lengthInMeters}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout}
+  Metre readout used for all vertical distances in the mechanics laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout}
+  Centimetre readout used for the figure's printed drop-height label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedreadout}
+  Metres-per-second readout of a vertical speed magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[acceleration In Meters Per Second Squared]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationinmeterspersecondsquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.accelerationInMetersPerSecondSquared}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationmagnitudequantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationreadout}
+  Metres-per-second-squared readout of the gravitational acceleration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration In Meters Per Second Squared.
+\end{proof}
+\begin{definition}[stiffness In Newtons Per Meter]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessinnewtonspermeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.stiffnessInNewtonsPerMeter}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springstiffnessquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessreadout}
+  Newton-per-metre readout of the spring stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of stiffness In Newtons Per Meter.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.FigureObject}
+  Objects visible in the supplied vertical spring diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.FigureLabel}
+  Text printed in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Level]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figurelevel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.FigureLevel}
+  Distinguished levels at the ends of the displayed height arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Level.
+\end{proof}
+\begin{definition}[Orientation]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-orientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.Orientation}
+  Orientation vocabulary for the spring axis and receiving platform
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Orientation.
+\end{proof}
+\begin{definition}[Spring Model]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SpringModel}
+  Constitutive idealization of the coil spring
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spring Model.
+\end{proof}
+\begin{definition}[Collision Outcome]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-collisionoutcome}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.CollisionOutcome}
+  Outcome of the putty--frame impact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Outcome.
+\end{proof}
+\begin{definition}[Collision Time Scale]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-collisiontimescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.CollisionTimeScale}
+  Comparison between the collision time and the later spring-motion time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Time Scale.
+\end{proof}
+\begin{definition}[Post Impact Motion Model]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-postimpactmotionmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.PostImpactMotionModel}
+  Dissipation model used after the inelastic impact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Post Impact Motion Model.
+\end{proof}
+\begin{definition}[Supplied Vertical Spring Figure]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-suppliedverticalspringfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SuppliedVerticalSpringFigure}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figureobject, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figurelabel, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-figurelevel, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-orientation}
+  Qualitative observations transcribed from the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Supplied Vertical Spring Figure.
+\end{proof}
+\begin{definition}[Vertical Spring Putty Setup]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.VerticalSpringPuttySetup}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationmagnitudequantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springstiffnessquantity, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springmodel, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-collisionoutcome, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-collisiontimescale, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-postimpactmotionmodel, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-suppliedverticalspringfigure}
+  The physical parameters, collision states, and requested response quantity. maximumDownwardDisplacement is an unconstrained physical length in this structure. No field assigns it a numerical value or an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Spring Putty Setup.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Readouts]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.MatchesProblemAndFigureReadouts}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massinkilograms, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthincentimeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  Numerical source data and qualitative facts from the prose and primary image. The two statements of the drop height are the same given measurement expressed in the SI metre readout used by the laws and the centimetre readout printed in the figure. No requested displacement appears here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Readouts.
+\end{proof}
+\begin{definition}[Matches Initial And Turning Point Conditions]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.MatchesInitialAndTurningPointConditions}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedinmeterspersecond, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  The putty is released from rest, the frame is initially at its static equilibrium, and the combined body is instantaneously at rest at its maximum downward displacement. These are boundary conditions, not a numerical answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Initial And Turning Point Conditions.
+\end{proof}
+\begin{definition}[Has Physical Input Parameters]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-hasphysicalinputparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.HasPhysicalInputParameters}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massinkilograms, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessinnewtonspermeter, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  Strict positivity and nondegeneracy of the independently specified physical inputs. Response quantities such as the post-impact speed and maximum displacement are intentionally absent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Input Parameters.
+\end{proof}
+\begin{definition}[Satisfies Static Spring Equilibrium]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesstaticspringequilibrium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SatisfiesStaticSpringEquilibrium}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  At the frame-only equilibrium, the upward Hooke force balances the frame's weight. The equality is required in every coherent mass, length, and time unit system and does not solve for the stiffness
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Static Spring Equilibrium.
+\end{proof}
+\begin{definition}[Satisfies Free Fall Law]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesfreefalllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SatisfiesFreeFallLaw}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  Free fall from the release point to the platform, with negligible air resistance. This is the general constant-gravity speed-squared relation and does not assume the impact speed's solved value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Free Fall Law.
+\end{proof}
+\begin{definition}[Satisfies Impulsive Sticking Collision]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesimpulsivestickingcollision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SatisfiesImpulsiveStickingCollision}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  One-dimensional downward momentum is conserved during the short sticking impact. Spring and gravity impulses are neglected only over this impulsive stage. Mechanical energy is deliberately not asserted across the inelastic collision
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Impulsive Sticking Collision.
+\end{proof}
+\begin{definition}[Satisfies Maximum Displacement Geometry]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesmaximumdisplacementgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SatisfiesMaximumDisplacementGeometry}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  The turning-point spring extension is the frame-only equilibrium extension plus the downward displacement measured from that old equilibrium position
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Maximum Displacement Geometry.
+\end{proof}
+\begin{definition}[Satisfies Post Impact Mechanical Energy]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiespostimpactmechanicalenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.SatisfiesPostImpactMechanicalEnergy}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-massreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessreadout, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup}
+  After sticking, mechanical energy is conserved from the old frame-only equilibrium (y = 0) to the later turning point. Downward is positive, so the gravitational-potential change is -M g y. This law contains the generic kinetic, spring-potential, and gravitational-potential terms, but no solved displacement or answer-choice value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Post Impact Mechanical Energy.
+\end{proof}
+\begin{lemma}[spring Stiffness calibrated by static extension]
+  \label{lem:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-springstiffness-calibrated-by-static-extension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.springStiffness_calibrated_by_static_extension}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-stiffnessinnewtonspermeter, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesstaticspringequilibrium}
+  The frame's static extension calibrates the otherwise unspecified spring: k = (15/4) g in coherent SI scalar readouts
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of spring Stiffness calibrated by static extension.
+\end{proof}
+\begin{lemma}[putty impact speed squared]
+  \label{lem:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-putty-impact-speed-squared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.putty_impact_speed_squared}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedinmeterspersecond, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-accelerationinmeterspersecondsquared, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesfreefalllaw}
+  The 0.300 m fall from rest gives v\_impact² = (3/5) g
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of putty impact speed squared.
+\end{proof}
+\begin{lemma}[common speed immediately after impact]
+  \label{lem:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-common-speed-immediately-after-impact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.common_speed_immediately_after_impact}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-speedinmeterspersecond, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesimpulsivestickingcollision}
+  Momentum conservation for the 0.200 kg putty sticking to the 0.150 kg stationary frame gives v\_after = (4/7) v\_impact
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of common speed immediately after impact.
+\end{proof}
+\begin{lemma}[maximum Downward Displacement quadratic]
+  \label{lem:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-maximumdownwarddisplacement-quadratic}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.maximumDownwardDisplacement_quadratic}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-hasphysicalinputparameters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesstaticspringequilibrium, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesfreefalllaw, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesimpulsivestickingcollision, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesmaximumdisplacementgeometry, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiespostimpactmechanicalenergy}
+  Eliminating stiffness, impact speed, post-impact speed, and gravitational acceleration from the governing laws gives the quadratic for the displacement y measured in metres. This relation is derived rather than assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Downward Displacement quadratic.
+\end{proof}
+\begin{lemma}[maximum Downward Displacement exact]
+  \label{lem:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-maximumdownwarddisplacement-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.maximumDownwardDisplacement_exact}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesproblemandfigurereadouts, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesinitialandturningpointconditions, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-hasphysicalinputparameters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesstaticspringequilibrium, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesfreefalllaw, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesimpulsivestickingcollision, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiesmaximumdisplacementgeometry, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-satisfiespostimpactmechanicalenergy}
+  The physical length selects the nonnegative root of the quadratic. The exact maximum downward distance is about 0.198696 m
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of maximum Downward Displacement exact.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.AnswerChoice}
+  Labels attached to the four distances printed with the exercise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Distance In Meters]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-displayeddistanceinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.displayedDistanceInMeters}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-answerchoice}
+  Displayed maximum downward distances, read in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Distance In Meters.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-answerchoice}
+  The answer label recorded by the source dataset; this is metadata and is not used as a premise of the theorem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Millimeter]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-roundstonearestmillimeter}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.RoundsToNearestMillimeter}
+  Agreement with a displayed distance after rounding to the nearest millimetre
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Millimeter.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-answerchoice, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-displayeddistanceinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-roundstonearestmillimeter}
+  The physical maximum displacement rounds to the value beside a choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Choice]
+  \label{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-isuniqueclosestdisplayedchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0765.IsUniqueClosestDisplayedChoice}
+  \uses{def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-lengthinmeters, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-verticalspringputtysetup, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-answerchoice, def:physics:phyx-mini-0765:phyxminiproblems-problemphyxmini0765-displayeddistanceinmeters}
+  The selected displayed distance is strictly closer than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,209 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0024.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0024.source.json
+
+\chapter{Physics problem phyx\_mini\_0024}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0024}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows a top view of a square enclosure. The inner surfaces are plane mirrors. A ray of light enters a small hole in the center of one mirror.
+
+\#\# Question
+
+At what angle \textbackslash{}( \textbackslash{}theta \textbackslash{}) must the ray enter if it exits through the hole after being reflected once by each of the other three mirrors?
+
+\#\# Answer choices
+
+- A: A: \textbackslash{}( 15.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- B: B: \textbackslash{}( 60.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- C: C: \textbackslash{}( 45.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+- D: D: \textbackslash{}( 30.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a geometric diagram involving optics. It features a rectangular frame with what appears to be a mirror on one edge. A blue arrow, representing a light ray, enters from the bottom left, strikes the mirror, and reflects off the surface following the law of reflection.
+
+A dashed line is drawn perpendicular to the mirror surface, representing the normal. The angle between the incoming light ray and the normal is labeled as θ (theta).
+
+The light path includes segments indicating the path of light before and after reflection. The reflected ray follows a direction consistent with reflection over the normal line, making the angle of incidence equal to the angle of reflection.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: \textbackslash{}( 45.0\textasciicircum{}\{\textbackslash{}circ\} \textbackslash{})
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/24.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0024.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0024:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0024.entryAngle_eq_pi_div_four}
+\uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-horizontalmirrortangent, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-verticalmirrortangent, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-specularreflectionat, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opensegmentinside, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-onrightmirror, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-ontopmirror, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-onleftmirror, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-bottomcenteraperture, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-threemirrorrayroute, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-entryangle}
+In a square mirrored enclosure, let a ray enter at the midpoint aperture of
+the bottom side and then meet the right, top, and left mirrors once each
+before returning to the aperture. Under specular reflection and with no
+intermediate boundary contact, the entry angle from the inward normal is
+$45^\circ$, answer C. Positions and lengths must be modeled in a typed
+Euclidean/physical space or as explicitly named coordinate projections in one
+length unit; the ray route itself is not a scalar.
+\end{theorem}
+\begin{proof}
+Unfold the three mirror reflections into adjacent reflected copies of the
+square. Equivalently, in the original square a $45^\circ$ ray from the
+bottom midpoint meets successively the right midpoint, top midpoint, left
+midpoint, and bottom midpoint, with equal incidence and reflection angles.
+Conversely, reflecting the prescribed contact sequence into a straight line
+from the original aperture to its unfolded image forces equal horizontal and
+vertical displacement. Thus the direction makes $45^\circ$ with the inward
+vertical normal.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Optical Point]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OpticalPoint}
+  Positions in the top-view plane of the enclosure. Space 2 is PhysLean's flat physical space with coordinates in an arbitrary, but fixed, length unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Point.
+\end{proof}
+\begin{definition}[Optical Vector]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OpticalVector}
+  Displacement and ray-direction vectors in the top-view plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Vector.
+\end{proof}
+\begin{definition}[horizontal Mirror Tangent]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-horizontalmirrortangent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.horizontalMirrorTangent}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector}
+  The direction subspace tangent to either horizontal mirror of the square. Reflection of a ray direction in this subspace is specular reflection at a horizontal mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of horizontal Mirror Tangent.
+\end{proof}
+\begin{definition}[vertical Mirror Tangent]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-verticalmirrortangent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.verticalMirrorTangent}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector}
+  The direction subspace tangent to either vertical mirror of the square. Reflection of a ray direction in this subspace is specular reflection at a vertical mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Mirror Tangent.
+\end{proof}
+\begin{definition}[unit Direction]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-unitdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.unitDirection}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector}
+  The unit travel direction of a nondegenerate straight ray segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of unit Direction.
+\end{proof}
+\begin{definition}[Specular Reflection At]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-specularreflectionat}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.SpecularReflectionAt}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-unitdirection}
+  The law of specular reflection at a plane mirror: the outgoing unit direction is the reflection of the incoming unit direction in the mirror's tangent subspace. The inequalities exclude degenerate incoming and outgoing legs
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specular Reflection At.
+\end{proof}
+\begin{definition}[In Open Square]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-inopensquare}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.InOpenSquare}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  A point lies strictly inside the square enclosure. sideLength is its positive coordinate readout in the fixed length unit carried by Space 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of In Open Square.
+\end{proof}
+\begin{definition}[Open Segment Inside]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opensegmentinside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OpenSegmentInside}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-inopensquare}
+  Except for its endpoints, a ray leg stays inside the enclosure. Thus no unlisted mirror is struck between the two consecutive labelled contacts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Open Segment Inside.
+\end{proof}
+\begin{definition}[On Right Mirror]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-onrightmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OnRightMirror}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  The relative interior of the right-hand mirror in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of On Right Mirror.
+\end{proof}
+\begin{definition}[On Top Mirror]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-ontopmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OnTopMirror}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  The relative interior of the top mirror in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of On Top Mirror.
+\end{proof}
+\begin{definition}[On Left Mirror]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-onleftmirror}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.OnLeftMirror}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  The relative interior of the left-hand mirror in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of On Left Mirror.
+\end{proof}
+\begin{definition}[bottom Center Aperture]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-bottomcenteraperture}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.bottomCenterAperture}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  The small aperture at the midpoint of the bottom mirror
+\end{definition}
+\begin{proof}
+  This is the declared model definition of bottom Center Aperture.
+\end{proof}
+\begin{definition}[inward Normal At Aperture]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-inwardnormalataperture}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.inwardNormalAtAperture}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalvector}
+  The inward-pointing normal to the bottom mirror at the aperture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of inward Normal At Aperture.
+\end{proof}
+\begin{definition}[Three Mirror Ray Route]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-threemirrorrayroute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.ThreeMirrorRayRoute}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-opticalpoint}
+  The four labelled contacts of the ray route seen in the figure. The ray starts at aperture, then meets rightHit, topHit, and leftHit, before returning to aperture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Mirror Ray Route.
+\end{proof}
+\begin{definition}[entry Angle]
+  \label{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-entryangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0024.entryAngle}
+  \uses{def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-unitdirection, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-inwardnormalataperture, def:physics:phyx-mini-0024:phyxminiproblems-problemphyxmini0024-threemirrorrayroute}
+  The entry angle θ, in radians, measured between the ray inside the enclosure and the inward normal to the mirror containing the aperture
+\end{definition}
+\begin{proof}
+  This is the declared model definition of entry Angle.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,440 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0431.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0431.source.json
+
+\chapter{Physics problem phyx\_mini\_0431}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0431}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A refrigerator using helium gas operates on the reversed cycle shown in figure.
+
+\#\# Question
+
+What are the refrigerator's power input if it operates at 60 cycles per second?
+
+\#\# Answer choices
+
+- A: A: 265 W
+
+- B: B: 190 W
+
+- C: C: 151 W
+
+- D: D: 227 W
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The figure is a graph with pressure (p) in kilopascals (kPa) on the vertical axis and volume (V) in cubic centimeters (cm³) on the horizontal axis. The graph includes two curves, each labeled as an adiabatic process, indicating the relationship between pressure and volume during these processes.
+
+The curves are plotted with arrows indicating the direction of the processes. Two points on the curves are identified by temperature labels: 23°C and -73°C. The curves show how pressure decreases as volume increases, a characteristic of adiabatic expansion. There are labels pointing to the curves marked "Adiabat."
+
+Overall, the graph represents adiabatic processes for different temperature conditions.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 227 W
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/431.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0431.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0431:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0431.problem_phyx_mini_0431}
+\uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesheliumrefrigeratorscenario, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchessuppliedreversedcyclefigure, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesoperatingdata, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-hasphysicalrefrigeratorparameters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-satisfiesreversiblemonatomicidealgascyclelaws, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-exactmodeledinputpowerwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-roundstodisplayedwholewatt, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-isuniqueclosestdisplayedpower}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Volume Quantity]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.VolumeQuantity}
+  A nonnegative physical volume with dimension length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume Quantity.
+\end{proof}
+\begin{definition}[Frequency Quantity]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.FrequencyQuantity}
+  A nonnegative cycle frequency with inverse-time dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Frequency Quantity.
+\end{proof}
+\begin{definition}[power Dimension]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerdimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.powerDimension}
+  The physical dimension of power, mass times length squared per time cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power Dimension.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.PowerQuantity}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerdimension}
+  A nonnegative physical input power with SI unit watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[Amount Of Substance Scale]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.AmountOfSubstanceScale}
+  Physlib has no amount-of-substance base dimension. This interface keeps an abstract physical amount carrier and exposes only its calibrated mole readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Amount Of Substance Scale.
+\end{proof}
+\begin{definition}[Molar Gas Constant Scale]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.MolarGasConstantScale}
+  The molar gas constant also carries an inverse amount dimension unavailable in Physlib. This interface preserves its physical role and exposes only a coherent joule-per-mole-kelvin readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant Scale.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.pressureInPascals}
+  SI pressure readout in pascals
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinpascals}
+  Pressure readout in the kilopascals printed on the vertical axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[volume In Cubic Meters]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubicmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.volumeInCubicMeters}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumequantity}
+  SI volume readout in cubic metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Meters.
+\end{proof}
+\begin{definition}[volume In Cubic Centimeters]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubiccentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.volumeInCubicCentimeters}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumequantity, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubicmeters}
+  Volume readout in the cubic centimetres printed on the horizontal axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume In Cubic Centimeters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.energyInJoules}
+  SI energy readout in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[frequency In Hertz]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyinhertz}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.frequencyInHertz}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyquantity}
+  Cycle frequency readout in hertz, i.e. cycles per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of frequency In Hertz.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.powerInWatts}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerquantity}
+  SI input-power readout in watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[temperature In Kelvin]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-temperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.temperatureInKelvin}
+  Read an absolute temperature in kelvin. The storage unit is explicit because Temperature may use any zero-preserving temperature scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvin.
+\end{proof}
+\begin{definition}[temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-temperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.temperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-temperatureinkelvin}
+  The associated Celsius readout. Celsius is affine, so the 273.15 K offset is applied only at the readout boundary
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.GasSpecies}
+  Gas species stated in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[Molecular Model]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molecularmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.MolecularModel}
+  Molecular model governing heat capacity and the adiabatic exponent
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molecular Model.
+\end{proof}
+\begin{definition}[Cycle Operation]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleoperation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.CycleOperation}
+  Operating role and direction of the depicted cycle
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Operation.
+\end{proof}
+\begin{definition}[Cycle Idealization]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleidealization}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.CycleIdealization}
+  Idealization needed for the reversible adiabatic relation
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Idealization.
+\end{proof}
+\begin{definition}[Cycle Point]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.CyclePoint}
+  The right points carry the two temperature labels; the left points are their adiabatically compressed partners on the upper and lower curves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Point.
+\end{proof}
+\begin{definition}[Cycle Leg]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleleg}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.CycleLeg}
+  Directed cycle legs in the order shown by the arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cycle Leg.
+\end{proof}
+\begin{definition}[leg Start]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legstart}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.legStart}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleleg}
+  Initial point of a directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Start.
+\end{proof}
+\begin{definition}[leg Finish]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legfinish}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.legFinish}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleleg}
+  Final point of a directed cycle leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of leg Finish.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.ProcessKind}
+  Thermodynamic character of a drawn process leg
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumequantity}
+  A pressure-volume-temperature equilibrium state with internal energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Diagram Axis Quantity]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-diagramaxisquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.DiagramAxisQuantity}
+  Physical quantity assigned to a plotted axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis Quantity.
+\end{proof}
+\begin{definition}[Diagram Axis Unit]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-diagramaxisunit}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.DiagramAxisUnit}
+  Unit label printed beside a plotted axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Diagram Axis Unit.
+\end{proof}
+\begin{definition}[Reversed Cycle Figure]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-reversedcyclefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.ReversedCycleFigure}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleleg, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-processkind, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-diagramaxisquantity, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-diagramaxisunit}
+  Axis assignments, coordinates, labels, curves, and arrows extracted from the primary raster. No energy, power, or answer-choice value is stored here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Reversed Cycle Figure.
+\end{proof}
+\begin{definition}[Helium Refrigerator Setup]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.HeliumRefrigeratorSetup}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyquantity, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerquantity, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-gasspecies, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molecularmodel, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleoperation, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleidealization, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cycleleg, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-thermodynamicstate, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-reversedcyclefigure}
+  Physical observables for the helium refrigerator. Heat is positive into the gas and work is positive when done by the gas. Thus refrigerator work input is the negative of the gas's net cyclic work
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Helium Refrigerator Setup.
+\end{proof}
+\begin{definition}[state Temperature In Kelvin]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-statetemperatureinkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.stateTemperatureInKelvin}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-temperatureinkelvin, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup}
+  Kelvin readout at a cycle point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature In Kelvin.
+\end{proof}
+\begin{definition}[state Temperature In Degrees Celsius]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-statetemperatureindegreescelsius}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.stateTemperatureInDegreesCelsius}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-temperatureindegreescelsius, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-cyclepoint, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup}
+  Celsius readout at a cycle point
+\end{definition}
+\begin{proof}
+  This is the declared model definition of state Temperature In Degrees Celsius.
+\end{proof}
+\begin{definition}[Matches Helium Refrigerator Scenario]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesheliumrefrigeratorscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.MatchesHeliumRefrigeratorScenario}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup}
+  Prose-level helium refrigerator and reversed-cycle description
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Helium Refrigerator Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Reversed Cycle Figure]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchessuppliedreversedcyclefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.MatchesSuppliedReversedCycleFigure}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinkilopascals, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubiccentimeters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legstart, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legfinish, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-statetemperatureindegreescelsius}
+  Primary-image evidence. The upper-right label is -23 °C, following the visible minus sign rather than the auxiliary caption. Left pressures and temperatures are deliberately not supplied; the governing laws must determine what is needed from the right-hand state data
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Reversed Cycle Figure.
+\end{proof}
+\begin{definition}[Matches Operating Data]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesoperatingdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.MatchesOperatingData}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyinhertz, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup}
+  Operating rate stated in the question, separate from image evidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Operating Data.
+\end{proof}
+\begin{definition}[Has Physical Refrigerator Parameters]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-hasphysicalrefrigeratorparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.HasPhysicalRefrigeratorParameters}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinpascals, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubicmeters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyinhertz, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-statetemperatureinkelvin}
+  Positivity conditions required by the ideal-gas and adiabatic laws
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Refrigerator Parameters.
+\end{proof}
+\begin{definition}[Satisfies Reversible Monatomic Ideal Gas Cycle Laws]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-satisfiesreversiblemonatomicidealgascyclelaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.SatisfiesReversibleMonatomicIdealGasCycleLaws}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-pressureinpascals, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-volumeincubicmeters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-energyinjoules, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-frequencyinhertz, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legstart, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-legfinish, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-statetemperatureinkelvin}
+  Governing laws for a reversible monatomic ideal-gas cycle: pV = nRT; U = (3/2)nRT; gamma = 5/3; the reversible adiabatic temperature-volume law; zero heat on adiabats; zero boundary work on isochores; the first law; the cyclic work-input sign convention; and power equal to work per cycle times cycle frequency. No field fixes the requested numerical power or an answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Reversible Monatomic Ideal Gas Cycle Laws.
+\end{proof}
+\begin{definition}[exact Modeled Input Power Watts]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-exactmodeledinputpowerwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.exactModeledInputPowerWatts}
+  The exact SI expression before rounding. Here 5003/20 K is -23 °C, 50 K is the right-side temperature difference, and (5/2)\textasciicircum{}(2/3) is the adiabatic temperature multiplier from 100 cm³ to 40 cm³ for monatomic helium
+\end{definition}
+\begin{proof}
+  This is the declared model definition of exact Modeled Input Power Watts.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.AnswerChoice}
+  Labels of the four printed power choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Power In Watts]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-displayedpowerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.displayedPowerInWatts}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-answerchoice}
+  Whole-watt value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Power In Watts.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-answerchoice}
+  Recorded dataset answer, retained only as answer-list metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+\begin{definition}[Rounds To Displayed Whole Watt]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-roundstodisplayedwholewatt}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.RoundsToDisplayedWholeWatt}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-answerchoice, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-displayedpowerinwatts}
+  The modeled input power rounds to the displayed whole-watt value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Whole Watt.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Power]
+  \label{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-isuniqueclosestdisplayedpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.IsUniqueClosestDisplayedPower}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-answerchoice, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-displayedpowerinwatts}
+  A choice is strictly closer to the modeled power than every alternative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Power.
+\end{proof}
+\begin{lemma}[input Power eq exact Modeled Value]
+  \label{lem:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-inputpower-eq-exactmodeledvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.inputPower_eq_exactModeledValue}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-powerinwatts, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesheliumrefrigeratorscenario, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchessuppliedreversedcyclefigure, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesoperatingdata, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-hasphysicalrefrigeratorparameters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-satisfiesreversiblemonatomicidealgascyclelaws, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-exactmodeledinputpowerwatts}
+  The figure readouts and monatomic ideal-gas laws determine the exact unrounded power expression. This is a current target conclusion, not an assumption
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of input Power eq exact Modeled Value.
+\end{proof}
+\begin{lemma}[input Power rounds uniquely to D]
+  \label{lem:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-inputpower-rounds-uniquely-to-d}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0431.inputPower_rounds_uniquely_to_D}
+  \uses{def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-amountofsubstancescale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-molargasconstantscale, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-heliumrefrigeratorsetup, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesheliumrefrigeratorscenario, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchessuppliedreversedcyclefigure, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-matchesoperatingdata, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-hasphysicalrefrigeratorparameters, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-satisfiesreversiblemonatomicidealgascyclelaws, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-roundstodisplayedwholewatt, def:physics:phyx-mini-0431:phyxminiproblems-problemphyxmini0431-isuniqueclosestdisplayedpower}
+  The exact value is approximately 227.2 W and therefore rounds uniquely to D. This is also a current target conclusion, not a premise
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of input Power rounds uniquely to D.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

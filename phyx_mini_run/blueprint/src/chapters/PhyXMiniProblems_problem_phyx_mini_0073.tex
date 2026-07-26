@@ -1,0 +1,240 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0073.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0073.source.json
+
+\chapter{Physics problem phyx\_mini\_0073}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0073}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+\textbackslash{}text\{White light is incident onto a \} 30\textasciicircum{}\textbackslash{}circ \textbackslash{}text\{ prism at the \} 40\textasciicircum{}\textbackslash{}circ \textbackslash{}text\{ angle shown in figure. Violet light emerges perpendicular to the rear face of the prism. The index of refraction of violet light in this glass is \} 2.0\textbackslash{}\% \textbackslash{}text\{ larger than the index of refraction of red light.\}
+
+\#\# Question
+
+At what angle \textbackslash{}phi does red light emerge from the rear face?
+
+\#\# Answer choices
+
+- A: A: 3\textasciicircum{}\textbackslash{}circ
+
+- B: B: 9\textasciicircum{}\textbackslash{}circ
+
+- C: C: 1\textasciicircum{}\textbackslash{}circ
+
+- D: D: 2\textasciicircum{}\textbackslash{}circ
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows a triangular prism with a refraction diagram. 
+
+- The prism is oriented with an apex angle labeled as \textbackslash{}(30\textasciicircum{}\textbackslash{}circ\textbackslash{}).
+- An incident ray, labeled as "White light," enters the prism at an angle of \textbackslash{}(40\textasciicircum{}\textbackslash{}circ\textbackslash{}) with respect to the normal to the prism surface.
+- Inside the prism, the light is refracted towards the base and exits the prism at another angle.
+- The exiting light is split into two rays: one red and one blue, representing dispersion.
+- The red ray exits at an angle labeled as \textbackslash{}(\textbackslash{}phi\textbackslash{}).
+- The background is plain, and the triangle is shaded to represent the prism material.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 1\textasciicircum{}\textbackslash{}circ
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/73.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0073.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0073:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0073.redLightEmergenceAngle_is_choiceC}
+\uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-hasphysicalopticalparameters, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-matchesproblemandfiguredata, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesprismgeometry, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-obeyssnelllaw, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-phi, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-roundstoanswerchoice, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-isuniqueclosestanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[radians Of Degrees]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-radiansofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.radiansOfDegrees}
+  Convert a degree readout to its real radian representative
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radians Of Degrees.
+\end{proof}
+\begin{definition}[angle Of Degrees]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-angleofdegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.angleOfDegrees}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-radiansofdegrees}
+  Convert a degree readout to Mathlib's type of angles modulo one turn
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Of Degrees.
+\end{proof}
+\begin{definition}[degrees Of Angle]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-degreesofangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.degreesOfAngle}
+  Principal degree readout of an angle, used to compare answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of degrees Of Angle.
+\end{proof}
+\begin{definition}[Spectral Color]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-spectralcolor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.SpectralColor}
+  The two spectral components singled out by the dispersion diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spectral Color.
+\end{proof}
+\begin{definition}[Optical Medium]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-opticalmedium}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.OpticalMedium}
+  The two homogeneous optical media traversed by each colored ray
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Optical Medium.
+\end{proof}
+\begin{definition}[Dispersive Prism Setup]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.DispersivePrismSetup}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-spectralcolor, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-opticalmedium}
+  The physical quantities and named angles in the prism figure. The incident white ray has one common entrance incidence angle. Dispersion in the glass gives color-dependent internal and emerging angles. The field incidentRayToEntranceFace is the angle marked 40° between the incoming ray and the entrance *face*. All other path angles are measured from the indicated face normal. In particular, the red value of emergenceFromRearNormal is the figure's unknown φ, since the violet ray follows that normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dispersive Prism Setup.
+\end{proof}
+\begin{definition}[Is Principal Optical Angle]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-isprincipalopticalangle}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.IsPrincipalOpticalAngle}
+  An angle lies on the principal geometrical-optics branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Principal Optical Angle.
+\end{proof}
+\begin{definition}[Has Physical Optical Parameters]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-hasphysicalopticalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.HasPhysicalOpticalParameters}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-isprincipalopticalangle}
+  Positivity and branch information for the physical optical data. These conditions make the normal-referenced sine equations select physical angles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Optical Parameters.
+\end{proof}
+\begin{definition}[Matches Problem And Figure Data]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-matchesproblemandfiguredata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.MatchesProblemAndFigureData}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-angleofdegrees, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  Numerical and figure-derived data supplied by the problem. The image makes the 40° mark face-referenced; its complementary normal-referenced incidence is imposed separately by prism geometry. No red emergence value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Figure Data.
+\end{proof}
+\begin{definition}[Satisfies Prism Geometry]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesprismgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.SatisfiesPrismGeometry}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-angleofdegrees, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  The angle relations determined by the triangular figure. The face-marked entrance angle and normal-referenced incidence are complementary. On the depicted branch, the red internal ray is just above the rear-face normal, so its entrance-normal angle is the apex angle plus its rear incidence magnitude; the same equation specializes to zero rear incidence for violet
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Prism Geometry.
+\end{proof}
+\begin{definition}[Satisfies Entrance Snell Law]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesentrancesnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.SatisfiesEntranceSnellLaw}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-spectralcolor, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  Snell's law n₁ sin θ₁ = n₂ sin θ₂ at the air--glass entrance for one spectral component of the incident white light
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Entrance Snell Law.
+\end{proof}
+\begin{definition}[Satisfies Rear Face Snell Law]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesrearfacesnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.SatisfiesRearFaceSnellLaw}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-spectralcolor, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  Snell's law at the glass--air rear face for one spectral component
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rear Face Snell Law.
+\end{proof}
+\begin{definition}[Obeys Snell Law]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-obeyssnelllaw}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.ObeysSnellLaw}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesentrancesnelllaw, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-satisfiesrearfacesnelllaw}
+  Both red and violet obey Snell's law at both prism faces
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Obeys Snell Law.
+\end{proof}
+\begin{definition}[phi]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-phi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.phi}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup}
+  The figure label φ: red light's emergence angle from the rear-face normal
+\end{definition}
+\begin{proof}
+  This is the declared model definition of phi.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.AnswerChoice}
+  The answer-choice labels printed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[angle Degrees]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice-angledegrees}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.AnswerChoice.angleDegrees}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice}
+  The whole-degree angle printed next to each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angle Degrees.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice}
+  Dataset metadata recording answer C; this is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Answer Choice]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-roundstoanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.RoundsToAnswerChoice}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-degreesofangle, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice}
+  A computed angle rounds to the displayed whole-degree choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Answer Choice.
+\end{proof}
+\begin{definition}[answer Choice Error Radians]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoiceerrorradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.answerChoiceErrorRadians}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-radiansofdegrees, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-phi, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice}
+  Angular error between φ and one displayed answer, measured in radians
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Choice Error Radians.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer Choice]
+  \label{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-isuniqueclosestanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0073.IsUniqueClosestAnswerChoice}
+  \uses{def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-dispersiveprismsetup, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoice, def:physics:phyx-mini-0073:phyxminiproblems-problemphyxmini0073-answerchoiceerrorradians}
+  A choice is strictly closer to φ than each of the other displayed angles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

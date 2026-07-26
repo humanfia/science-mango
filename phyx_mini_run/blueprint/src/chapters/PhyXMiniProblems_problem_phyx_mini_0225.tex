@@ -1,0 +1,359 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0225.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0225.source.json
+
+\chapter{Physics problem phyx\_mini\_0225}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0225}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+While driving behind a car traveling at \textbackslash{}( 3.00\textbackslash{},\textbackslash{}mathrm\{m/s\} \textbackslash{}), you notice that one of the car's tires has a small hemispherical bump on its rim as shown in figure. The radii of the car's tires are \textbackslash{}( 0.300\textbackslash{},\textbackslash{}mathrm\{m\} \textbackslash{}).
+
+\#\# Question
+
+What is the bump's period of oscillation?
+
+\#\# Answer choices
+
+- A: A: 0.928s
+
+- B: B: 0.828s
+
+- C: C: 0.728s
+
+- D: D: 0.628s
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts the side view of a tire with a distinct tread pattern consisting of interconnected zigzag lines creating a chevron shape. On the left side of the tire, there's a protrusion labeled with an arrow pointing to it, and the word "Bump" is used to describe this feature. The tire is positioned on a flat surface, indicating its contact with the ground. The overall tone of the image is grayscale, with the tread pattern being a darker shade than the bump.
+
+\#\# Dataset metadata
+
+Wave Properties; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 0.628s
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/225.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0225.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0225:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0225.problem_phyx_mini_0225}
+\uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesproblemdescription, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesprimaryfigure, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-hasphysicalrollingparameters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-satisfiesrollingtirekinematics, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-recordedanswerchoice, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesdisplayedprecision, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-isuniqueclosestanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.LengthQuantity}
+  A nonnegative physical length, used for the tire radius
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Duration Quantity]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.DurationQuantity}
+  A nonnegative physical duration, used for the bump's oscillation period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Duration Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.AngularSpeedQuantity}
+  The magnitude of a physical angular speed. Radians are dimensionless, so its physical dimension is inverse time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.SpeedQuantity}
+  A nonnegative physical translational speed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.lengthReadout}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthquantity}
+  Scalar readout of a physical length in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[duration Readout]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.durationReadout}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity}
+  Scalar readout of a physical duration in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration Readout.
+\end{proof}
+\begin{definition}[angular Speed Readout]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.angularSpeedReadout}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedquantity}
+  Scalar readout of an angular-speed magnitude in radians per time unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed Readout.
+\end{proof}
+\begin{definition}[speed Readout]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.speedReadout}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedquantity}
+  Scalar readout of a translational speed in a coherent unit system
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed Readout.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.lengthInMeters}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthreadout}
+  Read a tire radius in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[duration In Seconds]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.durationInSeconds}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationreadout}
+  Read a duration in seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of duration In Seconds.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedreadout}
+  Read an angular speed in radians per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedreadout}
+  Read a translational speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.FigureLabel}
+  The label printed beside the protrusion in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.FigureElement}
+  Distinct physical elements visible in the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Figure Region]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figureregion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.FigureRegion}
+  Qualitative image regions used to locate the marked protrusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Region.
+\end{proof}
+\begin{definition}[Bump Shape]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumpshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.BumpShape}
+  Shape assigned to the bump by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bump Shape.
+\end{proof}
+\begin{definition}[Relative Feature Size]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-relativefeaturesize}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.RelativeFeatureSize}
+  Relative size assigned to the bump by the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Relative Feature Size.
+\end{proof}
+\begin{definition}[Tread Pattern]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-treadpattern}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.TreadPattern}
+  Qualitative tread geometry visible in the primary image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tread Pattern.
+\end{proof}
+\begin{definition}[Tire Orientation]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-tireorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.TireOrientation}
+  Orientation of the tire with respect to the road
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Orientation.
+\end{proof}
+\begin{definition}[Ground Shape]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-groundshape}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.GroundShape}
+  Shape of the supporting road surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ground Shape.
+\end{proof}
+\begin{definition}[Observation Context]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-observationcontext}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.ObservationContext}
+  The observer's relation to the moving car in the scenario
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Observation Context.
+\end{proof}
+\begin{definition}[Bump Observable]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumpobservable}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.BumpObservable}
+  The periodic observable whose period the question requests
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bump Observable.
+\end{proof}
+\begin{definition}[Tire Figure]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-tirefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.TireFigure}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figurelabel, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figureelement, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-figureregion, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-treadpattern, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-tireorientation, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-groundshape}
+  Categorical information read from the supplied tire image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Figure.
+\end{proof}
+\begin{definition}[Rolling Tire Bump Setup]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.RollingTireBumpSetup}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumpshape, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-relativefeaturesize, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-observationcontext, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumpobservable, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-tirefigure}
+  The physical quantities of the rolling-tire observation. In particular, bumpOscillationPeriod is an unconstrained physical duration here; neither its exact value nor any displayed answer is built into the setup
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rolling Tire Bump Setup.
+\end{proof}
+\begin{definition}[Matches Problem Description]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesproblemdescription}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.MatchesProblemDescription}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthinmeters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedinmeterspersecond, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup}
+  Problem-text data: the observer follows the car, the tire radius is 0.300 m, the car speed is 3.00 m/s, and the requested observable is the oscillation period of the stated small hemispherical bump. No period value occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Description.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup}
+  Primary-image evidence: the text label points to a bump on the upper-left rim, the chevron-tread tire stands upright, and it contacts a flat ground surface. This predicate contains no kinematic or period conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Rolling Parameters]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-hasphysicalrollingparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.HasPhysicalRollingParameters}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthinmeters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedinradianspersecond, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedinmeterspersecond, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup}
+  Physical admissibility for the quantities used in division and for the selected positive rotation branch. These conditions do not assign the requested period a numerical value
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Rolling Parameters.
+\end{proof}
+\begin{definition}[Satisfies Rolling Tire Kinematics]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-satisfiesrollingtirekinematics}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.SatisfiesRollingTireKinematics}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthreadout, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationreadout, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-angularspeedreadout, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedreadout, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup}
+  The car carries the wheel center at the vehicle speed; rolling without slipping gives v = ω R; and the marked bump completes one vertical-position cycle per full revolution, giving ω T = 2π. The laws are required in every coherent unit system and contain no numerical period or answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Rolling Tire Kinematics.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.AnswerChoice}
+  Labels of the four answers displayed with the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[seconds]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice-seconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.AnswerChoice.seconds}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice}
+  Seconds printed beside each displayed answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of seconds.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice}
+  Dataset metadata: the recorded answer is choice D; this is never a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Matches Displayed Precision]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesdisplayedprecision}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.MatchesDisplayedPrecision}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice}
+  A duration agrees with a value displayed to the nearest millisecond. The half-millisecond tolerance models the precision of the answer list
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Displayed Precision.
+\end{proof}
+\begin{definition}[Is Unique Closest Answer]
+  \label{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-isuniqueclosestanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.IsUniqueClosestAnswer}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationquantity, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-answerchoice}
+  A displayed choice is uniquely closest to the model's physical period
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Answer.
+\end{proof}
+\begin{lemma}[bump Oscillation Period formula]
+  \label{lem:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumposcillationperiod-formula}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.bumpOscillationPeriod_formula}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-lengthinmeters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-speedinmeterspersecond, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-hasphysicalrollingparameters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-satisfiesrollingtirekinematics}
+  For any physically admissible rolling setup satisfying the two kinematic laws, eliminating angular speed gives T = 2πR/v in SI readouts
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bump Oscillation Period formula.
+\end{proof}
+\begin{lemma}[bump Oscillation Period exact]
+  \label{lem:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-bumposcillationperiod-exact}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0225.bumpOscillationPeriod_exact}
+  \uses{def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-durationinseconds, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-rollingtirebumpsetup, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-matchesproblemdescription, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-hasphysicalrollingparameters, def:physics:phyx-mini-0225:phyxminiproblems-problemphyxmini0225-satisfiesrollingtirekinematics}
+  Substituting R = 0.300 m and v = 3.00 m/s into the derived rolling-period formula gives the exact ideal-model period π/5 s
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of bump Oscillation Period exact.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

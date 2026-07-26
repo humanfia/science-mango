@@ -1,0 +1,285 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0606.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0606.source.json
+
+\chapter{Physics problem phyx\_mini\_0606}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0606}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Consider three spin-1/2 particles arranged on the corners of a triangle and interacting via the Hamiltonian \$\$H = J (\textbackslash{}mathbf\{S\}\_1 \textbackslash{}cdot \textbackslash{}mathbf\{S\}\_2 + \textbackslash{}mathbf\{S\}\_2 \textbackslash{}cdot \textbackslash{}mathbf\{S\}\_3 + \textbackslash{}mathbf\{S\}\_3 \textbackslash{}cdot \textbackslash{}mathbf\{S\}\_1),\$\$ where \$J\$ is a positive constant. This interaction favors opposite alignment of neighboring spins (\textbackslash{}textbf\{antiferromagnetism\}, if they are magnetic dipoles), but the triangular arrangement means that this condition cannot be satisfied simultaneously for all three pairs. This is known as geometrical 'frustration'.
+
+\#\# Question
+
+Determine the ground state energy, and its degeneracy.
+
+\#\# Answer choices
+
+- A: A: -\textbackslash{}frac\{9\}\{4\} J \textbackslash{}hbar\textasciicircum{}2
+
+- B: B: 0
+
+- C: C: -\textbackslash{}frac\{3\}\{4\} J \textbackslash{}hbar\textasciicircum{}2
+
+- D: D: \textbackslash{}frac\{3\}\{4\} J \textbackslash{}hbar\textasciicircum{}2
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a triangular diagram with three interconnected nodes, each labeled with a number:
+
+1. **Node Structure**:
+   - Three circles representing nodes are connected in a triangular formation.
+
+2. **Labels**:
+   - The nodes are labeled with the numbers 1, 2, and 3 placed beside each circle.
+
+3. **Arrows**:
+   - Each node has a vertical arrow attached to it:
+     - Node 1 (bottom left): No arrow.
+     - Node 2 (bottom right): Downward-pointing arrow.
+     - Node 3 (top): Upward-pointing arrow.
+
+4. **Lines**:
+   - Lines connect each node to the others, forming a closed triangle.
+
+Overall, the image illustrates a simple graph structure with directional elements in the form of arrows at some nodes.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: -\textbackslash{}frac\{3\}\{4\} J \textbackslash{}hbar\textasciicircum{}2
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/606.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0606.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0606:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0606.groundStateEnergyAndDegeneracy}
+\uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-matchessuppliedspintrianglefigure, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinhalftriangleexperiment, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-hasantiferromagneticexchange, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-satisfiestriangularheisenberghamiltonian, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-isgroundstateenergy, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-energyleveldegeneracy, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-displayedenergyjoules}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Triangle Site]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglesite}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.TriangleSite}
+  The three particle sites, named by the labels printed in the diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangle Site.
+\end{proof}
+\begin{definition}[Triangle Figure Position]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglefigureposition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.TriangleFigurePosition}
+  Qualitative positions of the three nodes in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangle Figure Position.
+\end{proof}
+\begin{definition}[Vertical Spin Arrow]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-verticalspinarrow}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.VerticalSpinArrow}
+  The vertical spin-arrow glyphs that can be printed at a node
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertical Spin Arrow.
+\end{proof}
+\begin{definition}[Spin Triangle Figure]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spintrianglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.SpinTriangleFigure}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglesite, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglefigureposition, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-verticalspinarrow}
+  Raw information carried by the triangular illustration. The arrow field is figure annotation only; it is not asserted to be a simultaneous eigenstate of the frustrated quantum Hamiltonian
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spin Triangle Figure.
+\end{proof}
+\begin{definition}[Matches Supplied Spin Triangle Figure]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-matchessuppliedspintrianglefigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.MatchesSuppliedSpinTriangleFigure}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spintrianglefigure}
+  Exact qualitative transcription of image 606: a complete three-node triangle, with no arrow at node 1, a down arrow at node 2, and an up arrow at node 3
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Spin Triangle Figure.
+\end{proof}
+\begin{definition}[Three Spin Basis]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.ThreeSpinBasis}
+  A standard-basis label |s₁,s₂,s₃⟩, with each Fin 2 factor carrying one spin-1/2 degree of freedom
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Spin Basis.
+\end{proof}
+\begin{definition}[Three Spin State]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.ThreeSpinState}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis}
+  The eight-dimensional Hilbert space of three distinguishable spin halves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Three Spin State.
+\end{proof}
+\begin{definition}[three Spin Basis]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis-value}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.threeSpinBasis}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate}
+  The standard product basis of the three-spin Hilbert space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of three Spin Basis.
+\end{proof}
+\begin{definition}[Spin Axis]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.SpinAxis}
+  Cartesian components used in the Heisenberg spin dot product
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spin Axis.
+\end{proof}
+\begin{definition}[to Fin3]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis-tofin3}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.SpinAxis.toFin3}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis}
+  Index of a Cartesian spin component in Physlib's Pauli-matrix family
+\end{definition}
+\begin{proof}
+  This is the declared model definition of to Fin3.
+\end{proof}
+\begin{definition}[pauli For Axis]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-pauliforaxis}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.pauliForAxis}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis}
+  The Pauli matrix associated with a Cartesian spin axis
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pauli For Axis.
+\end{proof}
+\begin{definition}[spin Kronecker Delta]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinkroneckerdelta}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.spinKroneckerDelta}
+  Complex-valued Kronecker delta for unchanged spectator spins
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spin Kronecker Delta.
+\end{proof}
+\begin{definition}[local Spin Component Matrix]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-localspincomponentmatrix}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.localSpinComponentMatrix}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglesite, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-pauliforaxis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinkroneckerdelta}
+  The matrix of the local component S\_site\textasciicircum{}axis = (ℏ/2) σ\_axis, tensored with the identity on the two spectator sites
+\end{definition}
+\begin{proof}
+  This is the declared model definition of local Spin Component Matrix.
+\end{proof}
+\begin{definition}[pair Spin Dot Matrix]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-pairspindotmatrix}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.pairSpinDotMatrix}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-trianglesite, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinaxis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-localspincomponentmatrix}
+  The pair interaction S\_first · S\_second, summed over x, y, and z
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pair Spin Dot Matrix.
+\end{proof}
+\begin{definition}[triangular Heisenberg Hamiltonian Matrix]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-triangularheisenberghamiltonianmatrix}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.triangularHeisenbergHamiltonianMatrix}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-pairspindotmatrix}
+  The matrix J (S₁·S₂ + S₂·S₃ + S₃·S₁) for the complete triangular bond graph. The scalar parameter is the positive antiferromagnetic exchange coupling
+\end{definition}
+\begin{proof}
+  This is the declared model definition of triangular Heisenberg Hamiltonian Matrix.
+\end{proof}
+\begin{definition}[triangular Heisenberg Hamiltonian]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-triangularheisenberghamiltonian}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.triangularHeisenbergHamiltonian}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinbasis-value, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-triangularheisenberghamiltonianmatrix}
+  The matrix Hamiltonian interpreted as an endomorphism of the Hilbert space
+\end{definition}
+\begin{proof}
+  This is the declared model definition of triangular Heisenberg Hamiltonian.
+\end{proof}
+\begin{definition}[Spin Half Triangle Experiment]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinhalftriangleexperiment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.SpinHalfTriangleExperiment}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spintrianglefigure, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate}
+  The independent physical data of the experiment. The Hamiltonian remains an operator on the three-spin Hilbert space until the governing-law premise below identifies its matrix
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spin Half Triangle Experiment.
+\end{proof}
+\begin{definition}[Has Antiferromagnetic Exchange]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-hasantiferromagneticexchange}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.HasAntiferromagneticExchange}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinhalftriangleexperiment}
+  Positive exchange selects the antiferromagnetic regime stated in the source
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Antiferromagnetic Exchange.
+\end{proof}
+\begin{definition}[Satisfies Triangular Heisenberg Hamiltonian]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-satisfiestriangularheisenberghamiltonian}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.SatisfiesTriangularHeisenbergHamiltonian}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-triangularheisenberghamiltonian, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-spinhalftriangleexperiment}
+  The stated Heisenberg governing law. This premise fixes the operator from the local spin-1/2 matrices but contains no ground-energy or degeneracy claim
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Triangular Heisenberg Hamiltonian.
+\end{proof}
+\begin{definition}[Has Energy Eigenvalue]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-hasenergyeigenvalue}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.HasEnergyEigenvalue}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate}
+  A real energy readout whose complex coercion is an eigenvalue of H
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Energy Eigenvalue.
+\end{proof}
+\begin{definition}[Is Ground State Energy]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-isgroundstateenergy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.IsGroundStateEnergy}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate, def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-hasenergyeigenvalue}
+  energyJoules is an eigenvalue and is no larger than any other real energy eigenvalue of the Hamiltonian
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Ground State Energy.
+\end{proof}
+\begin{definition}[energy Level Degeneracy]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-energyleveldegeneracy}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.energyLevelDegeneracy}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-threespinstate}
+  The degeneracy of an energy is the complex dimension of its eigenspace
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Level Degeneracy.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.AnswerChoice}
+  Labels of the four energy expressions displayed with the question
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Energy Joules]
+  \label{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-displayedenergyjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0606.displayedEnergyJoules}
+  \uses{def:physics:phyx-mini-0606:phyxminiproblems-problemphyxmini0606-answerchoice}
+  The four displayed energy readouts, with their common dimensional scale
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Energy Joules.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

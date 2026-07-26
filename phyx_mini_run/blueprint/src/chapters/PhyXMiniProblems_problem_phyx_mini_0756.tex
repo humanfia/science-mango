@@ -1,0 +1,250 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0756.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0756.source.json
+
+\chapter{Physics problem phyx\_mini\_0756}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0756}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+In a two-dimensional tug-of-war, Alex, Betty, and Charles pull horizontally on an automobile tire at the angles shown in the overhead view of figure. The tire remains stationary in spite of the three pulls. Alex pulls with force \$\textbackslash{}vec\{F\}\_A\$ of magnitude \$220\textbackslash{} N\$, and Charles pulls with force \$\textbackslash{}vec\{F\}\_C\$ of magnitude \$170\textbackslash{} N\$. Note that the direction of \$\textbackslash{}vec\{F\}\_C\$ is not given.
+
+\#\# Question
+
+What is the magnitude of Betty's force \$\textbackslash{}vec\{F\}\_B\$?
+
+\#\# Answer choices
+
+- A: A: 232 N
+
+- B: B: 238 N
+
+- C: C: 241 N
+
+- D: D: 252 N
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image shows three hands, each labeled with a name, holding a circular object resembling a tire. The hands are positioned at different angles around the circle:
+
+1. **Alex**: The hand labeled "Alex" is pointing outward from the left side of the tire at an upward angle.
+   
+2. **Charles**: The hand labeled "Charles" is pointing outward from the right side of the tire, horizontally.
+
+3. **Betty**: The hand labeled "Betty" is pointing directly downward from the bottom of the tire.
+
+Each hand has an arrow extending from it, indicating a direction. There is an angle of 137° indicated between "Alex" and "Betty."
+
+\#\# Dataset metadata
+
+Statics; Spatial Relation Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 241 N
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/756.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0756.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0756:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0756.bettyForceMagnitude}
+\uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudeinnewtons, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-matchesproblemstatement, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-matchessuppliedfigure, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-satisfiesstationaryforcebalance, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-isclosestdisplayedanswer, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-roundstonearestnewton}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[force Dimension]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcedimension}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.forceDimension}
+  The physical dimension M L T⁻² of force
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Dimension.
+\end{proof}
+\begin{definition}[Tire Plane]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tireplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.TirePlane}
+  The image-aligned horizontal plane of the overhead tug-of-war
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Plane.
+\end{proof}
+\begin{definition}[Planar Force Quantity]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-planarforcequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.PlanarForceQuantity}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcedimension, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tireplane}
+  A unit-independent physical force vector in the tire plane
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planar Force Quantity.
+\end{proof}
+\begin{definition}[force Vector Readout]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcevectorreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.forceVectorReadout}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tireplane, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-planarforcequantity}
+  Vector components of a physical force in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Vector Readout.
+\end{proof}
+\begin{definition}[force Magnitude Readout]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudereadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.forceMagnitudeReadout}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-planarforcequantity, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcevectorreadout}
+  Magnitude of a physical force in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude Readout.
+\end{proof}
+\begin{definition}[force Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.forceMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-planarforcequantity, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudereadout}
+  Force magnitude in SI units, hence in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of force Magnitude In Newtons.
+\end{proof}
+\begin{definition}[horizontal Component]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-horizontalcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.horizontalComponent}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tireplane}
+  Rightward component in the coordinate frame of the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of horizontal Component.
+\end{proof}
+\begin{definition}[vertical Component]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-verticalcomponent}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.verticalComponent}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tireplane}
+  Upward component in the coordinate frame of the supplied image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of vertical Component.
+\end{proof}
+\begin{definition}[Puller]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-puller}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.Puller}
+  The three people whose force arrows are labelled in the image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Puller.
+\end{proof}
+\begin{definition}[Figure Element]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-figureelement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.FigureElement}
+  Named graphical elements visible in the supplied bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Element.
+\end{proof}
+\begin{definition}[Tug Of War Figure]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tugofwarfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.TugOfWarFigure}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-figureelement}
+  Presentation-level information transcribed from the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tug Of War Figure.
+\end{proof}
+\begin{definition}[Tire Tug Setup]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.TireTugSetup}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-planarforcequantity, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-puller, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tugofwarfigure}
+  The three physical pulls on the tire together with the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tire Tug Setup.
+\end{proof}
+\begin{definition}[pull Angle Radians]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-pullangleradians}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.pullAngleRadians}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcevectorreadout, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-puller, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup}
+  The undirected angle, in radians, between two physical pull vectors
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pull Angle Radians.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudeinnewtons, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup}
+  The two numerical force magnitudes stated in the prose. Betty's requested magnitude does not occur in this structure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcevectorreadout, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-horizontalcomponent, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-verticalcomponent, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-pullangleradians}
+  Geometry read directly from the primary image. The image shows Alex's arrow pointing upper-left, Betty's arrow vertically downward, and Charles's arrow upper-right. It labels the undirected angle between Alex and Betty as 137°. The qualitative Charles quadrant is essential: without it, the given side-angle-side data admit a second positive Betty magnitude that is not represented by the pictured configuration
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Satisfies Stationary Force Balance]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-satisfiesstationaryforcebalance}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.SatisfiesStationaryForceBalance}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcevectorreadout, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup}
+  The translational static-equilibrium law applied to the observed stationary tire: the three horizontal force vectors have zero resultant. This is the governing physical relation, not the requested Betty-force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Stationary Force Balance.
+\end{proof}
+\begin{lemma}[stationary Force Triangle Cosine Relation]
+  \label{lem:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-stationaryforcetrianglecosinerelation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.stationaryForceTriangleCosineRelation}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-forcemagnitudeinnewtons, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-tiretugsetup, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-pullangleradians, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-satisfiesstationaryforcebalance}
+  The equilibrium vectors form a force triangle. Squaring the norm of F\_C = -(F\_A + F\_B) gives the cosine relation below. This generic derived lemma does not insert any answer choice or requested numerical magnitude
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of stationary Force Triangle Cosine Relation.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.AnswerChoice}
+  Labels of the four displayed multiple-choice answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[answer Magnitude In Newtons]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-answermagnitudeinnewtons}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.answerMagnitudeInNewtons}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-answerchoice}
+  Displayed force-magnitude values, in newtons
+\end{definition}
+\begin{proof}
+  This is the declared model definition of answer Magnitude In Newtons.
+\end{proof}
+\begin{definition}[Is Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-isclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.IsClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-answerchoice, def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-answermagnitudeinnewtons}
+  A displayed choice is uniquely closest to an exact force magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Closest Displayed Answer.
+\end{proof}
+\begin{definition}[Rounds To Nearest Newton]
+  \label{def:physics:phyx-mini-0756:phyxminiproblems-problemphyxmini0756-roundstonearestnewton}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0756.RoundsToNearestNewton}
+  An exact SI force magnitude rounds to rounded at the nearest newton
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Nearest Newton.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

@@ -1,0 +1,386 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0459.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0459.source.json
+
+\chapter{Physics problem phyx\_mini\_0459}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0459}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A piston/cylinder has nitrogen gas at \$750 \textbackslash{}, \textbackslash{}text\{K\}\$ and \$1500 \textbackslash{}, \textbackslash{}text\{kPa\}\$, as shown in figure. Now it is expanded in a polytropic process with \$n = 1.2\$ to \$P = 750 \textbackslash{}, \textbackslash{}text\{kPa\}\$.
+
+\#\# Question
+
+Find the specific heat transfer in the process.
+
+\#\# Answer choices
+
+- A: A: 60.6 kJ/kg
+
+- B: B: 45.0 kJ/kg
+
+- C: C: 78.9 kJ/kg
+
+- D: D: 56.0 kJ/kg
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a diagram of a piston-cylinder mechanism. Key components include:
+
+1. **Piston-Cylinder Assembly**: The piston is within the cylinder, with visible rings around it to maintain a seal. The cylinder is represented by a rectangular enclosure.
+
+2. **Gas**: A section marked in blue shows the gas inside the cylinder, labeled "Gas," indicating the space where compression and expansion occur.
+
+3. **Connecting Rod and Crankshaft**: The piston is connected via a connecting rod to a crankshaft. The crankshaft features rotational motion indicated by an arrow, highlighting its direction.
+
+4. **Spark Plug**: Positioned on the left side, the spark plug is shown externally to the cylinder, suggesting an internal combustion engine context.
+
+The diagram illustrates the mechanical relationship and movement involved in a typical internal combustion engine, focusing on the conversion of linear motion to rotational motion.
+
+\#\# Dataset metadata
+
+Laws of Thermodynamics; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+D: D: 56.0 kJ/kg
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/459.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0459.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0459:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0459.problem_phyx_mini_0459}
+\uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-matchesproblemandprimaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasphysicalpolytropicstates, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasnitrogenpropertydata, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-satisfiesclosedidealgaspolytropiclaws, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-displayedspecificheattransferinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-isuniqueclosestdisplayedanswer}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Specific Volume Quantity]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.SpecificVolumeQuantity}
+  A nonnegative physical specific volume, with dimension L³ M⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Volume Quantity.
+\end{proof}
+\begin{definition}[Temperature Quantity]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperaturequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.TemperatureQuantity}
+  A nonnegative absolute temperature carrying the temperature dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Temperature Quantity.
+\end{proof}
+\begin{definition}[Specific Energy Quantity]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.SpecificEnergyQuantity}
+  Signed energy per unit mass, with dimension L² T⁻². It is used for specific internal energy, boundary work, and heat transfer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Energy Quantity.
+\end{proof}
+\begin{definition}[Specific Gas Constant Quantity]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.SpecificGasConstantQuantity}
+  The nonnegative specific gas constant, with dimension L² T⁻² Θ⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Specific Gas Constant Quantity.
+\end{proof}
+\begin{definition}[pressure In Pascals]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinpascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.pressureInPascals}
+  Pascal readout of a physical pressure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Pascals.
+\end{proof}
+\begin{definition}[pressure In Kilopascals]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinkilopascals}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.pressureInKilopascals}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinpascals}
+  Kilopascal readout used in the problem statement
+\end{definition}
+\begin{proof}
+  This is the declared model definition of pressure In Kilopascals.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.temperatureInKelvins}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperaturequantity}
+  Kelvin readout of a physical absolute temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[specific Volume In Cubic Meters Per Kilogram]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumeincubicmetersperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificVolumeInCubicMetersPerKilogram}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumequantity}
+  Cubic-metre-per-kilogram readout of a physical specific volume
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Volume In Cubic Meters Per Kilogram.
+\end{proof}
+\begin{definition}[specific Energy In Joules Per Kilogram]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinjoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificEnergyInJoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyquantity}
+  Joule-per-kilogram readout of signed specific energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In Joules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Energy In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificEnergyInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyquantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinjoulesperkilogram}
+  Kilojoule-per-kilogram readout used by the answer choices
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Energy In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[specific Gas Constant In Joules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinjoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificGasConstantInJoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantquantity}
+  Joule-per-kilogram-kelvin readout of the specific gas constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Gas Constant In Joules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[specific Gas Constant In Kilojoules Per Kilogram Kelvin]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinkilojoulesperkilogramkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificGasConstantInKilojoulesPerKilogramKelvin}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantquantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinjoulesperkilogramkelvin}
+  Kilojoule-per-kilogram-kelvin readout for equations written with kPa
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Gas Constant In Kilojoules Per Kilogram Kelvin.
+\end{proof}
+\begin{definition}[Process State]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-processstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.ProcessState}
+  The two equilibrium endpoints named by the expansion description
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process State.
+\end{proof}
+\begin{definition}[Gas Species]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-gasspecies}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.GasSpecies}
+  Chemical identity of the gas sample
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Gas Species.
+\end{proof}
+\begin{definition}[System Boundary]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-systemboundary}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.SystemBoundary}
+  Thermodynamic system boundary relevant to the first law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of System Boundary.
+\end{proof}
+\begin{definition}[Apparatus Kind]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-apparatuskind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.ApparatusKind}
+  Mechanical apparatus represented in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Apparatus Kind.
+\end{proof}
+\begin{definition}[Process Kind]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-processkind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.ProcessKind}
+  Thermodynamic classification of the stated process
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Process Kind.
+\end{proof}
+\begin{definition}[Heat Sign Convention]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-heatsignconvention}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.HeatSignConvention}
+  Sign convention for process energy transfer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Heat Sign Convention.
+\end{proof}
+\begin{definition}[Thermodynamic State]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-thermodynamicstate}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.ThermodynamicState}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumequantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperaturequantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyquantity}
+  Pressure, specific volume, temperature, and internal energy at an endpoint
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic State.
+\end{proof}
+\begin{definition}[Nitrogen Polytropic Expansion]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.NitrogenPolytropicExpansion}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyquantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantquantity, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-processstate, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-gasspecies, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-systemboundary, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-apparatuskind, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-processkind, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-heatsignconvention, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-thermodynamicstate}
+  The physical process and its independent observables. In particular, specificHeatTransferredToGas is not defined from any answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Nitrogen Polytropic Expansion.
+\end{proof}
+\begin{definition}[Figure Object]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-figureobject}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.FigureObject}
+  Physical objects visibly represented in the supplied raster image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Object.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.FigureLabel}
+  Literal text label visible in the primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Cylinder Axis Orientation]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-cylinderaxisorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.CylinderAxisOrientation}
+  Orientation of the cylinder and piston travel in the drawing
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Cylinder Axis Orientation.
+\end{proof}
+\begin{definition}[Rotation Direction]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-rotationdirection}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.RotationDirection}
+  Sense of the blue crank-rotation arrow
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Direction.
+\end{proof}
+\begin{definition}[Primary Figure]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.PrimaryFigure}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-figureobject, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-figurelabel, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-cylinderaxisorientation, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-rotationdirection}
+  Qualitative evidence transcribed from the supplied piston-cylinder image
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem And Primary Figure]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-matchesproblemandprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.MatchesProblemAndPrimaryFigure}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinkilopascals, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperatureinkelvins, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure}
+  Problem-statement and image readouts. These fields contain only supplied endpoint data, process classification, and qualitative apparatus evidence
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem And Primary Figure.
+\end{proof}
+\begin{definition}[Has Physical Polytropic States]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasphysicalpolytropicstates}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.HasPhysicalPolytropicStates}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinkilopascals, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperatureinkelvins, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinkilojoulesperkilogramkelvin, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion}
+  Positivity conditions needed for the ideal-gas and real-power relations
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Polytropic States.
+\end{proof}
+\begin{definition}[specific Internal Energy Change In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificinternalenergychangeinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specificInternalEnergyChangeInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion}
+  Specific internal-energy change from the initial state to the final state
+\end{definition}
+\begin{proof}
+  This is the declared model definition of specific Internal Energy Change In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[Has Nitrogen Property Data]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasnitrogenpropertydata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.HasNitrogenPropertyData}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinkilojoulesperkilogramkelvin, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificinternalenergychangeinkilojoulesperkilogram}
+  Calibrated nitrogen-property data used with the variable-specific-heat ideal gas model. The internal-energy interval, [-66, -65.5] kJ/kg, brackets the standard nitrogen caloric-property change across the endpoint temperature range; it neither mentions heat transfer nor selects an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Nitrogen Property Data.
+\end{proof}
+\begin{definition}[Satisfies Closed Ideal Gas Polytropic Laws]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-satisfiesclosedidealgaspolytropiclaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.SatisfiesClosedIdealGasPolytropicLaws}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-pressureinkilopascals, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperatureinkelvins, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificvolumeincubicmetersperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificgasconstantinkilojoulesperkilogramkelvin, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificinternalenergychangeinkilojoulesperkilogram}
+  Governing equations for a closed ideal gas undergoing a quasistatic polytropic process. With pressure in kPa and specific volume in m³/kg, each p v product is in kJ/kg. Work is positive when done by the gas and heat is positive when transferred into it, so the first law is q = Δu + w
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Closed Ideal Gas Polytropic Laws.
+\end{proof}
+\begin{lemma}[final temperature in caloric table interval]
+  \label{lem:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-final-temperature-in-caloric-table-interval}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.final_temperature_in_caloric_table_interval}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-temperatureinkelvins, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-matchesproblemandprimaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasphysicalpolytropicstates, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasnitrogenpropertydata, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-satisfiesclosedidealgaspolytropiclaws}
+  The ideal-gas and polytropic relations put the final temperature near 668.17 K; this deliberately states a derived intermediate result rather than storing it in a premise structure
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final temperature in caloric table interval.
+\end{proof}
+\begin{lemma}[specific boundary work in expected interval]
+  \label{lem:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specific-boundary-work-in-expected-interval}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specific_boundary_work_in_expected_interval}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-matchesproblemandprimaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasphysicalpolytropicstates, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasnitrogenpropertydata, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-satisfiesclosedidealgaspolytropiclaws}
+  The polytropic expansion work is approximately 121.43 kJ/kg
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of specific boundary work in expected interval.
+\end{proof}
+\begin{lemma}[specific heat transfer in expected interval]
+  \label{lem:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specific-heat-transfer-in-expected-interval}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.specific_heat_transfer_in_expected_interval}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-primaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-matchesproblemandprimaryfigure, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasphysicalpolytropicstates, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-hasnitrogenpropertydata, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-satisfiesclosedidealgaspolytropiclaws}
+  The first law and nitrogen caloric data bracket the requested heat
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of specific heat transfer in expected interval.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.AnswerChoice}
+  Answer labels printed beside the four displayed heat-transfer values
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Specific Heat Transfer In Kilojoules Per Kilogram]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-displayedspecificheattransferinkilojoulesperkilogram}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.displayedSpecificHeatTransferInKilojoulesPerKilogram}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-answerchoice}
+  Displayed specific heat transfer in kilojoules per kilogram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Specific Heat Transfer In Kilojoules Per Kilogram.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-answerchoice}
+  Dataset metadata records answer D; this definition is not a theorem premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Is Unique Closest Displayed Answer]
+  \label{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-isuniqueclosestdisplayedanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0459.IsUniqueClosestDisplayedAnswer}
+  \uses{def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-specificenergyinkilojoulesperkilogram, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-nitrogenpolytropicexpansion, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-answerchoice, def:physics:phyx-mini-0459:phyxminiproblems-problemphyxmini0459-displayedspecificheattransferinkilojoulesperkilogram}
+  A displayed value is uniquely closest to the process heat-transfer readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Unique Closest Displayed Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

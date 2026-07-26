@@ -1,0 +1,385 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0698.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0698.source.json
+
+\chapter{Physics problem phyx\_mini\_0698}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0698}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Students participating in an engineering project design the triangular widget seen in figure. The three masses, held together by lightweight plastic rods, rotate in the plane of the page about an axle passing through the right-angle corner.
+
+\#\# Question
+
+At what angular velocity does the widget have \textbackslash{}(100\textbackslash{},\textbackslash{}mathrm\{mJ\}\textbackslash{}) of rotational energy?
+
+\#\# Answer choices
+
+- A: A: 90rpm
+
+- B: B: 88rpm
+
+- C: C: 92rpm
+
+- D: D: 86rpm
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram showing a triangular structure composed of three blocks connected by rods. 
+
+1. **Blocks**: 
+   - The bottom-left block is labeled "250 g."
+   - The top block is labeled "150 g."
+   - The bottom-right block is labeled "300 g."
+
+2. **Connections**:
+   - There are three rods connecting these blocks, forming a right triangle.
+
+3. **Dimensions**:
+   - The horizontal rod at the bottom measures "8.0 cm."
+   - The vertical rod on the right measures "6.0 cm."
+
+4. **Additional Details**:
+   - An "Axle" is marked near the bottom-right block.
+   - There is an arrow labeled "ω" pointing counter-clockwise, suggesting rotational motion about the axle.
+
+\#\# Dataset metadata
+
+Rotational Motion; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 92rpm
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/698.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0698.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0698:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0698.angularSpeedAt100Millijoules_matches_answerC}
+\uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesprimaryfigure, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesproblemdata, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-hasphysicalparameters, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-roundstodisplayedrevolutionsperminute}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.MassQuantity}
+  A nonnegative point-mass magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.LengthQuantity}
+  A nonnegative length magnitude
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Angular Speed Quantity]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.AngularSpeedQuantity}
+  A nonnegative angular-speed magnitude; radians are dimensionless
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Angular Speed Quantity.
+\end{proof}
+\begin{definition}[Moment Of Inertia Quantity]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiaquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.MomentOfInertiaQuantity}
+  A scalar moment of inertia about the fixed axle, of dimension M L²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Moment Of Inertia Quantity.
+\end{proof}
+\begin{definition}[Energy Quantity]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.EnergyQuantity}
+  Rotational energy, of dimension M L² T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy Quantity.
+\end{proof}
+\begin{definition}[mass In Kilograms]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massinkilograms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.massInKilograms}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massquantity}
+  Read a physical mass in coherent-SI kilograms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Kilograms.
+\end{proof}
+\begin{definition}[mass In Grams]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massingrams}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.massInGrams}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massinkilograms}
+  Read a physical mass in the grams printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass In Grams.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.lengthInMeters}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthquantity}
+  Read a physical length in coherent-SI metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[length In Centimeters]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthincentimeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.lengthInCentimeters}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthinmeters}
+  Read a physical length in the centimetres printed in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Centimeters.
+\end{proof}
+\begin{definition}[angular Speed In Radians Per Second]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.angularSpeedInRadiansPerSecond}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity}
+  Read angular speed in radians per coherent-SI second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Radians Per Second.
+\end{proof}
+\begin{definition}[angular Speed In Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.angularSpeedInRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond}
+  Convert a radian-per-second angular-speed readout to revolutions per minute
+\end{definition}
+\begin{proof}
+  This is the declared model definition of angular Speed In Revolutions Per Minute.
+\end{proof}
+\begin{definition}[moment Of Inertia In Kilogram Meters Squared]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiainkilogrammeterssquared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.momentOfInertiaInKilogramMetersSquared}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiaquantity}
+  Read a scalar axial moment of inertia in kg m²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of moment Of Inertia In Kilogram Meters Squared.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.energyInJoules}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyquantity}
+  Read a physical energy in joules, calibrated by Physlib's joule
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[energy In Millijoules]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinmillijoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.energyInMillijoules}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules}
+  Read a physical energy in millijoules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Millijoules.
+\end{proof}
+\begin{definition}[Widget Vertex]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-widgetvertex}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.WidgetVertex}
+  The three block locations in the supplied triangular diagram
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Widget Vertex.
+\end{proof}
+\begin{definition}[Connecting Rod]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-connectingrod}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.ConnectingRod}
+  The three lightweight rods forming the triangular frame
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Connecting Rod.
+\end{proof}
+\begin{definition}[Rod Orientation]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rodorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.RodOrientation}
+  Coarse orientation of each rod as it appears on the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Orientation.
+\end{proof}
+\begin{definition}[Vertex Angle Kind]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-vertexanglekind}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.VertexAngleKind}
+  The angle marker implied at the junction of the 8 cm and 6 cm rods
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Vertex Angle Kind.
+\end{proof}
+\begin{definition}[Rotation Sense]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rotationsense}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.RotationSense}
+  Sense of the curved ω arrow in the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rotation Sense.
+\end{proof}
+\begin{definition}[Motion Plane]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-motionplane}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.MotionPlane}
+  Plane in which the problem states that the widget moves
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Motion Plane.
+\end{proof}
+\begin{definition}[Axle Orientation]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-axleorientation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.AxleOrientation}
+  Orientation of the axle relative to the page
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Axle Orientation.
+\end{proof}
+\begin{definition}[Rod Mass Model]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rodmassmodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.RodMassModel}
+  Idealization justified by the description of the rods as lightweight
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rod Mass Model.
+\end{proof}
+\begin{definition}[Triangular Widget Figure]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.TriangularWidgetFigure}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-widgetvertex, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-connectingrod, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rodorientation, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-vertexanglekind, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rotationsense}
+  Qualitative and printed information transcribed from the primary bitmap
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Widget Figure.
+\end{proof}
+\begin{definition}[Triangular Widget Setup]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.TriangularWidgetSetup}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiaquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-widgetvertex, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-connectingrod, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-motionplane, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-axleorientation, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rodmassmodel, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetfigure}
+  The physical quantities of the widget. rotationalEnergyAt is an independent physical energy for each angular speed; it is related to Physlib's rigid-body energy only in the governing-law structure below. In particular, neither it nor any other field is defined from the displayed 92 rpm answer
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Triangular Widget Setup.
+\end{proof}
+\begin{definition}[Matches Primary Figure]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesprimaryfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.MatchesPrimaryFigure}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massingrams, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthinmeters, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthincentimeters, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-widgetvertex, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-connectingrod, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup}
+  Primary-image evidence: all three blocks and rods, their printed mass and length labels, the right-angle/axle corner, and the counterclockwise ω arrow. The distances from the axle are also read from the two adjacent rods
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Figure.
+\end{proof}
+\begin{definition}[Matches Problem Data]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesproblemdata}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.MatchesProblemData}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinmillijoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-connectingrod, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup}
+  Problem-text data and the stated 100 mJ energy condition. The rods are treated as having negligible inertia relative to the three labeled blocks
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Data.
+\end{proof}
+\begin{definition}[Has Physical Parameters]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-hasphysicalparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.HasPhysicalParameters}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massinkilograms, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthinmeters, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-widgetvertex, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup}
+  Positivity/nondegeneracy needed to select the physical positive root
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Parameters.
+\end{proof}
+\begin{definition}[Satisfies Triangular Widget Rotational Laws]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.SatisfiesTriangularWidgetRotationalLaws}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-massinkilograms, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-lengthinmeters, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup}
+  Governing laws for the idealized widget. Negligible rods leave the three point masses as the complete axial-inertia sum Σ m r². The scalar inertia is the axle-axis tensor entry of a Physlib RigidBody 3. Angular velocity points along that axle. The physical rotational energy agrees with RigidBody.rotationalKineticEnergy. These are general model laws. They contain neither a target angular speed nor the displayed 92 rpm conclusion
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Triangular Widget Rotational Laws.
+\end{proof}
+\begin{lemma}[moment Of Inertia About Axle eq 107 over 50000]
+  \label{lem:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiaaboutaxle-eq-107-over-50000}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.momentOfInertiaAboutAxle_eq_107_over_50000}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesprimaryfigure, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws}
+  The figure data and point-mass law give I = 0.00214 kg m²
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of moment Of Inertia About Axle eq 107 over 50000.
+\end{proof}
+\begin{lemma}[rotational Energy eq half inertia mul angular Speed sq]
+  \label{lem:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-rotationalenergy-eq-half-inertia-mul-angularspeed-sq}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.rotationalEnergy_eq_half_inertia_mul_angularSpeed_sq}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-momentofinertiainkilogrammeterssquared, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws}
+  Physlib's tensor contraction reduces to the familiar scalar relation K = I ω² / 2 when angular velocity is along the axle
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rotational Energy eq half inertia mul angular Speed sq.
+\end{proof}
+\begin{lemma}[target Angular Speed squared eq 10000 over 107]
+  \label{lem:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-targetangularspeed-squared-eq-10000-over-107}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.targetAngularSpeed_squared_eq_10000_over_107}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesprimaryfigure, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesproblemdata, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws}
+  At 100 mJ, the positive angular speed therefore satisfies ω² = 10000 / 107 in (rad/s)²
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of target Angular Speed squared eq 10000 over 107.
+\end{proof}
+\begin{lemma}[target Angular Speed eq sqrt 10000 over 107]
+  \label{lem:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-targetangularspeed-eq-sqrt-10000-over-107}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.targetAngularSpeed_eq_sqrt_10000_over_107}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinradianspersecond, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-energyinjoules, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-triangularwidgetsetup, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesprimaryfigure, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-matchesproblemdata, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-satisfiestriangularwidgetrotationallaws}
+  The exact positive-root radian-per-second readout
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of target Angular Speed eq sqrt 10000 over 107.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.AnswerChoice}
+  Labels of the four angular-speed choices displayed in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[revolutions Per Minute]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-answerchoice-revolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.AnswerChoice.revolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-answerchoice}
+  Revolutions-per-minute value printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of revolutions Per Minute.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-answerchoice}
+  Dataset metadata recording the supplied answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+\begin{definition}[Rounds To Displayed Revolutions Per Minute]
+  \label{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-roundstodisplayedrevolutionsperminute}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0698.RoundsToDisplayedRevolutionsPerMinute}
+  \uses{def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedquantity, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-angularspeedinrevolutionsperminute, def:physics:phyx-mini-0698:phyxminiproblems-problemphyxmini0698-answerchoice}
+  The physical angular speed agrees with a displayed whole-rpm choice when its rpm readout rounds to that integer. This avoids claiming that the unrounded speed is exactly 92 rpm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Rounds To Displayed Revolutions Per Minute.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

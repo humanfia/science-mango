@@ -1,0 +1,196 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0475.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0475.source.json
+
+\chapter{Physics problem phyx\_mini\_0475}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0475}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+A partition divides a thermally insulated box into two compartments, each of volume \$V\$ (figure). Initially, one compartment contains \$n\$ moles of an ideal gas at temperature \$T\$, and the other compartment is evacuated. We break the partition and the gas expands, filling both compartments.
+
+\#\# Question
+
+What is the entropy change in this free-expansion process?
+
+\#\# Answer choices
+
+- A: A: nR \textbackslash{}ln 3\$
+
+- B: B: nR \textbackslash{}ln 2\$
+
+- C: C: nR \textbackslash{}ln 1\$
+
+- D: D: nR \textbackslash{}ln 4\$
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image contains two diagrams side by side, each depicting a container divided into sections.
+
+**Left Diagram:**
+- The container is divided into two equal sections vertically.
+- The bottom section is filled with a blue substance, represented by blue dots, labeled with "V" and temperature "T."
+- The top section is empty and labeled "V."
+- A pink horizontal line separates the top and bottom sections, indicating a boundary or partition.
+
+**Right Diagram:**
+- The container is fully filled with the blue substance, covering both previous sections (no partition).
+- The entire container is labeled "2V" with temperature "T."
+- The partition seen in the left diagram is now shown as a broken pink line, indicating the division is no longer present.
+
+Both diagrams are set against a light gray background. The blue dots likely represent gas molecules, and the diagrams visually depict a scenario of expansion or mixing, possibly illustrating an ideal gas or similar concept.
+
+\#\# Dataset metadata
+
+Ideal Gases and Kinetic Theory; Physical Model Grounding Reasoning, Numerical Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: nR \textbackslash{}ln 2\$
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/475.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0475.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0475:target}
+\lean{PhyXMini0475.entropyChange_eq_nR_log_two}
+\uses{def:physics:phyx-mini-0475:phyxmini0475-idealgasentropyparameters, def:physics:phyx-mini-0475:phyxmini0475-entropychange, def:physics:phyx-mini-0475:phyxmini0475-freeexpansionsetup}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[volume Dimension]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-volumedimension}
+  \lean{PhyXMini0475.volumeDimension}
+  The physical dimension of volume, namely length cubed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of volume Dimension.
+\end{proof}
+\begin{definition}[energy Dimension]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-energydimension}
+  \lean{PhyXMini0475.energyDimension}
+  The physical dimension of energy
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy Dimension.
+\end{proof}
+\begin{definition}[entropy Dimension]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-entropydimension}
+  \lean{PhyXMini0475.entropyDimension}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-energydimension}
+  The physical dimension of thermodynamic entropy, energy per temperature
+\end{definition}
+\begin{proof}
+  This is the declared model definition of entropy Dimension.
+\end{proof}
+\begin{definition}[Volume]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-volume}
+  \lean{PhyXMini0475.Volume}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-volumedimension}
+  A volume readout in one fixed, consistent system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Volume.
+\end{proof}
+\begin{definition}[Energy]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-energy}
+  \lean{PhyXMini0475.Energy}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-energydimension}
+  An internal-energy, heat, or work readout in one fixed system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Energy.
+\end{proof}
+\begin{definition}[Thermodynamic Entropy]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-thermodynamicentropy}
+  \lean{PhyXMini0475.ThermodynamicEntropy}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-entropydimension}
+  A thermodynamic-entropy readout in one fixed system of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermodynamic Entropy.
+\end{proof}
+\begin{definition}[Molar Gas Constant]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-molargasconstant}
+  \lean{PhyXMini0475.MolarGasConstant}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-entropydimension}
+  The molar gas constant as an entropy-per-mole quantity. Since a mole count is represented by its scalar readout, this carries the entropy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Molar Gas Constant.
+\end{proof}
+\begin{definition}[Ideal Gas State]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-idealgasstate}
+  \lean{PhyXMini0475.IdealGasState}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-volume, def:physics:phyx-mini-0475:phyxmini0475-energy}
+  The state variables used by Physlib's monophase ideal-gas entropy function. amountMoles is the numerical amount of substance measured in moles
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas State.
+\end{proof}
+\begin{definition}[Ideal Gas Entropy Parameters]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-idealgasentropyparameters}
+  \lean{PhyXMini0475.IdealGasEntropyParameters}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-volume, def:physics:phyx-mini-0475:phyxmini0475-energy, def:physics:phyx-mini-0475:phyxmini0475-thermodynamicentropy, def:physics:phyx-mini-0475:phyxmini0475-molargasconstant}
+  Parameters of Physlib's monophase ideal-gas entropy model. The reference quantities fix the entropy convention and cancel from the entropy difference
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Ideal Gas Entropy Parameters.
+\end{proof}
+\begin{definition}[ideal Gas Entropy]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-idealgasentropy}
+  \lean{PhyXMini0475.idealGasEntropy}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-thermodynamicentropy, def:physics:phyx-mini-0475:phyxmini0475-idealgasstate, def:physics:phyx-mini-0475:phyxmini0475-idealgasentropyparameters}
+  The entropy of a state, obtained from Physlib's entropy function and tagged with its physical entropy dimension
+\end{definition}
+\begin{proof}
+  This is the declared model definition of ideal Gas Entropy.
+\end{proof}
+\begin{definition}[entropy Change]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-entropychange}
+  \lean{PhyXMini0475.entropyChange}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-thermodynamicentropy, def:physics:phyx-mini-0475:phyxmini0475-idealgasstate, def:physics:phyx-mini-0475:phyxmini0475-idealgasentropyparameters, def:physics:phyx-mini-0475:phyxmini0475-idealgasentropy}
+  Entropy change between two ideal-gas equilibrium states
+\end{definition}
+\begin{proof}
+  This is the declared model definition of entropy Change.
+\end{proof}
+\begin{definition}[Free Expansion Setup]
+  \label{def:physics:phyx-mini-0475:phyxmini0475-freeexpansionsetup}
+  \lean{PhyXMini0475.FreeExpansionSetup}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-volume, def:physics:phyx-mini-0475:phyxmini0475-energy, def:physics:phyx-mini-0475:phyxmini0475-idealgasstate}
+  Physical and figure-derived data for the free expansion. The first-law field is a governing law; insulation and expansion into vacuum set heat and work to zero. The remaining equalities transcribe the labels V, V, 2V, T, and the conserved n moles shown or implied by the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Free Expansion Setup.
+\end{proof}
+\begin{lemma}[internal Energy conserved]
+  \label{lem:physics:phyx-mini-0475:phyxmini0475-internalenergy-conserved}
+  \lean{PhyXMini0475.internalEnergy_conserved}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-freeexpansionsetup}
+  An insulated free expansion into vacuum conserves internal energy
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of internal Energy conserved.
+\end{proof}
+\begin{lemma}[final Volume eq two mul initial Volume]
+  \label{lem:physics:phyx-mini-0475:phyxmini0475-finalvolume-eq-two-mul-initialvolume}
+  \lean{PhyXMini0475.finalVolume_eq_two_mul_initialVolume}
+  \uses{def:physics:phyx-mini-0475:phyxmini0475-freeexpansionsetup}
+  Breaking the partition makes the final volume twice the initial volume
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of final Volume eq two mul initial Volume.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

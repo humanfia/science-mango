@@ -1,0 +1,327 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0767.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0767.source.json
+
+\chapter{Physics problem phyx\_mini\_0767}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0767}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Two identical masses are released from rest in a smooth hemispherical bowl of radius \textbackslash{}(R\textbackslash{}) from the positions shown in figure. Ignore friction between the masses and the surface of the bowl.
+
+\#\# Question
+
+If the masses stick together when they collide, how high above the bottom of the bowl will they go after colliding?
+
+\#\# Answer choices
+
+- A: A: R/3
+
+- B: B: R/4
+
+- C: C: R/2
+
+- D: D: R/5
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a semicircular setup with two squares and a line. Here's a detailed breakdown:
+
+- **Semicircle**: The image shows a semicircle with a thickened gray border.
+- **Squares**: 
+  - One square is positioned near the left edge of the semicircle, colored orange with a darker border.
+  - Another square is located at the bottom of the semicircle, similarly colored and bordered.
+- **Line**: A line extends from the center of the semicircle towards the right side, ending outside the semicircle. 
+- **Text**: The letter "R" is annotated next to the line, with an arrow indicating the direction from the center to the edge.
+
+The layout suggests a geometric or physical scenario, possibly related to forces or distances.
+
+\#\# Dataset metadata
+
+Momentum and Collisions; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+B: B: R/4
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/767.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0767.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0767:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0767.problem_phyx_mini_0767}
+\uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesbowlcollisionscenario, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchessuppliedfigure, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesinitialandcollisiongeometry, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hasphysicalbowlparameters, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-satisfiesbowlcollisionconservationlaws, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-iscorrectanswer, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-recordedanswerchoice}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.LengthQuantity}
+  A nonnegative physical length, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Mass Quantity]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.MassQuantity}
+  A nonnegative physical mass, independent of the unit used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Mass Quantity.
+\end{proof}
+\begin{definition}[Acceleration Magnitude Quantity]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationmagnitudequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.AccelerationMagnitudeQuantity}
+  A nonnegative acceleration magnitude with physical dimension L T⁻²
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Acceleration Magnitude Quantity.
+\end{proof}
+\begin{definition}[Tangential Velocity Quantity]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.TangentialVelocityQuantity}
+  A signed tangential velocity. The real carrier retains the sign needed by the one-dimensional momentum balance, while WithDim retains dimension L T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Tangential Velocity Quantity.
+\end{proof}
+\begin{definition}[length Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.lengthReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthquantity}
+  Scalar readout of a physical length in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length Readout.
+\end{proof}
+\begin{definition}[mass Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.massReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity}
+  Scalar readout of a physical mass in a coherent choice of units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of mass Readout.
+\end{proof}
+\begin{definition}[acceleration Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.accelerationReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationmagnitudequantity}
+  Scalar readout of an acceleration magnitude in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of acceleration Readout.
+\end{proof}
+\begin{definition}[tangential Velocity Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.tangentialVelocityReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityquantity}
+  Scalar readout of a signed tangential velocity in coherent units
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tangential Velocity Readout.
+\end{proof}
+\begin{definition}[gravitational Potential Energy Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-gravitationalpotentialenergyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.gravitationalPotentialEnergyReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationmagnitudequantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationreadout}
+  The scalar readout of m g h. Its factors are dimension-tagged quantities, so this helper is an energy readout rather than an untyped physical primitive
+\end{definition}
+\begin{proof}
+  This is the declared model definition of gravitational Potential Energy Readout.
+\end{proof}
+\begin{definition}[translational Kinetic Energy Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-translationalkineticenergyreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.translationalKineticEnergyReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout}
+  The scalar readout of the translational kinetic energy m v² / 2
+\end{definition}
+\begin{proof}
+  This is the declared model definition of translational Kinetic Energy Readout.
+\end{proof}
+\begin{definition}[tangential Momentum Readout]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialmomentumreadout}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.tangentialMomentumReadout}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout}
+  The signed one-dimensional tangential momentum readout m v
+\end{definition}
+\begin{proof}
+  This is the declared model definition of tangential Momentum Readout.
+\end{proof}
+\begin{definition}[Bowl Mass]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlmass}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.BowlMass}
+  The two identical bodies distinguished by their pictured starting places
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bowl Mass.
+\end{proof}
+\begin{definition}[Bowl Location]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowllocation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.BowlLocation}
+  Distinguished locations in the lower semicircular cross-section
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bowl Location.
+\end{proof}
+\begin{definition}[Bowl Geometry]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlgeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.BowlGeometry}
+  Geometric model of the confining bowl
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bowl Geometry.
+\end{proof}
+\begin{definition}[Surface Condition]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-surfacecondition}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.SurfaceCondition}
+  Contact condition between each mass and the bowl surface
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Surface Condition.
+\end{proof}
+\begin{definition}[Collision Behavior]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-collisionbehavior}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.CollisionBehavior}
+  Mechanical behavior of the two bodies at impact
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Collision Behavior.
+\end{proof}
+\begin{definition}[Figure Label]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-figurelabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.FigureLabel}
+  The literal symbolic label visible beside the radius segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Label.
+\end{proof}
+\begin{definition}[Hemispherical Bowl Figure]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hemisphericalbowlfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.HemisphericalBowlFigure}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlmass, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowllocation, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-figurelabel}
+  Qualitative information in the primary raster phyx\_data/test\_image/767.png. The image is a lower semicircular cross-section with one square at the left rim, one at the bottom, and a center-to-wall segment marked R
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Hemispherical Bowl Figure.
+\end{proof}
+\begin{definition}[Bowl Collision Setup]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.BowlCollisionSetup}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationmagnitudequantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityquantity, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlmass, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowllocation, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlgeometry, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-surfacecondition, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-collisionbehavior, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hemisphericalbowlfigure}
+  Independent physical quantities for the experiment. In particular, maximumRiseHeight is an unconstrained observable; it is not defined from the radius or from an answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Bowl Collision Setup.
+\end{proof}
+\begin{definition}[Matches Bowl Collision Scenario]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesbowlcollisionscenario}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.MatchesBowlCollisionScenario}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  The qualitative assumptions stated in the problem prose
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Bowl Collision Scenario.
+\end{proof}
+\begin{definition}[Matches Supplied Figure]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchessuppliedfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.MatchesSuppliedFigure}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  Facts read directly from the supplied primary figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Supplied Figure.
+\end{proof}
+\begin{definition}[Matches Initial And Collision Geometry]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesinitialandcollisiongeometry}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.MatchesInitialAndCollisionGeometry}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  Quantitative geometry and initial conditions supplied by the prose and image. The left-rim height equals the radius, the other mass and the collision are at the zero-height bottom, both bodies are released from rest, and their physical masses are equal. No post-collision speed or rise height is fixed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Initial And Collision Geometry.
+\end{proof}
+\begin{definition}[Has Physical Bowl Parameters]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hasphysicalbowlparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.HasPhysicalBowlParameters}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  Positivity and orientation conditions selecting the physical branch
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Bowl Parameters.
+\end{proof}
+\begin{definition}[Satisfies Bowl Collision Conservation Laws]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-satisfiesbowlcollisionconservationlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.SatisfiesBowlCollisionConservationLaws}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-massreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-gravitationalpotentialenergyreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-translationalkineticenergyreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialmomentumreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup}
+  The generic mechanical laws used in the textbook solution: mechanical energy of the rim mass is conserved during its frictionless descent; the mass initially at the bottom remains at rest until impact; tangential momentum is conserved during the short sticking collision; and mechanical energy of the joined body is conserved from just after impact to its zero-speed turning point. These laws quantify over every coherent unit choice.
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Bowl Collision Conservation Laws.
+\end{proof}
+\begin{lemma}[rim impact velocity squared]
+  \label{lem:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-rim-impact-velocity-squared}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.rim_impact_velocity_squared}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-accelerationreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesinitialandcollisiongeometry, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hasphysicalbowlparameters, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-satisfiesbowlcollisionconservationlaws}
+  Frictionless descent from the rim to the bottom gives v\_impact² = 2 g R
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of rim impact velocity squared.
+\end{proof}
+\begin{lemma}[common velocity after sticking is half]
+  \label{lem:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-common-velocity-after-sticking-is-half}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.common_velocity_after_sticking_is_half}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-tangentialvelocityreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-matchesinitialandcollisiongeometry, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-hasphysicalbowlparameters, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-satisfiesbowlcollisionconservationlaws}
+  For two equal masses, with the bottom mass initially stationary, tangential momentum conservation makes the shared post-impact velocity half the incoming rim-mass velocity
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of common velocity after sticking is half.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.AnswerChoice}
+  Labels printed beside the four candidate heights
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[radius Fraction]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-answerchoice-radiusfraction}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.AnswerChoice.radiusFraction}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-answerchoice}
+  Dimensionless coefficient of the bowl radius printed by each choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of radius Fraction.
+\end{proof}
+\begin{definition}[Is Correct Answer]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-iscorrectanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.IsCorrectAnswer}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-lengthreadout, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-bowlcollisionsetup, def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-answerchoice}
+  A choice is correct when its radius fraction equals the physical rise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Is Correct Answer.
+\end{proof}
+\begin{definition}[recorded Answer Choice]
+  \label{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-recordedanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0767.recordedAnswerChoice}
+  \uses{def:physics:phyx-mini-0767:phyxminiproblems-problemphyxmini0767-answerchoice}
+  The answer label recorded in the supplied dataset metadata
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

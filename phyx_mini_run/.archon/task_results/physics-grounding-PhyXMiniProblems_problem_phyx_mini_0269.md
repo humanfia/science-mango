@@ -1,0 +1,130 @@
+# Physics LeanExplore Grounding Log
+
+- Target Lean file: `PhyXMiniProblems/problem_phyx_mini_0269.lean`
+- Blueprint chapter: `blueprint/src/chapters/PhyXMiniProblems_problem_phyx_mini_0269.tex`
+- Grounding status: complete
+- Search backend: local
+- Input fingerprint: sha256:a3d1fb54ca3302bc8001d476c102bae633f55fd5dbc81cb54ee3d10cec474ab0
+- Packages searched: Mathlib, Physlib
+
+## LeanExplore queries/candidates actually used
+
+### Query: `harmonic oscillator angular frequency`
+- `ClassicalMechanics.DampedHarmonicOscillator.angularFrequency` | module `Physlib.ClassicalMechanics.DampedHarmonicOscillator.Basic` | package PhysLean | The real frequency selected by the damping regime. In the underdamped regime this is the oscillation frequency. In the critically damped regime it is `0`. In the overdamped regime this is the real split rate between t...
+- `QuantumMechanics.OneDimension.HarmonicOscillator.ξ` | module `Physlib.QuantumMechanics.HarmonicOscillator.OneDimension.Basic` | package PhysLean | The characteristic length `ξ` of the harmonic oscillator is defined as `√(ℏ /(m ω))`.
+- `ClassicalMechanics.HarmonicOscillator.ω` | module `Physlib.ClassicalMechanics.HarmonicOscillator.Basic` | package PhysLean | The angular frequency of the classical harmonic oscillator, `ω`, is defined as `√(k/m)`.
+
+### Query: `Real.sqrt square root`
+- `Real.sqrt` | module `Mathlib.Analysis.Real.Sqrt` | package Mathlib | The square root of a real number. This returns 0 for negative inputs. This has notation `√x`. Note that `√x⁻¹` is parsed as `√(x⁻¹)`.
+- `Real.coe_sqrt` | module `Mathlib.Analysis.Real.Sqrt` | package Mathlib | **Square Root of Nonnegative Reals.** For any nonnegative real number $x$, the real-valued square root of $x$ is equal to the square root of $x$ computed in the nonnegative real numbers and then cast to a real number.
+- `Real.sqrt_lt'` | module `Mathlib.Analysis.Real.Sqrt` | package Mathlib | **Strict Monotonicity of the Square Root.** For any real number $x$ and any positive real number $y$, the square root of $x$ is strictly less than $y$ if and only if $x$ is strictly less than $y^2$.
+
+### Query: `Physics formalization target`
+- `Path.target` | module `Mathlib.Topology.Path` | package Mathlib | **Target of a Path.** For a path $\gamma$ from $x$ to $y$ in a topological space, the value of the path at the endpoint of the unit interval, $\gamma(1)$, is equal to $y$.
+- `semiformal_result` | module `Physlib.Meta.Informal.SemiFormal` | package PhysLean | A semiformal result is either a - definition in which the type is given but not the definition. - proof in which the proposition is given but not the proof. Semiformal results cannot be used in further code. They are...
+- `stereographic_target` | module `Mathlib.Geometry.Manifold.Instances.Sphere` | package Mathlib | **Target of the Stereographic Projection.** For any unit vector $v$ in an inner product space, the target of the stereographic projection associated with $v$ is the entire codomain (the orthogonal complement of the su...
+
+### Query: `Length Quantity`
+- `LengthUnit` | module `Physlib.SpaceAndTime.Space.LengthUnit` | package PhysLean | The choices of translationally-invariant metrics on the space-manifold. Such a choice corresponds to a choice of units for length.
+- `Computation.length` | module `Mathlib.Data.Seq.Computation` | package Mathlib | `length s` gets the number of steps of a terminating computation
+- `LengthUnit.links` | module `Physlib.SpaceAndTime.Space.LengthUnit` | package PhysLean | The length unit of link (0.201168 meters).
+
+### Query: `Signed Length Quantity`
+- `MeasureTheory.SignedMeasure` | module `Mathlib.MeasureTheory.VectorMeasure.Basic` | package Mathlib | A `SignedMeasure` is an `ℝ`-vector measure.
+- `signedDist` | module `Mathlib.Geometry.Euclidean.SignedDist` | package Mathlib | The signed distance between two points `p` and `q`, in the direction of a reference vector `v`. It is the size of `q - p` in the direction of `v`. In the degenerate case `v = 0`, it returns `0`. TODO: once we have a t...
+- `LengthUnit` | module `Physlib.SpaceAndTime.Space.LengthUnit` | package PhysLean | The choices of translationally-invariant metrics on the space-manifold. Such a choice corresponds to a choice of units for length.
+
+### Query: `Time Quantity`
+- `Time` | module `Physlib.SpaceAndTime.Time.Basic` | package PhysLean | The type `Time` represents the time in a given (but arbitrary) set of units, and with a given (but arbitrary) choice of origin.
+- `TimeUnit` | module `Physlib.SpaceAndTime.Time.TimeUnit` | package PhysLean | The choices of translationally-invariant metrics on the manifold `TimeTransMan`. Such a choice corresponds to a choice of units for time.
+- `Time.eq_one_smul` | module `Physlib.SpaceAndTime.Time.Basic` | package PhysLean | **Time Representation as Scalar Multiplication.** Any element $t$ of the type `Time` is equal to the scalar multiplication of its underlying numerical value $t.val$ by the unit element $1$.
+
+### Query: `Spring Constant Quantity`
+- `LocallyConstant` | module `Mathlib.Topology.LocallyConstant.Basic` | package Mathlib | A (bundled) locally constant function from a topological space `X` to a type `Y`.
+- `ClassicalMechanics.DampedHarmonicOscillator.k_eq_m_mul_ω_sq` | module `Physlib.ClassicalMechanics.DampedHarmonicOscillator.Basic` | package PhysLean | The spring constant is `m * ω^2`.
+- `ClassicalMechanics.HarmonicOscillator.k_ne_zero` | module `Physlib.ClassicalMechanics.HarmonicOscillator.Basic` | package PhysLean | **Non-zero Spring Constant.** For a harmonic oscillator $S$, the spring constant $k$ is non-zero.
+
+### Query: `Signed Force Quantity`
+- `signedDist` | module `Mathlib.Geometry.Euclidean.SignedDist` | package Mathlib | The signed distance between two points `p` and `q`, in the direction of a reference vector `v`. It is the size of `q - p` in the direction of `v`. In the degenerate case `v = 0`, it returns `0`. TODO: once we have a t...
+- `MeasureTheory.SignedMeasure` | module `Mathlib.MeasureTheory.VectorMeasure.Basic` | package Mathlib | A `SignedMeasure` is an `ℝ`-vector measure.
+- `QuadraticForm.sigNeg_weightedSumSquares` | module `Mathlib.LinearAlgebra.QuadraticForm.Signature` | package Mathlib | **Negative Signature of a Weighted Sum of Squares.** The negative signature of a quadratic form defined as a weighted sum of squares with weights $w_i$ is equal to the number of negative weights in the collection. Spe...
+
+### Query: `Rotational Inertia Quantity`
+- `Ideal.inertiaDeg` | module `Mathlib.RingTheory.RamificationInertia.Inertia` | package Mathlib | Given a prime ideal `q` of an `R`-algebra `S`, the inertia degree of `q` over `R` is defined to be the degree of the residue field of `q` over the residue field of its preimage `p` in `R`. When `q` is not prime, we us...
+- `RigidBody.rotationalKineticEnergy` | module `Physlib.ClassicalMechanics.RigidBody.KineticEnergy` | package PhysLean | The rotational kinetic energy of a rigid body rotating with angular velocity `ω` about its reference point: half the contraction of `ω` with the inertia tensor, `T = ½ ω · (I ω)`.
+- `RigidBody.rotational_equation_inertial` | module `Physlib.ClassicalMechanics.RigidBody.Basic` | package PhysLean | In the inertial frame, the rotational equation of motion of a rigid body about the center of mass is given by dM/dt = K, where `M` is the total angular momentum and `K` is the total external torque.
+
+### Query: `Signed Torque Quantity`
+- `signedDist` | module `Mathlib.Geometry.Euclidean.SignedDist` | package Mathlib | The signed distance between two points `p` and `q`, in the direction of a reference vector `v`. It is the size of `q - p` in the direction of `v`. In the degenerate case `v = 0`, it returns `0`. TODO: once we have a t...
+- `DimPressure.torr` | module `Physlib.Units.WithDim.Pressure` | package PhysLean | The dimensional pressure corresponding to 1 torr (1/760 of standard atmosphere pressure).
+- `signedDist_smul` | module `Mathlib.Geometry.Euclidean.SignedDist` | package Mathlib | **Scaling Property of Signed Distance.** For any real number $r$, the signed distance between two points $p$ and $q$ relative to a scaled vector $r \cdot v$ is equal to the sign of $r$ multiplied by the signed distanc...
+
+## Grounded Mathlib/PhysLean names
+
+- `ClassicalMechanics.DampedHarmonicOscillator.angularFrequency` (PhysLean)
+- `QuantumMechanics.OneDimension.HarmonicOscillator.ξ` (PhysLean)
+- `ClassicalMechanics.HarmonicOscillator.ω` (PhysLean)
+- `Real.sqrt` (Mathlib)
+- `Real.coe_sqrt` (Mathlib)
+- `Real.sqrt_lt'` (Mathlib)
+- `Path.target` (Mathlib)
+- `semiformal_result` (PhysLean)
+- `stereographic_target` (Mathlib)
+- `LengthUnit` (PhysLean)
+- `Computation.length` (Mathlib)
+- `LengthUnit.links` (PhysLean)
+- `MeasureTheory.SignedMeasure` (Mathlib)
+- `signedDist` (Mathlib)
+- `LengthUnit` (PhysLean)
+- `Time` (PhysLean)
+- `TimeUnit` (PhysLean)
+- `Time.eq_one_smul` (PhysLean)
+- `LocallyConstant` (Mathlib)
+- `ClassicalMechanics.DampedHarmonicOscillator.k_eq_m_mul_ω_sq` (PhysLean)
+- `ClassicalMechanics.HarmonicOscillator.k_ne_zero` (PhysLean)
+- `signedDist` (Mathlib)
+- `MeasureTheory.SignedMeasure` (Mathlib)
+- `QuadraticForm.sigNeg_weightedSumSquares` (Mathlib)
+- `Ideal.inertiaDeg` (Mathlib)
+- `RigidBody.rotationalKineticEnergy` (PhysLean)
+- `RigidBody.rotational_equation_inertial` (PhysLean)
+- `signedDist` (Mathlib)
+- `DimPressure.torr` (PhysLean)
+- `signedDist_smul` (Mathlib)
+
+## Local abstractions introduced
+
+- `PhyXMiniProblems.ProblemPhyXMini0269.AngularAccelerationQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.AngularFrequencyQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.AngularMotionRegime`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.AngularVelocityQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.AnswerChoice`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.AxlePlacement`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.FigureComponent`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.GraphAngleUnit`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.GraphTimeUnit`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.HasPhysicalPlateSpringParameters`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.IsInSmallAngleRegime`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.IsUniqueClosestAnswer`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.LengthQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.MatchesProblemAndFigureReadouts`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.MatchesVerbalScenario`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.PlateMaterial`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.PlateSpringSetup`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.RestoringCoefficientQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.RotationalInertiaQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SatisfiesIdealAngularSHMLaw`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SatisfiesLinearizedPlateSpringLaws`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SignedForceQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SignedLengthQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SignedTorqueQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SpringAnchor`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SpringAttachment`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SpringConstantQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SpringForceModel`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.SuppliedFigureReadout`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+- `PhyXMiniProblems.ProblemPhyXMini0269.TimeQuantity`: blueprint-local physics/modeling abstraction; must preserve the physical role instead of erasing it to a bare scalar.
+
+## Grounding gaps
+
+- No unresolved LeanExplore grounding gaps were recorded by this preflight.

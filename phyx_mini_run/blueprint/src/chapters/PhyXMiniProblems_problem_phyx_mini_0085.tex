@@ -1,0 +1,221 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0085.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0085.source.json
+
+\chapter{Physics problem phyx\_mini\_0085}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0085}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+Figure shows the design of a Texas arcade game. Four laser pistols are pointed toward the center of an array of plastic layers where a clay armadillo is the target. The indexes of refraction of the layers are \textbackslash{}( n\_1 = 1.55 \textbackslash{}), \textbackslash{}( n\_2 = 1.70 \textbackslash{}), \textbackslash{}( n\_3 = 1.45 \textbackslash{}), \textbackslash{}( n\_4 = 1.60 \textbackslash{}), \textbackslash{}( n\_5 = 1.45 \textbackslash{}), \textbackslash{}( n\_6 = 1.61 \textbackslash{}), \textbackslash{}( n\_7 = 1.59 \textbackslash{}), \textbackslash{}( n\_8 = 1.70 \textbackslash{}), and \textbackslash{}( n\_9 = 1.60 \textbackslash{}). The layer thicknesses are either \textbackslash{}( 2.00\textbackslash{},\textbackslash{}text\{mm\} \textbackslash{}) or \textbackslash{}( 4.00\textbackslash{},\textbackslash{}text\{mm\} \textbackslash{}), as drawn.
+
+\#\# Question
+
+What is the travel time through the layers for the laser burst from pistol 3?
+
+\#\# Answer choices
+
+- A: A: 42.5 \textbackslash{}times 10\textasciicircum{}\{-12\} \textbackslash{}
+
+- B: B: 43.5 \textbackslash{}times 10\textasciicircum{}\{-12\} \textbackslash{}
+
+- C: C: 43.2 \textbackslash{}times 10\textasciicircum{}\{-12\} \textbackslash{}
+
+- D: D: 42.8 \textbackslash{}times 10\textasciicircum{}\{-12\} \textbackslash{}
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image depicts a series of nested rectangles with different colors, each labeled with text on their borders. From the outermost to the innermost, the rectangles are labeled as \textbackslash{}( n\_9 \textbackslash{}), \textbackslash{}( n\_8 \textbackslash{}), \textbackslash{}( n\_1 \textbackslash{}), \textbackslash{}( n\_2 \textbackslash{}), \textbackslash{}( n\_3 \textbackslash{}), \textbackslash{}( n\_4 \textbackslash{}), \textbackslash{}( n\_5 \textbackslash{}), \textbackslash{}( n\_6 \textbackslash{}), and \textbackslash{}( n\_7 \textbackslash{}), surrounding a small central area containing an illustration of an armadillo. In each corner of the outermost rectangle, there is a cartoon-style gun, each numbered from 1 to 4. These guns are positioned at the top, right, bottom, and left edges, respectively.
+
+\#\# Dataset metadata
+
+Geometrical Optics; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+C: C: 43.2 \textbackslash{}times 10\textasciicircum{}\{-12\} \textbackslash{}
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/85.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0085.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0085:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0085.pistol3_travel_time_is_answer_C}
+\uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearraysetup, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3burst, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearrayfigurereadouts, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3transitlaws, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-matchesanswerchoice}
+For pistol 3, the normally incident ray crosses the \(n_9,n_8,n_7\) layers
+with thicknesses \(2,2,4\,\mathrm{mm}\).  Its total transit time rounds to
+\(43.2\,\mathrm{ps}\), answer C.
+\end{theorem}
+\begin{proof}
+At normal incidence the path length in each layer is its printed thickness.
+The refractive-index speed law gives \(t_j=n_jd_j/c\), and additivity gives
+\[
+ ct=1.60(2\,\mathrm{mm})+1.70(2\,\mathrm{mm})
+       +1.59(4\,\mathrm{mm})=12.96\,\mathrm{mm}.
+\]
+Using the declared vacuum-light-speed calibration and converting seconds to
+picoseconds gives \(t=43.2\,\mathrm{ps}\), so its distance from choice C is
+zero and in particular at most the stated half-decimal tolerance.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Dim Length]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimlength}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.DimLength}
+  A physical length, independent of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Length.
+\end{proof}
+\begin{definition}[Dim Time]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimtime}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.DimTime}
+  A physical duration, independent of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Time.
+\end{proof}
+\begin{definition}[Dim Speed]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimspeed}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.DimSpeed}
+  A physical speed, independent of the unit system used to read it
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Dim Speed.
+\end{proof}
+\begin{definition}[millimeter Unit Choices]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-millimeterunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.millimeterUnitChoices}
+  SI unit choices except that lengths are displayed in millimeters
+\end{definition}
+\begin{proof}
+  This is the declared model definition of millimeter Unit Choices.
+\end{proof}
+\begin{definition}[picosecond Unit Choices]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-picosecondunitchoices}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.picosecondUnitChoices}
+  SI unit choices except that times are displayed in picoseconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of picosecond Unit Choices.
+\end{proof}
+\begin{definition}[Plastic Layer]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-plasticlayer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.PlasticLayer}
+  The nine plastic regions labelled in the figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Plastic Layer.
+\end{proof}
+\begin{definition}[Laser Pistol]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-laserpistol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.LaserPistol}
+  The four laser pistols surrounding the rectangular array
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Laser Pistol.
+\end{proof}
+\begin{definition}[Array Side]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arrayside}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.ArraySide}
+  The four sides of the rectangular plastic array
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Array Side.
+\end{proof}
+\begin{definition}[Pistol3 Segment]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3segment}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.Pistol3Segment}
+  The three successive pieces of pistol 3's path, ordered from outside in
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pistol3 Segment.
+\end{proof}
+\begin{definition}[layer]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3segment-layer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.Pistol3Segment.layer}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-plasticlayer, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3segment}
+  Figure-derived identification of the plastic crossed by each pistol 3 segment
+\end{definition}
+\begin{proof}
+  This is the declared model definition of layer.
+\end{proof}
+\begin{definition}[Arcade Array Setup]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearraysetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.ArcadeArraySetup}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimlength, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-plasticlayer, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-laserpistol, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arrayside}
+  The material and layout data of the arcade target. A thickness is a physical length, while each refractive index is a dimensionless material readout
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arcade Array Setup.
+\end{proof}
+\begin{definition}[Pistol3 Burst]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3burst}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.Pistol3Burst}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimlength, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimtime, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimspeed, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3segment}
+  Physical quantities associated with one burst from pistol 3. Separate segment times retain the additive time-of-flight law rather than baking the answer into the total travel time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pistol3 Burst.
+\end{proof}
+\begin{definition}[Has Allowed Thickness]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-hasallowedthickness}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.HasAllowedThickness}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-millimeterunitchoices, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-plasticlayer, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearraysetup}
+  A layer has one of the two thickness readouts stated in the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Allowed Thickness.
+\end{proof}
+\begin{definition}[Arcade Array Figure Readouts]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearrayfigurereadouts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.ArcadeArrayFigureReadouts}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-millimeterunitchoices, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearraysetup, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3burst, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-hasallowedthickness}
+  Numerical and geometrical readouts supplied by the text and figure. The bottom ray from pistol 3 crosses n₉, n₈, and n₇; their normal thicknesses are respectively 2 mm, 2 mm, and 4 mm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Arcade Array Figure Readouts.
+\end{proof}
+\begin{definition}[Pistol3 Transit Laws]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3transitlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.Pistol3TransitLaws}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimspeed, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3segment, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-arcadearraysetup, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-pistol3burst}
+  The geometrical-optics and constant-speed laws used for the time-of-flight calculation. No numerical value for the total travel time occurs here
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Pistol3 Transit Laws.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.AnswerChoice}
+  The four travel-time choices displayed by the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[time Picoseconds]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-answerchoice-timepicoseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.AnswerChoice.timePicoseconds}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-answerchoice}
+  Picosecond readout printed beside each answer choice
+\end{definition}
+\begin{proof}
+  This is the declared model definition of time Picoseconds.
+\end{proof}
+\begin{definition}[Matches Answer Choice]
+  \label{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-matchesanswerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0085.MatchesAnswerChoice}
+  \uses{def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-dimtime, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-picosecondunitchoices, def:physics:phyx-mini-0085:phyxminiproblems-problemphyxmini0085-answerchoice}
+  A computed time agrees with a one-decimal-place displayed answer. The tolerance 0.05 ps is half a unit in the last printed decimal place
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Answer Choice.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---

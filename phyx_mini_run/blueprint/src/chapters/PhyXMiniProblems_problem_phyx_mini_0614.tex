@@ -1,0 +1,405 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers PhyXMiniProblems/problem_phyx_mini_0614.lean
+% archon:source-report reports/phyx_mini/problem_phyx_mini_0614.source.json
+
+\chapter{Physics problem phyx\_mini\_0614}
+\label{ch:PhyXMiniProblems_problem_phyx_mini_0614}
+
+\paragraph{Problem source.}
+\#\# Physical scenario
+
+An advanced civilization uses a fusion reactor to maintain a high temperature on a spherical blackbody whose radiation supplies energy for use on a spacecraft. The blackbody has radius \$r = 1.23\$ m and is surrounded by a larger sphere whose inside surface is densely lined with photocells (figure). These capture all photons that have energy within 1.00\textbackslash{}\% of a central value \$E\_0\$. The photocells are designed so that \$E\_0\$ corresponds to the peak energy radiated from the blackbody. The range \$\textbackslash{}Delta E\$ is sufficiently small that we can approximate the spectral emittance as constant over the range \$E\_0 \textbackslash{}pm \textbackslash{}Delta E\$. This device generates an emf across a motor of resistance 1.00 k\$\textbackslash{}Omega\$.The device is designed for \$T = 5000\$ K
+
+\#\# Question
+
+What is the current?
+
+\#\# Answer choices
+
+- A: A: 91.1A
+
+- B: B: 93.3A
+
+- C: C: 86.2A
+
+- D: D: 88.6A
+
+\#\# Figure caption (auxiliary; use the image as primary evidence)
+
+The image is a diagram illustrating a blackbody and photocells setup. It features the following components:
+
+1. **Central Sphere**: A gray-colored sphere at the center, labeled as "Blackbody, radius r." This symbolizes a blackbody with a specific radius.
+
+2. **Radiation Arrows**: Purple wavy arrows emanate outward from the surface of the blackbody, indicating radiation being emitted in various directions.
+
+3. **Surrounding Ring**: A ring is encircling the blackbody, representing "Photocells." This ring likely indicates a shell or arrangement of photocells designed to capture the emitted radiation.
+
+4. **Text and Labels**: The diagram includes text labels with arrows pointing to the corresponding components. The text "Blackbody, radius r" refers to the central sphere, and "Photocells" refers to the surrounding ring.
+
+Overall, the diagram visually represents a blackbody emitting radiation with surrounding photocells intended to detect or measure the emissions.
+
+\#\# Dataset metadata
+
+Quantum Phenomena; Physical Model Grounding Reasoning, Multi-Formula Reasoning
+
+\paragraph{Recorded answer/context.}
+A: A: 91.1A
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/phyx\_mini\_run/phyx\_data/test\_image/614.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `PhyXMiniProblems/problem\_phyx\_mini\_0614.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:phyx_mini_0614:target}
+\lean{PhyXMiniProblems.ProblemPhyXMini0614.motorCurrent_matches_answer_A}
+\uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-currentinamperes, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-matchesproblemstatement, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-matchesprimaryblackbodyphotocellfigure, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-usesstandardradiationconstants, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-hasphysicalblackbodyphotocellparameters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-satisfiesblackbodyphotocellmotorlaws, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-answerchoice, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-displayedanswercurrentinamperes}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+
+% --- Archon declaration topology begin ---
+\section{Declaration topology}
+\begin{definition}[Length Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.LengthQuantity}
+  A nonnegative physical length
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Length Quantity.
+\end{proof}
+\begin{definition}[Power Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.PowerQuantity}
+  Radiant or electrical power, with SI unit watt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Power Quantity.
+\end{proof}
+\begin{definition}[Spectral Radiant Exitance Per Energy Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperenergyquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.SpectralRadiantExitancePerEnergyQuantity}
+  Spectral radiant exitance per unit photon energy, with SI unit W / (m² J) and hence physical dimension L⁻² T⁻¹
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spectral Radiant Exitance Per Energy Quantity.
+\end{proof}
+\begin{definition}[Planck Constant Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.PlanckConstantQuantity}
+  Planck's constant, with SI unit joule-second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Planck Constant Quantity.
+\end{proof}
+\begin{definition}[Boltzmann Constant Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.BoltzmannConstantQuantity}
+  Boltzmann's constant, with SI unit joule per kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Boltzmann Constant Quantity.
+\end{proof}
+\begin{definition}[Speed Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.SpeedQuantity}
+  A physical speed. This uses a real carrier to match the actual type of Physlib's dimensionful DimSpeed.speedOfLight constant
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Speed Quantity.
+\end{proof}
+\begin{definition}[Electric Current Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electriccurrentquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.ElectricCurrentQuantity}
+  Electric current, with SI unit ampere and dimension charge per time
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Current Quantity.
+\end{proof}
+\begin{definition}[Electric Potential Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricpotentialquantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.ElectricPotentialQuantity}
+  Electric potential difference or emf, with SI unit volt
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electric Potential Quantity.
+\end{proof}
+\begin{definition}[Electrical Resistance Quantity]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricalresistancequantity}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.ElectricalResistanceQuantity}
+  Electrical resistance, with SI unit ohm
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Electrical Resistance Quantity.
+\end{proof}
+\begin{definition}[length In Meters]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthinmeters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.lengthInMeters}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthquantity}
+  Read a physical length in metres
+\end{definition}
+\begin{proof}
+  This is the declared model definition of length In Meters.
+\end{proof}
+\begin{definition}[energy In Joules]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.energyInJoules}
+  Read a Physlib energy in joules
+\end{definition}
+\begin{proof}
+  This is the declared model definition of energy In Joules.
+\end{proof}
+\begin{definition}[power In Watts]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerinwatts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.powerInWatts}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerquantity}
+  Read a physical power in watts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of power In Watts.
+\end{proof}
+\begin{definition}[spectral Radiant Exitance Per Joule In SI]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperjouleinsi}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.spectralRadiantExitancePerJouleInSI}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperenergyquantity}
+  Read spectral radiant exitance in W / (m² J)
+\end{definition}
+\begin{proof}
+  This is the declared model definition of spectral Radiant Exitance Per Joule In SI.
+\end{proof}
+\begin{definition}[planck Constant In Joule Seconds]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantinjouleseconds}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.planckConstantInJouleSeconds}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantquantity}
+  Read Planck's constant in joule-seconds
+\end{definition}
+\begin{proof}
+  This is the declared model definition of planck Constant In Joule Seconds.
+\end{proof}
+\begin{definition}[boltzmann Constant In Joules Per Kelvin]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantinjoulesperkelvin}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.boltzmannConstantInJoulesPerKelvin}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantquantity}
+  Read Boltzmann's constant in joules per kelvin
+\end{definition}
+\begin{proof}
+  This is the declared model definition of boltzmann Constant In Joules Per Kelvin.
+\end{proof}
+\begin{definition}[speed In Meters Per Second]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedinmeterspersecond}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.speedInMetersPerSecond}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedquantity}
+  Read a dimensionful speed in metres per second
+\end{definition}
+\begin{proof}
+  This is the declared model definition of speed In Meters Per Second.
+\end{proof}
+\begin{definition}[current In Amperes]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-currentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.currentInAmperes}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electriccurrentquantity}
+  Read electric current in amperes
+\end{definition}
+\begin{proof}
+  This is the declared model definition of current In Amperes.
+\end{proof}
+\begin{definition}[potential In Volts]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-potentialinvolts}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.potentialInVolts}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricpotentialquantity}
+  Read emf or potential difference in volts
+\end{definition}
+\begin{proof}
+  This is the declared model definition of potential In Volts.
+\end{proof}
+\begin{definition}[resistance In Ohms]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistanceinohms}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.resistanceInOhms}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricalresistancequantity}
+  Read electrical resistance in ohms
+\end{definition}
+\begin{proof}
+  This is the declared model definition of resistance In Ohms.
+\end{proof}
+\begin{definition}[temperature In Kelvins]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-temperatureinkelvins}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.temperatureInKelvins}
+  Read a Physlib absolute temperature in kelvins. The storage unit is explicit because Temperature stores a nonnegative magnitude in an arbitrary zero-preserving temperature unit
+\end{definition}
+\begin{proof}
+  This is the declared model definition of temperature In Kelvins.
+\end{proof}
+\begin{definition}[Thermal Emitter Model]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-thermalemittermodel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.ThermalEmitterModel}
+  The radiation model assigned to the central hot sphere
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Thermal Emitter Model.
+\end{proof}
+\begin{definition}[Figure Component Label]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-figurecomponentlabel}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.FigureComponentLabel}
+  Component names printed in the supplied figure
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Component Label.
+\end{proof}
+\begin{definition}[Figure Radius Symbol]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-figureradiussymbol}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.FigureRadiusSymbol}
+  The radius symbol printed beside the central blackbody
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Figure Radius Symbol.
+\end{proof}
+\begin{definition}[Blackbody Photocell Figure]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.BlackbodyPhotocellFigure}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-figurecomponentlabel, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-figureradiussymbol}
+  Typed information carried by image 614. The quantitative radius is supplied by the prose; the bitmap contributes the component placement, labels, radius symbol, enclosing photocell lining, and outward radiation arrows
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Blackbody Photocell Figure.
+\end{proof}
+\begin{definition}[Spherical Blackbody]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-sphericalblackbody}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.SphericalBlackbody}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperenergyquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-thermalemittermodel}
+  The spherical source. Its spectral radiant exitance is an independent physical observable indexed by a genuine physical photon energy; Planck's law is imposed separately below
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Spherical Blackbody.
+\end{proof}
+\begin{definition}[Photocell Shell]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-photocellshell}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.PhotocellShell}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerquantity}
+  The enclosing photocell shell. capturesPhotonAtEnergy records its response window, while captured power remains independent until the narrow-band law is assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Photocell Shell.
+\end{proof}
+\begin{definition}[Resistive Motor]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistivemotor}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.ResistiveMotor}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electriccurrentquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricpotentialquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-electricalresistancequantity}
+  The motor's independent circuit observables
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Resistive Motor.
+\end{proof}
+\begin{definition}[Blackbody Radiation Constants]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyradiationconstants}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.BlackbodyRadiationConstants}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantquantity, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedquantity}
+  Dimensionful constants occurring in Planck's law
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Blackbody Radiation Constants.
+\end{proof}
+\begin{definition}[Blackbody Photocell Motor Setup]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.BlackbodyPhotocellMotorSetup}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellfigure, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-sphericalblackbody, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-photocellshell, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistivemotor, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyradiationconstants}
+  Complete physical and diagrammatic setup for the problem
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Blackbody Photocell Motor Setup.
+\end{proof}
+\begin{definition}[Matches Problem Statement]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-matchesproblemstatement}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.MatchesProblemStatement}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthinmeters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperjouleinsi, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistanceinohms, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-temperatureinkelvins, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  Numerical data and qualitative facts supplied by the prose. In particular, the central accepted energy maximizes the spectrum, but neither its numerical value nor the requested motor current is assumed
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Problem Statement.
+\end{proof}
+\begin{definition}[Matches Primary Blackbody Photocell Figure]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-matchesprimaryblackbodyphotocellfigure}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.MatchesPrimaryBlackbodyPhotocellFigure}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  Primary-image evidence: the blackbody is central, the photocells surround it, both names and the radius symbol r are shown, and eight wavy radiation arrows point from the source toward the shell
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Matches Primary Blackbody Photocell Figure.
+\end{proof}
+\begin{definition}[Uses Standard Radiation Constants]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-usesstandardradiationconstants}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.UsesStandardRadiationConstants}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantinjouleseconds, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantinjoulesperkelvin, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  Standard SI calibrations. Physlib supplies the reduced Planck constant and the dimensionful speed of light; the full Planck constant is h = 2πℏ
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Uses Standard Radiation Constants.
+\end{proof}
+\begin{definition}[Has Physical Blackbody Photocell Parameters]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-hasphysicalblackbodyphotocellparameters}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.HasPhysicalBlackbodyPhotocellParameters}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthinmeters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantinjouleseconds, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantinjoulesperkelvin, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedinmeterspersecond, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistanceinohms, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-temperatureinkelvins, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  Positivity and nondegeneracy conditions for the physical apparatus
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Has Physical Blackbody Photocell Parameters.
+\end{proof}
+\begin{definition}[Satisfies Blackbody Photocell Motor Laws]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-satisfiesblackbodyphotocellmotorlaws}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.SatisfiesBlackbodyPhotocellMotorLaws}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthinmeters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-powerinwatts, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperjouleinsi, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-planckconstantinjouleseconds, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantinjoulesperkelvin, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-speedinmeterspersecond, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-currentinamperes, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-potentialinvolts, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistanceinohms, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-temperatureinkelvins, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup}
+  Governing physical laws. The first field is Planck's blackbody spectral radiant exitance per unit photon energy. The second implements exactly the narrow-window approximation stated in the problem. The final three fields model ideal energy conversion and the ordinary resistive circuit. None of these laws mentions 91.1 A or any answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Satisfies Blackbody Photocell Motor Laws.
+\end{proof}
+\begin{lemma}[central Accepted Energy satisfies wien Peak Equation]
+  \label{lem:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-centralacceptedenergy-satisfies-wienpeakequation}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.centralAcceptedEnergy_satisfies_wienPeakEquation}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-boltzmannconstantinjoulesperkelvin, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-temperatureinkelvins, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-matchesproblemstatement, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-hasphysicalblackbodyphotocellparameters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-satisfiesblackbodyphotocellmotorlaws}
+  The energy-spectrum maximum satisfies the dimensionless Wien peak equation 3 (1 - exp (-x₀)) = x₀, where x₀ = E₀/(k\_B T). This is derived from the given peak condition and Planck's law; no numerical root is assumed
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of central Accepted Energy satisfies wien Peak Equation.
+\end{proof}
+\begin{lemma}[motor Current squared times resistance eq narrow Band Power]
+  \label{lem:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-motorcurrent-squared-times-resistance-eq-narrowbandpower}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.motorCurrent_squared_times_resistance_eq_narrowBandPower}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-lengthinmeters, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-energyinjoules, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-spectralradiantexitanceperjouleinsi, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-currentinamperes, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-resistanceinohms, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-blackbodyphotocellmotorsetup, def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-satisfiesblackbodyphotocellmotorlaws}
+  Combining the narrow-band radiation approximation with ideal conversion, P = V I, and Ohm's law yields the current-squared power balance. This is a derived relation, not a premise of the final numerical result
+\end{lemma}
+\begin{proof}
+  The conclusion follows from the governing relations and figure readouts named in the statement of motor Current squared times resistance eq narrow Band Power.
+\end{proof}
+\begin{definition}[Answer Choice]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-answerchoice}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.AnswerChoice}
+  Labels of the four displayed answers
+\end{definition}
+\begin{proof}
+  This is the declared model definition of Answer Choice.
+\end{proof}
+\begin{definition}[displayed Answer Current In Amperes]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-displayedanswercurrentinamperes}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.displayedAnswerCurrentInAmperes}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-answerchoice}
+  Current in amperes printed beside each answer label
+\end{definition}
+\begin{proof}
+  This is the declared model definition of displayed Answer Current In Amperes.
+\end{proof}
+\begin{definition}[recorded Dataset Answer]
+  \label{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-recordeddatasetanswer}
+  \lean{PhyXMiniProblems.ProblemPhyXMini0614.recordedDatasetAnswer}
+  \uses{def:physics:phyx-mini-0614:phyxminiproblems-problemphyxmini0614-answerchoice}
+  The dataset records choice A; this metadata is not accepted as a premise
+\end{definition}
+\begin{proof}
+  This is the declared model definition of recorded Dataset Answer.
+\end{proof}
+% --- Archon declaration topology end ---
+% --- Archon physics formalization source end ---
