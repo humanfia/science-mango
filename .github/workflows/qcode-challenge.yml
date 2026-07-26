@@ -1,0 +1,81 @@
+name: qcode-challenge-gates
+
+on:
+  pull_request:
+    paths:
+      - "qcode-discovery/**"
+      - "qcode_lean_bridges/**"
+      - "src/archon/commands/qcode.py"
+      - "src/archon/commands/qcode_formalize.py"
+      - ".github/workflows/qcode-challenge.yml"
+  push:
+    paths:
+      - "qcode-discovery/**"
+      - "qcode_lean_bridges/**"
+      - "src/archon/commands/qcode.py"
+      - "src/archon/commands/qcode_formalize.py"
+      - ".github/workflows/qcode-challenge.yml"
+
+jobs:
+  verify-gates:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: qcode-discovery
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install verifier dependencies
+        run: uv sync --group dev
+      - name: Test challenge gates
+        run: >-
+          uv run python -m pytest
+          tests/test_certificate.py
+          tests/test_certificate_dispatch.py
+          tests/test_certificate_dispatch_unified.py
+          tests/test_challenge_gate.py
+          tests/test_expanded_ansatz.py
+          tests/test_final_gate.py
+          tests/test_frontier_mutations.py
+          tests/test_frontier_screen.py
+          tests/test_known_answer_gate.py
+          tests/test_known_answer_integrity.py
+          tests/test_matrix_io.py
+          tests/test_milp_tolerance.py
+          tests/test_noncss_certificate.py
+          tests/test_noncss_failfast.py
+          tests/test_real_win_search.py
+          tests/test_real_win_search_artifacts.py
+          tests/test_release_gate.py
+          tests/test_registry.py
+          tests/test_registry_v2.py
+          tests/test_search_witness_backfill.py
+          tests/test_structural_dedup.py
+          tests/test_universal_certificate.py
+          -q
+      - name: Test universal Lean bridge generator
+        run: >-
+          uv run python -m pytest
+          ../qcode_lean_bridges/test_bridge_universal.py -q
+      - name: Test release-to-formalize dispatcher
+        env:
+          PYTHONPATH: ../src
+        run: >-
+          uv run --with rich python -m pytest
+          ../tests/test_qcode_formalize.py -q
+      - name: Check pinned known-answer artifact
+        run: uv run python scripts/check_known_answer_integrity.py --mode fast
+      - name: Reject unverified committed release manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=0
+          while IFS= read -r manifest; do
+            found=1
+            uv run python scripts/verify_release.py "$manifest"
+          done < <(find results/runs -name challenge_manifest.json -type f -print 2>/dev/null || true)
+          if [ "$found" -eq 0 ]; then
+            echo "No committed challenge release manifests."
+          fi

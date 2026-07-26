@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import typer
@@ -18,6 +19,7 @@ from archon.commands.loop.physics_grounding import (
     GroundingCandidate,
     run_physics_grounding,
 )
+from archon.commands.loop.phases.physics_grounding import PhysicsGroundingPhase
 from archon.commands.loop.phases.review import (
     _enforce_physics_doctor_blocker_gate,
     _load_physics_doctor_blockers,
@@ -428,6 +430,67 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             self.assertIsNotNone(doctor)
             self.assertEqual(doctor.physics_grounding_problems, [])
 
+    def test_selected_targets_reuse_unchanged_complete_reports(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            p_chapter = chapters / "P.tex"
+            p_text = (
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Electric field]\\lean{P.field}"
+                "\\end{theorem}\n"
+            )
+            p_chapter.write_text(p_text, encoding="utf-8")
+            (chapters / "Q.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers Q.lean\n"
+                "\\begin{theorem}[Charge density]\\lean{Q.density}"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            p_file = project / "P.lean"
+            p_file.write_text("theorem p : True := by trivial\n", encoding="utf-8")
+            (project / "Q.lean").write_text(
+                "theorem q : True := by trivial\n",
+                encoding="utf-8",
+            )
+
+            calls: list[str] = []
+
+            def fake_searcher(query: str, packages: list[str], limit: int):
+                calls.append(query)
+                return [GroundingCandidate(name="Real.sqrt", module="Mathlib")]
+
+            first = run_physics_grounding(
+                project,
+                searcher=fake_searcher,
+                lean_files=[p_file],
+            )
+            first_call_count = len(calls)
+            second = run_physics_grounding(
+                project,
+                searcher=fake_searcher,
+                lean_files=[p_file],
+            )
+
+            self.assertEqual([report.lean_file for report in first], [p_file])
+            self.assertFalse(first[0].cached)
+            self.assertEqual(len(calls), first_call_count)
+            self.assertTrue(second[0].cached)
+            self.assertFalse((project / ".archon/task_results/physics-grounding-Q.md").exists())
+
+            p_chapter.write_text(p_text + "% changed\n", encoding="utf-8")
+            refreshed = run_physics_grounding(
+                project,
+                searcher=fake_searcher,
+                lean_files=[p_file],
+            )
+            self.assertFalse(refreshed[0].cached)
+            self.assertGreater(len(calls), first_call_count)
+
     def test_partial_leanexplore_failures_do_not_poison_successful_grounding_log(self):
         with tempfile.TemporaryDirectory() as d:
             project = Path(d)
@@ -541,6 +604,113 @@ class PhysicsGroundingLogTest(unittest.TestCase):
             self.assertEqual(len(reports), 1)
             self.assertTrue(reports[0].is_complete)
             self.assertEqual(run_blueprint_doctor(project).physics_grounding_problems, [])
+
+    def test_local_backend_generates_grounding_without_api_key(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            state = project / ".archon"
+            state.mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "P.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Dimensionful electric field]\n"
+                "\\lean{P.field}\n"
+                "An electric field theorem.\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "P.lean").write_text("theorem target : True := by sorry\n")
+            seen: list[tuple[str, tuple[str, ...]]] = []
+
+            def fake_local(query: str, packages: list[str], limit: int):
+                seen.append((query, tuple(packages)))
+                return [
+                    GroundingCandidate(
+                        name="Electromagnetism.ElectricField",
+                        module="Physlib.Electromagnetism.Basic",
+                    )
+                ][:limit]
+
+            with patch(
+                "archon.commands.loop.physics_grounding._local_searcher",
+                return_value=fake_local,
+            ) as build_local:
+                reports = run_physics_grounding(
+                    project,
+                    backend="local",
+                    api_key="",
+                )
+
+            build_local.assert_called_once_with()
+            self.assertEqual(len(reports), 1)
+            self.assertTrue(reports[0].is_complete)
+            text = reports[0].report_path.read_text(encoding="utf-8")
+            self.assertIn("Search backend: local", text)
+            self.assertNotIn("LEANEXPLORE_API_KEY is missing", text)
+            self.assertIn("Electromagnetism.ElectricField", text)
+            self.assertTrue(seen)
+            self.assertTrue(all(packages == ("Mathlib", "Physlib") for _, packages in seen))
+
+    def test_local_backend_missing_index_writes_actionable_report(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            (project / ".archon").mkdir()
+            chapters = project / "blueprint" / "src" / "chapters"
+            chapters.mkdir(parents=True)
+            (chapters / "P.tex").write_text(
+                "% archon:physics\n"
+                "% archon:covers P.lean\n"
+                "\\begin{theorem}[Electric field]\n"
+                "\\lean{P.field}\n"
+                "\\end{theorem}\n",
+                encoding="utf-8",
+            )
+            (project / "P.lean").write_text("theorem target : True := by sorry\n")
+
+            with patch(
+                "archon.commands.loop.physics_grounding._local_searcher",
+                side_effect=FileNotFoundError("Required local index file is missing"),
+            ):
+                reports = run_physics_grounding(
+                    project,
+                    backend="local",
+                    api_key="",
+                    max_attempts=1,
+                )
+
+            self.assertEqual(len(reports), 1)
+            self.assertFalse(reports[0].is_complete)
+            text = reports[0].report_path.read_text(encoding="utf-8")
+            self.assertIn("Search backend: local", text)
+            self.assertIn("LeanExplore local backend is unavailable", text)
+            self.assertIn("lean-explore data fetch", text)
+
+    def test_phase_forwards_prover_harness_local_backend(self):
+        with tempfile.TemporaryDirectory() as d:
+            project = Path(d)
+            descriptor = SimpleNamespace(raw={"lean_explore_backend": "local"})
+            ctx = SimpleNamespace(
+                skip_now=set(),
+                dry_run=False,
+                current_stage="prover",
+                project_path=project,
+                progress_file=project / ".archon" / "PROGRESS.md",
+                harness_descriptor_for=lambda role: descriptor,
+            )
+            with patch(
+                "archon.commands.loop.phases.physics_grounding.run_physics_grounding",
+                return_value=[],
+            ) as run_grounding:
+                PhysicsGroundingPhase(ctx).run()
+
+            run_grounding.assert_called_once_with(
+                project,
+                backend="local",
+                lean_files=[],
+                reuse_unchanged=True,
+            )
 
     def test_archive_preserves_loop_owned_physics_grounding_log(self):
         with tempfile.TemporaryDirectory() as d:

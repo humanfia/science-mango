@@ -1,0 +1,7511 @@
+{
+  "generated_from": {
+    "merged": "results/campaign7_publication_merged.jsonl",
+    "deep_milp": "results/campaign7_deep_milp.jsonl"
+  },
+  "filter": "trust_level != EXACT AND n < 360",
+  "total_codes": 115,
+  "tier_counts": {
+    "1_one_logical_left": 6,
+    "2_partial_or_still_dropping": 14,
+    "3_never_deep_milp": 80,
+    "4_stuck_no_logicals_optimal": 15
+  },
+  "tier_descriptions": {
+    "1": "1 logical away from EXACT (deep MILP almost finished). Highest ROI.",
+    "2": "Deep MILP partial; extend timeout. d may yet drop.",
+    "3": "Never deep-MILP'd. Run with size-appropriate timeout.",
+    "4": "No logicals proven optimal even at 7200s/logical. Needs reformulation; deprioritize."
+  },
+  "suggested_invocations": [
+    {
+      "tier": 1,
+      "cmd": "uv run python scripts/verify_deep_milp.py --lattices 9,6 12,6 15,6 --rerun-partial --timeout 14400 --workers 60",
+      "note": "Re-run with longer timeout; --rerun-partial skips already-optimal logicals."
+    },
+    {
+      "tier": 2,
+      "cmd": "uv run python scripts/verify_deep_milp.py --lattices 9,6 12,6 15,6 --rerun-partial --timeout 14400 --workers 60",
+      "note": "Same invocation; runner picks up incumbent logicals."
+    },
+    {
+      "tier": 3,
+      "cmd": "uv run python scripts/verify_deep_milp.py --lattices 6,6 9,6 12,6 --timeout 3600 --workers 60   # n<=144 batch",
+      "note": "Small-n untouched codes. Then run --lattices 15,6 --timeout 7200 for n=180."
+    }
+  ],
+  "codes": [
+    {
+      "tier": 1,
+      "code_id": "9_6_0119",
+      "bliss_hash": "c18a4adc395c8d21",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 10,
+      "fom": 7.407407407407407,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          0
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (15/16 optimal)",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 10,
+        "logicals_optimal": 15,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 3600
+      }
+    },
+    {
+      "tier": 1,
+      "code_id": "12_6_0188",
+      "bliss_hash": "bf8a3e60b03ec69f",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (23/24 optimal)",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 23,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 24,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 1,
+      "code_id": "12_6_0201",
+      "bliss_hash": "a8879ca668587ffa",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 8,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          9,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          9,
+          5
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (15/16 optimal)",
+      "deep_milp_state": {
+        "d_original": 10,
+        "d_deep_milp": 8,
+        "logicals_optimal": 15,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 1,
+      "code_id": "15_6_0227",
+      "bliss_hash": "3cf880f2db1294b3",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.444444444444445,
+      "A_terms": [
+        [
+          13,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          13,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          7,
+          4
+        ],
+        [
+          13,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          7,
+          0
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (15/16 optimal)",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 10,
+        "logicals_optimal": 15,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 1,
+      "code_id": "15_6_0246",
+      "bliss_hash": "a06c8eb8dc6fdf15",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.444444444444445,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          5
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (15/16 optimal)",
+      "deep_milp_state": {
+        "d_original": 10,
+        "d_deep_milp": 10,
+        "logicals_optimal": 15,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 1,
+      "code_id": "15_6_0257",
+      "bliss_hash": "9893312b66a5cbf8",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 2,
+      "d": 12,
+      "fom": 1.6,
+      "A_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          12,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "just 1 logical(s) left (3/4 optimal)",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 3,
+        "logicals_incumbent": 1,
+        "logicals_failed": 0,
+        "total_logicals": 4,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "9_6_0137",
+      "bliss_hash": "c567f692b508b377",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 12,
+      "fom": 5.333333333333333,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 14->12; 2 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 12,
+        "logicals_optimal": 6,
+        "logicals_incumbent": 2,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 3600
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0221",
+      "bliss_hash": "6f567e2b7b320872",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          3
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 12/16 optimal, 4 incumbent",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 12,
+        "logicals_incumbent": 4,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0239",
+      "bliss_hash": "42a65c6d547d63c2",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 14/16 optimal, 2 incumbent",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 14,
+        "logicals_incumbent": 2,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0242",
+      "bliss_hash": "209d39c8f587f317",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          11,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 12/16 optimal, 4 incumbent",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 12,
+        "logicals_incumbent": 4,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0236",
+      "bliss_hash": "678383d35374d16d",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 16,
+      "fom": 5.688888888888889,
+      "A_terms": [
+        [
+          3,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 18->16; 8 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 18,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0234",
+      "bliss_hash": "d00818bec976cd61",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 12,
+      "fom": 4.8,
+      "A_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          12,
+          2
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          11,
+          2
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          4
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 5/12 optimal, 7 incumbent",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 12,
+        "logicals_optimal": 5,
+        "logicals_incumbent": 7,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0225",
+      "bliss_hash": "f601b2b169f5e80a",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.444444444444445,
+      "A_terms": [
+        [
+          11,
+          2
+        ],
+        [
+          14,
+          3
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          5,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          5,
+          5
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 12->10; 8 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 12,
+        "d_deep_milp": 10,
+        "logicals_optimal": 8,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0243",
+      "bliss_hash": "b5d332f5e0e3b014",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.444444444444445,
+      "A_terms": [
+        [
+          14,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          14,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          11,
+          4
+        ],
+        [
+          14,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          11,
+          2
+        ],
+        [
+          14,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 14/16 optimal, 2 incumbent",
+      "deep_milp_state": {
+        "d_original": 10,
+        "d_deep_milp": 10,
+        "logicals_optimal": 14,
+        "logicals_incumbent": 2,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0247",
+      "bliss_hash": "fd89e63e7f665336",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.444444444444445,
+      "A_terms": [
+        [
+          11,
+          2
+        ],
+        [
+          14,
+          3
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          14,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          11,
+          1
+        ],
+        [
+          14,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "partial run: 13/16 optimal, 3 incumbent",
+      "deep_milp_state": {
+        "d_original": 10,
+        "d_deep_milp": 10,
+        "logicals_optimal": 13,
+        "logicals_incumbent": 3,
+        "logicals_failed": 0,
+        "total_logicals": 16,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0244",
+      "bliss_hash": "a8757c1c65150325",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 14,
+      "fom": 4.355555555555555,
+      "A_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          12,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          3
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 16->14; 8 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0245",
+      "bliss_hash": "9bbef965d0914e23",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 14,
+      "fom": 4.355555555555555,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          2
+        ],
+        [
+          14,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          4
+        ],
+        [
+          11,
+          2
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 16->14; 8 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0235",
+      "bliss_hash": "41fd3648680cd3b5",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 12,
+      "fom": 3.2,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 18->12; 4 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 18,
+        "d_deep_milp": 12,
+        "logicals_optimal": 4,
+        "logicals_incumbent": 4,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0250",
+      "bliss_hash": "a802560f68a4cace",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 12,
+      "fom": 3.2,
+      "A_terms": [
+        [
+          5,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          4
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          10,
+          4
+        ],
+        [
+          12,
+          4
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 14->12; 4 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 12,
+        "logicals_optimal": 4,
+        "logicals_incumbent": 4,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 2,
+      "code_id": "15_6_0251",
+      "bliss_hash": "a6d316003f40cb8b",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 12,
+      "fom": 3.2,
+      "A_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          4
+        ],
+        [
+          13,
+          1
+        ]
+      ],
+      "d_method": "deep_milp",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "d improved 14->12; 4 incumbents may yet drop further",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 12,
+        "logicals_optimal": 4,
+        "logicals_incumbent": 4,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 3,
+      "code_id": "6_6_0104",
+      "bliss_hash": "9f177b069896992b",
+      "ell": 6,
+      "m": 6,
+      "n": 72,
+      "k": 4,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; small n, expect quick",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "6_6_0107",
+      "bliss_hash": "21330c16688a0120",
+      "ell": 6,
+      "m": 6,
+      "n": 72,
+      "k": 4,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; small n, expect quick",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "6_6_0112",
+      "bliss_hash": "0ac42c78a3e55db3",
+      "ell": 6,
+      "m": 6,
+      "n": 72,
+      "k": 4,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; small n, expect quick",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "6_6_0115",
+      "bliss_hash": "e9dda9b29913b11a",
+      "ell": 6,
+      "m": 6,
+      "n": 72,
+      "k": 4,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; small n, expect quick",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "6_6_0116",
+      "bliss_hash": "ad5ea247cbc26d15",
+      "ell": 6,
+      "m": 6,
+      "n": 72,
+      "k": 4,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          2
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; small n, expect quick",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "fc59a45152750ae2",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "e3285df845d96d99",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "6b9a48f3603eb5f4",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          8,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          3
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          5
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "ee5830dbe97f878b",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "f0a07722402b87ef",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "5648a59f440e2fe2",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "212184468a0718b7",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 8,
+      "d": 12,
+      "fom": 10.67,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          3
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "463e119114eee0d7",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 12,
+      "fom": 8.0,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          5,
+          5
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "3dc59b1af06527c9",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 12,
+      "fom": 5.33,
+      "A_terms": [
+        [
+          8,
+          4
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "C_terms": [
+        [
+          5,
+          5
+        ],
+        [
+          8,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0150",
+      "bliss_hash": "e16cb583fe530478",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 10,
+      "fom": 3.7037037037037037,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "10ab2276c95b9b84",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 10,
+      "fom": 3.7,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "2d9308956f32d8bf",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.56,
+      "A_terms": [
+        [
+          5,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "4b38db5afbf07fc0",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.56,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          6,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          3
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "a2de2a20e7d9e0cb",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.56,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "55f83af1307c10e1",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.56,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          8,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_61",
+      "bliss_hash": "219059336f38b732",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          4
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          8,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_64",
+      "bliss_hash": "d8f7c04aec559961",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          1,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          6,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_65",
+      "bliss_hash": "d9457e4965aaa672",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          2
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_66",
+      "bliss_hash": "d605bef00eff30f7",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_67",
+      "bliss_hash": "d531517a2f481451",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          2
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_68",
+      "bliss_hash": "5dd4c74fc635ba89",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          7,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_69",
+      "bliss_hash": "bb2449c8a4cd1e90",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5556,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          4
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0139",
+      "bliss_hash": "aefbcfdd3a5451ad",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          6,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          6,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0167",
+      "bliss_hash": "af5d0fae52c8975e",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          7,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          5
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0169",
+      "bliss_hash": "07cd84cd965de4d9",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 6,
+      "d": 8,
+      "fom": 3.5555555555555554,
+      "A_terms": [
+        [
+          5,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0153",
+      "bliss_hash": "7a344e37e11622ed",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 2,
+      "d": 12,
+      "fom": 2.6666666666666665,
+      "A_terms": [
+        [
+          5,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          7,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          4
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0171",
+      "bliss_hash": "a454a7e0b05a321f",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 2,
+      "d": 12,
+      "fom": 2.6666666666666665,
+      "A_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          7,
+          0
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          2
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          7,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "phase2_63",
+      "bliss_hash": "990bfebe9c305e64",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 8,
+      "fom": 2.3704,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "6d501ec13b20c3b5",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 4,
+      "d": 8,
+      "fom": 2.37,
+      "A_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          4
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0172",
+      "bliss_hash": "426b9d530929e62e",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 2,
+      "d": 10,
+      "fom": 1.8518518518518519,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          5,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "9_6_0184",
+      "bliss_hash": "724eeda0b366780a",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 2,
+      "d": 10,
+      "fom": 1.8518518518518519,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          5
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          4
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "0571f76786029653",
+      "ell": 9,
+      "m": 6,
+      "n": 108,
+      "k": 2,
+      "d": 10,
+      "fom": 1.85,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          6,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 1800,
+      "note": "never deep-MILP'd; n=108",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "b261ff5e77ae456d",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          10,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          4
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "40bae617111e7148",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "1219913c49eb1daf",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          10,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "4a77a996000a5d40",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          2
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          4
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "08166cccb951f700",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ],
+        [
+          10,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          5
+        ],
+        [
+          10,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "393b2d4a60427543",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 12,
+      "fom": 12.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          10,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          5
+        ],
+        [
+          10,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "20ab34b4a638fca6",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 12,
+      "fom": 10.0,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          0
+        ],
+        [
+          9,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          9,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "1945a5e7270ea2ce",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 12,
+      "fom": 10.0,
+      "A_terms": [
+        [
+          10,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          2
+        ],
+        [
+          10,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "834adcc3f8b86d1e",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 12,
+      "fom": 10.0,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "8dacd619802a8e88",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 12,
+      "fom": 10.0,
+      "A_terms": [
+        [
+          9,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          4
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "f47c00a00c278bf4",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 12,
+      "fom": 10.0,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          5
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "d28b518a6de50846",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 12,
+      "d": 8,
+      "fom": 5.33,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "46e59981e3735075",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 8,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          3
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "692a5f758d9b4aa1",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 8,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "a52548d7fb1ac67d",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 8,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          5,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          5,
+          1
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "57099ae229de722d",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 10,
+      "d": 8,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          2
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0199",
+      "bliss_hash": "7989eece4ce9c3cd",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          6,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          0
+        ],
+        [
+          9,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0210",
+      "bliss_hash": "0d61b0e7ea1e3318",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "B_terms": [
+        [
+          9,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "C_terms": [
+        [
+          5,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0211",
+      "bliss_hash": "dab3f522cb31c92c",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          5,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          5,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0212",
+      "bliss_hash": "7d907f584dffbd52",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          3,
+          2
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          7,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0213",
+      "bliss_hash": "90c84336aef19b46",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          3
+        ],
+        [
+          8,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": "12_6_0214",
+      "bliss_hash": "f45757a3a240c054",
+      "ell": 12,
+      "m": 6,
+      "n": 144,
+      "k": 4,
+      "d": 12,
+      "fom": 4.0,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 3600,
+      "note": "never deep-MILP'd; n=144",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "70c03e15fe2839e4",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 21,
+      "fom": 14.7,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "PARTIAL",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "331facaa1752ec16",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 20,
+      "fom": 13.33,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          2
+        ],
+        [
+          12,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "c374c80bd8c83df1",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 16,
+      "fom": 11.38,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          8,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "66bd71ca48ee2892",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 18,
+      "fom": 10.8,
+      "A_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "e02255ad9ff31483",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 18,
+      "fom": 10.8,
+      "A_terms": [
+        [
+          13,
+          1
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          12,
+          2
+        ],
+        [
+          13,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          12,
+          3
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "b2215e94b5b2b50f",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 18,
+      "fom": 10.8,
+      "A_terms": [
+        [
+          11,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          7,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          7,
+          4
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          5
+        ],
+        [
+          11,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "f5ea23d8c0f4bd34",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 14,
+      "fom": 8.71,
+      "A_terms": [
+        [
+          14,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          14,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          11,
+          1
+        ],
+        [
+          14,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          11,
+          3
+        ],
+        [
+          14,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "0127936f92b0399b",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.53,
+      "A_terms": [
+        [
+          13,
+          1
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          12,
+          1
+        ],
+        [
+          13,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          12,
+          5
+        ],
+        [
+          13,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "b89c9221f3a9e1b8",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.53,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "147f0c05ee400f6b",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.53,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "33a2f6a5a3f6d685",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "04f7ae62489e74a7",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "c6cf81287810866d",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          10,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          10,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "275d7a0f7de8f3ef",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 12,
+      "fom": 6.4,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          0
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "c6f3b99079d24821",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          7,
+          2
+        ],
+        [
+          13,
+          3
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          7,
+          0
+        ],
+        [
+          13,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          7,
+          2
+        ],
+        [
+          13,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "062e759b5a564c59",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 8,
+      "d": 10,
+      "fom": 4.44,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "db63ca2b001604d0",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 14,
+      "fom": 4.36,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          10,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "2d52fbddb7db5996",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 10,
+      "fom": 2.22,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "a68c9bb987a1d61d",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 10,
+      "fom": 2.22,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          9,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "f93e44e35e33559c",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 10,
+      "fom": 2.22,
+      "A_terms": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 3,
+      "code_id": null,
+      "bliss_hash": "42614e174cac73cd",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 2,
+      "d": 14,
+      "fom": 2.18,
+      "A_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          9,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          13,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 7200,
+      "note": "never deep-MILP'd; n=180",
+      "deep_milp_state": null
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0224",
+      "bliss_hash": "daebd4794747bf82",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.533333333333333,
+      "A_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0228",
+      "bliss_hash": "117006e8430a1847",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.533333333333333,
+      "A_terms": [
+        [
+          14,
+          1
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          13,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          14,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          6,
+          5
+        ],
+        [
+          14,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0229",
+      "bliss_hash": "a69eb2dc9272139e",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.533333333333333,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          4
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          2
+        ],
+        [
+          12,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0231",
+      "bliss_hash": "1e6937eb8de62046",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 16,
+      "fom": 8.533333333333333,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          12,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0218",
+      "bliss_hash": "f11779763b5e0df0",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          8,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          5
+        ]
+      ],
+      "D_terms": [
+        [
+          4,
+          1
+        ],
+        [
+          6,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0219",
+      "bliss_hash": "6920a604f4bca5af",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          13,
+          1
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          11,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          12,
+          4
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          12,
+          2
+        ],
+        [
+          13,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0222",
+      "bliss_hash": "f157daea3ebcbcb3",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          1,
+          5
+        ],
+        [
+          9,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          1,
+          0
+        ],
+        [
+          9,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0223",
+      "bliss_hash": "f1dab6235c88da40",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          8,
+          1
+        ],
+        [
+          12,
+          4
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          8,
+          4
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          5
+        ],
+        [
+          12,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0067",
+      "bliss_hash": "08bdd840e106975e",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          7,
+          1
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          14,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          14,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          14,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          3,
+          5
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0230",
+      "bliss_hash": "80e35a8871eb15f7",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          5
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0232",
+      "bliss_hash": "c98365ecb091718b",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          1,
+          1
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "C_terms": [
+        [
+          0,
+          3
+        ],
+        [
+          10,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          0,
+          4
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0238",
+      "bliss_hash": "e4e1975dab7c6d11",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 6,
+      "d": 14,
+      "fom": 6.533333333333333,
+      "A_terms": [
+        [
+          1,
+          2
+        ],
+        [
+          13,
+          3
+        ],
+        [
+          13,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "D_terms": [
+        [
+          8,
+          0
+        ],
+        [
+          12,
+          2
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 12,
+        "logicals_failed": 0,
+        "total_logicals": 12,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0233",
+      "bliss_hash": "2a3e9571cfcd33db",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 16,
+      "fom": 5.688888888888889,
+      "A_terms": [
+        [
+          12,
+          2
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          5
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          10,
+          3
+        ],
+        [
+          12,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          10,
+          5
+        ],
+        [
+          12,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 16,
+        "d_deep_milp": 16,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0249",
+      "bliss_hash": "71449959973754a8",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 14,
+      "fom": 4.3556,
+      "A_terms": [
+        [
+          2,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "B_terms": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          11,
+          4
+        ]
+      ],
+      "C_terms": [
+        [
+          2,
+          3
+        ],
+        [
+          9,
+          3
+        ]
+      ],
+      "D_terms": [
+        [
+          2,
+          5
+        ],
+        [
+          9,
+          5
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    },
+    {
+      "tier": 4,
+      "code_id": "15_6_0248",
+      "bliss_hash": "a2a09382bc87e942",
+      "ell": 15,
+      "m": 6,
+      "n": 180,
+      "k": 4,
+      "d": 14,
+      "fom": 4.355555555555555,
+      "A_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          6,
+          1
+        ]
+      ],
+      "B_terms": [
+        [
+          2,
+          1
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ]
+      ],
+      "C_terms": [
+        [
+          11,
+          2
+        ]
+      ],
+      "D_terms": [
+        [
+          12,
+          0
+        ]
+      ],
+      "d_method": "milp+bposd",
+      "trust_level": "TRUSTED",
+      "recommended_timeout_per_logical_s": 14400,
+      "note": "no logicals proven optimal at 7200s/each; needs reformulation, low ROI",
+      "deep_milp_state": {
+        "d_original": 14,
+        "d_deep_milp": 14,
+        "logicals_optimal": 0,
+        "logicals_incumbent": 8,
+        "logicals_failed": 0,
+        "total_logicals": 8,
+        "previous_timeout_per_logical_s": 7200
+      }
+    }
+  ]
+}

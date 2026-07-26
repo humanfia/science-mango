@@ -359,7 +359,9 @@ class ParallelProverRunner:
         noop_dropped: list[Path] = []
         if not self.stage.strip().lower().startswith("autoformalize"):
             sorry_files, noop_dropped = filter_noop_objectives(
-                sorry_files, progress_file=progress,
+                sorry_files,
+                progress_file=progress,
+                state_dir=self.state_dir,
             )
         if noop_dropped:
             log.warn(

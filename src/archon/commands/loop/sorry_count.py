@@ -48,21 +48,35 @@ def filter_noop_objectives(
     objectives: list[Path],
     *,
     progress_file: Path,
+    state_dir: Path | None = None,
 ) -> tuple[list[Path], list[Path]]:
     """Drop objective files that would dispatch a no-op prover.
 
     A file is dropped when it *exists on disk* and has *zero open
     sorries*, unless the planner's objective text marks it as a scaffold
-    dispatch. New (non-existent) files and files whose sorry count can't
-    be determined are kept — the filter never drops on uncertainty.
+    dispatch or the proof Review gate marks it as `retry`. A retry can have
+    zero sorries when the previous replacement term fails elaboration or
+    faithfulness review. New (non-existent) files and files whose sorry count
+    cannot be determined are kept — the filter never drops on uncertainty.
 
     Returns ``(kept, dropped)``.
     """
     exempt = _scaffold_exempt_basenames(progress_file)
+    retry_paths: set[Path] = set()
+    if state_dir is not None:
+        from .proof_review_gate import load_proof_review_state
+
+        targets = load_proof_review_state(state_dir).get("targets", {})
+        if isinstance(targets, dict):
+            retry_paths = {
+                (state_dir.parent / rel).resolve()
+                for rel, record in targets.items()
+                if isinstance(record, dict) and record.get("status") == "retry"
+            }
     kept: list[Path] = []
     dropped: list[Path] = []
     for obj in objectives:
-        if obj.name.lower() in exempt:
+        if obj.name.lower() in exempt or obj.resolve() in retry_paths:
             kept.append(obj)
             continue
         if file_open_sorry_count(obj) == 0:

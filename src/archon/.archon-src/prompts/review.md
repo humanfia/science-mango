@@ -44,7 +44,12 @@ Use it where it sharpens your judgment: surface a persistent ∞ hole in `TO_USE
 
 1. Note the session number from your invocation prompt (= iter number).
 2. The current global sorry count is already in `meta.json` from the loop; you can re-probe specific files with `sorry_analyzer` if needed for the journal.
-3. `git diff HEAD~1 --stat` for what changed.
+3. Inspect what changed without assuming the repository has a parent commit:
+   - First run `git rev-parse --verify --quiet HEAD^`.
+   - If it succeeds, run `git diff HEAD^ --stat`.
+   - If it fails (for example, a one-commit repository), do **not** run a
+     parent diff. Use `git status --short` for the current worktree and
+     `git show --stat --oneline HEAD` for the initial commit instead.
 
 ## Step 2 — Read pre-processed attempt data (MANDATORY)
 

@@ -194,7 +194,9 @@ def validate_plan_output(ctx: LoopContext) -> bool:
             and not _allows_zero_sorry_redraft(ctx)
         ):
             objectives, noop_dropped = filter_noop_objectives(
-                objectives, progress_file=ctx.progress_file,
+                objectives,
+                progress_file=ctx.progress_file,
+                state_dir=ctx.state_dir,
             )
         noop_rels = [_rel_to_project(p, ctx.project_path) for p in noop_dropped]
         if noop_dropped:

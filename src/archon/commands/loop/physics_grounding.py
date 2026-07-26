@@ -9,6 +9,7 @@ before autoformalization/proving and writes a reviewable task_results report.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 import re
 import time
@@ -78,6 +79,7 @@ class PhysicsGroundingReport:
     query_evidence: list[QueryEvidence]
     local_abstractions: list[str] = field(default_factory=list)
     grounding_gaps: list[str] = field(default_factory=list)
+    cached: bool = False
 
     @property
     def is_complete(self) -> bool:
@@ -85,14 +87,28 @@ class PhysicsGroundingReport:
 
 
 SearchFn = Callable[[str, list[str], int], list[GroundingCandidate]]
+GROUNDING_BACKENDS = frozenset({"auto", "api", "local"})
 
 
-def physics_chapter_targets(project_path: Path) -> list[tuple[Path, Path]]:
-    """Return ``(chapter, lean_file)`` pairs for live physics chapters."""
+def physics_chapter_targets(
+    project_path: Path,
+    *,
+    lean_files: Iterable[Path] | None = None,
+) -> list[tuple[Path, Path]]:
+    """Return ``(chapter, lean_file)`` pairs for live physics chapters.
+
+    When ``lean_files`` is provided, only chapters covering those objectives
+    are returned. An empty iterable deliberately means no targets.
+    """
     chapters_dir = project_path / "blueprint" / "src" / "chapters"
     if not chapters_dir.is_dir():
         return []
 
+    objective_files = (
+        {Path(path).resolve() for path in lean_files}
+        if lean_files is not None
+        else None
+    )
     pairs: list[tuple[Path, Path]] = []
     seen: set[Path] = set()
     for chapter in sorted(chapters_dir.glob("*.tex")):
@@ -108,6 +124,8 @@ def physics_chapter_targets(project_path: Path) -> list[tuple[Path, Path]]:
             covers = [conventional.name]
         for raw in covers:
             lean_file = (project_path / raw).resolve()
+            if objective_files is not None and lean_file not in objective_files:
+                continue
             if lean_file in seen:
                 continue
             seen.add(lean_file)
@@ -226,6 +244,95 @@ def _api_searcher(
     return search
 
 
+class _LocalSearcher:
+    """Synchronous adapter around one reusable LeanExplore local service."""
+
+    def __init__(self) -> None:
+        from importlib.util import find_spec
+
+        missing = [
+            name
+            for name in ("torch", "sentence_transformers")
+            if find_spec(name) is None
+        ]
+        if missing:
+            joined = ", ".join(missing)
+            raise RuntimeError(
+                f"LeanExplore local runtime dependencies are missing: {joined}. "
+                "Install the `lean-explore[local]` extra."
+            )
+
+        from lean_explore.search import SearchEngine, Service
+
+        self._service = Service(engine=SearchEngine(use_local_data=False))
+        self._loop = asyncio.new_event_loop()
+
+    def __call__(
+        self,
+        query: str,
+        packages: list[str],
+        limit: int,
+    ) -> list[GroundingCandidate]:
+        response = self._loop.run_until_complete(
+            self._service.search(
+                query=query,
+                limit=limit,
+                rerank_top=0,
+                packages=packages,
+            )
+        )
+        return [_candidate_from_result(item) for item in response.results[:limit]]
+
+    def close(self) -> None:
+        try:
+            engine = self._service.engine.engine
+            self._loop.run_until_complete(engine.dispose())
+        finally:
+            self._loop.close()
+
+
+def _local_searcher() -> SearchFn:
+    """Build a local LeanExplore searcher from fetched cache data."""
+    return _LocalSearcher()
+
+
+def _resolve_searcher(
+    *,
+    backend: str,
+    api_key: str | None,
+    timeout: float,
+    searcher: SearchFn | None,
+) -> tuple[SearchFn | None, str, str | None, bool]:
+    """Resolve a grounding backend and return searcher/backend/error/ownership."""
+    normalized = backend.lower().strip()
+    if normalized not in GROUNDING_BACKENDS:
+        supported = ", ".join(sorted(GROUNDING_BACKENDS))
+        raise ValueError(f"LeanExplore grounding backend must be one of: {supported}")
+    if searcher is not None:
+        return searcher, "custom", None, False
+    if normalized == "api":
+        if not api_key:
+            return (
+                None,
+                "api",
+                "LEANEXPLORE_API_KEY is missing, so LeanExplore API search did not run.",
+                False,
+            )
+        return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
+
+    if normalized == "auto" and api_key:
+        return _api_searcher(api_key=api_key, timeout=timeout), "api", None, False
+
+    try:
+        return _local_searcher(), "local", None, True
+    except Exception as exc:
+        prefix = "LeanExplore local backend is unavailable"
+        suffix = "Run `lean-explore data fetch` to install its local index."
+        if normalized == "auto":
+            prefix += " and LEANEXPLORE_API_KEY is not set"
+        return None, "local", f"{prefix}: {exc}. {suffix}", False
+
+
 def _summarize_local_abstractions(chapter: Path) -> list[str]:
     """Extract likely local abstraction names from the blueprint's Lean refs."""
     try:
@@ -250,6 +357,54 @@ def _report_name(project_path: Path, lean_file: Path) -> str:
         rel = Path(lean_file.name)
     rel_stem = rel.with_suffix("").as_posix().replace("/", "_")
     return f"physics-grounding-{Path(rel_stem).name}.md"
+
+
+def _input_fingerprint(chapter: Path, lean_file: Path) -> str | None:
+    """Hash grounding inputs so cache validity does not depend on mtimes."""
+    digest = hashlib.sha256()
+    try:
+        digest.update(chapter.read_bytes())
+        digest.update(b"\0archon-physics-grounding\0")
+        if lean_file.is_file():
+            digest.update(lean_file.read_bytes())
+        else:
+            digest.update(b"<missing-lean-file>")
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _reuse_complete_report(
+    project_path: Path,
+    chapter: Path,
+    lean_file: Path,
+    report_path: Path,
+    *,
+    backend: str,
+) -> PhysicsGroundingReport | None:
+    """Reuse a complete report when neither of its inputs has changed."""
+    try:
+        text = report_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+    fingerprint = _input_fingerprint(chapter, lean_file)
+    if "- Grounding status: complete" not in text:
+        return None
+    if backend in {"api", "local"} and f"- Search backend: {backend}" not in text:
+        return None
+    if not fingerprint or f"- Input fingerprint: sha256:{fingerprint}" not in text:
+        return None
+
+    return PhysicsGroundingReport(
+        lean_file=lean_file,
+        chapter=chapter,
+        report_path=report_path,
+        status="complete",
+        query_evidence=[],
+        local_abstractions=_summarize_local_abstractions(chapter),
+        cached=True,
+    )
 
 
 def _rel(path: Path, root: Path) -> str:
@@ -284,15 +439,16 @@ def _write_report(
     report_path: Path,
     evidence: list[QueryEvidence],
     *,
-    api_key_present: bool,
+    backend: str,
+    backend_error: str | None,
     packages: list[str],
 ) -> PhysicsGroundingReport:
     any_success = any(q.candidates for q in evidence)
     status = "complete" if any_success else "incomplete"
     local_abstractions = _summarize_local_abstractions(chapter)
     grounding_gaps: list[str] = []
-    if not api_key_present:
-        grounding_gaps.append("LEANEXPLORE_API_KEY is missing, so LeanExplore API search did not run.")
+    if backend_error:
+        grounding_gaps.append(backend_error)
     for q in evidence:
         if q.error:
             grounding_gaps.append(f"`{q.query}` search unavailable: {_safe_failure_text(q.error)}")
@@ -305,6 +461,8 @@ def _write_report(
         f"- Target Lean file: `{_rel(lean_file, project_path)}`",
         f"- Blueprint chapter: `{_rel(chapter, project_path)}`",
         f"- Grounding status: {status}",
+        f"- Search backend: {backend}",
+        f"- Input fingerprint: sha256:{_input_fingerprint(chapter, lean_file) or 'unavailable'}",
         f"- Packages searched: {', '.join(packages)}",
         "",
         "## LeanExplore queries/candidates actually used",
@@ -406,51 +564,69 @@ def run_physics_grounding(
     limit: int = 3,
     max_queries: int = 10,
     api_key: str | None = None,
+    backend: str = "auto",
     packages: Iterable[str] = ("Mathlib", "Physlib"),
     timeout: float = 20.0,
     max_attempts: int = 3,
     retry_delay: float = 0.25,
     searcher: SearchFn | None = None,
+    lean_files: Iterable[Path] | None = None,
+    reuse_unchanged: bool = True,
 ) -> list[PhysicsGroundingReport]:
-    """Generate task_results grounding logs for physics blueprint targets."""
+    """Generate task_results grounding logs for selected physics targets."""
     project_path = project_path.resolve()
     state_dir = project_path / ".archon"
     task_results = state_dir / "task_results"
     package_list = list(packages)
-    api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
-    real_searcher = searcher
-    if real_searcher is None and api_key:
-        real_searcher = _api_searcher(api_key=api_key, timeout=timeout)
+    targets = physics_chapter_targets(project_path, lean_files=lean_files)
 
     reports: list[PhysicsGroundingReport] = []
-    for chapter, lean_file in physics_chapter_targets(project_path):
-        queries = _blueprint_queries(chapter, max_queries=max_queries)
-        evidence: list[QueryEvidence] = []
-        searched: set[str] = set()
-        for query in queries:
-            searched.add(query.lower())
-            if real_searcher is None:
-                evidence.append(
-                    QueryEvidence(
-                        query=query,
-                        error="LEANEXPLORE_API_KEY is missing; no searcher available.",
-                    )
-                )
-                continue
-            evidence.append(
-                _search_with_retries(
-                    real_searcher,
-                    query,
-                    package_list,
-                    limit,
-                    max_attempts=max_attempts,
-                    retry_delay=retry_delay,
-                )
+    pending: list[tuple[Path, Path, Path]] = []
+    for chapter, lean_file in targets:
+        report_path = task_results / _report_name(project_path, lean_file)
+        cached_report = (
+            _reuse_complete_report(
+                project_path,
+                chapter,
+                lean_file,
+                report_path,
+                backend=backend,
             )
+            if reuse_unchanged
+            else None
+        )
+        if cached_report is not None:
+            reports.append(cached_report)
+        else:
+            pending.append((chapter, lean_file, report_path))
 
-        if real_searcher is not None and not any(q.candidates for q in evidence):
-            for query in FALLBACK_QUERIES:
-                if query.lower() in searched:
+    # Avoid loading the local embedding model when every selected report is
+    # already current (or when the current batch contains no physics targets).
+    if not pending:
+        return reports
+
+    api_key = api_key if api_key is not None else os.environ.get("LEANEXPLORE_API_KEY")
+    real_searcher, resolved_backend, backend_error, owns_searcher = _resolve_searcher(
+        backend=backend,
+        api_key=api_key,
+        timeout=timeout,
+        searcher=searcher,
+    )
+
+    try:
+        for chapter, lean_file, report_path in pending:
+            queries = _blueprint_queries(chapter, max_queries=max_queries)
+            evidence: list[QueryEvidence] = []
+            searched: set[str] = set()
+            for query in queries:
+                searched.add(query.lower())
+                if real_searcher is None:
+                    evidence.append(
+                        QueryEvidence(
+                            query=query,
+                            error=backend_error or "LeanExplore searcher is unavailable.",
+                        )
+                    )
                     continue
                 evidence.append(
                     _search_with_retries(
@@ -462,19 +638,38 @@ def run_physics_grounding(
                         retry_delay=retry_delay,
                     )
                 )
-                if evidence[-1].candidates:
-                    break
 
-        report_path = task_results / _report_name(project_path, lean_file)
-        reports.append(
-            _write_report(
-                project_path,
-                chapter,
-                lean_file,
-                report_path,
-                evidence,
-                api_key_present=bool(api_key) or searcher is not None,
-                packages=package_list,
+            if real_searcher is not None and not any(q.candidates for q in evidence):
+                for query in FALLBACK_QUERIES:
+                    if query.lower() in searched:
+                        continue
+                    evidence.append(
+                        _search_with_retries(
+                            real_searcher,
+                            query,
+                            package_list,
+                            limit,
+                            max_attempts=max_attempts,
+                            retry_delay=retry_delay,
+                        )
+                    )
+                    if evidence[-1].candidates:
+                        break
+
+            reports.append(
+                _write_report(
+                    project_path,
+                    chapter,
+                    lean_file,
+                    report_path,
+                    evidence,
+                    backend=resolved_backend,
+                    backend_error=backend_error,
+                    packages=package_list,
+                )
             )
-        )
+    finally:
+        closer = getattr(real_searcher, "close", None)
+        if owns_searcher and callable(closer):
+            closer()
     return reports

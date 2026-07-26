@@ -24,11 +24,20 @@ from archon.prompt_compression import (
 )
 from archon.phase_input_summary import build_review_input_pack
 from archon.prompts import build_review_prompt
+from archon.state import normalize_stage_for_prompt_path, parse_objective_files
 from archon.state import write_meta
 from archon.state.progress import is_complete, write_stage
 from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
+from ..formalization_review_gate import apply_formalization_review
+from ..parallel_review import run_parallel_target_reviews
+from ..proof_review_gate import apply_proof_review, load_proof_review_state
+from ..review_preflight import (
+    deterministic_review_prompt_prefix,
+    run_parallel_review_preflight,
+    write_deterministic_review_pack,
+)
 from ..resume import REVIEW_CONTINUE, persist_session_id, pick_resume_session
 from ..utils import data_path
 from .base import Phase, PhaseResult
@@ -288,8 +297,10 @@ def _enforce_physics_doctor_blocker_gate(
     return _enforce_physics_review_blocker_gate(state_dir, progress_file, iter_num)
 
 
-def _maybe_compress_review_prompt(ctx, prompt: str) -> str:
-    if not ctx.options.compress_plan_review_inputs:
+def _maybe_compress_review_prompt(
+    ctx, prompt: str, *, force: bool = False,
+) -> str:
+    if not ctx.options.compress_plan_review_inputs and not force:
         return prompt
     result = compress_prompt(
         prompt,
@@ -340,6 +351,22 @@ class ReviewPhase(Phase):
 
     def run(self) -> PhaseResult:
         ctx = self.ctx
+        formalization_gate_active = (
+            ctx.options.formalization_review_gate
+            and normalize_stage_for_prompt_path(ctx.current_stage) == "autoformalize"
+        )
+        reviewed_objectives = (
+            parse_objective_files(ctx.progress_file, ctx.project_path)
+            if formalization_gate_active else []
+        )
+        proof_gate_active = (
+            getattr(ctx.options, "proof_review_gate", False)
+            and normalize_stage_for_prompt_path(ctx.current_stage) == "prover"
+        )
+        proof_reviewed_objectives = (
+            parse_objective_files(ctx.progress_file, ctx.project_path)
+            if proof_gate_active else []
+        )
 
         if self.skip_token in ctx.skip_now:
             log.phase(self.number, f"{self.name} — skipped (--from)")
@@ -348,6 +375,14 @@ class ReviewPhase(Phase):
         if ctx.dry_run:
             return PhaseResult(skipped=True)
         if ctx.options.no_review:
+            if formalization_gate_active:
+                log.error(
+                    "formalization Review gate is enabled, but Review is disabled; "
+                    "targets will remain uncertified and cannot enter prover"
+                )
+                write_meta(ctx.iter_meta, **{
+                    "review.formalizationGateStatus": "review_required",
+                })
             self._run_physics_doctor_gate()
             return PhaseResult(skipped=True)
 
@@ -355,8 +390,131 @@ class ReviewPhase(Phase):
         review_start = time.monotonic()
         write_meta(ctx.iter_meta, **{"review.status": "running"})
 
-        self._invoke_review()
+        self._review_preflight_path: Path | None = None
+        self._review_candidate_pack: Path | None = None
+        self._review_preflight: dict | None = None
+        cfg = load_project_config(ctx.project_path)
+        deterministic_review = bool(
+            cfg.loop_section().get("deterministic_review", False)
+        )
+        exact_objectives = (
+            proof_reviewed_objectives
+            or reviewed_objectives
+            or parse_objective_files(ctx.progress_file, ctx.project_path)
+        )
+        if deterministic_review and exact_objectives and ctx.iter_dir is not None:
+            jobs = int(
+                cfg.loop_section().get(
+                    "review_preflight_jobs", ctx.options.max_parallel
+                )
+            )
+            timeout_sec = int(
+                cfg.loop_section().get("review_preflight_timeout_sec", 300)
+            )
+            preflight = run_parallel_review_preflight(
+                project_path=ctx.project_path,
+                objectives=exact_objectives,
+                iter_dir=ctx.iter_dir,
+                iter_num=ctx.iter_num,
+                jobs=jobs,
+                timeout_sec=timeout_sec,
+            )
+            self._review_preflight = preflight
+            self._review_preflight_path = preflight["md_path"]
+            self._review_candidate_pack = write_deterministic_review_pack(
+                project_path=ctx.project_path,
+                state_dir=ctx.state_dir,
+                iter_dir=ctx.iter_dir,
+                iter_num=ctx.iter_num,
+                objectives=exact_objectives,
+                preflight=preflight,
+            )
+            summary = preflight["summary"]
+            log.info(
+                "parallel Review preflight: "
+                f"{summary['passed']} passed / {summary['failed']} failed "
+                f"across {summary['total']} target(s) "
+                f"in {preflight['duration_secs']:.3f}s"
+            )
+            write_meta(ctx.iter_meta, **{
+                "review.deterministic": True,
+                "review.preflightJobs": preflight["jobs"],
+                "review.preflightDurationSecs": preflight["duration_secs"],
+                "review.preflightPassed": summary["passed"],
+                "review.preflightFailed": summary["failed"],
+                "review.preflightPath": str(self._review_preflight_path),
+                "review.candidatePackPath": str(self._review_candidate_pack),
+            })
+
+        parallel_target_review = (
+            deterministic_review
+            and proof_gate_active
+            and bool(cfg.loop_section().get("parallel_target_review", False))
+        )
+        if parallel_target_review:
+            review_ok = self._invoke_parallel_target_review(
+                proof_reviewed_objectives,
+                cfg=cfg,
+            )
+        else:
+            review_ok = self._invoke_review()
+        if not review_ok:
+            review_secs = int(time.monotonic() - review_start)
+            write_meta(ctx.iter_meta, **{
+                "review.status": "error",
+                "review.durationSecs": review_secs,
+                "review.error": (
+                    "review agent exited unsuccessfully; formalization gate "
+                    "was not updated"
+                ),
+            })
+            raise RuntimeError(
+                "Review agent exited unsuccessfully; refusing to apply "
+                "formalization verdicts or consume Review attempts"
+            )
         blockers, reset_complete = self._run_physics_doctor_gate()
+        formalization_result = None
+        proof_result = None
+        if formalization_gate_active:
+            formalization_result = apply_formalization_review(
+                state_dir=ctx.state_dir,
+                project_path=ctx.project_path,
+                progress_file=ctx.progress_file,
+                session_dir=(
+                    ctx.state_dir / "proof-journal" / "sessions"
+                    / f"session_{ctx.iter_num}"
+                ),
+                iter_num=ctx.iter_num,
+                reviewed_objectives=reviewed_objectives,
+                max_iterations=ctx.options.formalization_review_max_iterations,
+                blockers=blockers,
+            )
+            ctx.current_stage = read_stage(ctx.progress_file)
+            log.info(
+                "formalization Review gate: "
+                f"passed={len(formalization_result.passed)}, "
+                f"retry={len(formalization_result.retry)}, "
+                f"exhausted={len(formalization_result.exhausted)}; "
+                f"next stage={ctx.current_stage}"
+            )
+        if proof_gate_active:
+            proof_result = apply_proof_review(
+                state_dir=ctx.state_dir,
+                project_path=ctx.project_path,
+                session_dir=(
+                    ctx.state_dir / "proof-journal" / "sessions"
+                    / f"session_{ctx.iter_num}"
+                ),
+                iter_num=ctx.iter_num,
+                reviewed_objectives=proof_reviewed_objectives,
+                max_iterations=getattr(ctx.options, "proof_review_max_iterations", 3),
+            )
+            log.info(
+                "proof Review retry gate: "
+                f"solved={len(proof_result.solved)}, "
+                f"retry={len(proof_result.retry)}, "
+                f"exhausted={len(proof_result.exhausted)}"
+            )
 
         review_secs = int(time.monotonic() - review_start)
         log.info(f"Review phase finished ({review_secs}s)")
@@ -389,6 +547,29 @@ class ReviewPhase(Phase):
             "review.physicsReviewAgentBlockers": review_agent_blocker_count,
             "review.physicsGateResetComplete": reset_complete,
         })
+        if formalization_result is not None:
+            if formalization_result.retry:
+                gate_status = "retry"
+            elif formalization_result.exhausted:
+                gate_status = "exhausted"
+            else:
+                gate_status = "passed"
+            write_meta(ctx.iter_meta, **{
+                "review.formalizationGateEnabled": True,
+                "review.formalizationGateStatus": gate_status,
+                "review.formalizationGatePassed": len(formalization_result.passed),
+                "review.formalizationGateRetry": len(formalization_result.retry),
+                "review.formalizationGateExhausted": len(formalization_result.exhausted),
+                "review.formalizationGateReviewed": len(formalization_result.reviewed),
+            })
+        if proof_result is not None:
+            write_meta(ctx.iter_meta, **{
+                "review.proofGateEnabled": True,
+                "review.proofGateSolved": len(proof_result.solved),
+                "review.proofGateRetry": len(proof_result.retry),
+                "review.proofGateExhausted": len(proof_result.exhausted),
+                "review.proofGateReviewed": len(proof_result.reviewed),
+            })
         commit_phase(
             ctx.project_path, iter_num=ctx.iter_num, phase="review",
             summary=f"journal session ({review_secs}s)",
@@ -422,14 +603,96 @@ class ReviewPhase(Phase):
                 f"review-agent={len(review_agent_blockers)})"
             )
         if reset_complete:
-            ctx.current_stage = read_stage(ctx.progress_file, ctx.force_stage())
+            ctx.current_stage = read_stage(ctx.progress_file)
             log.warn(
                 "physics review gate: PROGRESS.md was COMPLETE despite "
                 f"physics blockers; reset stage to '{ctx.current_stage}'."
             )
         return blockers, reset_complete
 
-    def _invoke_review(self) -> None:
+    def _invoke_parallel_target_review(
+        self,
+        objectives: list[Path],
+        *,
+        cfg,
+    ) -> bool:
+        """Run one isolated proof Reviewer per target and merge once."""
+        ctx = self.ctx
+        loop_cfg = cfg.loop_section()
+        requested_jobs = max(
+            1,
+            int(loop_cfg.get("parallel_target_review_jobs", ctx.options.max_parallel)),
+        )
+        max_attempts = max(
+            1,
+            int(loop_cfg.get("parallel_target_review_max_attempts", 3)),
+        )
+        backoff_sec = max(
+            0.0,
+            float(loop_cfg.get("parallel_target_review_backoff_sec", 5)),
+        )
+        prior_state = load_proof_review_state(ctx.state_dir)
+        prior_targets = prior_state.get("targets", {})
+        if not isinstance(prior_targets, dict):
+            prior_targets = {}
+
+        start = time.monotonic()
+        report = run_parallel_target_reviews(
+            project_path=ctx.project_path,
+            state_dir=ctx.state_dir,
+            iter_dir=ctx.iter_dir,
+            iter_num=ctx.iter_num,
+            objectives=list(objectives),
+            preflight=self._review_preflight or {},
+            prior_gate_targets=prior_targets,
+            requested_jobs=requested_jobs,
+            max_attempts=max_attempts,
+            backoff_sec=backoff_sec,
+            verbose_logs=ctx.verbose_logs,
+            model=ctx.model,
+            backend=ctx.backend,
+            harness=ctx.harness_descriptor_for("review"),
+        )
+        secs = round(time.monotonic() - start, 3)
+        rounds = report.get("rounds", [])
+        write_meta(ctx.iter_meta, **{
+            "review.parallelTargetEnabled": True,
+            "review.parallelTargetRequestedJobs": requested_jobs,
+            "review.parallelTargetTargets": report.get("targets", 0),
+            "review.parallelTargetReviewed": report.get("reviewed", 0),
+            "review.parallelTargetUnresolved": len(report.get("unresolved", [])),
+            "review.parallelTargetRounds": rounds,
+            "review.parallelTargetDurationSecs": secs,
+            "review.parallelTargetReport": str(ctx.iter_dir / "parallel-review.json"),
+        })
+        if report.get("complete"):
+            log.success(
+                "parallel target Review: "
+                f"{report.get('reviewed', 0)}/{report.get('targets', 0)} "
+                f"target(s) reviewed in {secs:.3f}s; "
+                f"requested concurrency={requested_jobs}"
+            )
+        else:
+            unresolved = report.get("unresolved", [])
+            log.error(
+                "parallel target Review incomplete after automatic "
+                f"concurrency backoff: {len(unresolved)} unresolved target(s)"
+            )
+            return False
+
+        validate_script = data_path("scripts/validate-review.py")
+        session_dir = (
+            ctx.state_dir / "proof-journal" / "sessions"
+            / f"session_{ctx.iter_num}"
+        )
+        if validate_script.exists():
+            subprocess.run(
+                [sys.executable, str(validate_script), str(session_dir)],
+                capture_output=True,
+            )
+        return True
+
+    def _invoke_review(self) -> bool:
         ctx = self.ctx
         # Session number == iteration number. The pre-2026 monotonic
         # counter drifted away from iter numbers whenever the user did
@@ -510,7 +773,8 @@ class ReviewPhase(Phase):
 
         cfg = load_project_config(ctx.project_path)
         compact_input_pack = None
-        if ctx.options.compress_plan_review_inputs:
+        deterministic_review = self._review_preflight_path is not None
+        if ctx.options.compress_plan_review_inputs or deterministic_review:
             pack_iter_dir = ctx.iter_dir
             if pack_iter_dir is None and ctx.dry_run:
                 pack_iter_dir = ctx.log_dir / f"iter-{ctx.iter_num:03d}"
@@ -523,6 +787,8 @@ class ReviewPhase(Phase):
                     iter_num=ctx.iter_num,
                     attempts_file=attempts_file,
                     combined_prover_log=combined,
+                    deterministic_preflight=self._review_preflight_path,
+                    deterministic_candidates_pack=self._review_candidate_pack,
                 )
         prompt = build_review_prompt(
             ctx.project_name, ctx.project_path, ctx.state_dir, ctx.current_stage,
@@ -531,8 +797,17 @@ class ReviewPhase(Phase):
             debug_feedback=ctx.options.debug_feedback,
             recent_iter_window=resolve_recent_iter_window(cfg),
             compact_input_pack=compact_input_pack,
+            formalization_review_gate=ctx.options.formalization_review_gate,
         )
-        prompt = _maybe_compress_review_prompt(ctx, prompt)
+        if self._review_preflight_path and self._review_candidate_pack:
+            prompt = deterministic_review_prompt_prefix(
+                preflight_path=self._review_preflight_path,
+                candidate_pack=self._review_candidate_pack,
+                doctor_path=(ctx.iter_dir / "blueprint-doctor.json"),
+            ) + prompt
+        prompt = _maybe_compress_review_prompt(
+            ctx, prompt, force=deterministic_review,
+        )
         review_log = ctx.iter_dir / "review"
         resume_sid = pick_resume_session(
             ctx.iter_meta, "review.sessionId",
@@ -541,7 +816,7 @@ class ReviewPhase(Phase):
             cwd=ctx.project_path,
             jsonl_fallback=Path(str(review_log) + ".jsonl"),
         )
-        ctx.make_agent("review").run(
+        review_ok = ctx.make_agent("review").run(
             REVIEW_CONTINUE if resume_sid else prompt,
             cwd=ctx.project_path,
             log_base=review_log, verbose_logs=ctx.verbose_logs,
@@ -580,3 +855,4 @@ class ReviewPhase(Phase):
                     )
                 except OSError:
                     pass
+        return review_ok

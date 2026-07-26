@@ -96,6 +96,8 @@ from archon.commands.branch import branch, inner_log  # noqa: E402
 from archon.commands.version import version as version_cmd  # noqa: E402
 from archon.commands.subagent import subagent_command  # noqa: E402
 from archon.commands.migrate import app as migrate_app  # noqa: E402
+from archon.commands.qcode import qcode_discovery  # noqa: E402
+from archon.commands.qcode_humanize import qcode_humanize  # noqa: E402
 from archon.commands.dag import dag  # noqa: E402
 from archon.commands.extract import extract, merge  # noqa: E402
 from archon.commands.dag.gaps_entry import dag_carve_plan, dag_gaps, dag_graph, dag_query  # noqa: E402
@@ -128,6 +130,8 @@ app.command()(discuss)
 app.command("branch")(branch)
 app.command("log")(inner_log)
 app.command("version")(version_cmd)
+app.command("qcode")(qcode_discovery)
+app.command("qcode-humanize")(qcode_humanize)
 app.add_typer(refactor_app, name="refactor")
 app.command("subagent", hidden=True)(subagent_command)
 app.add_typer(migrate_app, name="migrate")

@@ -1,0 +1,71 @@
+# OpenEvolve configuration for BB code discovery
+# Usage: uv run python evolve/run_evolution.py --config evolve/config.yaml
+#
+# LLM api_base and model are overridden by run_evolution.py CLI args.
+# Edit this file to tune evolution parameters, evaluator behavior, and prompts.
+
+max_iterations: 500
+diff_based_evolution: true
+log_level: "INFO"
+max_code_length: 50000
+checkpoint_interval: 50
+
+llm:
+  # Overridden at runtime by --model and --api-base
+  api_base: "http://localhost:4000/v1"
+  models:
+    - name: "aws/claude-opus-4-6"
+      weight: 0.33
+      temperature: 0.8
+    - name: "Azure/gpt-5.2-2025-12-11"
+      weight: 0.33
+      temperature: null
+    - name: "gcp/gemini-3-pro-preview"
+      weight: 0.33
+      temperature: 0.8
+  # Global temperature fallback (per-model overrides above take precedence)
+  temperature: 0.8
+  max_tokens: 16384
+  # Reasoning models (GPT-5.1 Codex, o3) can take 2-3 minutes to respond.
+  timeout: 300
+  retries: 4
+  retry_delay: 10
+
+prompt:
+  system_message: |
+    You are an expert in quantum error-correcting codes, specifically bivariate bicycle (BB) codes.
+    You are improving a Python function `generate_candidates(ell, m)` that returns candidate
+    BB code polynomial pairs for evaluation.
+
+    Your goal: maximize the figure of merit FOM = k*d^2/n, where k = logical qubits,
+    d = code distance, n = 2*ell*m physical qubits. Target FOM > 12.0.
+
+    Key insights from known good codes:
+    - The best codes use the x/y-swap pattern: A = x^a + y^b + y^c, B = y^d + x^e + x^f
+    - The "doubling" pattern (c=2b, f=2e) produces many of the top codes
+    - The same polynomial pair can work at multiple lattice sizes
+    - Non-consecutive y-exponents (like y^2+y^7 in [[288,12,18]]) can outperform consecutive ones
+    - Coprimality between exponents and lattice dimensions matters
+    - NEW: Constant-monomial codes (A=f(y), B=g(x), both with constant term 1) achieve k=40 at n=360
+    - The polynomial 1+t+t^2 is irreducible over GF(2); using B=A(x^c) creates linked kernel structures
+    - The best known code is [[360,40,<=20]] with A=1+y+y^2, B=1+x^5+x^10 (FOM=44.4)
+
+    Focus on algebraic patterns that produce high k (logical qubits) and high d (distance).
+    The function receives (ell, m) and must return a list of (A_terms, B_terms) pairs.
+  include_artifacts: true
+  # Our seed is ~7KB; default 500 causes every prompt to say "Consider simplifying"
+  suggest_simplification_after_chars: 10000
+
+evaluator:
+  timeout: 1200
+  cascade_evaluation: true
+  cascade_thresholds: [0.01, 0.5]
+  # 6 parallel workers: leaves headroom on 14-core M4 Max for BLAS threads + main process
+  parallel_evaluations: 6
+
+database:
+  population_size: 1000
+  num_islands: 5
+  # Faster cross-pollination: with 500 iterations, 25 gives ~20 migrations
+  migration_interval: 25
+  feature_dimensions: ["lattices_with_high_k", "num_high_k"]

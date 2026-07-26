@@ -62,6 +62,30 @@ def loop(
         None, "--no-review/--review",
         help="Skip review phase after each iteration. (default from config or off)",
     ),
+    formalization_review_gate: Optional[bool] = typer.Option(
+        None, "--formalization-review-gate/--no-formalization-review-gate",
+        help="Require a per-target autoformalization Review pass before prover "
+             "dispatch. Failed targets are retried, then quarantined after "
+             "the configured limit. (default from config or off)",
+    ),
+    formalization_review_max_iterations: Optional[int] = typer.Option(
+        None, "--formalization-review-max-iterations",
+        min=1,
+        help="Maximum autoformalize→Review attempts per target before it is "
+             "quarantined from proving. (default from config or 2)",
+    ),
+    proof_review_gate: Optional[bool] = typer.Option(
+        None, "--proof-review-gate/--no-proof-review-gate",
+        help="Track proof Review attempts per target, requeue failures, and "
+             "quarantine a target after its configured limit. "
+             "(default from config or off)",
+    ),
+    proof_review_max_iterations: Optional[int] = typer.Option(
+        None, "--proof-review-max-iterations",
+        min=1,
+        help="Maximum Prover→Review attempts per target. "
+             "(default from config or 3)",
+    ),
     no_finalize: bool = typer.Option(
         False, "--no-finalize",
         help="Skip the end-of-iteration git commit / lake build / blueprint web.",
@@ -214,6 +238,30 @@ def loop(
     parallel = _resolve(parallel, section=loop_cfg, key='parallel', default=True)
     verbose_logs = _resolve(verbose_logs, section=loop_cfg, key='verbose_logs', default=False)
     no_review = _resolve(no_review, section=loop_cfg, key='no_review', default=False)
+    formalization_review_gate = _resolve(
+        formalization_review_gate,
+        section=loop_cfg,
+        key='formalization_review_gate',
+        default=False,
+    )
+    formalization_review_max_iterations = _resolve(
+        formalization_review_max_iterations,
+        section=loop_cfg,
+        key='formalization_review_max_iterations',
+        default=2,
+    )
+    proof_review_gate = _resolve(
+        proof_review_gate,
+        section=loop_cfg,
+        key='proof_review_gate',
+        default=False,
+    )
+    proof_review_max_iterations = _resolve(
+        proof_review_max_iterations,
+        section=loop_cfg,
+        key='proof_review_max_iterations',
+        default=3,
+    )
     model = _resolve(model, section=loop_cfg, key='model', default=DEFAULT_MODEL)
     debug_feedback = _resolve(
         debug_feedback, section=loop_cfg, key='debug_feedback', default=False,
@@ -275,6 +323,10 @@ def loop(
         parallel=parallel,
         verbose_logs=verbose_logs,
         no_review=no_review,
+        formalization_review_gate=bool(formalization_review_gate),
+        formalization_review_max_iterations=int(formalization_review_max_iterations),
+        proof_review_gate=bool(proof_review_gate),
+        proof_review_max_iterations=int(proof_review_max_iterations),
         no_finalize=no_finalize,
         no_git_commit=no_git_commit,
         no_lake_build=no_lake_build,

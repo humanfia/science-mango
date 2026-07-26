@@ -171,6 +171,7 @@ def build_plan_input_pack(
     state_dir: Path,
     iter_dir: Path,
     iter_num: int,
+    deterministic_candidates_pack: Path | None = None,
 ) -> Path:
     """Write and return a compact first-pass input pack for the plan phase."""
 
@@ -182,6 +183,15 @@ def build_plan_input_pack(
         "Use it as the first-pass replacement for broad scans of AGENTS.md, prompts/plan.md, task_results, and recent iter sidecars.",
         "If a rule or exact file detail is missing, read the source file explicitly.",
         "",
+    ]
+    if deterministic_candidates_pack is not None:
+        lines.extend([
+            "## Deterministic Candidate Evidence",
+            f"Read `{deterministic_candidates_pack}`. It contains the exact bounded objective set and source excerpts.",
+            "Do not scan or enumerate targets outside that pack.",
+            "",
+        ])
+    lines.extend([
         "## Current PROGRESS.md",
         _read(state_dir / "PROGRESS.md"),
         "",
@@ -206,10 +216,10 @@ def build_plan_input_pack(
         "## Minimal Plan Rules",
         "- Update PROGRESS.md with parseable objectives under `## Current Objectives`.",
         "- Keep STRATEGY.md stable; put iteration narrative in the current iter sidecar.",
-        "- Dispatch only useful prover objectives; avoid files with no open sorries.",
+        "- Dispatch only useful prover objectives; avoid files with no open sorries except mandatory proof-Review retries that need elaboration or faithfulness repair.",
         "- Respect archon-protected.yaml and project-local prompts if exact rules are needed.",
         "- For physics chapters, keep physical hypotheses and LeanExplore grounding visible.",
-    ]
+    ])
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return path
 
@@ -222,6 +232,8 @@ def build_review_input_pack(
     iter_num: int,
     attempts_file: Path,
     combined_prover_log: Path,
+    deterministic_preflight: Path | None = None,
+    deterministic_candidates_pack: Path | None = None,
 ) -> Path:
     """Write and return a compact first-pass input pack for the review phase."""
 
@@ -238,6 +250,16 @@ def build_review_input_pack(
         f"- combined prover log: `{combined_prover_log}`",
         f"- task_results: `{state_dir / 'task_results'}`",
         "",
+    ]
+    if deterministic_preflight is not None:
+        lines.extend([
+            "## Deterministic Review Evidence",
+            f"- parallel Lean preflight: `{deterministic_preflight}`",
+            f"- exact candidate pack: `{deterministic_candidates_pack}`",
+            "- Do not rerun successful direct Lean checks or scan targets outside this pack.",
+            "",
+        ])
+    lines.extend([
         "## Current PROGRESS.md",
         _read(state_dir / "PROGRESS.md"),
         "",
@@ -261,6 +283,6 @@ def build_review_input_pack(
         "- Surface compile, sorry, blueprint, grounding, and physics-modeling blockers.",
         "- Do not mark physics work complete if blueprint-doctor physics blockers remain.",
         "- Prefer the compact pack first; read exact logs only when needed to verify a claim.",
-    ]
+    ])
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return path

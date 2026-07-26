@@ -138,6 +138,21 @@ Fields:
 
 A built-in `codex` harness ships, so you can route to Codex without defining one
 yourself; it enables both `lean-lsp` and `lean-explore` MCP bundles by default.
+
+The deterministic physics-grounding phase honors the prover harness setting
+`lean_explore_backend`. With `"local"`, both agent MCP search and loop-owned
+grounding use the fetched local index and do not require `LEANEXPLORE_API_KEY`.
+Install the local runtime extra and fetch the index before selecting it:
+
+```bash
+uv pip install --python .venv/bin/python "lean-explore[local]"
+lean-explore data fetch
+```
+
+When the field is absent,
+grounding uses `auto`: API if a key is available, otherwise the local index.
+The default package filter is `Mathlib, Physlib`; LeanExplore local data includes
+the upstream `physlean` package, whose declarations live under `Physlib.*`.
 To customize (or make a claude-code variant), copy the
 `_my_harness_example` block in `.humanizephysics/config.json`, rename it, and reference it.
 

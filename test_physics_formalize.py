@@ -199,9 +199,9 @@ class PhysicsFormalizeDryRunTests(unittest.TestCase):
             )
             self.assertTrue(manifest["physlean_build"]["requested"])
             self.assertTrue(manifest["physlean_build"]["passed"])
-            self.assertEqual(manifest["physlean_build"]["target"], "PhysLean")
+            self.assertEqual(manifest["physlean_build"]["target"], "Physlib")
             command = run.call_args.args[0]
-            self.assertEqual(command, ["/fake/lake", "build", "PhysLean"])
+            self.assertEqual(command, ["/fake/lake", "build", "Physlib"])
             self.assertEqual(run.call_args.kwargs["cwd"], project.resolve())
 
     def test_dry_run_ensures_physlean_dependency_in_lean_lakefile(self):

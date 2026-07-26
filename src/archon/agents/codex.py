@@ -877,6 +877,14 @@ class CodexAgent:
         def flag(key: str, value: object) -> list[str]:
             return ["-c", f"{key}={json.dumps(value)}"]
 
+        shared_url = self.descriptor.raw.get("lean_explore_url")
+        if isinstance(shared_url, str) and shared_url.strip():
+            return (
+                flag(f"{base}.url", shared_url.strip())
+                + flag(f"{base}.required", True)
+                + flag(f"{base}.tool_timeout_sec", _MCP_TOOL_TIMEOUT_SEC)
+            )
+
         use_official = self.descriptor.raw.get("lean_explore_use_official_cli")
         out: list[str] = []
         if use_official:

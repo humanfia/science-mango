@@ -33,6 +33,30 @@ def _make_project(root: Path) -> Path:
 
 
 class PhysicsFormalizePrepareTests(unittest.TestCase):
+    def test_phyx_entry_normalization_resolves_answer_and_context(self):
+        entry = PhysicsFormalizeCommand._normalize_phyx_entry(
+            {
+                "index": "0",
+                "description": "Two equal pulls act symmetrically at 32 degrees.",
+                "question": "How large should the pulls be?",
+                "image": "0.png",
+                "options": chr(65) + ":\"7.55 N\"," + chr(66) + ":\"5.55 N\"",
+                "answer": "A",
+                "category": "Mechanics",
+                "subfield": "Statics",
+                "reasoning_type": ["Spatial Relation Reasoning"],
+                "image_caption": "The ropes are symmetric about the arm.",
+            },
+            line_no=1,
+        )
+        self.assertEqual(entry["index"], "phyx_0")
+        self.assertEqual(entry["dataset"], "Cloudriver/PhyX")
+        self.assertEqual(entry["answer"], "A: 7.55 N")
+        self.assertEqual(entry["answer_text"], "7.55 N")
+        self.assertIn("## Physical scenario", entry["question"])
+        self.assertIn("- A: 7.55 N", entry["question"])
+        self.assertIn("Spatial Relation Reasoning", entry["question"])
+
     def test_single_problem_prepares_autoformalize_target_without_calling_formalizer(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)

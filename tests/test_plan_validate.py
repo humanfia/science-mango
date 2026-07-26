@@ -11,6 +11,7 @@ Covers:
 
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -458,6 +459,34 @@ class ValidatePlanOutputNoopFilterTest(unittest.TestCase):
                 "# Progress\n\n## Current Objectives\n\n"
                 "1. **`Skeleton.lean`** — scaffold declarations for thm:x; "
                 "leave bodies as sorry.\n",
+            )
+            ctx = self._make_ctx(root, state)
+            result = validate_plan_output(ctx)
+            self.assertTrue(result)
+            self.assertFalse((state / "AUTO_NOTES.md").exists())
+
+    def test_proof_review_retry_with_zero_sorries_is_exempt(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d).resolve()
+            state = self._setup(root)
+            (root / "Retry.lean").write_text(
+                "theorem a : True := by exact missingName\n"
+            )
+            (state / "proof-review-gate.json").write_text(
+                json.dumps({
+                    "targets": {
+                        "Retry.lean": {
+                            "status": "retry",
+                            "attempts": 1,
+                            "reason": "direct Lean elaboration failed",
+                        }
+                    }
+                }),
+                encoding="utf-8",
+            )
+            (state / "PROGRESS.md").write_text(
+                "# Progress\n\n## Current Objectives\n\n"
+                "1. **`Retry.lean`** — repair the reviewed Lean failure.\n",
             )
             ctx = self._make_ctx(root, state)
             result = validate_plan_output(ctx)

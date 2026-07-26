@@ -12,8 +12,10 @@ dispatcher_notes: |
 
     **You may skip me this iter when ALL of:**
       - no `.lean` file under the project tree was modified this iter
-        (the prover phase committed no edits — check via
-        `git diff --stat HEAD~1 -- '*.lean'`);
+        (the prover phase committed no edits — first check
+        `git rev-parse --verify --quiet HEAD^`; when a parent exists use
+        `git diff --stat HEAD^ -- '*.lean'`, otherwise use
+        `git status --short -- '*.lean'`);
       - my prior verdict had no must-fix-this-iter findings.
 
     Record the skip under `## Subagent skips` in `iter/iter-NNN/review.md`.

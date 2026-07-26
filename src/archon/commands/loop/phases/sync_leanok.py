@@ -36,6 +36,7 @@ from pathlib import Path
 from archon import log
 from archon.commands.tooling.iteration import commit_phase
 from archon.commands.tooling.inner_git import InnerGit
+from archon.state import parse_objective_files
 
 from .base import Phase, PhaseResult
 
@@ -49,6 +50,7 @@ def _write_state(
     removed: int,
     chapters_touched: list[str],
     secs: int,
+    targets_checked: list[str] | None = None,
 ) -> None:
     """Stamp the per-iter sync result so reviewers can attribute markers.
 
@@ -71,6 +73,8 @@ def _write_state(
             "removed": removed,
             "duration_secs": secs,
             "chapters_touched": sorted(set(chapters_touched)),
+            "scope": "current-objectives" if targets_checked is not None else "full",
+            "targets_checked": sorted(set(targets_checked or [])),
         }
         (state_dir / "sync_leanok-state.json").write_text(
             json.dumps(payload, indent=2), encoding="utf-8",
@@ -139,11 +143,27 @@ class SyncLeanokPhase(Phase):
         # wall-clock budget (configurable for very large blueprints via
         # ``loop.sync_leanok_timeout_sec``).
         timeout_sec = self._resolve_timeout_sec(ctx)
+        objectives = parse_objective_files(ctx.progress_file, ctx.project_path)
+        target_rels: list[str] = []
+        for objective in objectives:
+            try:
+                target_rels.append(
+                    objective.resolve().relative_to(
+                        ctx.project_path.resolve()
+                    ).as_posix()
+                )
+            except ValueError:
+                continue
+        command = [
+            sys.executable, str(script), str(ctx.project_path), "--format=json",
+        ]
+        for rel in target_rels:
+            command.extend(["--lean-file", rel])
+
         start = time.monotonic()
         try:
             r = subprocess.run(
-                [sys.executable, str(script), str(ctx.project_path),
-                 "--format=json"],
+                command,
                 capture_output=True, text=True, timeout=timeout_sec,
             )
         except (OSError, subprocess.SubprocessError) as e:
@@ -188,14 +208,23 @@ class SyncLeanokPhase(Phase):
             removed=removed,
             chapters_touched=chapters_touched,
             secs=secs,
+            targets_checked=target_rels if target_rels else None,
         )
 
         if not changes:
-            log.success(f"sync_leanok: no marker changes ({secs}s)")
+            scope = (
+                f"current {len(target_rels)} objective(s)"
+                if target_rels else "full blueprint"
+            )
+            log.success(
+                f"sync_leanok: no marker changes for {scope} ({secs}s)"
+            )
             return PhaseResult()
 
         log.success(
-            f"sync_leanok: +{added} / -{removed} \\leanok markers ({secs}s)"
+            f"sync_leanok: +{added} / -{removed} \\leanok markers "
+            f"across {len(target_rels) if target_rels else 'all'} "
+            f"target(s) ({secs}s)"
         )
 
         # Best-effort commit; commit_phase is a no-op if there are no
