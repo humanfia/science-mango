@@ -1,0 +1,225 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_C_2.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_1_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_2}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Current subquestion.}
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Recorded answer/context.}
+hbar*omega\_min - Delta U = 2.03e-11 eV.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1, corrected by conservation-law consistency: for
+  \(A=2\sin^2\theta+1\) and \(\theta\leq\pi/2\),
+  \(\omega_{\min}=3mc^2(1-\sqrt{1-2A\Delta U/(3mc^2)})/(\hbar A)\).
+  Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output.
+\end{itemize}
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold so its quoted C.1 prerequisite uses the corrected
+factor \(2\).  Preserve the dimensioned constants and momenta, the threshold
+meaning, the specified angle, energy and mass data, and the explicit rounding
+tolerance.  Leave proof bodies as `by sorry`.
+
+\begin{definition}[DimMass]
+  \label{decl:physics:IPhO_2026_1_C_2:DimMass}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.DimMass}
+  A mass with no preferred system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AngularFrequency]
+  \label{decl:physics:IPhO_2026_1_C_2:AngularFrequency}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.AngularFrequency}
+  An angular frequency, with physical dimension “T⁻¹”, and no preferred system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimAction]
+  \label{decl:physics:IPhO_2026_1_C_2:DimAction}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.DimAction}
+  An action, with physical dimension “M L² T⁻¹”, and no preferred system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[atomicMassUnit]
+  \label{decl:physics:IPhO_2026_1_C_2:atomicMassUnit}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.atomicMassUnit}
+  \uses{decl:physics:IPhO_2026_1_C_2:DimMass}
+  One unified atomic mass unit, represented as a dimensionful mass from its SI readout.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[reducedPlanckConstant]
+  \label{decl:physics:IPhO_2026_1_C_2:reducedPlanckConstant}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.reducedPlanckConstant}
+  \uses{decl:physics:IPhO_2026_1_C_2:DimAction}
+  The reduced Planck constant, represented as a dimensionful action from Physlib's SI value.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[scalarInUnits]
+  \label{decl:physics:IPhO_2026_1_C_2:scalarInUnits}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.scalarInUnits}
+  The scalar readout of a dimensionful real quantity in a specified system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siScalar]
+  \label{decl:physics:IPhO_2026_1_C_2:siScalar}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.siScalar}
+  \uses{decl:physics:IPhO_2026_1_C_2:scalarInUnits}
+  The scalar SI readout of a dimensionful real quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[momentumSquaredNorm]
+  \label{decl:physics:IPhO_2026_1_C_2:momentumSquaredNorm}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.momentumSquaredNorm}
+  The squared Euclidean norm of a spatial momentum in its common working units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[momentumDot]
+  \label{decl:physics:IPhO_2026_1_C_2:momentumDot}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.momentumDot}
+  The Euclidean dot product of two momenta expressed in the same working units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MakesAngle]
+  \label{decl:physics:IPhO_2026_1_C_2:MakesAngle}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.MakesAngle}
+  \uses{decl:physics:IPhO_2026_1_C_2:momentumSquaredNorm, decl:physics:IPhO_2026_1_C_2:momentumDot}
+  “p” makes the dimensionless angle “θ” with the nonzero reference momentum “q”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[OzonePhotodissociationSetup]
+  \label{decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.OzonePhotodissociationSetup}
+  \uses{decl:physics:IPhO_2026_1_C_2:DimMass, decl:physics:IPhO_2026_1_C_2:AngularFrequency}
+  The named quantities in Figure 1c.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DissociationAt]
+  \label{decl:physics:IPhO_2026_1_C_2:DissociationAt}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.DissociationAt}
+  \uses{decl:physics:IPhO_2026_1_C_2:reducedPlanckConstant, decl:physics:IPhO_2026_1_C_2:scalarInUnits, decl:physics:IPhO_2026_1_C_2:momentumSquaredNorm, decl:physics:IPhO_2026_1_C_2:MakesAngle, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup}
+  A dissociation is kinematically feasible at the given scalar angular-frequency readout and angle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ValidOzonePhotodissociationPhysics]
+  \label{decl:physics:IPhO_2026_1_C_2:ValidOzonePhotodissociationPhysics}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.ValidOzonePhotodissociationPhysics}
+  \uses{decl:physics:IPhO_2026_1_C_2:reducedPlanckConstant, decl:physics:IPhO_2026_1_C_2:scalarInUnits, decl:physics:IPhO_2026_1_C_2:momentumSquaredNorm, decl:physics:IPhO_2026_1_C_2:MakesAngle, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup, decl:physics:IPhO_2026_1_C_2:DissociationAt}
+  The governing physics used for Figure 1c.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[quotedC1ThresholdExpression]
+  \label{decl:physics:IPhO_2026_1_C_2:quotedC1ThresholdExpression}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.quotedC1ThresholdExpression}
+  \uses{decl:physics:IPhO_2026_1_C_2:reducedPlanckConstant, decl:physics:IPhO_2026_1_C_2:siScalar, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup}
+  The corrected C.1 threshold expression, including the factor \(2\) required by conservation of energy and momentum.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[QuotedPreviousPartC1Result]
+  \label{decl:physics:IPhO_2026_1_C_2:QuotedPreviousPartC1Result}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.QuotedPreviousPartC1Result}
+  \uses{decl:physics:IPhO_2026_1_C_2:siScalar, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup, decl:physics:IPhO_2026_1_C_2:quotedC1ThresholdExpression}
+  The reusable corrected C.1 conclusion for the forward and backward angle ranges.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[C2NumericalInputs]
+  \label{decl:physics:IPhO_2026_1_C_2:C2NumericalInputs}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.C2NumericalInputs}
+  \uses{decl:physics:IPhO_2026_1_C_2:atomicMassUnit, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup}
+  The three scalar inputs specified in subquestion C.2, attached to their physical units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[RoundsTo]
+  \label{decl:physics:IPhO_2026_1_C_2:RoundsTo}
+  \lean{IPhO2026Problems.IPhO2026_1_C_2.RoundsTo}
+  “x” is reported as “reported” to a precision whose half-width is “tolerance”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_C_2:target}
+\lean{IPhO2026Problems.IPhO2026_1_C_2.problem_IPhO_2026_1_C_2}
+\uses{decl:physics:IPhO_2026_1_C_2:DimMass, decl:physics:IPhO_2026_1_C_2:AngularFrequency, decl:physics:IPhO_2026_1_C_2:DimAction, decl:physics:IPhO_2026_1_C_2:atomicMassUnit, decl:physics:IPhO_2026_1_C_2:reducedPlanckConstant, decl:physics:IPhO_2026_1_C_2:scalarInUnits, decl:physics:IPhO_2026_1_C_2:siScalar, decl:physics:IPhO_2026_1_C_2:momentumSquaredNorm, decl:physics:IPhO_2026_1_C_2:momentumDot, decl:physics:IPhO_2026_1_C_2:MakesAngle, decl:physics:IPhO_2026_1_C_2:OzonePhotodissociationSetup, decl:physics:IPhO_2026_1_C_2:DissociationAt, decl:physics:IPhO_2026_1_C_2:ValidOzonePhotodissociationPhysics, decl:physics:IPhO_2026_1_C_2:quotedC1ThresholdExpression, decl:physics:IPhO_2026_1_C_2:QuotedPreviousPartC1Result, decl:physics:IPhO_2026_1_C_2:C2NumericalInputs, decl:physics:IPhO_2026_1_C_2:RoundsTo}
+At \(\theta=\pi/6\), \(\Delta U=1.10\) eV and \(m=16.0\) amu, the corrected
+threshold formula makes \(\hbar\omega_{\min}-\Delta U\) round to
+\(2.03\times10^{-11}\) eV with the stated tolerance.
+\end{theorem}
+\begin{proof}
+At \(\theta=\pi/6\), the angular factor is \(A=3/2\).  Substitute the supplied
+mass and energy into the corrected C.1 expression, convert the dimensioned
+quantities to a common SI readout, subtract \(\Delta U\), and divide by one
+electronvolt.  The value is approximately \(2.0296693\times10^{-11}\) eV, which
+lies inside the requested rounding interval.
+\end{proof}
+% --- Archon physics formalization source end ---

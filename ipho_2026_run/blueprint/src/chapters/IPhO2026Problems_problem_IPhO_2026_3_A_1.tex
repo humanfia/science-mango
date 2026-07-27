@@ -1,0 +1,295 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_A_1.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_3\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_A_1}
+
+\paragraph{Problem source.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+Current subquestion:
+Write the field magnitude H inside the torus in terms of N, I, A, and V.
+
+\paragraph{Current subquestion.}
+Write the field magnitude H inside the torus in terms of N, I, A, and V.
+
+\paragraph{Recorded answer/context.}
+H = N*I*A/V.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_A\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[electricCurrentDimension]
+  \label{decl:physics:IPhO_2026_3_A_1:electricCurrentDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.electricCurrentDimension}
+  The dimension of electric current, charge divided by time.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magneticFieldStrengthDimension]
+  \label{decl:physics:IPhO_2026_3_A_1:magneticFieldStrengthDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.magneticFieldStrengthDimension}
+  \uses{decl:physics:IPhO_2026_3_A_1:electricCurrentDimension}
+  The dimension of magnetic field strength “H”, electric current per length.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[vacuumPermeabilityDimension]
+  \label{decl:physics:IPhO_2026_3_A_1:vacuumPermeabilityDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.vacuumPermeabilityDimension}
+  The dimension of vacuum permeability “μ₀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magneticFluxDensityDimension]
+  \label{decl:physics:IPhO_2026_3_A_1:magneticFluxDensityDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.magneticFluxDensityDimension}
+  The dimension of magnetic flux density “B” (tesla).
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_3_A_1:PhysicalLength}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.PhysicalLength}
+  A physical length, independent of a choice of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalArea]
+  \label{decl:physics:IPhO_2026_3_A_1:PhysicalArea}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.PhysicalArea}
+  A physical area.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalVolume]
+  \label{decl:physics:IPhO_2026_3_A_1:PhysicalVolume}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.PhysicalVolume}
+  A physical volume.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ElectricCurrentMagnitude]
+  \label{decl:physics:IPhO_2026_3_A_1:ElectricCurrentMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.ElectricCurrentMagnitude}
+  \uses{decl:physics:IPhO_2026_3_A_1:electricCurrentDimension}
+  The magnitude of an instantaneous electric current.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticFieldStrengthMagnitude]
+  \label{decl:physics:IPhO_2026_3_A_1:MagneticFieldStrengthMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.MagneticFieldStrengthMagnitude}
+  \uses{decl:physics:IPhO_2026_3_A_1:magneticFieldStrengthDimension}
+  The magnitude of the material magnetic field strength “H”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagnetizationMagnitude]
+  \label{decl:physics:IPhO_2026_3_A_1:MagnetizationMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.MagnetizationMagnitude}
+  \uses{decl:physics:IPhO_2026_3_A_1:magneticFieldStrengthDimension}
+  The magnitude of the magnetization “M”, which has the same dimension as “H”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[VacuumPermeabilityMagnitude]
+  \label{decl:physics:IPhO_2026_3_A_1:VacuumPermeabilityMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.VacuumPermeabilityMagnitude}
+  \uses{decl:physics:IPhO_2026_3_A_1:vacuumPermeabilityDimension}
+  The vacuum permeability “μ₀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticFluxDensityMagnitude]
+  \label{decl:physics:IPhO_2026_3_A_1:MagneticFluxDensityMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.MagneticFluxDensityMagnitude}
+  \uses{decl:physics:IPhO_2026_3_A_1:magneticFluxDensityDimension}
+  The magnitude of the magnetic flux density “B”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siReadout]
+  \label{decl:physics:IPhO_2026_3_A_1:siReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.siReadout}
+  The numerical readout of a dimensionful real scalar in coherent SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticTorus]
+  \label{decl:physics:IPhO_2026_3_A_1:ParamagneticTorus}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.ParamagneticTorus}
+  \uses{decl:physics:IPhO_2026_3_A_1:PhysicalLength, decl:physics:IPhO_2026_3_A_1:PhysicalArea, decl:physics:IPhO_2026_3_A_1:PhysicalVolume}
+  The torus shown in Figure 3a.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasStatedMaterialProperties]
+  \label{decl:physics:IPhO_2026_3_A_1:HasStatedMaterialProperties}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.HasStatedMaterialProperties}
+  \uses{decl:physics:IPhO_2026_3_A_1:ParamagneticTorus}
+  The material qualifications stated for the torus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasFigure3aGeometry]
+  \label{decl:physics:IPhO_2026_3_A_1:HasFigure3aGeometry}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.HasFigure3aGeometry}
+  \uses{decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ParamagneticTorus}
+  The positive geometric readouts and the three Figure 3a relations “ℓ = 2πR”, “A = πr²”, and “V = Aℓ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsThinToroidAtScale]
+  \label{decl:physics:IPhO_2026_3_A_1:IsThinToroidAtScale}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.IsThinToroidAtScale}
+  \uses{decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ParamagneticTorus}
+  An explicit thin-torus approximation: “r ≤ ε R”, for a positive dimensionless tolerance “ε < 1”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ToroidalWinding]
+  \label{decl:physics:IPhO_2026_3_A_1:ToroidalWinding}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.ToroidalWinding}
+  The insulated, densely wound conducting wire shown in Figure 3a.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasStatedWindingProperties]
+  \label{decl:physics:IPhO_2026_3_A_1:HasStatedWindingProperties}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.HasStatedWindingProperties}
+  \uses{decl:physics:IPhO_2026_3_A_1:ToroidalWinding}
+  The winding qualifications stated in the source and Figure 3a.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[EnergyTransferSignConvention]
+  \label{decl:physics:IPhO_2026_3_A_1:EnergyTransferSignConvention}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.EnergyTransferSignConvention}
+  The sign convention used for work and heat transfer.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ToroidalMagneticState]
+  \label{decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.ToroidalMagneticState}
+  \uses{decl:physics:IPhO_2026_3_A_1:ElectricCurrentMagnitude, decl:physics:IPhO_2026_3_A_1:MagneticFieldStrengthMagnitude, decl:physics:IPhO_2026_3_A_1:MagnetizationMagnitude, decl:physics:IPhO_2026_3_A_1:MagneticFluxDensityMagnitude}
+  The instantaneous uniform-field state.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[UsesUniformParallelFieldApproximation]
+  \label{decl:physics:IPhO_2026_3_A_1:UsesUniformParallelFieldApproximation}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.UsesUniformParallelFieldApproximation}
+  \uses{decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState}
+  The uniformity and alignment assumptions justified by “r ≪ R”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasNonnegativeMagnitudes]
+  \label{decl:physics:IPhO_2026_3_A_1:HasNonnegativeMagnitudes}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.HasNonnegativeMagnitudes}
+  \uses{decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState}
+  All quantities designated as magnitudes have nonnegative SI readouts.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesParamagneticConstitutiveLaw]
+  \label{decl:physics:IPhO_2026_3_A_1:SatisfiesParamagneticConstitutiveLaw}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.SatisfiesParamagneticConstitutiveLaw}
+  \uses{decl:physics:IPhO_2026_3_A_1:VacuumPermeabilityMagnitude, decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState}
+  The constitutive relation “B = μ₀ H + μ₀ M” on the parallel scalar magnitudes, together with positivity of the vacuum permeability.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ToroidalAmpereReadouts]
+  \label{decl:physics:IPhO_2026_3_A_1:ToroidalAmpereReadouts}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.ToroidalAmpereReadouts}
+  \uses{decl:physics:IPhO_2026_3_A_1:ElectricCurrentMagnitude}
+  The two current-dimensional quantities in Ampère's circuital law: the circulation “∮\_C H · dℓ” and the free current linked by “C”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesToroidalAmpereCircuitalLaw]
+  \label{decl:physics:IPhO_2026_3_A_1:SatisfiesToroidalAmpereCircuitalLaw}
+  \lean{IPhO2026Problems.IPhO2026_3_A_1.SatisfiesToroidalAmpereCircuitalLaw}
+  \uses{decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ParamagneticTorus, decl:physics:IPhO_2026_3_A_1:ToroidalWinding, decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState, decl:physics:IPhO_2026_3_A_1:ToroidalAmpereReadouts}
+  Ampère's circuital law and its two thin-torus evaluations.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_A_1:target}
+\lean{IPhO2026Problems.IPhO2026_3_A_1.fieldStrength_eq_turns_current_area_div_volume}
+\uses{decl:physics:IPhO_2026_3_A_1:electricCurrentDimension, decl:physics:IPhO_2026_3_A_1:magneticFieldStrengthDimension, decl:physics:IPhO_2026_3_A_1:vacuumPermeabilityDimension, decl:physics:IPhO_2026_3_A_1:magneticFluxDensityDimension, decl:physics:IPhO_2026_3_A_1:PhysicalLength, decl:physics:IPhO_2026_3_A_1:PhysicalArea, decl:physics:IPhO_2026_3_A_1:PhysicalVolume, decl:physics:IPhO_2026_3_A_1:ElectricCurrentMagnitude, decl:physics:IPhO_2026_3_A_1:MagneticFieldStrengthMagnitude, decl:physics:IPhO_2026_3_A_1:MagnetizationMagnitude, decl:physics:IPhO_2026_3_A_1:VacuumPermeabilityMagnitude, decl:physics:IPhO_2026_3_A_1:MagneticFluxDensityMagnitude, decl:physics:IPhO_2026_3_A_1:siReadout, decl:physics:IPhO_2026_3_A_1:ParamagneticTorus, decl:physics:IPhO_2026_3_A_1:HasStatedMaterialProperties, decl:physics:IPhO_2026_3_A_1:HasFigure3aGeometry, decl:physics:IPhO_2026_3_A_1:IsThinToroidAtScale, decl:physics:IPhO_2026_3_A_1:ToroidalWinding, decl:physics:IPhO_2026_3_A_1:HasStatedWindingProperties, decl:physics:IPhO_2026_3_A_1:EnergyTransferSignConvention, decl:physics:IPhO_2026_3_A_1:ToroidalMagneticState, decl:physics:IPhO_2026_3_A_1:UsesUniformParallelFieldApproximation, decl:physics:IPhO_2026_3_A_1:HasNonnegativeMagnitudes, decl:physics:IPhO_2026_3_A_1:SatisfiesParamagneticConstitutiveLaw, decl:physics:IPhO_2026_3_A_1:ToroidalAmpereReadouts, decl:physics:IPhO_2026_3_A_1:SatisfiesToroidalAmpereCircuitalLaw}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

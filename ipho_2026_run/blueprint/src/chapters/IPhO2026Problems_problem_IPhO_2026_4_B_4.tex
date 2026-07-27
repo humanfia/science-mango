@@ -1,0 +1,165 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_B_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_B_4.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id B.4
+% archon:previous-part IPhO_2026_4_B_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_B\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_B_4}
+
+\paragraph{Problem source.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+Current subquestion:
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Current subquestion.}
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Recorded answer/context.}
+P\_v = P\_atm*[1 - (H\_0*T)/(H*T\_0)].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-12.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.3. Question: Extrapolate the B2 graph to determine H\_0 at 0 degrees Celsius. Reusable conclusions: Official sample: H\_0 = 5.9 cm, corresponding to V\_0 = 53.4 mL. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_B\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[DimLength]
+  \label{decl:physics:IPhO_2026_4_B_4:DimLength}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.DimLength}
+  A physical length, independent of the chosen system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimVolume]
+  \label{decl:physics:IPhO_2026_4_B_4:DimVolume}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.DimVolume}
+  A physical volume, independent of the chosen system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[pressureInPascals]
+  \label{decl:physics:IPhO_2026_4_B_4:pressureInPascals}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.pressureInPascals}
+  The numerical value of a pressure in pascals.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[lengthInMeters]
+  \label{decl:physics:IPhO_2026_4_B_4:lengthInMeters}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.lengthInMeters}
+  \uses{decl:physics:IPhO_2026_4_B_4:DimLength}
+  The numerical value of a length in metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[areaInSquareMeters]
+  \label{decl:physics:IPhO_2026_4_B_4:areaInSquareMeters}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.areaInSquareMeters}
+  The numerical value of an area in square metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[volumeInCubicMeters]
+  \label{decl:physics:IPhO_2026_4_B_4:volumeInCubicMeters}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.volumeInCubicMeters}
+  \uses{decl:physics:IPhO_2026_4_B_4:DimVolume}
+  The numerical value of a volume in cubic metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[temperatureInKelvin]
+  \label{decl:physics:IPhO_2026_4_B_4:temperatureInKelvin}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.temperatureInKelvin}
+  The numerical value of an absolute temperature in kelvin for this experiment.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure19CylinderGeometry]
+  \label{decl:physics:IPhO_2026_4_B_4:Figure19CylinderGeometry}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.Figure19CylinderGeometry}
+  \uses{decl:physics:IPhO_2026_4_B_4:DimLength, decl:physics:IPhO_2026_4_B_4:DimVolume}
+  Physical dimensions and recorded levels from the Figure 19 inner-cylinder setup.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartB3Readout]
+  \label{decl:physics:IPhO_2026_4_B_4:PreviousPartB3Readout}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.PreviousPartB3Readout}
+  \uses{decl:physics:IPhO_2026_4_B_4:lengthInMeters, decl:physics:IPhO_2026_4_B_4:volumeInCubicMeters, decl:physics:IPhO_2026_4_B_4:Figure19CylinderGeometry}
+  The sample values obtained by extrapolating the B.2 graph in previous part B.3.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DryAirWaterVaporExperiment]
+  \label{decl:physics:IPhO_2026_4_B_4:DryAirWaterVaporExperiment}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.DryAirWaterVaporExperiment}
+  \uses{decl:physics:IPhO_2026_4_B_4:pressureInPascals, decl:physics:IPhO_2026_4_B_4:lengthInMeters, decl:physics:IPhO_2026_4_B_4:areaInSquareMeters, decl:physics:IPhO_2026_4_B_4:volumeInCubicMeters, decl:physics:IPhO_2026_4_B_4:temperatureInKelvin, decl:physics:IPhO_2026_4_B_4:Figure19CylinderGeometry}
+  The dimensional and thermodynamic laws used for the B.4 idealized experiment.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ClausiusClapeyronData]
+  \label{decl:physics:IPhO_2026_4_B_4:ClausiusClapeyronData}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.ClausiusClapeyronData}
+  Parameters for the equilibrium vapor-pressure law quoted before part B.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesClausiusClapeyron]
+  \label{decl:physics:IPhO_2026_4_B_4:SatisfiesClausiusClapeyron}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.SatisfiesClausiusClapeyron}
+  \uses{decl:physics:IPhO_2026_4_B_4:pressureInPascals, decl:physics:IPhO_2026_4_B_4:temperatureInKelvin, decl:physics:IPhO_2026_4_B_4:ClausiusClapeyronData}
+  The Clausius--Clapeyron law from equation (3), kept separate from the B.4 zero-reference-vapor approximation.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_B_4:target}
+\lean{IPhO2026Problems.IPhO2026_4_B_4.vaporPressure_formula}
+\uses{decl:physics:IPhO_2026_4_B_4:DimLength, decl:physics:IPhO_2026_4_B_4:DimVolume, decl:physics:IPhO_2026_4_B_4:pressureInPascals, decl:physics:IPhO_2026_4_B_4:lengthInMeters, decl:physics:IPhO_2026_4_B_4:areaInSquareMeters, decl:physics:IPhO_2026_4_B_4:volumeInCubicMeters, decl:physics:IPhO_2026_4_B_4:temperatureInKelvin, decl:physics:IPhO_2026_4_B_4:Figure19CylinderGeometry, decl:physics:IPhO_2026_4_B_4:PreviousPartB3Readout, decl:physics:IPhO_2026_4_B_4:DryAirWaterVaporExperiment, decl:physics:IPhO_2026_4_B_4:ClausiusClapeyronData, decl:physics:IPhO_2026_4_B_4:SatisfiesClausiusClapeyron}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

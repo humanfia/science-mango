@@ -1,0 +1,116 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_A_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_A_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id A.3
+% archon:previous-part IPhO_2026_3_A_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_A\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_A_3}
+
+\paragraph{Problem source.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+Current subquestion:
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Current subquestion.}
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Recorded answer/context.}
+dW = mu\_0*V*H*dM.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-2.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.2. Question: Find the work dW\_emf performed by the external voltage source when B changes by dB. Reusable conclusions: dW\_emf = V*H*dB. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_A\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[ScaleSeparation]
+  \label{decl:physics:IPhO_2026_3_A_3:ScaleSeparation}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.ScaleSeparation}
+  A dimensionless small-parameter witness for the approximation “small ≪ large”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticToroid]
+  \label{decl:physics:IPhO_2026_3_A_3:ParamagneticToroid}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.ParamagneticToroid}
+  \uses{decl:physics:IPhO_2026_3_A_3:ScaleSeparation}
+  The homogeneous isotropic paramagnetic torus shown in Fig.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DenseInsulatedWinding]
+  \label{decl:physics:IPhO_2026_3_A_3:DenseInsulatedWinding}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.DenseInsulatedWinding}
+  The dense insulated winding around the torus in Fig.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[UniformMagneticState]
+  \label{decl:physics:IPhO_2026_3_A_3:UniformMagneticState}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.UniformMagneticState}
+  Uniform scalar magnetic readouts in the toroidal direction.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[UniformMagneticIncrement]
+  \label{decl:physics:IPhO_2026_3_A_3:UniformMagneticIncrement}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.UniformMagneticIncrement}
+  Signed infinitesimal magnetic readouts for the actual torus and its vacuum-core reference.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[WorkIncrementReadouts]
+  \label{decl:physics:IPhO_2026_3_A_3:WorkIncrementReadouts}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.WorkIncrementReadouts}
+  Signed work readouts in joules, all using the convention that energy entering the paramagnetic torus is positive.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesWorkModel]
+  \label{decl:physics:IPhO_2026_3_A_3:SatisfiesWorkModel}
+  \lean{IPhO2026Problems.IPhO2026_3_A_3.SatisfiesWorkModel}
+  \uses{decl:physics:IPhO_2026_3_A_3:ParamagneticToroid, decl:physics:IPhO_2026_3_A_3:DenseInsulatedWinding, decl:physics:IPhO_2026_3_A_3:UniformMagneticState, decl:physics:IPhO_2026_3_A_3:UniformMagneticIncrement, decl:physics:IPhO_2026_3_A_3:WorkIncrementReadouts}
+  Governing laws, the A.2 result, and the figure/model readouts needed for the A.3 work subtraction.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_A_3:target}
+\lean{IPhO2026Problems.IPhO2026_3_A_3.materialWork_eq_mu0_mul_volume_mul_H_mul_dM}
+\uses{decl:physics:IPhO_2026_3_A_3:ScaleSeparation, decl:physics:IPhO_2026_3_A_3:ParamagneticToroid, decl:physics:IPhO_2026_3_A_3:DenseInsulatedWinding, decl:physics:IPhO_2026_3_A_3:UniformMagneticState, decl:physics:IPhO_2026_3_A_3:UniformMagneticIncrement, decl:physics:IPhO_2026_3_A_3:WorkIncrementReadouts, decl:physics:IPhO_2026_3_A_3:SatisfiesWorkModel}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

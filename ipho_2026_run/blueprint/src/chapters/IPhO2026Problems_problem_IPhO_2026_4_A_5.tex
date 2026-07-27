@@ -1,0 +1,283 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_5.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_A_5.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.5
+% archon:previous-part IPhO_2026_4_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_5}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_5}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Current subquestion.}
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Recorded answer/context.}
+Official sample: beta\_0 = 0.0034 +/- 0.0007 K\textasciicircum{}(-1); ideal-gas reference 1/273.15 K = 0.0037 K\textasciicircum{}(-1).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Plot pressure as a function of temperature from A2. Reusable conclusions: The expected isochoric ideal-gas plot is linear: P is proportional to absolute T. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_A\_5.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[Length]
+  \label{decl:physics:IPhO_2026_4_A_5:Length}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.Length}
+  A physical length, independently of the units used to report it.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Volume]
+  \label{decl:physics:IPhO_2026_4_A_5:Volume}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.Volume}
+  A physical volume, with dimension “L³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MassDensity]
+  \label{decl:physics:IPhO_2026_4_A_5:MassDensity}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.MassDensity}
+  A mass density, with dimension “M L⁻³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ThermalPressureCoefficient]
+  \label{decl:physics:IPhO_2026_4_A_5:ThermalPressureCoefficient}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.ThermalPressureCoefficient}
+  The dimension of the constant-volume thermal pressure coefficient, “K⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siValue]
+  \label{decl:physics:IPhO_2026_4_A_5:siValue}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.siValue}
+  A real-valued SI readout of a Physlib dimensionful quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ApparatusLabel]
+  \label{decl:physics:IPhO_2026_4_A_5:ApparatusLabel}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.ApparatusLabel}
+  The labels used for the apparatus on the source page and in Figure 17.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CylinderDimensions]
+  \label{decl:physics:IPhO_2026_4_A_5:CylinderDimensions}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.CylinderDimensions}
+  \uses{decl:physics:IPhO_2026_4_A_5:Length}
+  Cylinder dimensions retained from Figure 17.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure17Geometry]
+  \label{decl:physics:IPhO_2026_4_A_5:Figure17Geometry}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.Figure17Geometry}
+  \uses{decl:physics:IPhO_2026_4_A_5:Length, decl:physics:IPhO_2026_4_A_5:Volume, decl:physics:IPhO_2026_4_A_5:CylinderDimensions}
+  Figure-derived geometry for the inner cylinder “IC”, outer cylinder “OC”, and the sealed air column “CA”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AirColumnState]
+  \label{decl:physics:IPhO_2026_4_A_5:AirColumnState}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.AirColumnState}
+  \uses{decl:physics:IPhO_2026_4_A_5:Volume}
+  A thermodynamic state of the sealed air column.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[pressurePascal]
+  \label{decl:physics:IPhO_2026_4_A_5:pressurePascal}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.pressurePascal}
+  \uses{decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:AirColumnState}
+  Pressure readout in pascals.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[temperatureKelvin]
+  \label{decl:physics:IPhO_2026_4_A_5:temperatureKelvin}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.temperatureKelvin}
+  \uses{decl:physics:IPhO_2026_4_A_5:Volume, decl:physics:IPhO_2026_4_A_5:AirColumnState}
+  Absolute-temperature readout in kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[volumeCubicMeter]
+  \label{decl:physics:IPhO_2026_4_A_5:volumeCubicMeter}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.volumeCubicMeter}
+  \uses{decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:AirColumnState}
+  Volume readout in cubic metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsochoricAirExperiment]
+  \label{decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.IsochoricAirExperiment}
+  \uses{decl:physics:IPhO_2026_4_A_5:Length, decl:physics:IPhO_2026_4_A_5:MassDensity, decl:physics:IPhO_2026_4_A_5:Figure17Geometry, decl:physics:IPhO_2026_4_A_5:AirColumnState}
+  All apparatus quantities and recorded states needed for the isochoric heating run.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SourceReadouts]
+  \label{decl:physics:IPhO_2026_4_A_5:SourceReadouts}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.SourceReadouts}
+  \uses{decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The numerical source and reference-constant readouts supplied for this part.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ExperimentalConditions]
+  \label{decl:physics:IPhO_2026_4_A_5:ExperimentalConditions}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.ExperimentalConditions}
+  \uses{decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The prescribed physical procedure for sealing and heating the air column.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesIdealGasLawAt]
+  \label{decl:physics:IPhO_2026_4_A_5:SatisfiesIdealGasLawAt}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.SatisfiesIdealGasLawAt}
+  \uses{decl:physics:IPhO_2026_4_A_5:AirColumnState, decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:volumeCubicMeter, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The molar ideal-gas equation of state “P V = n R T” at one state.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[GoverningLaws]
+  \label{decl:physics:IPhO_2026_4_A_5:GoverningLaws}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.GoverningLaws}
+  \uses{decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment, decl:physics:IPhO_2026_4_A_5:SatisfiesIdealGasLawAt}
+  Governing laws for the run: the air amount is sealed, the volume is fixed, and the reference and recorded states obey the ideal-gas equation.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartA3Linearity]
+  \label{decl:physics:IPhO_2026_4_A_5:PreviousPartA3Linearity}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.PreviousPartA3Linearity}
+  \uses{decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The reusable conclusion of part A.3: on the isochoric plot, pressure is proportional to absolute temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalAdmissibility]
+  \label{decl:physics:IPhO_2026_4_A_5:PhysicalAdmissibility}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.PhysicalAdmissibility}
+  \uses{decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  Positivity and nondegeneracy conditions for the physical heating run.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[pressureChangePascal]
+  \label{decl:physics:IPhO_2026_4_A_5:pressureChangePascal}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.pressureChangePascal}
+  \uses{decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The measured pressure change “ΔP”, in pascals.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[temperatureChangeKelvin]
+  \label{decl:physics:IPhO_2026_4_A_5:temperatureChangeKelvin}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.temperatureChangeKelvin}
+  \uses{decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment}
+  The measured absolute-temperature change “ΔT”, in kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MatchesCoefficientDefinition]
+  \label{decl:physics:IPhO_2026_4_A_5:MatchesCoefficientDefinition}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.MatchesCoefficientDefinition}
+  \uses{decl:physics:IPhO_2026_4_A_5:ThermalPressureCoefficient, decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment, decl:physics:IPhO_2026_4_A_5:pressureChangePascal, decl:physics:IPhO_2026_4_A_5:temperatureChangeKelvin}
+  Equation (2), “β₀ = (1 / P₀) (ΔP / ΔT)”, interpreted through SI readouts.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[WithinUncertainty]
+  \label{decl:physics:IPhO_2026_4_A_5:WithinUncertainty}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.WithinUncertainty}
+  Whether a scalar SI readout lies in a stated uncertainty interval.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MatchesOfficialExperimentalResult]
+  \label{decl:physics:IPhO_2026_4_A_5:MatchesOfficialExperimentalResult}
+  \lean{IPhO2026Problems.IPhO2026_4_A_5.MatchesOfficialExperimentalResult}
+  \uses{decl:physics:IPhO_2026_4_A_5:ThermalPressureCoefficient, decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:WithinUncertainty}
+  The official experimental result “0.0034 ± 0.0007 K⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_A_5:target}
+\lean{IPhO2026Problems.IPhO2026_4_A_5.target}
+\uses{decl:physics:IPhO_2026_4_A_5:Length, decl:physics:IPhO_2026_4_A_5:Volume, decl:physics:IPhO_2026_4_A_5:MassDensity, decl:physics:IPhO_2026_4_A_5:ThermalPressureCoefficient, decl:physics:IPhO_2026_4_A_5:siValue, decl:physics:IPhO_2026_4_A_5:ApparatusLabel, decl:physics:IPhO_2026_4_A_5:CylinderDimensions, decl:physics:IPhO_2026_4_A_5:Figure17Geometry, decl:physics:IPhO_2026_4_A_5:AirColumnState, decl:physics:IPhO_2026_4_A_5:pressurePascal, decl:physics:IPhO_2026_4_A_5:temperatureKelvin, decl:physics:IPhO_2026_4_A_5:volumeCubicMeter, decl:physics:IPhO_2026_4_A_5:IsochoricAirExperiment, decl:physics:IPhO_2026_4_A_5:SourceReadouts, decl:physics:IPhO_2026_4_A_5:ExperimentalConditions, decl:physics:IPhO_2026_4_A_5:SatisfiesIdealGasLawAt, decl:physics:IPhO_2026_4_A_5:GoverningLaws, decl:physics:IPhO_2026_4_A_5:PreviousPartA3Linearity, decl:physics:IPhO_2026_4_A_5:PhysicalAdmissibility, decl:physics:IPhO_2026_4_A_5:pressureChangePascal, decl:physics:IPhO_2026_4_A_5:temperatureChangeKelvin, decl:physics:IPhO_2026_4_A_5:MatchesCoefficientDefinition, decl:physics:IPhO_2026_4_A_5:WithinUncertainty, decl:physics:IPhO_2026_4_A_5:MatchesOfficialExperimentalResult}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

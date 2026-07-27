@@ -1,0 +1,243 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_C_7.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_C_7.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id C.7
+% archon:previous-part IPhO_2026_4_C_6
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_C\_7}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_C_7}
+
+\paragraph{Problem source.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+Current subquestion:
+Combine the heat-flow relation and radial Fourier law to determine acrylic conductivity lambda.
+
+\paragraph{Current subquestion.}
+Combine the heat-flow relation and radial Fourier law to determine acrylic conductivity lambda.
+
+\paragraph{Recorded answer/context.}
+lambda = ln(r\_2/r\_1)/(2*pi*h*R\_Th). Official sample: lambda = 0.25 +/- 0.01 W/(m*K).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-14.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.6. Question: Determine the effective wall thermal resistance R\_Th from the C5 graph. Reusable conclusions: R\_Th = 1/(c\_0*m*slope). Official sample: R\_Th = 1.17 +/- 0.03 K/W. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_C\_7.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[powerDimension]
+  \label{decl:physics:IPhO_2026_4_C_7:powerDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.powerDimension}
+  The physical dimension of energy per unit time.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[thermalResistanceDimension]
+  \label{decl:physics:IPhO_2026_4_C_7:thermalResistanceDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.thermalResistanceDimension}
+  \uses{decl:physics:IPhO_2026_4_C_7:powerDimension}
+  The physical dimension kelvin per watt.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[thermalConductivityDimension]
+  \label{decl:physics:IPhO_2026_4_C_7:thermalConductivityDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.thermalConductivityDimension}
+  \uses{decl:physics:IPhO_2026_4_C_7:powerDimension}
+  The physical dimension watt per metre-kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[specificHeatCapacityDimension]
+  \label{decl:physics:IPhO_2026_4_C_7:specificHeatCapacityDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.specificHeatCapacityDimension}
+  The physical dimension joule per kilogram-kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimLength]
+  \label{decl:physics:IPhO_2026_4_C_7:DimLength}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimLength}
+  A unit-independent length quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimMass]
+  \label{decl:physics:IPhO_2026_4_C_7:DimMass}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimMass}
+  A unit-independent mass quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimTemperature]
+  \label{decl:physics:IPhO_2026_4_C_7:DimTemperature}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimTemperature}
+  A unit-independent temperature quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimPower]
+  \label{decl:physics:IPhO_2026_4_C_7:DimPower}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimPower}
+  \uses{decl:physics:IPhO_2026_4_C_7:powerDimension}
+  A unit-independent signed heat-flow rate (power).
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimThermalResistance]
+  \label{decl:physics:IPhO_2026_4_C_7:DimThermalResistance}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimThermalResistance}
+  \uses{decl:physics:IPhO_2026_4_C_7:thermalResistanceDimension}
+  A unit-independent thermal resistance.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimThermalConductivity]
+  \label{decl:physics:IPhO_2026_4_C_7:DimThermalConductivity}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimThermalConductivity}
+  \uses{decl:physics:IPhO_2026_4_C_7:thermalConductivityDimension}
+  A unit-independent thermal conductivity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimSpecificHeatCapacity]
+  \label{decl:physics:IPhO_2026_4_C_7:DimSpecificHeatCapacity}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimSpecificHeatCapacity}
+  \uses{decl:physics:IPhO_2026_4_C_7:specificHeatCapacityDimension}
+  A unit-independent specific heat capacity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimInverseTime]
+  \label{decl:physics:IPhO_2026_4_C_7:DimInverseTime}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.DimInverseTime}
+  A unit-independent inverse-time quantity, used for the C.5 graph slope.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siValue]
+  \label{decl:physics:IPhO_2026_4_C_7:siValue}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.siValue}
+  The numerical value of a dimension-tagged real quantity in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ApparatusGeometry]
+  \label{decl:physics:IPhO_2026_4_C_7:ApparatusGeometry}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.ApparatusGeometry}
+  \uses{decl:physics:IPhO_2026_4_C_7:DimLength}
+  The Figure 17 and procedure geometry.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure17AndProcedureReadout]
+  \label{decl:physics:IPhO_2026_4_C_7:Figure17AndProcedureReadout}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.Figure17AndProcedureReadout}
+  \uses{decl:physics:IPhO_2026_4_C_7:siValue, decl:physics:IPhO_2026_4_C_7:ApparatusGeometry}
+  The geometric and procedural readouts used in C.7.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartC6Data]
+  \label{decl:physics:IPhO_2026_4_C_7:PreviousPartC6Data}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.PreviousPartC6Data}
+  \uses{decl:physics:IPhO_2026_4_C_7:DimMass, decl:physics:IPhO_2026_4_C_7:DimThermalResistance, decl:physics:IPhO_2026_4_C_7:DimSpecificHeatCapacity, decl:physics:IPhO_2026_4_C_7:DimInverseTime}
+  Data reused from the preceding subquestion C.6.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartC6Result]
+  \label{decl:physics:IPhO_2026_4_C_7:PreviousPartC6Result}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.PreviousPartC6Result}
+  \uses{decl:physics:IPhO_2026_4_C_7:siValue, decl:physics:IPhO_2026_4_C_7:PreviousPartC6Data}
+  The reusable C.6 result, stated independently rather than importing a Lean declaration from the previous part.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ThermalConductionExperiment]
+  \label{decl:physics:IPhO_2026_4_C_7:ThermalConductionExperiment}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.ThermalConductionExperiment}
+  \uses{decl:physics:IPhO_2026_4_C_7:DimTemperature, decl:physics:IPhO_2026_4_C_7:DimPower, decl:physics:IPhO_2026_4_C_7:DimThermalConductivity, decl:physics:IPhO_2026_4_C_7:ApparatusGeometry, decl:physics:IPhO_2026_4_C_7:PreviousPartC6Data}
+  Quantities recorded or modeled in the C-part thermal experiment.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[cylindricalWallAreaMetersSquared]
+  \label{decl:physics:IPhO_2026_4_C_7:cylindricalWallAreaMetersSquared}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.cylindricalWallAreaMetersSquared}
+  \uses{decl:physics:IPhO_2026_4_C_7:siValue, decl:physics:IPhO_2026_4_C_7:ApparatusGeometry}
+  Lateral area “2 π r h” of the active cylindrical wall, in square metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CylindricalConductionLaws]
+  \label{decl:physics:IPhO_2026_4_C_7:CylindricalConductionLaws}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.CylindricalConductionLaws}
+  \uses{decl:physics:IPhO_2026_4_C_7:siValue, decl:physics:IPhO_2026_4_C_7:ThermalConductionExperiment, decl:physics:IPhO_2026_4_C_7:cylindricalWallAreaMetersSquared}
+  The governing physical laws for the experiment.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_C_7:target}
+\lean{IPhO2026Problems.IPhO2026_4_C_7.acrylicConductivity_from_radial_fourier}
+\uses{decl:physics:IPhO_2026_4_C_7:powerDimension, decl:physics:IPhO_2026_4_C_7:thermalResistanceDimension, decl:physics:IPhO_2026_4_C_7:thermalConductivityDimension, decl:physics:IPhO_2026_4_C_7:specificHeatCapacityDimension, decl:physics:IPhO_2026_4_C_7:DimLength, decl:physics:IPhO_2026_4_C_7:DimMass, decl:physics:IPhO_2026_4_C_7:DimTemperature, decl:physics:IPhO_2026_4_C_7:DimPower, decl:physics:IPhO_2026_4_C_7:DimThermalResistance, decl:physics:IPhO_2026_4_C_7:DimThermalConductivity, decl:physics:IPhO_2026_4_C_7:DimSpecificHeatCapacity, decl:physics:IPhO_2026_4_C_7:DimInverseTime, decl:physics:IPhO_2026_4_C_7:siValue, decl:physics:IPhO_2026_4_C_7:ApparatusGeometry, decl:physics:IPhO_2026_4_C_7:Figure17AndProcedureReadout, decl:physics:IPhO_2026_4_C_7:PreviousPartC6Data, decl:physics:IPhO_2026_4_C_7:PreviousPartC6Result, decl:physics:IPhO_2026_4_C_7:ThermalConductionExperiment, decl:physics:IPhO_2026_4_C_7:cylindricalWallAreaMetersSquared, decl:physics:IPhO_2026_4_C_7:CylindricalConductionLaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

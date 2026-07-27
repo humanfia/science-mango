@@ -1,0 +1,128 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_4.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.4
+% archon:previous-part IPhO_2026_2_C_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_4}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Current subquestion.}
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Recorded answer/context.}
+u = R/2, v = (3/4)*R\textasciicircum{}(1/3), p = 2, and q = 3.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.3. Question: Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays. Reusable conclusions: X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[LengthReading]
+  \label{decl:physics:IPhO_2026_2_C_4:LengthReading}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.LengthReading}
+  A scalar reading of a physical length.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CubeRootLengthReading]
+  \label{decl:physics:IPhO_2026_2_C_4:CubeRootLengthReading}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.CubeRootLengthReading}
+  The dimension of the coefficient multiplying a length to the power “2 / 3”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectedLineReadout]
+  \label{decl:physics:IPhO_2026_2_C_4:ReflectedLineReadout}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.ReflectedLineReadout}
+  \uses{decl:physics:IPhO_2026_2_C_4:LengthReading}
+  The slope and intercept of a reflected ray in the Cartesian coordinate frame of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2gOpticalSystem]
+  \label{decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.Figure2gOpticalSystem}
+  \uses{decl:physics:IPhO_2026_2_C_4:LengthReading, decl:physics:IPhO_2026_2_C_4:ReflectedLineReadout}
+  The optical data used in part C.4.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[neighboringIntersectionX]
+  \label{decl:physics:IPhO_2026_2_C_4:neighboringIntersectionX}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.neighboringIntersectionX}
+  \uses{decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem}
+  The “x”-coordinate of the intersection of reflected ray “A”, incident at angle “θ”, and neighboring reflected ray “B”, incident at “θ + Δθ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[neighboringIntersectionY]
+  \label{decl:physics:IPhO_2026_2_C_4:neighboringIntersectionY}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.neighboringIntersectionY}
+  \uses{decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem, decl:physics:IPhO_2026_2_C_4:neighboringIntersectionX}
+  The “y”-coordinate of the same neighboring-ray intersection, obtained from the reflected-line equation “y = m\_A x + b\_A”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[NeighboringReflectedRaysGenerateCaustic]
+  \label{decl:physics:IPhO_2026_2_C_4:NeighboringReflectedRaysGenerateCaustic}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.NeighboringReflectedRaysGenerateCaustic}
+  \uses{decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem, decl:physics:IPhO_2026_2_C_4:neighboringIntersectionX, decl:physics:IPhO_2026_2_C_4:neighboringIntersectionY}
+  The governing caustic-envelope law: the caustic point at angle “θ” is the limit of intersections of reflected rays whose incidence-angle separation “Δθ” tends to zero through nonzero values.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasPreviousPartC3Coordinates]
+  \label{decl:physics:IPhO_2026_2_C_4:HasPreviousPartC3Coordinates}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.HasPreviousPartC3Coordinates}
+  \uses{decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem}
+  The reusable conclusion of part C.3, stated directly rather than importing that part's Lean output.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_4:target}
+\lean{IPhO2026Problems.IPhO2026_2_C_4.determineSmallAngleCaustic}
+\uses{decl:physics:IPhO_2026_2_C_4:LengthReading, decl:physics:IPhO_2026_2_C_4:CubeRootLengthReading, decl:physics:IPhO_2026_2_C_4:ReflectedLineReadout, decl:physics:IPhO_2026_2_C_4:Figure2gOpticalSystem, decl:physics:IPhO_2026_2_C_4:neighboringIntersectionX, decl:physics:IPhO_2026_2_C_4:neighboringIntersectionY, decl:physics:IPhO_2026_2_C_4:NeighboringReflectedRaysGenerateCaustic, decl:physics:IPhO_2026_2_C_4:HasPreviousPartC3Coordinates}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

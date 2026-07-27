@@ -1,0 +1,338 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_C_6.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_C_6.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id C.6
+% archon:previous-part IPhO_2026_4_C_5
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_C\_6}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_C_6}
+
+\paragraph{Problem source.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+Current subquestion:
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Current subquestion.}
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Recorded answer/context.}
+R\_Th = 1/(c\_0*m*slope). Official sample: R\_Th = 1.17 +/- 0.03 K/W.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-13.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.5. Question: Graph the finite-difference rate (T\_IC,j-T\_IC,j-1)/(t\_j-t\_j-1) against the corresponding average T\_OC-T\_IC. Reusable conclusions: The graph is linear, with slope 1/(c\_0*m*R\_Th) under the stated model. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_C\_6.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[energyDimension]
+  \label{decl:physics:IPhO_2026_4_C_6:energyDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.energyDimension}
+  Energy dimension, grounded by Physlib's “DimEnergy”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[powerDimension]
+  \label{decl:physics:IPhO_2026_4_C_6:powerDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.powerDimension}
+  \uses{decl:physics:IPhO_2026_4_C_6:energyDimension}
+  Power, or heat-flow-rate, dimension.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[thermalResistanceDimension]
+  \label{decl:physics:IPhO_2026_4_C_6:thermalResistanceDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.thermalResistanceDimension}
+  \uses{decl:physics:IPhO_2026_4_C_6:powerDimension}
+  Thermal resistance dimension “temperature / power” (kelvin per watt in SI).
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[specificHeatCapacityDimension]
+  \label{decl:physics:IPhO_2026_4_C_6:specificHeatCapacityDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.specificHeatCapacityDimension}
+  \uses{decl:physics:IPhO_2026_4_C_6:energyDimension}
+  Specific heat capacity dimension “energy / (mass * temperature)”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[thermalConductivityDimension]
+  \label{decl:physics:IPhO_2026_4_C_6:thermalConductivityDimension}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.thermalConductivityDimension}
+  \uses{decl:physics:IPhO_2026_4_C_6:powerDimension}
+  Thermal conductivity dimension “power / (length * temperature)”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimTemperature]
+  \label{decl:physics:IPhO_2026_4_C_6:DimTemperature}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperature}
+  The local abbreviation DimTemperature records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimTime]
+  \label{decl:physics:IPhO_2026_4_C_6:DimTime}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTime}
+  The local abbreviation DimTime records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimLength]
+  \label{decl:physics:IPhO_2026_4_C_6:DimLength}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimLength}
+  The local abbreviation DimLength records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimMass]
+  \label{decl:physics:IPhO_2026_4_C_6:DimMass}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimMass}
+  The local abbreviation DimMass records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimArea]
+  \label{decl:physics:IPhO_2026_4_C_6:DimArea}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimArea}
+  The local abbreviation DimArea records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimHeatEnergy]
+  \label{decl:physics:IPhO_2026_4_C_6:DimHeatEnergy}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimHeatEnergy}
+  Heat energy, using Physlib's grounded dimensional-energy type.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimHeatFlowRate]
+  \label{decl:physics:IPhO_2026_4_C_6:DimHeatFlowRate}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimHeatFlowRate}
+  \uses{decl:physics:IPhO_2026_4_C_6:powerDimension}
+  The local abbreviation DimHeatFlowRate records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimThermalResistance]
+  \label{decl:physics:IPhO_2026_4_C_6:DimThermalResistance}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimThermalResistance}
+  \uses{decl:physics:IPhO_2026_4_C_6:thermalResistanceDimension}
+  The local abbreviation DimThermalResistance records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimSpecificHeatCapacity]
+  \label{decl:physics:IPhO_2026_4_C_6:DimSpecificHeatCapacity}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimSpecificHeatCapacity}
+  \uses{decl:physics:IPhO_2026_4_C_6:specificHeatCapacityDimension}
+  The local abbreviation DimSpecificHeatCapacity records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimThermalConductivity]
+  \label{decl:physics:IPhO_2026_4_C_6:DimThermalConductivity}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimThermalConductivity}
+  \uses{decl:physics:IPhO_2026_4_C_6:thermalConductivityDimension}
+  The local abbreviation DimThermalConductivity records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimTemperatureRate]
+  \label{decl:physics:IPhO_2026_4_C_6:DimTemperatureRate}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperatureRate}
+  The local abbreviation DimTemperatureRate records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimTemperatureGradient]
+  \label{decl:physics:IPhO_2026_4_C_6:DimTemperatureGradient}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperatureGradient}
+  The local abbreviation DimTemperatureGradient records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimInverseTime]
+  \label{decl:physics:IPhO_2026_4_C_6:DimInverseTime}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimInverseTime}
+  The local abbreviation DimInverseTime records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siReadout]
+  \label{decl:physics:IPhO_2026_4_C_6:siReadout}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.siReadout}
+  The real-number readout of a dimensionful quantity in standard SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure17Geometry]
+  \label{decl:physics:IPhO_2026_4_C_6:Figure17Geometry}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.Figure17Geometry}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimLength, decl:physics:IPhO_2026_4_C_6:siReadout}
+  The labels “r₁”, “r₂”, and “h” from Figure 17.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ProcedureReadouts]
+  \label{decl:physics:IPhO_2026_4_C_6:ProcedureReadouts}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ProcedureReadouts}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimTemperature, decl:physics:IPhO_2026_4_C_6:DimLength, decl:physics:IPhO_2026_4_C_6:siReadout}
+  Readouts fixed by the procedure on the official source page.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[TemperatureObservation]
+  \label{decl:physics:IPhO_2026_4_C_6:TemperatureObservation}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.TemperatureObservation}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimTemperature, decl:physics:IPhO_2026_4_C_6:DimTime}
+  One simultaneous “t”, “T\_IC”, “T\_OC” observation from the experiment.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[finiteDifferenceInnerRateSI]
+  \label{decl:physics:IPhO_2026_4_C_6:finiteDifferenceInnerRateSI}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.finiteDifferenceInnerRateSI}
+  \uses{decl:physics:IPhO_2026_4_C_6:siReadout, decl:physics:IPhO_2026_4_C_6:TemperatureObservation}
+  The vertical coordinate of the C.5 graph: “(T\_IC,j - T\_IC,j-1) / (t\_j - t\_j-1)”, in kelvin per second.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[averageDrivingTemperatureDifferenceSI]
+  \label{decl:physics:IPhO_2026_4_C_6:averageDrivingTemperatureDifferenceSI}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.averageDrivingTemperatureDifferenceSI}
+  \uses{decl:physics:IPhO_2026_4_C_6:siReadout, decl:physics:IPhO_2026_4_C_6:TemperatureObservation}
+  The horizontal coordinate of the C.5 graph: the interval-average value of “T\_OC - T\_IC”, in kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[c5PlotPointSI]
+  \label{decl:physics:IPhO_2026_4_C_6:c5PlotPointSI}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.c5PlotPointSI}
+  \uses{decl:physics:IPhO_2026_4_C_6:TemperatureObservation, decl:physics:IPhO_2026_4_C_6:finiteDifferenceInnerRateSI, decl:physics:IPhO_2026_4_C_6:averageDrivingTemperatureDifferenceSI}
+  An SI scalar pair “(mean (T\_OC - T\_IC), finite-difference dT\_IC/dt)”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[C5GraphReadout]
+  \label{decl:physics:IPhO_2026_4_C_6:C5GraphReadout}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.C5GraphReadout}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimInverseTime, decl:physics:IPhO_2026_4_C_6:siReadout}
+  Linear-fit data read from the graph constructed in C.5.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ThermalExperiment]
+  \label{decl:physics:IPhO_2026_4_C_6:ThermalExperiment}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ThermalExperiment}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimTemperature, decl:physics:IPhO_2026_4_C_6:DimTime, decl:physics:IPhO_2026_4_C_6:DimMass, decl:physics:IPhO_2026_4_C_6:DimArea, decl:physics:IPhO_2026_4_C_6:DimHeatFlowRate, decl:physics:IPhO_2026_4_C_6:DimThermalResistance, decl:physics:IPhO_2026_4_C_6:DimSpecificHeatCapacity, decl:physics:IPhO_2026_4_C_6:DimThermalConductivity, decl:physics:IPhO_2026_4_C_6:DimTemperatureRate, decl:physics:IPhO_2026_4_C_6:DimTemperatureGradient, decl:physics:IPhO_2026_4_C_6:siReadout, decl:physics:IPhO_2026_4_C_6:Figure17Geometry, decl:physics:IPhO_2026_4_C_6:ProcedureReadouts, decl:physics:IPhO_2026_4_C_6:TemperatureObservation}
+  The physical system for C.6.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[GoverningLaws]
+  \label{decl:physics:IPhO_2026_4_C_6:GoverningLaws}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.GoverningLaws}
+  \uses{decl:physics:IPhO_2026_4_C_6:DimTime, decl:physics:IPhO_2026_4_C_6:siReadout, decl:physics:IPhO_2026_4_C_6:ThermalExperiment}
+  The heat-transfer model used in the problem: * “dQ/dt = (T\_OC - T\_IC) / R\_Th”; * neglecting apparatus heat capacity, “dQ/dt = c₀ m dT\_IC/dt”; * radial Fourier conduction, “dQ/dt = -λ A dT/dr”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ThermalResistanceEstimate]
+  \label{decl:physics:IPhO_2026_4_C_6:ThermalResistanceEstimate}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ThermalResistanceEstimate}
+  The official sample is a reported scalar estimate, so its central value and uncertainty are explicitly labeled in kelvin per watt.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[officialSampleResistance]
+  \label{decl:physics:IPhO_2026_4_C_6:officialSampleResistance}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.officialSampleResistance}
+  \uses{decl:physics:IPhO_2026_4_C_6:ThermalExperiment, decl:physics:IPhO_2026_4_C_6:GoverningLaws, decl:physics:IPhO_2026_4_C_6:ThermalResistanceEstimate}
+  Official sample report: “R\_Th = 1.17 ± 0.03 K/W”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_C_6:target}
+\lean{IPhO2026Problems.IPhO2026_4_C_6.effectiveWallThermalResistance_from_C5Graph}
+\uses{decl:physics:IPhO_2026_4_C_6:energyDimension, decl:physics:IPhO_2026_4_C_6:powerDimension, decl:physics:IPhO_2026_4_C_6:thermalResistanceDimension, decl:physics:IPhO_2026_4_C_6:specificHeatCapacityDimension, decl:physics:IPhO_2026_4_C_6:thermalConductivityDimension, decl:physics:IPhO_2026_4_C_6:DimTemperature, decl:physics:IPhO_2026_4_C_6:DimTime, decl:physics:IPhO_2026_4_C_6:DimLength, decl:physics:IPhO_2026_4_C_6:DimMass, decl:physics:IPhO_2026_4_C_6:DimArea, decl:physics:IPhO_2026_4_C_6:DimHeatEnergy, decl:physics:IPhO_2026_4_C_6:DimHeatFlowRate, decl:physics:IPhO_2026_4_C_6:DimThermalResistance, decl:physics:IPhO_2026_4_C_6:DimSpecificHeatCapacity, decl:physics:IPhO_2026_4_C_6:DimThermalConductivity, decl:physics:IPhO_2026_4_C_6:DimTemperatureRate, decl:physics:IPhO_2026_4_C_6:DimTemperatureGradient, decl:physics:IPhO_2026_4_C_6:DimInverseTime, decl:physics:IPhO_2026_4_C_6:siReadout, decl:physics:IPhO_2026_4_C_6:Figure17Geometry, decl:physics:IPhO_2026_4_C_6:ProcedureReadouts, decl:physics:IPhO_2026_4_C_6:TemperatureObservation, decl:physics:IPhO_2026_4_C_6:finiteDifferenceInnerRateSI, decl:physics:IPhO_2026_4_C_6:averageDrivingTemperatureDifferenceSI, decl:physics:IPhO_2026_4_C_6:c5PlotPointSI, decl:physics:IPhO_2026_4_C_6:C5GraphReadout, decl:physics:IPhO_2026_4_C_6:ThermalExperiment, decl:physics:IPhO_2026_4_C_6:GoverningLaws, decl:physics:IPhO_2026_4_C_6:ThermalResistanceEstimate, decl:physics:IPhO_2026_4_C_6:officialSampleResistance}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

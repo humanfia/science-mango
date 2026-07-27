@@ -1,0 +1,158 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_5.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_5.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.5
+% archon:previous-part IPhO_2026_3_C_4
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_5}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_5}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Determine the overall coefficient of performance COP = Q\_c/W for all cycles up to the time found in C4.
+
+\paragraph{Current subquestion.}
+Determine the overall coefficient of performance COP = Q\_c/W for all cycles up to the time found in C4.
+
+\paragraph{Recorded answer/context.}
+COP = [(T\_h/(T\_0 - T))*ln(T\_0/T) - 1]\textasciicircum{}(-1).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.4. Question: A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time. Reusable conclusions: t = (C\_c*T\_h/P)*[ln(T\_0/T) - (T\_0 - T)/T\_h]. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_5.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[CycleState]
+  \label{decl:physics:IPhO_2026_3_C_5:CycleState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.CycleState}
+  The four labelled states of the magnetic Carnot cycle in Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CycleLeg]
+  \label{decl:physics:IPhO_2026_3_C_5:CycleLeg}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.CycleLeg}
+  The directed legs of the cycle “1 → 2 → 3 → 4 → 1”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CycleLeg.startState]
+  \label{decl:physics:IPhO_2026_3_C_5:CycleLeg:startState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.CycleLeg.startState}
+  \uses{decl:physics:IPhO_2026_3_C_5:CycleState, decl:physics:IPhO_2026_3_C_5:CycleLeg}
+  Initial state of each directed cycle leg.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CycleLeg.endState]
+  \label{decl:physics:IPhO_2026_3_C_5:CycleLeg:endState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.CycleLeg.endState}
+  \uses{decl:physics:IPhO_2026_3_C_5:CycleState, decl:physics:IPhO_2026_3_C_5:CycleLeg}
+  Final state of each directed cycle leg.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticCarnotCycle]
+  \label{decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.MagneticCarnotCycle}
+  \uses{decl:physics:IPhO_2026_3_C_5:CycleState, decl:physics:IPhO_2026_3_C_5:CycleLeg}
+  Scalar SI readouts for one instantaneous paramagnetic-torus Carnot cycle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[FollowsFigureThreeB]
+  \label{decl:physics:IPhO_2026_3_C_5:FollowsFigureThreeB}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.FollowsFigureThreeB}
+  \uses{decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle}
+  The temperature labels and heat-transfer legs read from Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesParamagneticEquationOfState]
+  \label{decl:physics:IPhO_2026_3_C_5:SatisfiesParamagneticEquationOfState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.SatisfiesParamagneticEquationOfState}
+  \uses{decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle}
+  The paramagnetic equation of state “T M V = n K H” at all four states.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesIsothermalHeatRelation]
+  \label{decl:physics:IPhO_2026_3_C_5:SatisfiesIsothermalHeatRelation}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.SatisfiesIsothermalHeatRelation}
+  \uses{decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle}
+  The isothermal heat relation from part B.1 on the cold and hot isotherms.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasPhysicalCycleParameters]
+  \label{decl:physics:IPhO_2026_3_C_5:HasPhysicalCycleParameters}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.HasPhysicalCycleParameters}
+  \uses{decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle}
+  Positivity conditions for the physical torus and its two reservoirs.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CoolingRun]
+  \label{decl:physics:IPhO_2026_3_C_5:CoolingRun}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.CoolingRun}
+  Measured scalar data for all refrigerator cycles performed while a constant-heat-capacity body cools from “initialTemperature” to “finalTemperature”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[coefficientOfPerformance]
+  \label{decl:physics:IPhO_2026_3_C_5:coefficientOfPerformance}
+  \lean{IPhO2026Problems.IPhO2026_3_C_5.coefficientOfPerformance}
+  \uses{decl:physics:IPhO_2026_3_C_5:CoolingRun}
+  Overall refrigerator coefficient of performance, “COP = Q\_c / W”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_5:target}
+\lean{IPhO2026Problems.IPhO2026_3_C_5.overallCoefficientOfPerformance}
+\uses{decl:physics:IPhO_2026_3_C_5:CycleState, decl:physics:IPhO_2026_3_C_5:CycleLeg, decl:physics:IPhO_2026_3_C_5:CycleLeg:startState, decl:physics:IPhO_2026_3_C_5:CycleLeg:endState, decl:physics:IPhO_2026_3_C_5:MagneticCarnotCycle, decl:physics:IPhO_2026_3_C_5:FollowsFigureThreeB, decl:physics:IPhO_2026_3_C_5:SatisfiesParamagneticEquationOfState, decl:physics:IPhO_2026_3_C_5:SatisfiesIsothermalHeatRelation, decl:physics:IPhO_2026_3_C_5:HasPhysicalCycleParameters, decl:physics:IPhO_2026_3_C_5:CoolingRun, decl:physics:IPhO_2026_3_C_5:coefficientOfPerformance}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

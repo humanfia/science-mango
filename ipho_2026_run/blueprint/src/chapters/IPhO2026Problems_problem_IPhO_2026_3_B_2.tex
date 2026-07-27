@@ -1,0 +1,280 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_B_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_B_2.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id B.2
+% archon:previous-part IPhO_2026_3_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_B_2}
+
+\paragraph{Problem source.}
+Continue with the paramagnetic torus.  Its equation of state is T*M*V = n*K*H,
+its heat capacity at constant M is C\_M = n*lambda/T\textasciicircum{}2, and dU = C\_M*dT.
+The volume is fixed and the magnetic work on the material is
+dW = mu\_0*V*H*dM.  Work and heat entering the torus are positive.
+
+Current subquestion:
+For an adiabatic change H\_i -> H\_f starting at T\_i, determine Delta T = T\_f - T\_i.
+
+\paragraph{Current subquestion.}
+For an adiabatic change H\_i -> H\_f starting at T\_i, determine Delta T = T\_f - T\_i.
+
+\paragraph{Recorded answer/context.}
+Delta T = T\_i*[sqrt((lambda + mu\_0*K*H\_f\textasciicircum{}2)/(lambda + mu\_0*K*H\_i\textasciicircum{}2)) - 1].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material. Reusable conclusions: dW = mu\_0*V*H*dM. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_B\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[ThermodynamicTemperature]
+  \label{decl:physics:IPhO_2026_3_B_2:ThermodynamicTemperature}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.ThermodynamicTemperature}
+  Absolute thermodynamic temperature, with physical dimension temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalVolume]
+  \label{decl:physics:IPhO_2026_3_B_2:PhysicalVolume}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.PhysicalVolume}
+  The fixed physical volume of the paramagnetic torus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AppliedFieldStrengthMagnitude]
+  \label{decl:physics:IPhO_2026_3_B_2:AppliedFieldStrengthMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.AppliedFieldStrengthMagnitude}
+  Magnitude of the applied magnetic-field strength “H”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagnetizationMagnitude]
+  \label{decl:physics:IPhO_2026_3_B_2:MagnetizationMagnitude}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.MagnetizationMagnitude}
+  Magnitude of the torus magnetization “M”, also measured in ampere per metre.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[VacuumPermeability]
+  \label{decl:physics:IPhO_2026_3_B_2:VacuumPermeability}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.VacuumPermeability}
+  Vacuum permeability “μ₀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CurieConstantPerMole]
+  \label{decl:physics:IPhO_2026_3_B_2:CurieConstantPerMole}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.CurieConstantPerMole}
+  The equation-of-state constant “K”, per mole.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[LambdaPerMole]
+  \label{decl:physics:IPhO_2026_3_B_2:LambdaPerMole}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.LambdaPerMole}
+  The material constant “λ”, per mole, with the dimension energy times temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HeatCapacityAtConstantMagnetization]
+  \label{decl:physics:IPhO_2026_3_B_2:HeatCapacityAtConstantMagnetization}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.HeatCapacityAtConstantMagnetization}
+  Heat capacity at constant magnetization, with dimension energy/temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[temperatureInKelvin]
+  \label{decl:physics:IPhO_2026_3_B_2:temperatureInKelvin}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.temperatureInKelvin}
+  \uses{decl:physics:IPhO_2026_3_B_2:ThermodynamicTemperature}
+  Numerical readout of a temperature in kelvin.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[volumeInCubicMeters]
+  \label{decl:physics:IPhO_2026_3_B_2:volumeInCubicMeters}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.volumeInCubicMeters}
+  \uses{decl:physics:IPhO_2026_3_B_2:PhysicalVolume}
+  Numerical readout of a volume in cubic metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[fieldStrengthInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:fieldStrengthInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.fieldStrengthInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:AppliedFieldStrengthMagnitude}
+  Numerical SI readout of an applied field-strength magnitude.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magnetizationInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:magnetizationInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magnetizationInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:MagnetizationMagnitude}
+  Numerical SI readout of a magnetization magnitude.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[vacuumPermeabilityInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:vacuumPermeabilityInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.vacuumPermeabilityInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:VacuumPermeability}
+  Numerical SI readout of vacuum permeability.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[curieConstantInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:curieConstantInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.curieConstantInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:CurieConstantPerMole}
+  Numerical SI readout of the equation-of-state constant per mole.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[lambdaInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:lambdaInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.lambdaInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:LambdaPerMole}
+  Numerical SI readout of “λ” per mole.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[heatCapacityInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:heatCapacityInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.heatCapacityInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:HeatCapacityAtConstantMagnetization}
+  Numerical SI readout of heat capacity at constant magnetization.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[energyInJoules]
+  \label{decl:physics:IPhO_2026_3_B_2:energyInJoules}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.energyInJoules}
+  Numerical readout of an energy in joules.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticTorus]
+  \label{decl:physics:IPhO_2026_3_B_2:ParamagneticTorus}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.ParamagneticTorus}
+  \uses{decl:physics:IPhO_2026_3_B_2:PhysicalVolume, decl:physics:IPhO_2026_3_B_2:VacuumPermeability, decl:physics:IPhO_2026_3_B_2:CurieConstantPerMole, decl:physics:IPhO_2026_3_B_2:LambdaPerMole}
+  The fixed material and geometric parameters of the paramagnetic torus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticTorusState]
+  \label{decl:physics:IPhO_2026_3_B_2:ParamagneticTorusState}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.ParamagneticTorusState}
+  \uses{decl:physics:IPhO_2026_3_B_2:ThermodynamicTemperature, decl:physics:IPhO_2026_3_B_2:AppliedFieldStrengthMagnitude, decl:physics:IPhO_2026_3_B_2:MagnetizationMagnitude}
+  A quasistatic state of the paramagnetic torus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticTorusProcess]
+  \label{decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.ParamagneticTorusProcess}
+  \uses{decl:physics:IPhO_2026_3_B_2:HeatCapacityAtConstantMagnetization, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusState}
+  A process of the torus, parameterized by dimensionless “τ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[temperatureAlongProcessInKelvin]
+  \label{decl:physics:IPhO_2026_3_B_2:temperatureAlongProcessInKelvin}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.temperatureAlongProcessInKelvin}
+  \uses{decl:physics:IPhO_2026_3_B_2:temperatureInKelvin, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess}
+  Temperature readout along a torus process.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[fieldStrengthAlongProcessInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:fieldStrengthAlongProcessInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.fieldStrengthAlongProcessInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:fieldStrengthInSI, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess}
+  Applied-field-strength readout along a torus process.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magnetizationAlongProcessInSI]
+  \label{decl:physics:IPhO_2026_3_B_2:magnetizationAlongProcessInSI}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magnetizationAlongProcessInSI}
+  \uses{decl:physics:IPhO_2026_3_B_2:magnetizationInSI, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess}
+  Magnetization readout along a torus process.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesParamagneticTorusLaws]
+  \label{decl:physics:IPhO_2026_3_B_2:SatisfiesParamagneticTorusLaws}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.SatisfiesParamagneticTorusLaws}
+  \uses{decl:physics:IPhO_2026_3_B_2:volumeInCubicMeters, decl:physics:IPhO_2026_3_B_2:vacuumPermeabilityInSI, decl:physics:IPhO_2026_3_B_2:curieConstantInSI, decl:physics:IPhO_2026_3_B_2:lambdaInSI, decl:physics:IPhO_2026_3_B_2:heatCapacityInSI, decl:physics:IPhO_2026_3_B_2:energyInJoules, decl:physics:IPhO_2026_3_B_2:ParamagneticTorus, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess, decl:physics:IPhO_2026_3_B_2:temperatureAlongProcessInKelvin, decl:physics:IPhO_2026_3_B_2:fieldStrengthAlongProcessInSI, decl:physics:IPhO_2026_3_B_2:magnetizationAlongProcessInSI}
+  The equation of state, constitutive heat-capacity relation, energy law, magnetic-work law from part A.3, first law, and adiabatic condition.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_B_2:target}
+\lean{IPhO2026Problems.IPhO2026_3_B_2.adiabatic_temperature_change}
+\uses{decl:physics:IPhO_2026_3_B_2:ThermodynamicTemperature, decl:physics:IPhO_2026_3_B_2:PhysicalVolume, decl:physics:IPhO_2026_3_B_2:AppliedFieldStrengthMagnitude, decl:physics:IPhO_2026_3_B_2:MagnetizationMagnitude, decl:physics:IPhO_2026_3_B_2:VacuumPermeability, decl:physics:IPhO_2026_3_B_2:CurieConstantPerMole, decl:physics:IPhO_2026_3_B_2:LambdaPerMole, decl:physics:IPhO_2026_3_B_2:HeatCapacityAtConstantMagnetization, decl:physics:IPhO_2026_3_B_2:temperatureInKelvin, decl:physics:IPhO_2026_3_B_2:volumeInCubicMeters, decl:physics:IPhO_2026_3_B_2:fieldStrengthInSI, decl:physics:IPhO_2026_3_B_2:magnetizationInSI, decl:physics:IPhO_2026_3_B_2:vacuumPermeabilityInSI, decl:physics:IPhO_2026_3_B_2:curieConstantInSI, decl:physics:IPhO_2026_3_B_2:lambdaInSI, decl:physics:IPhO_2026_3_B_2:heatCapacityInSI, decl:physics:IPhO_2026_3_B_2:energyInJoules, decl:physics:IPhO_2026_3_B_2:ParamagneticTorus, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusState, decl:physics:IPhO_2026_3_B_2:ParamagneticTorusProcess, decl:physics:IPhO_2026_3_B_2:temperatureAlongProcessInKelvin, decl:physics:IPhO_2026_3_B_2:fieldStrengthAlongProcessInSI, decl:physics:IPhO_2026_3_B_2:magnetizationAlongProcessInSI, decl:physics:IPhO_2026_3_B_2:SatisfiesParamagneticTorusLaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

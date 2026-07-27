@@ -1,0 +1,162 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_2.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_3_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_3_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_2}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Current subquestion.}
+Express M\_1 in terms of M\_2, M\_3, and M\_4.
+
+\paragraph{Recorded answer/context.}
+M\_1 = sqrt(M\_2\textasciicircum{}2 - M\_3\textasciicircum{}2 + M\_4\textasciicircum{}2), taking the nonnegative magnitude.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Reusable conclusions: Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.1. Question: Label T\_h and T\_c on Figure 3b and identify the processes on which Q\_h and Q\_c are transferred. Reusable conclusions: States 1 and 4 lie at T\_h; states 2 and 3 lie at T\_c. Q\_c is absorbed on 2->3, and Q\_h is delivered on 4->1. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[PhysicalQuantityTypes]
+  \label{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.PhysicalQuantityTypes}
+  Abstract physical roles used in the paramagnetic-torus model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SIReadout]
+  \label{decl:physics:IPhO_2026_3_C_2:SIReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.SIReadout}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes}
+  Scalar readouts of the physical quantities in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[TorusState]
+  \label{decl:physics:IPhO_2026_3_C_2:TorusState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.TorusState}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes}
+  A thermodynamic state at a vertex of Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CycleLeg]
+  \label{decl:physics:IPhO_2026_3_C_2:CycleLeg}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.CycleLeg}
+  The four oriented legs in the order shown in Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ProcessKind]
+  \label{decl:physics:IPhO_2026_3_C_2:ProcessKind}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.ProcessKind}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes}
+  The process label attached to a leg of the Carnot cycle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CarnotCycle]
+  \label{decl:physics:IPhO_2026_3_C_2:CarnotCycle}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.CarnotCycle}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:TorusState, decl:physics:IPhO_2026_3_C_2:CycleLeg, decl:physics:IPhO_2026_3_C_2:ProcessKind}
+  Data of the paramagnetic-torus Carnot refrigerator.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure3bReadout]
+  \label{decl:physics:IPhO_2026_3_C_2:Figure3bReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.Figure3bReadout}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:CarnotCycle}
+  Figure 3b and the result of part C.1: states “1,4” are at “Tₕ”, states “2,3” are at “T꜀”, the other two legs are adiabatic, “Q꜀” is absorbed on “2 → 3”, and “Qₕ” is delivered on “4 → 1”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesParamagneticEquationOfState]
+  \label{decl:physics:IPhO_2026_3_C_2:SatisfiesParamagneticEquationOfState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.SatisfiesParamagneticEquationOfState}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:SIReadout, decl:physics:IPhO_2026_3_C_2:TorusState, decl:physics:IPhO_2026_3_C_2:CarnotCycle}
+  The paramagnetic equation of state “T M V = n K H”, expressed using SI scalar readouts at one state.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesIsothermalHeatLaw]
+  \label{decl:physics:IPhO_2026_3_C_2:SatisfiesIsothermalHeatLaw}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.SatisfiesIsothermalHeatLaw}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:SIReadout, decl:physics:IPhO_2026_3_C_2:TorusState, decl:physics:IPhO_2026_3_C_2:CarnotCycle}
+  The part-B.1 isothermal law for signed heat transferred into the torus: “Q = -(μ₀ n K / (2 T)) (H\_f² - H\_i²)”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesReversibleCarnotHeatBalance]
+  \label{decl:physics:IPhO_2026_3_C_2:SatisfiesReversibleCarnotHeatBalance}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.SatisfiesReversibleCarnotHeatBalance}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:SIReadout, decl:physics:IPhO_2026_3_C_2:CarnotCycle}
+  Entropy balance of a reversible Carnot refrigerator: “Q꜀ / T꜀ = Qₕ / Tₕ”, where both heats are nonnegative magnitudes.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[EquationOfStateAtVertices]
+  \label{decl:physics:IPhO_2026_3_C_2:EquationOfStateAtVertices}
+  \lean{IPhO2026Problems.IPhO2026_3_C_2.EquationOfStateAtVertices}
+  \uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:SIReadout, decl:physics:IPhO_2026_3_C_2:CarnotCycle, decl:physics:IPhO_2026_3_C_2:SatisfiesParamagneticEquationOfState}
+  All four vertices obey the same paramagnetic equation of state.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_2:target}
+\lean{IPhO2026Problems.IPhO2026_3_C_2.magnetization_state1_eq_sqrt}
+\uses{decl:physics:IPhO_2026_3_C_2:PhysicalQuantityTypes, decl:physics:IPhO_2026_3_C_2:SIReadout, decl:physics:IPhO_2026_3_C_2:TorusState, decl:physics:IPhO_2026_3_C_2:CycleLeg, decl:physics:IPhO_2026_3_C_2:ProcessKind, decl:physics:IPhO_2026_3_C_2:CarnotCycle, decl:physics:IPhO_2026_3_C_2:Figure3bReadout, decl:physics:IPhO_2026_3_C_2:SatisfiesParamagneticEquationOfState, decl:physics:IPhO_2026_3_C_2:SatisfiesIsothermalHeatLaw, decl:physics:IPhO_2026_3_C_2:SatisfiesReversibleCarnotHeatBalance, decl:physics:IPhO_2026_3_C_2:EquationOfStateAtVertices}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

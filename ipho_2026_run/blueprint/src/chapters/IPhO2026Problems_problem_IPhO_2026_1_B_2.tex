@@ -1,0 +1,424 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_B_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_B_2.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id B.2
+
+\chapter{Physics problem IPhO\_2026\_1\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_B_2}
+
+\paragraph{Problem source.}
+At one instant a positron and an electron, each of mass m and charges of equal
+magnitude and opposite sign, are separated by 100*a\_0.  Their velocities are
+antiparallel and perpendicular to their separation.  Each particle has angular
+momentum of magnitude mu*hbar about the center of mass.  The system is isolated,
+classical, non-relativistic, and has only electrostatic interaction.  The Bohr
+radius is a\_0 = 4*pi*epsilon\_0*hbar\textasciicircum{}2/(m*e\textasciicircum{}2), and k = 1/(4*pi*epsilon\_0).
+
+Current subquestion:
+For mu = 15/2 the pair is unbound. Find the angle between the asymptotic relative velocity u\_infinity and the initial positron line of motion.
+
+\paragraph{Current subquestion.}
+For mu = 15/2 the pair is unbound. Find the angle between the asymptotic relative velocity u\_infinity and the initial positron line of motion.
+
+\paragraph{Recorded answer/context.}
+The signed deflection is -16.60 degrees, i.e. 16.60 degrees below the initial line of motion.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_B\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[Plane]
+  \label{decl:physics:IPhO_2026_1_B_2:Plane}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.Plane}
+  The oriented two-dimensional plane containing the trajectories in Figure 1b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[velocityDimension]
+  \label{decl:physics:IPhO_2026_1_B_2:velocityDimension}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.velocityDimension}
+  Velocity dimension “L T⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[angularMomentumDimension]
+  \label{decl:physics:IPhO_2026_1_B_2:angularMomentumDimension}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.angularMomentumDimension}
+  Angular-momentum/action dimension “M L² T⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[permittivityDimension]
+  \label{decl:physics:IPhO_2026_1_B_2:permittivityDimension}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.permittivityDimension}
+  Vacuum-permittivity dimension “C² T² M⁻¹ L⁻³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[coulombConstantDimension]
+  \label{decl:physics:IPhO_2026_1_B_2:coulombConstantDimension}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.coulombConstantDimension}
+  Coulomb-constant dimension “M L³ T⁻² C⁻²”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimLength]
+  \label{decl:physics:IPhO_2026_1_B_2:DimLength}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimLength}
+  The local abbreviation DimLength records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimMass]
+  \label{decl:physics:IPhO_2026_1_B_2:DimMass}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimMass}
+  The local abbreviation DimMass records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimCharge]
+  \label{decl:physics:IPhO_2026_1_B_2:DimCharge}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimCharge}
+  The local abbreviation DimCharge records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimPosition]
+  \label{decl:physics:IPhO_2026_1_B_2:DimPosition}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimPosition}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane}
+  The local abbreviation DimPosition records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimVelocityVector]
+  \label{decl:physics:IPhO_2026_1_B_2:DimVelocityVector}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimVelocityVector}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:velocityDimension}
+  The local abbreviation DimVelocityVector records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimSpeed]
+  \label{decl:physics:IPhO_2026_1_B_2:DimSpeed}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimSpeed}
+  \uses{decl:physics:IPhO_2026_1_B_2:velocityDimension}
+  The local abbreviation DimSpeed records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimAngularMomentum]
+  \label{decl:physics:IPhO_2026_1_B_2:DimAngularMomentum}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimAngularMomentum}
+  \uses{decl:physics:IPhO_2026_1_B_2:angularMomentumDimension}
+  The local abbreviation DimAngularMomentum records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimPermittivity]
+  \label{decl:physics:IPhO_2026_1_B_2:DimPermittivity}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimPermittivity}
+  \uses{decl:physics:IPhO_2026_1_B_2:permittivityDimension}
+  The local abbreviation DimPermittivity records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DimCoulombConstant]
+  \label{decl:physics:IPhO_2026_1_B_2:DimCoulombConstant}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.DimCoulombConstant}
+  \uses{decl:physics:IPhO_2026_1_B_2:coulombConstantDimension}
+  The local abbreviation DimCoulombConstant records part of the typed physics model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[scalarSI]
+  \label{decl:physics:IPhO_2026_1_B_2:scalarSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.scalarSI}
+  The scalar SI readout of a dimensionful scalar quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[vectorSI]
+  \label{decl:physics:IPhO_2026_1_B_2:vectorSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.vectorSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane}
+  The component vector in the standard SI units for its dimension.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParticleLabel]
+  \label{decl:physics:IPhO_2026_1_B_2:ParticleLabel}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.ParticleLabel}
+  \uses{decl:physics:IPhO_2026_1_B_2:Figure1bInitialConditions}
+  The two labeled particles in Figure 1b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalConstants]
+  \label{decl:physics:IPhO_2026_1_B_2:PhysicalConstants}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.PhysicalConstants}
+  \uses{decl:physics:IPhO_2026_1_B_2:DimLength, decl:physics:IPhO_2026_1_B_2:DimMass, decl:physics:IPhO_2026_1_B_2:DimCharge, decl:physics:IPhO_2026_1_B_2:DimSpeed, decl:physics:IPhO_2026_1_B_2:DimAngularMomentum, decl:physics:IPhO_2026_1_B_2:DimPermittivity, decl:physics:IPhO_2026_1_B_2:DimCoulombConstant, decl:physics:IPhO_2026_1_B_2:scalarSI}
+  The universal constants and common particle mass used in the problem.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ConstantRelations]
+  \label{decl:physics:IPhO_2026_1_B_2:ConstantRelations}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.ConstantRelations}
+  \uses{decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:PhysicalConstants}
+  The two constant identities printed on the source page: “a₀ = 4 π ε₀ ℏ² / (m e²)” and “k = 1 / (4 π ε₀)”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PairMotion]
+  \label{decl:physics:IPhO_2026_1_B_2:PairMotion}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.PairMotion}
+  \uses{decl:physics:IPhO_2026_1_B_2:DimMass, decl:physics:IPhO_2026_1_B_2:DimCharge, decl:physics:IPhO_2026_1_B_2:DimPosition, decl:physics:IPhO_2026_1_B_2:DimVelocityVector, decl:physics:IPhO_2026_1_B_2:ParticleLabel}
+  The dimensionful positions and velocities of both particles.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[positionSI]
+  \label{decl:physics:IPhO_2026_1_B_2:positionSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.positionSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:vectorSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PairMotion}
+  SI position vector of a labeled particle at the specified time in seconds.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[velocitySI]
+  \label{decl:physics:IPhO_2026_1_B_2:velocitySI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.velocitySI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:vectorSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PairMotion}
+  SI velocity vector of a labeled particle at the specified time in seconds.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[particleMassSI]
+  \label{decl:physics:IPhO_2026_1_B_2:particleMassSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.particleMassSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PairMotion}
+  SI mass readout of a labeled particle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[particleChargeSI]
+  \label{decl:physics:IPhO_2026_1_B_2:particleChargeSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.particleChargeSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PairMotion}
+  SI charge readout of a labeled particle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[relativeDisplacementSI]
+  \label{decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.relativeDisplacementSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:positionSI}
+  Relative displacement from the electron to the positron, in metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[relativeVelocitySI]
+  \label{decl:physics:IPhO_2026_1_B_2:relativeVelocitySI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.relativeVelocitySI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:velocitySI}
+  Positron velocity relative to the electron, in metres per second.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[separationSI]
+  \label{decl:physics:IPhO_2026_1_B_2:separationSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.separationSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI}
+  Electron--positron separation in metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure1bFrame]
+  \label{decl:physics:IPhO_2026_1_B_2:Figure1bFrame}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.Figure1bFrame}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane}
+  The oriented axes read from Figure 1b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[signedAngularMomentumSI]
+  \label{decl:physics:IPhO_2026_1_B_2:signedAngularMomentumSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.signedAngularMomentumSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:DimPosition, decl:physics:IPhO_2026_1_B_2:vectorSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:positionSI, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:particleMassSI, decl:physics:IPhO_2026_1_B_2:Figure1bFrame}
+  Signed angular momentum of one particle about a chosen center, in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[totalAngularMomentumMagnitudeSI]
+  \label{decl:physics:IPhO_2026_1_B_2:totalAngularMomentumMagnitudeSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.totalAngularMomentumMagnitudeSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:DimPosition, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:Figure1bFrame, decl:physics:IPhO_2026_1_B_2:signedAngularMomentumSI}
+  Magnitude of the pair's total angular momentum about the center of mass.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure1bInitialConditions]
+  \label{decl:physics:IPhO_2026_1_B_2:Figure1bInitialConditions}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.Figure1bInitialConditions}
+  \uses{decl:physics:IPhO_2026_1_B_2:DimPosition, decl:physics:IPhO_2026_1_B_2:DimSpeed, decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:vectorSI, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:positionSI, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:particleMassSI, decl:physics:IPhO_2026_1_B_2:particleChargeSI, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI, decl:physics:IPhO_2026_1_B_2:Figure1bFrame, decl:physics:IPhO_2026_1_B_2:signedAngularMomentumSI}
+  All numerical and geometric data at the pictured instant.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[coulombForceOnPositronSI]
+  \label{decl:physics:IPhO_2026_1_B_2:coulombForceOnPositronSI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.coulombForceOnPositronSI}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:particleChargeSI, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI}
+  Coulomb force on the positron, evaluated in SI components.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CoulombDynamics]
+  \label{decl:physics:IPhO_2026_1_B_2:CoulombDynamics}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.CoulombDynamics}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:positionSI, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:particleMassSI, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI, decl:physics:IPhO_2026_1_B_2:coulombForceOnPositronSI}
+  The classical non-relativistic, isolated two-body model.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[initialTotalEnergySI]
+  \label{decl:physics:IPhO_2026_1_B_2:initialTotalEnergySI}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.initialTotalEnergySI}
+  \uses{decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:particleMassSI, decl:physics:IPhO_2026_1_B_2:particleChargeSI, decl:physics:IPhO_2026_1_B_2:separationSI}
+  Total mechanical energy computed at the pictured instant, in joules.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ConicOrbitData]
+  \label{decl:physics:IPhO_2026_1_B_2:ConicOrbitData}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.ConicOrbitData}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:DimLength, decl:physics:IPhO_2026_1_B_2:DimAngularMomentum}
+  Data used by the two conic-orbit hints on the official source page.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ConicOrbitLaws]
+  \label{decl:physics:IPhO_2026_1_B_2:ConicOrbitLaws}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.ConicOrbitLaws}
+  \uses{decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI, decl:physics:IPhO_2026_1_B_2:separationSI, decl:physics:IPhO_2026_1_B_2:Figure1bFrame, decl:physics:IPhO_2026_1_B_2:totalAngularMomentumMagnitudeSI, decl:physics:IPhO_2026_1_B_2:Figure1bInitialConditions, decl:physics:IPhO_2026_1_B_2:initialTotalEnergySI, decl:physics:IPhO_2026_1_B_2:ConicOrbitData}
+  The supplied Kepler/Coulomb eccentricity law and polar conic equation.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsUnbound]
+  \label{decl:physics:IPhO_2026_1_B_2:IsUnbound}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.IsUnbound}
+  \uses{decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:separationSI}
+  The stated unbound condition: the separation tends to infinity in the future.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[signedDeflectionDegrees]
+  \label{decl:physics:IPhO_2026_1_B_2:signedDeflectionDegrees}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.signedDeflectionDegrees}
+  \uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:Figure1bFrame}
+  The signed counterclockwise angle from the initial positron velocity to the asymptotic positron-relative-to-electron velocity, reported in degrees.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[RoundsToNearestHundredth]
+  \label{decl:physics:IPhO_2026_1_B_2:RoundsToNearestHundredth}
+  \lean{IPhO2026Problems.IPhO2026_1_B_2.RoundsToNearestHundredth}
+  “actual” rounds to “reported” at two digits after the decimal point.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_B_2:target}
+\lean{IPhO2026Problems.IPhO2026_1_B_2.IPhO_2026_1_B_2}
+\uses{decl:physics:IPhO_2026_1_B_2:Plane, decl:physics:IPhO_2026_1_B_2:velocityDimension, decl:physics:IPhO_2026_1_B_2:angularMomentumDimension, decl:physics:IPhO_2026_1_B_2:permittivityDimension, decl:physics:IPhO_2026_1_B_2:coulombConstantDimension, decl:physics:IPhO_2026_1_B_2:DimLength, decl:physics:IPhO_2026_1_B_2:DimMass, decl:physics:IPhO_2026_1_B_2:DimCharge, decl:physics:IPhO_2026_1_B_2:DimPosition, decl:physics:IPhO_2026_1_B_2:DimVelocityVector, decl:physics:IPhO_2026_1_B_2:DimSpeed, decl:physics:IPhO_2026_1_B_2:DimAngularMomentum, decl:physics:IPhO_2026_1_B_2:DimPermittivity, decl:physics:IPhO_2026_1_B_2:DimCoulombConstant, decl:physics:IPhO_2026_1_B_2:scalarSI, decl:physics:IPhO_2026_1_B_2:vectorSI, decl:physics:IPhO_2026_1_B_2:ParticleLabel, decl:physics:IPhO_2026_1_B_2:PhysicalConstants, decl:physics:IPhO_2026_1_B_2:ConstantRelations, decl:physics:IPhO_2026_1_B_2:PairMotion, decl:physics:IPhO_2026_1_B_2:positionSI, decl:physics:IPhO_2026_1_B_2:velocitySI, decl:physics:IPhO_2026_1_B_2:particleMassSI, decl:physics:IPhO_2026_1_B_2:particleChargeSI, decl:physics:IPhO_2026_1_B_2:relativeDisplacementSI, decl:physics:IPhO_2026_1_B_2:relativeVelocitySI, decl:physics:IPhO_2026_1_B_2:separationSI, decl:physics:IPhO_2026_1_B_2:Figure1bFrame, decl:physics:IPhO_2026_1_B_2:signedAngularMomentumSI, decl:physics:IPhO_2026_1_B_2:totalAngularMomentumMagnitudeSI, decl:physics:IPhO_2026_1_B_2:Figure1bInitialConditions, decl:physics:IPhO_2026_1_B_2:coulombForceOnPositronSI, decl:physics:IPhO_2026_1_B_2:CoulombDynamics, decl:physics:IPhO_2026_1_B_2:initialTotalEnergySI, decl:physics:IPhO_2026_1_B_2:ConicOrbitData, decl:physics:IPhO_2026_1_B_2:ConicOrbitLaws, decl:physics:IPhO_2026_1_B_2:IsUnbound, decl:physics:IPhO_2026_1_B_2:signedDeflectionDegrees, decl:physics:IPhO_2026_1_B_2:RoundsToNearestHundredth}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

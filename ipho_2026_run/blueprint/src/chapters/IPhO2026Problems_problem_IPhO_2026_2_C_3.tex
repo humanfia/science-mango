@@ -1,0 +1,165 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_3}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Current subquestion.}
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Recorded answer/context.}
+X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Expand m\_B and b\_B to first order in Delta theta. Reusable conclusions: m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold under an explicit Physlib/PhysLean import.  The
+mirror radius, point coordinates and ray intercepts are physical lengths with a
+named projection to the common Figure 2g coordinate unit.  Keep the neighboring
+intersection and punctured-neighborhood limit structure.  Leave proof bodies as
+`by sorry`.
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_2_C_3:PhysicalLength}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.PhysicalLength}
+  A physical length is a dimensionful real quantity carrying the physical
+  dimension of length.
+\end{definition}
+\begin{proof}
+  This is the defining type abbreviation for dimensionful real lengths.
+\end{proof}
+
+\begin{definition}[Figure2gLengthProjection]
+  \label{decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gLengthProjection}
+  A Figure 2g length projection records the single unit choice used for every
+  coordinate in the diagram.
+\end{definition}
+\begin{proof}
+  This is the defining structure containing the common length-unit choice.
+\end{proof}
+
+\begin{definition}[Figure2gLengthProjection.readout]
+  \label{decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection:readout}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gLengthProjection.readout}
+  \uses{decl:physics:IPhO_2026_2_C_3:PhysicalLength, decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection}
+  The projection reads a physical length as its real coordinate in the stored
+  common unit.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length in the stored unit choice and take its real
+  value.
+\end{proof}
+
+\begin{definition}[Figure2gMirror]
+  \label{decl:physics:IPhO_2026_2_C_3:Figure2gMirror}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gMirror}
+  \uses{decl:physics:IPhO_2026_2_C_3:PhysicalLength}
+  The half-cylindrical mirror in the coordinate system of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2gPoint]
+  \label{decl:physics:IPhO_2026_2_C_3:Figure2gPoint}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gPoint}
+  \uses{decl:physics:IPhO_2026_2_C_3:PhysicalLength}
+  A point represented by its two Figure 2g coordinate readouts.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2gMirror.OnReflectingSurface]
+  \label{decl:physics:IPhO_2026_2_C_3:Figure2gMirror:OnReflectingSurface}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gMirror.OnReflectingSurface}
+  \uses{decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection, decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection:readout, decl:physics:IPhO_2026_2_C_3:Figure2gMirror, decl:physics:IPhO_2026_2_C_3:Figure2gPoint}
+  The reflecting upper semicircle shown in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectedRayLine]
+  \label{decl:physics:IPhO_2026_2_C_3:ReflectedRayLine}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.ReflectedRayLine}
+  \uses{decl:physics:IPhO_2026_2_C_3:PhysicalLength}
+  The supporting affine line of a reflected optical ray in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectedRayLine.Contains]
+  \label{decl:physics:IPhO_2026_2_C_3:ReflectedRayLine:Contains}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.ReflectedRayLine.Contains}
+  \uses{decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection, decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection:readout, decl:physics:IPhO_2026_2_C_3:Figure2gPoint, decl:physics:IPhO_2026_2_C_3:ReflectedRayLine}
+  A Figure 2g point lies on the supporting line of a reflected ray.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsNeighboringReflectedIntersection]
+  \label{decl:physics:IPhO_2026_2_C_3:IsNeighboringReflectedIntersection}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.IsNeighboringReflectedIntersection}
+  \uses{decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection, decl:physics:IPhO_2026_2_C_3:Figure2gPoint, decl:physics:IPhO_2026_2_C_3:ReflectedRayLine, decl:physics:IPhO_2026_2_C_3:ReflectedRayLine:Contains}
+  A point is the intersection of the reflected ray at incidence angle “θ” (ray A) and the reflected ray at the neighboring angle “θ + Δθ” (ray B).
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_3:target}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.limitingIntersectionCoordinates}
+\uses{decl:physics:IPhO_2026_2_C_3:PhysicalLength, decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection, decl:physics:IPhO_2026_2_C_3:Figure2gLengthProjection:readout, decl:physics:IPhO_2026_2_C_3:Figure2gMirror, decl:physics:IPhO_2026_2_C_3:Figure2gPoint, decl:physics:IPhO_2026_2_C_3:Figure2gMirror:OnReflectingSurface, decl:physics:IPhO_2026_2_C_3:ReflectedRayLine, decl:physics:IPhO_2026_2_C_3:ReflectedRayLine:Contains, decl:physics:IPhO_2026_2_C_3:IsNeighboringReflectedIntersection}
+The intersections of ray \(A\) with ray \(B\) tend, as
+\(\Delta\theta\to0\) through nonzero values, to
+\[
+X_c=R\sin^3\theta,\qquad
+Y_c=\frac R2\cos\theta\left(2-\cos(2\theta)\right),
+\]
+using the same named length projection for \(R,X_c,Y_c\).
+\end{theorem}
+\begin{proof}
+For the two affine ray equations, subtract to obtain
+\[
+x(\Delta\theta)=-
+\frac{b(\theta+\Delta\theta)-b(\theta)}
+     {m(\theta+\Delta\theta)-m(\theta)}.
+\]
+The C.2 expansions show that the limit is \(-b'(\theta)/m'(\theta)\).
+Substituting \(m'(\theta)=-2\csc^2(2\theta)\) and
+\(b'(\theta)=R\tan\theta/(2\cos\theta)\), then simplifying, gives
+\(X_c=R\sin^3\theta\).  Substitute this limit into
+\(y=m(\theta)x+b(\theta)\) and use the double-angle identities to obtain the
+formula for \(Y_c\).
+\end{proof}
+% --- Archon physics formalization source end ---

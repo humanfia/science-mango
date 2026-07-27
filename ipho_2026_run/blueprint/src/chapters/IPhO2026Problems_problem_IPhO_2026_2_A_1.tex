@@ -1,0 +1,217 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_A_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_2\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_A_1}
+
+\paragraph{Problem source.}
+Parallel rays strike the inside of a half-cylindrical mirror of radius R.  For
+an incident ray with transverse coordinate x, let N be its number of
+reflections.  The positive threshold x\_N is the largest distance from the
+optical axis for which a ray undergoes at most N reflections.  Use Figures
+2c--2e for the mirror and limiting-ray geometry.
+
+Current subquestion:
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Current subquestion.}
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Recorded answer/context.}
+x\_N = R*sin((2*N - 1)*pi/(4*N + 2)) = R*cos(pi/(2*N + 1)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-2.png
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold under an explicit Physlib/PhysLean import.  The
+mirror radius and threshold are physical lengths with a named projection to the
+single coordinate unit used by the Euclidean cross-section; angles remain
+dimensionless.  Preserve Figures 2c--2e, specular reflection, the threshold
+meaning and limiting-ray relation.  Leave proof bodies as `by sorry`.
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_2_A_1:PhysicalLength}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.PhysicalLength}
+  A physical length is a dimensionful real quantity carrying the physical
+  dimension of length, independently of the unit used to read it.
+\end{definition}
+\begin{proof}
+  This is the defining type abbreviation for dimensionful real lengths.
+\end{proof}
+
+\begin{definition}[lengthCoordinate]
+  \label{decl:physics:IPhO_2026_2_A_1:lengthCoordinate}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.lengthCoordinate}
+  \uses{decl:physics:IPhO_2026_2_A_1:PhysicalLength}
+  The common coordinate of a physical length is its numerical value in SI
+  metres.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length in the SI unit choice and take its real
+  value.
+\end{proof}
+
+\begin{definition}[CrossSectionPoint]
+  \label{decl:physics:IPhO_2026_2_A_1:CrossSectionPoint}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.CrossSectionPoint}
+  The Euclidean cross-section perpendicular to the cylinder axis.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[FigureLabel]
+  \label{decl:physics:IPhO_2026_2_A_1:FigureLabel}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.FigureLabel}
+  The official figure labels used to read the mirror and limiting-ray geometry.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HalfCylindricalMirror]
+  \label{decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.HalfCylindricalMirror}
+  \uses{decl:physics:IPhO_2026_2_A_1:PhysicalLength, decl:physics:IPhO_2026_2_A_1:lengthCoordinate, decl:physics:IPhO_2026_2_A_1:CrossSectionPoint}
+  A half-cylindrical mirror, represented by its semicircular cross-section.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[OnReflectingArc]
+  \label{decl:physics:IPhO_2026_2_A_1:OnReflectingArc}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.OnReflectingArc}
+  \uses{decl:physics:IPhO_2026_2_A_1:lengthCoordinate, decl:physics:IPhO_2026_2_A_1:CrossSectionPoint, decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror}
+  A point lies on the reflecting semicircular arc of the mirror.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[GeometricRay]
+  \label{decl:physics:IPhO_2026_2_A_1:GeometricRay}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.GeometricRay}
+  \uses{decl:physics:IPhO_2026_2_A_1:CrossSectionPoint}
+  An oriented geometrical ray in the cross-section.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParallelIncidentRayFamily]
+  \label{decl:physics:IPhO_2026_2_A_1:ParallelIncidentRayFamily}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.ParallelIncidentRayFamily}
+  \uses{decl:physics:IPhO_2026_2_A_1:CrossSectionPoint, decl:physics:IPhO_2026_2_A_1:GeometricRay}
+  Parallel incident rays indexed by their signed transverse-coordinate readout “x”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AlignedWithMirror]
+  \label{decl:physics:IPhO_2026_2_A_1:AlignedWithMirror}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.AlignedWithMirror}
+  \uses{decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:ParallelIncidentRayFamily}
+  The incident family is centered on, and parallel to, the mirror's optical axis as in Figure 2d.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectionEvent]
+  \label{decl:physics:IPhO_2026_2_A_1:ReflectionEvent}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.ReflectionEvent}
+  \uses{decl:physics:IPhO_2026_2_A_1:CrossSectionPoint}
+  The local geometric data at one reflection from the curved mirror.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsSpecularReflection]
+  \label{decl:physics:IPhO_2026_2_A_1:IsSpecularReflection}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.IsSpecularReflection}
+  \uses{decl:physics:IPhO_2026_2_A_1:ReflectionEvent}
+  Vector form of the law of specular reflection.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectionTrace]
+  \label{decl:physics:IPhO_2026_2_A_1:ReflectionTrace}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.ReflectionTrace}
+  \uses{decl:physics:IPhO_2026_2_A_1:ReflectionEvent}
+  A finite ordered record of all reflections undergone by one ray.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MirrorDynamics]
+  \label{decl:physics:IPhO_2026_2_A_1:MirrorDynamics}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.MirrorDynamics}
+  \uses{decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:OnReflectingArc, decl:physics:IPhO_2026_2_A_1:GeometricRay, decl:physics:IPhO_2026_2_A_1:IsSpecularReflection, decl:physics:IPhO_2026_2_A_1:ReflectionTrace}
+  The physical interaction of rays with a fixed half-cylindrical mirror.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[reflectionCount]
+  \label{decl:physics:IPhO_2026_2_A_1:reflectionCount}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.reflectionCount}
+  \uses{decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:GeometricRay, decl:physics:IPhO_2026_2_A_1:MirrorDynamics}
+  The number “N” of reflections undergone by a ray.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsReflectionThreshold]
+  \label{decl:physics:IPhO_2026_2_A_1:IsReflectionThreshold}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.IsReflectionThreshold}
+  \uses{decl:physics:IPhO_2026_2_A_1:PhysicalLength, decl:physics:IPhO_2026_2_A_1:lengthCoordinate, decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:ParallelIncidentRayFamily, decl:physics:IPhO_2026_2_A_1:MirrorDynamics, decl:physics:IPhO_2026_2_A_1:reflectionCount}
+  Figure 2e's threshold meaning: within the open aperture “|x| < R”, a ray has at most “N” reflections exactly when its distance from the optical axis is at most the positive threshold “xN”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2cTo2eLimitingGeometry]
+  \label{decl:physics:IPhO_2026_2_A_1:Figure2cTo2eLimitingGeometry}
+  \lean{IPhO2026Problems.IPhO2026_2_A_1.Figure2cTo2eLimitingGeometry}
+  \uses{decl:physics:IPhO_2026_2_A_1:PhysicalLength, decl:physics:IPhO_2026_2_A_1:lengthCoordinate, decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:ParallelIncidentRayFamily, decl:physics:IPhO_2026_2_A_1:MirrorDynamics, decl:physics:IPhO_2026_2_A_1:reflectionCount}
+  Figure-derived limiting-ray relations used before solving for “xN”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_A_1:target}
+\lean{IPhO2026Problems.IPhO2026_2_A_1.threshold_formula}
+\uses{decl:physics:IPhO_2026_2_A_1:PhysicalLength, decl:physics:IPhO_2026_2_A_1:lengthCoordinate, decl:physics:IPhO_2026_2_A_1:CrossSectionPoint, decl:physics:IPhO_2026_2_A_1:FigureLabel, decl:physics:IPhO_2026_2_A_1:HalfCylindricalMirror, decl:physics:IPhO_2026_2_A_1:OnReflectingArc, decl:physics:IPhO_2026_2_A_1:GeometricRay, decl:physics:IPhO_2026_2_A_1:ParallelIncidentRayFamily, decl:physics:IPhO_2026_2_A_1:AlignedWithMirror, decl:physics:IPhO_2026_2_A_1:ReflectionEvent, decl:physics:IPhO_2026_2_A_1:IsSpecularReflection, decl:physics:IPhO_2026_2_A_1:ReflectionTrace, decl:physics:IPhO_2026_2_A_1:MirrorDynamics, decl:physics:IPhO_2026_2_A_1:reflectionCount, decl:physics:IPhO_2026_2_A_1:IsReflectionThreshold, decl:physics:IPhO_2026_2_A_1:Figure2cTo2eLimitingGeometry}
+For every positive integer \(N\), the largest positive transverse distance
+whose ray undergoes at most \(N\) reflections is
+\[
+x_N=R\sin\!\left(\frac{(2N-1)\pi}{4N+2}\right)
+   =R\cos\!\left(\frac{\pi}{2N+1}\right),
+\]
+with \(R\) and \(x_N\) interpreted through the same named length projection.
+\end{theorem}
+\begin{proof}
+Let \(\alpha\) be the limiting incidence angle.  The equal turning angles of
+the limiting specular orbit give
+\((2N+1)(\pi-2\alpha)=2\pi\), hence
+\(\alpha=(2N-1)\pi/(4N+2)=\pi/2-\pi/(2N+1)\).
+Figure 2e gives \(x_N=R\sin\alpha\); the complementary-angle identity yields
+the cosine form.
+\end{proof}
+% --- Archon physics formalization source end ---

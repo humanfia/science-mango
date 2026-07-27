@@ -1,0 +1,228 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.1
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_1}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Current subquestion.}
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Recorded answer/context.}
+alpha = R and beta = -R/2.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_2_B_1:PhysicalLength}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.PhysicalLength}
+  A physical length, represented by a dimension-tagged real readout.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[radiantPowerDimension]
+  \label{decl:physics:IPhO_2026_2_B_1:radiantPowerDimension}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.radiantPowerDimension}
+  The physical dimension “mass * length\textasciicircum{}2 * time\textasciicircum{}(-3)” of radiant power.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[solarIntensityDimension]
+  \label{decl:physics:IPhO_2026_2_B_1:solarIntensityDimension}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.solarIntensityDimension}
+  The physical dimension “mass * time\textasciicircum{}(-3)” of irradiance.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[RadiantPower]
+  \label{decl:physics:IPhO_2026_2_B_1:RadiantPower}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.RadiantPower}
+  \uses{decl:physics:IPhO_2026_2_B_1:radiantPowerDimension}
+  Radiant power, such as the no-mirror reference power “P₀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SolarIntensity]
+  \label{decl:physics:IPhO_2026_2_B_1:SolarIntensity}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.SolarIntensity}
+  \uses{decl:physics:IPhO_2026_2_B_1:solarIntensityDimension}
+  Uniform solar power per unit area.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[scaleLength]
+  \label{decl:physics:IPhO_2026_2_B_1:scaleLength}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.scaleLength}
+  \uses{decl:physics:IPhO_2026_2_B_1:PhysicalLength}
+  Dimension-preserving multiplication of a length by a dimensionless scalar.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CrossSection]
+  \label{decl:physics:IPhO_2026_2_B_1:CrossSection}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.CrossSection}
+  The two-dimensional cross-section normal to the parallel cylinder axes.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AxisDirection]
+  \label{decl:physics:IPhO_2026_2_B_1:AxisDirection}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.AxisDirection}
+  A three-dimensional direction used for a cylinder axis.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[RayDirection2D]
+  \label{decl:physics:IPhO_2026_2_B_1:RayDirection2D}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.RayDirection2D}
+  \uses{decl:physics:IPhO_2026_2_B_1:CrossSection}
+  A nonzero direction in the optical cross-section.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParallelDirections]
+  \label{decl:physics:IPhO_2026_2_B_1:ParallelDirections}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.ParallelDirections}
+  Two nonzero directions are parallel when one is a nonzero scalar multiple of the other.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[LightRay2D]
+  \label{decl:physics:IPhO_2026_2_B_1:LightRay2D}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.LightRay2D}
+  \uses{decl:physics:IPhO_2026_2_B_1:CrossSection, decl:physics:IPhO_2026_2_B_1:RayDirection2D}
+  A directed geometrical-optics ray in the transverse cross-section.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PointLiesOnForwardRay]
+  \label{decl:physics:IPhO_2026_2_B_1:PointLiesOnForwardRay}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.PointLiesOnForwardRay}
+  \uses{decl:physics:IPhO_2026_2_B_1:CrossSection, decl:physics:IPhO_2026_2_B_1:LightRay2D}
+  A point lies on the forward half-line of a directed ray.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[OpticalPath2D]
+  \label{decl:physics:IPhO_2026_2_B_1:OpticalPath2D}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.OpticalPath2D}
+  \uses{decl:physics:IPhO_2026_2_B_1:CrossSection, decl:physics:IPhO_2026_2_B_1:LightRay2D}
+  A ray path together with all mirror-reflected segments and reflection points.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SolarCookerSetup]
+  \label{decl:physics:IPhO_2026_2_B_1:SolarCookerSetup}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.SolarCookerSetup}
+  \uses{decl:physics:IPhO_2026_2_B_1:PhysicalLength, decl:physics:IPhO_2026_2_B_1:RadiantPower, decl:physics:IPhO_2026_2_B_1:SolarIntensity, decl:physics:IPhO_2026_2_B_1:CrossSection, decl:physics:IPhO_2026_2_B_1:AxisDirection, decl:physics:IPhO_2026_2_B_1:RayDirection2D, decl:physics:IPhO_2026_2_B_1:LightRay2D, decl:physics:IPhO_2026_2_B_1:OpticalPath2D}
+  The apparatus and the observable quantities named in the problem.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsAdmissibleIncidenceAngle]
+  \label{decl:physics:IPhO_2026_2_B_1:IsAdmissibleIncidenceAngle}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.IsAdmissibleIncidenceAngle}
+  The dimensionless angular range relevant to the half-cylinder cross-section.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2fReadout]
+  \label{decl:physics:IPhO_2026_2_B_1:Figure2fReadout}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.Figure2fReadout}
+  \uses{decl:physics:IPhO_2026_2_B_1:PhysicalLength, decl:physics:IPhO_2026_2_B_1:scaleLength, decl:physics:IPhO_2026_2_B_1:SolarCookerSetup}
+  Scalar and geometric labels read directly from Figure 2f.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ValidSolarCookerPhysics]
+  \label{decl:physics:IPhO_2026_2_B_1:ValidSolarCookerPhysics}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.ValidSolarCookerPhysics}
+  \uses{decl:physics:IPhO_2026_2_B_1:ParallelDirections, decl:physics:IPhO_2026_2_B_1:PointLiesOnForwardRay, decl:physics:IPhO_2026_2_B_1:SolarCookerSetup, decl:physics:IPhO_2026_2_B_1:IsAdmissibleIncidenceAngle}
+  Governing geometrical-optics and absorption laws for the apparatus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsRadiusCoefficientFormula]
+  \label{decl:physics:IPhO_2026_2_B_1:IsRadiusCoefficientFormula}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.IsRadiusCoefficientFormula}
+  \uses{decl:physics:IPhO_2026_2_B_1:PhysicalLength, decl:physics:IPhO_2026_2_B_1:scaleLength, decl:physics:IPhO_2026_2_B_1:SolarCookerSetup, decl:physics:IPhO_2026_2_B_1:IsAdmissibleIncidenceAngle}
+  The sinusoidal coefficient form supplied in part B.1, interpreted as a symbolic identity for the radius response over the admissible angle range.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[radiusAtIncidence\_from\_figure2f]
+  \label{decl:physics:IPhO_2026_2_B_1:radiusAtIncidence_from_figure2f}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.radiusAtIncidence_from_figure2f}
+  \uses{decl:physics:IPhO_2026_2_B_1:scaleLength, decl:physics:IPhO_2026_2_B_1:SolarCookerSetup, decl:physics:IPhO_2026_2_B_1:IsAdmissibleIncidenceAngle, decl:physics:IPhO_2026_2_B_1:Figure2fReadout, decl:physics:IPhO_2026_2_B_1:ValidSolarCookerPhysics}
+  The ray geometry of Figure 2f gives the radius response before its two trigonometric coefficients are read off.
+\end{theorem}
+\begin{proof}
+  Combine the governing assumptions named in the statement and carry out the indicated physical or algebraic deduction.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_B_1:target}
+\lean{IPhO2026Problems.IPhO2026_2_B_1.problem_IPhO_2026_2_B_1}
+\uses{decl:physics:IPhO_2026_2_B_1:PhysicalLength, decl:physics:IPhO_2026_2_B_1:radiantPowerDimension, decl:physics:IPhO_2026_2_B_1:solarIntensityDimension, decl:physics:IPhO_2026_2_B_1:RadiantPower, decl:physics:IPhO_2026_2_B_1:SolarIntensity, decl:physics:IPhO_2026_2_B_1:scaleLength, decl:physics:IPhO_2026_2_B_1:CrossSection, decl:physics:IPhO_2026_2_B_1:AxisDirection, decl:physics:IPhO_2026_2_B_1:RayDirection2D, decl:physics:IPhO_2026_2_B_1:ParallelDirections, decl:physics:IPhO_2026_2_B_1:LightRay2D, decl:physics:IPhO_2026_2_B_1:PointLiesOnForwardRay, decl:physics:IPhO_2026_2_B_1:OpticalPath2D, decl:physics:IPhO_2026_2_B_1:SolarCookerSetup, decl:physics:IPhO_2026_2_B_1:IsAdmissibleIncidenceAngle, decl:physics:IPhO_2026_2_B_1:Figure2fReadout, decl:physics:IPhO_2026_2_B_1:ValidSolarCookerPhysics, decl:physics:IPhO_2026_2_B_1:IsRadiusCoefficientFormula, decl:physics:IPhO_2026_2_B_1:radiusAtIncidence_from_figure2f}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

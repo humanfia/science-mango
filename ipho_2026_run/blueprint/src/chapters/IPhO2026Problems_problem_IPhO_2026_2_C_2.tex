@@ -1,0 +1,181 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_2.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_2}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Expand m\_B and b\_B to first order in Delta theta.
+
+\paragraph{Current subquestion.}
+Expand m\_B and b\_B to first order in Delta theta.
+
+\paragraph{Recorded answer/context.}
+m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold under an explicit Physlib/PhysLean import.  Store
+the mirror radius and intercept as physical lengths with a named projection to
+the common Figure 2g coordinate unit; keep slopes and angles dimensionless.
+Retain the filter-local \(O(\Delta\theta^2)\) contracts.  Leave proof bodies as
+`by sorry`.
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_2_C_2:PhysicalLength}
+  \lean{IPhO2026_2_C_2.PhysicalLength}
+  A physical length is a dimensionful real quantity with the physical
+  dimension of length.
+\end{definition}
+\begin{proof}
+  This is the defining type abbreviation for dimensionful real lengths.
+\end{proof}
+
+\begin{definition}[figure2gLengthReadout]
+  \label{decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout}
+  \lean{IPhO2026_2_C_2.figure2gLengthReadout}
+  \uses{decl:physics:IPhO_2026_2_C_2:PhysicalLength}
+  Given the common coordinate unit of Figure 2g, this map returns the real
+  coordinate of a physical length in that unit.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length in the chosen units and take its real
+  value.
+\end{proof}
+
+\begin{definition}[ReflectedRayReadout]
+  \label{decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout}
+  \lean{IPhO2026_2_C_2.ReflectedRayReadout}
+  \uses{decl:physics:IPhO_2026_2_C_2:PhysicalLength}
+  The scalar data of a reflected ray in the coordinate convention of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ReflectedRayReadout.yCoordinateLengthReadout]
+  \label{decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout:yCoordinateLengthReadout}
+  \lean{IPhO2026_2_C_2.ReflectedRayReadout.yCoordinateLengthReadout}
+  \uses{decl:physics:IPhO_2026_2_C_2:PhysicalLength, decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout}
+  The equation “y = m * x + b” used for the reflected rays in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2gSetup]
+  \label{decl:physics:IPhO_2026_2_C_2:Figure2gSetup}
+  \lean{IPhO2026_2_C_2.Figure2gSetup}
+  \uses{decl:physics:IPhO_2026_2_C_2:PhysicalLength, decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout}
+  Physical and figure data for the half-cylindrical mirror.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[rayA]
+  \label{decl:physics:IPhO_2026_2_C_2:rayA}
+  \lean{IPhO2026_2_C_2.rayA}
+  \uses{decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup}
+  Ray “A” is the reflected ray at the central incidence angle “θ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[rayB]
+  \label{decl:physics:IPhO_2026_2_C_2:rayB}
+  \lean{IPhO2026_2_C_2.rayB}
+  \uses{decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup}
+  Ray “B” is the neighboring reflected ray at angle “θ + Δθ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HalfCylindricalReflectionLaw]
+  \label{decl:physics:IPhO_2026_2_C_2:HalfCylindricalReflectionLaw}
+  \lean{IPhO2026_2_C_2.HalfCylindricalReflectionLaw}
+  \uses{decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup}
+  The specular-reflection geometry law for the half-cylindrical mirror.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartC1Result]
+  \label{decl:physics:IPhO_2026_2_C_2:PreviousPartC1Result}
+  \lean{IPhO2026_2_C_2.PreviousPartC1Result}
+  \uses{decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup, decl:physics:IPhO_2026_2_C_2:rayA}
+  The reusable result of part C.1 for the line of ray “A”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[rayB\_slope\_firstOrder]
+  \label{decl:physics:IPhO_2026_2_C_2:rayB_slope_firstOrder}
+  \lean{IPhO2026_2_C_2.rayB_slope_firstOrder}
+  \uses{decl:physics:IPhO_2026_2_C_2:Figure2gSetup, decl:physics:IPhO_2026_2_C_2:rayB, decl:physics:IPhO_2026_2_C_2:HalfCylindricalReflectionLaw, decl:physics:IPhO_2026_2_C_2:PreviousPartC1Result}
+  The first-order slope formula for neighboring ray “B”, with a remainder bounded by a constant times “(Δθ)²” as “Δθ → 0”.
+\end{theorem}
+\begin{proof}
+  Combine the governing assumptions named in the statement and carry out the indicated physical or algebraic deduction.
+\end{proof}
+
+\begin{theorem}[rayB\_intercept\_firstOrder]
+  \label{decl:physics:IPhO_2026_2_C_2:rayB_intercept_firstOrder}
+  \lean{IPhO2026_2_C_2.rayB_intercept_firstOrder}
+  \uses{decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup, decl:physics:IPhO_2026_2_C_2:rayB, decl:physics:IPhO_2026_2_C_2:HalfCylindricalReflectionLaw, decl:physics:IPhO_2026_2_C_2:PreviousPartC1Result}
+  The first-order intercept formula for neighboring ray “B”, with a remainder bounded by a constant times “(Δθ)²” as “Δθ → 0”.
+\end{theorem}
+\begin{proof}
+  Combine the governing assumptions named in the statement and carry out the indicated physical or algebraic deduction.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_2:target}
+\lean{IPhO2026_2_C_2.IPhO_2026_2_C_2}
+\uses{decl:physics:IPhO_2026_2_C_2:PhysicalLength, decl:physics:IPhO_2026_2_C_2:figure2gLengthReadout, decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout, decl:physics:IPhO_2026_2_C_2:ReflectedRayReadout:yCoordinateLengthReadout, decl:physics:IPhO_2026_2_C_2:Figure2gSetup, decl:physics:IPhO_2026_2_C_2:rayA, decl:physics:IPhO_2026_2_C_2:rayB, decl:physics:IPhO_2026_2_C_2:HalfCylindricalReflectionLaw, decl:physics:IPhO_2026_2_C_2:PreviousPartC1Result, decl:physics:IPhO_2026_2_C_2:rayB_slope_firstOrder, decl:physics:IPhO_2026_2_C_2:rayB_intercept_firstOrder}
+The reflected neighboring ray has
+\[
+m_B=\cot(2\theta)-2\csc^2(2\theta)\Delta\theta
+  +O(\Delta\theta^2)
+\]
+and
+\[
+b_B=\frac{R}{2\cos\theta}
+  \left(1+\tan\theta\,\Delta\theta\right)+O(\Delta\theta^2),
+\]
+where every length readout uses the named common-unit projection.
+\end{theorem}
+\begin{proof}
+Differentiate the exact Figure 2g relations
+\(m(\phi)=\cot(2\phi)\) and \(b(\phi)=R/(2\cos\phi)\).
+Their derivatives at \(\theta\) are
+\(-2\csc^2(2\theta)\) and
+\((R/(2\cos\theta))\tan\theta\), respectively.
+Taylor expansion at \(\theta\), with the angle restricted away from the
+singular endpoints, gives the two stated quadratic remainders.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -1,0 +1,197 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_3_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_3_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_3}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Current subquestion.}
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Recorded answer/context.}
+Q\_c = 1.29e-1 J, so |Delta T| = 9.92e-3 K and T\_final = 0.99008 K.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Reusable conclusions: Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Express M\_1 in terms of M\_2, M\_3, and M\_4. Reusable conclusions: M\_1 = sqrt(M\_2\textasciicircum{}2 - M\_3\textasciicircum{}2 + M\_4\textasciicircum{}2), taking the nonnegative magnitude. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold with an explicit Mathlib import in addition to its
+Physlib units import.  Preserve the dimensioned thermodynamic and magnetic
+quantities, Figure 3b states, supplied SI readouts, licensed B.1/C.2 relations,
+calorimetry and numerical tolerances.  Leave proof bodies as `by sorry`.
+
+\begin{definition}[CarnotState]
+  \label{decl:physics:IPhO_2026_3_C_3:CarnotState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.CarnotState}
+  The four vertices of the Carnot cycle “1 → 2 → 3 → 4 → 1”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CarnotState.next]
+  \label{decl:physics:IPhO_2026_3_C_3:CarnotState:next}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.CarnotState.next}
+  \uses{decl:physics:IPhO_2026_3_C_3:CarnotState}
+  The oriented cycle order shown in Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Temperature]
+  \label{decl:physics:IPhO_2026_3_C_3:Temperature}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.Temperature}
+  \uses{decl:physics:IPhO_2026_3_C_3:Volume}
+  Absolute temperature, recorded in kelvin in the supplied-data hypotheses.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Volume]
+  \label{decl:physics:IPhO_2026_3_C_3:Volume}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.Volume}
+  Volume, recorded in cubic metres in the supplied-data hypotheses.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MassDensity]
+  \label{decl:physics:IPhO_2026_3_C_3:MassDensity}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.MassDensity}
+  Mass density, recorded in kilograms per cubic metre.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SpecificHeatCapacity]
+  \label{decl:physics:IPhO_2026_3_C_3:SpecificHeatCapacity}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.SpecificHeatCapacity}
+  Specific heat capacity, with dimension “L² T⁻² Θ⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticFieldStrength]
+  \label{decl:physics:IPhO_2026_3_C_3:MagneticFieldStrength}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.MagneticFieldStrength}
+  \uses{decl:physics:IPhO_2026_3_C_3:Magnetization}
+  Magnetic field strength “H”, with SI unit ampere per metre.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Magnetization]
+  \label{decl:physics:IPhO_2026_3_C_3:Magnetization}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.Magnetization}
+  \uses{decl:physics:IPhO_2026_3_C_3:Energy}
+  Magnetization “M”, with the same SI dimension as magnetic field strength.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Energy]
+  \label{decl:physics:IPhO_2026_3_C_3:Energy}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.Energy}
+  Energy, recorded in joules.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticPermeability]
+  \label{decl:physics:IPhO_2026_3_C_3:MagneticPermeability}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.MagneticPermeability}
+  Magnetic permeability, with SI unit newton per ampere squared.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Setup]
+  \label{decl:physics:IPhO_2026_3_C_3:Setup}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.Setup}
+  \uses{decl:physics:IPhO_2026_3_C_3:CarnotState, decl:physics:IPhO_2026_3_C_3:Temperature, decl:physics:IPhO_2026_3_C_3:Volume, decl:physics:IPhO_2026_3_C_3:MassDensity, decl:physics:IPhO_2026_3_C_3:SpecificHeatCapacity, decl:physics:IPhO_2026_3_C_3:MagneticFieldStrength, decl:physics:IPhO_2026_3_C_3:Magnetization, decl:physics:IPhO_2026_3_C_3:Energy, decl:physics:IPhO_2026_3_C_3:MagneticPermeability}
+  All physical quantities needed to describe the torus, cycle, and helium sample.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasSuppliedData]
+  \label{decl:physics:IPhO_2026_3_C_3:HasSuppliedData}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.HasSuppliedData}
+  \uses{decl:physics:IPhO_2026_3_C_3:CarnotState, decl:physics:IPhO_2026_3_C_3:Setup}
+  The numerical readouts supplied on the official source page, all expressed in the fixed SI units documented by the corresponding fields.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[GoverningLaws]
+  \label{decl:physics:IPhO_2026_3_C_3:GoverningLaws}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.GoverningLaws}
+  \uses{decl:physics:IPhO_2026_3_C_3:CarnotState, decl:physics:IPhO_2026_3_C_3:Setup}
+  The governing physical model: Figure 3b's isotherm labels, material geometry, the paramagnet equation of state, and calorimetric energy conservation for the helium.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PreviousPartResults]
+  \label{decl:physics:IPhO_2026_3_C_3:PreviousPartResults}
+  \lean{IPhO2026Problems.IPhO2026_3_C_3.PreviousPartResults}
+  \uses{decl:physics:IPhO_2026_3_C_3:CarnotState, decl:physics:IPhO_2026_3_C_3:Setup}
+  The two reusable results explicitly licensed by the blueprint: the part B.1 isothermal-heat relation on the cold leg “2 → 3”, and the nonnegative-magnitude relation from part C.2.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_3:target}
+\lean{IPhO2026Problems.IPhO2026_3_C_3.helium_temperature_after_one_cycle}
+\uses{decl:physics:IPhO_2026_3_C_3:CarnotState, decl:physics:IPhO_2026_3_C_3:CarnotState:next, decl:physics:IPhO_2026_3_C_3:Temperature, decl:physics:IPhO_2026_3_C_3:Volume, decl:physics:IPhO_2026_3_C_3:MassDensity, decl:physics:IPhO_2026_3_C_3:SpecificHeatCapacity, decl:physics:IPhO_2026_3_C_3:MagneticFieldStrength, decl:physics:IPhO_2026_3_C_3:Magnetization, decl:physics:IPhO_2026_3_C_3:Energy, decl:physics:IPhO_2026_3_C_3:MagneticPermeability, decl:physics:IPhO_2026_3_C_3:Setup, decl:physics:IPhO_2026_3_C_3:HasSuppliedData, decl:physics:IPhO_2026_3_C_3:GoverningLaws, decl:physics:IPhO_2026_3_C_3:PreviousPartResults}
+The supplied cycle data imply \(Q_c\approx0.129\) J, a helium temperature drop
+of approximately \(0.00992\) K, and final temperature approximately
+\(0.99008\) K, each within the stated tolerance.
+\end{theorem}
+\begin{proof}
+Insert \(H_2,H_3,\mu_0,n,K,T_c\) into the licensed cold-isotherm heat formula
+to obtain \(Q_c\).  The helium mass is its density times \(1.00\) L, so
+calorimetry gives
+\(\Delta T=Q_c/(\rho_{\mathrm{He}}V_{\mathrm{He}}c_{\mathrm{He}})\).
+Subtract this positive drop from \(1.00\) K and check the three rounding
+intervals.
+\end{proof}
+% --- Archon physics formalization source end ---

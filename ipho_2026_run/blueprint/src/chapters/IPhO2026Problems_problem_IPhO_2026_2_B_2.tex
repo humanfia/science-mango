@@ -1,0 +1,190 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_2.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.2
+% archon:previous-part IPhO_2026_2_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_2}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Current subquestion.}
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Recorded answer/context.}
+P/P\_0 = 1/(1 - cos(theta\_max)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Reusable conclusions: alpha = R and beta = -R/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[LengthQuantity]
+  \label{decl:physics:IPhO_2026_2_B_2:LengthQuantity}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.LengthQuantity}
+  A real-valued length in a common coherent system of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[powerDimension]
+  \label{decl:physics:IPhO_2026_2_B_2:powerDimension}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.powerDimension}
+  The physical dimension “mass * length\textasciicircum{}2 / time\textasciicircum{}3” of power.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PowerQuantity]
+  \label{decl:physics:IPhO_2026_2_B_2:PowerQuantity}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.PowerQuantity}
+  \uses{decl:physics:IPhO_2026_2_B_2:powerDimension}
+  A real-valued physical power.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[irradianceDimension]
+  \label{decl:physics:IPhO_2026_2_B_2:irradianceDimension}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.irradianceDimension}
+  \uses{decl:physics:IPhO_2026_2_B_2:powerDimension}
+  The physical dimension of irradiance: power per unit area.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IrradianceQuantity]
+  \label{decl:physics:IPhO_2026_2_B_2:IrradianceQuantity}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.IrradianceQuantity}
+  \uses{decl:physics:IPhO_2026_2_B_2:irradianceDimension}
+  A real-valued irradiance.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2fGeometry]
+  \label{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.Figure2fGeometry}
+  \uses{decl:physics:IPhO_2026_2_B_2:LengthQuantity}
+  The labeled geometric data of figure 2f.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[OpticalModel]
+  \label{decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.OpticalModel}
+  \uses{decl:physics:IPhO_2026_2_B_2:PowerQuantity, decl:physics:IPhO_2026_2_B_2:IrradianceQuantity, decl:physics:IPhO_2026_2_B_2:Figure2fGeometry}
+  Ray, irradiance, incidence-angle, and received-power data for the solar cooker.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasFigure2fPlacement]
+  \label{decl:physics:IPhO_2026_2_B_2:HasFigure2fPlacement}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.HasFigure2fPlacement}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry}
+  Figure 2f's shape, parallel-axis, symmetry-plane, and “R / 2” placement data.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasUniformParallelSunlight]
+  \label{decl:physics:IPhO_2026_2_B_2:HasUniformParallelSunlight}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.HasUniformParallelSunlight}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  Incoming sunlight has one positive constant irradiance and all incoming rays are parallel to the mirror's optical axis.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsFullyAbsorbing]
+  \label{decl:physics:IPhO_2026_2_B_2:IsFullyAbsorbing}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.IsFullyAbsorbing}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  Every ray that reaches the cylindrical container is absorbed.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsSingleReflectionRegime]
+  \label{decl:physics:IPhO_2026_2_B_2:IsSingleReflectionRegime}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.IsSingleReflectionRegime}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  A ray absorbed by the container has reflected from the mirror at most once.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsLargestRelevantIncidenceAngle]
+  \label{decl:physics:IPhO_2026_2_B_2:IsLargestRelevantIncidenceAngle}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.IsLargestRelevantIncidenceAngle}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  “thetaMax” is attained and bounds the mirror incidence angle of every reflected ray that strikes the container.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasPartB1RadiusRelation]
+  \label{decl:physics:IPhO_2026_2_B_2:HasPartB1RadiusRelation}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.HasPartB1RadiusRelation}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry}
+  The conclusion of previous part B.1 after substituting “alpha = R” and “beta = -R / 2”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SatisfiesProjectedAperturePowerLaws]
+  \label{decl:physics:IPhO_2026_2_B_2:SatisfiesProjectedAperturePowerLaws}
+  \lean{IPhO2026Problems.IPhO2026_2_B_2.SatisfiesProjectedAperturePowerLaws}
+  \uses{decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel}
+  Power equals uniform irradiance times the illuminated projected area.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_B_2:target}
+\lean{IPhO2026Problems.IPhO2026_2_B_2.problem_IPhO_2026_2_B_2}
+\uses{decl:physics:IPhO_2026_2_B_2:LengthQuantity, decl:physics:IPhO_2026_2_B_2:powerDimension, decl:physics:IPhO_2026_2_B_2:PowerQuantity, decl:physics:IPhO_2026_2_B_2:irradianceDimension, decl:physics:IPhO_2026_2_B_2:IrradianceQuantity, decl:physics:IPhO_2026_2_B_2:Figure2fGeometry, decl:physics:IPhO_2026_2_B_2:OpticalModel, decl:physics:IPhO_2026_2_B_2:HasFigure2fPlacement, decl:physics:IPhO_2026_2_B_2:HasUniformParallelSunlight, decl:physics:IPhO_2026_2_B_2:IsFullyAbsorbing, decl:physics:IPhO_2026_2_B_2:IsSingleReflectionRegime, decl:physics:IPhO_2026_2_B_2:IsLargestRelevantIncidenceAngle, decl:physics:IPhO_2026_2_B_2:HasPartB1RadiusRelation, decl:physics:IPhO_2026_2_B_2:SatisfiesProjectedAperturePowerLaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

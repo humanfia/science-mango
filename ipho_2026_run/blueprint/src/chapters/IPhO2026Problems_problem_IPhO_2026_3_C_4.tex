@@ -1,0 +1,248 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_4.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.4
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_4}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Current subquestion.}
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Recorded answer/context.}
+t = (C\_c*T\_h/P)*[ln(T\_0/T) - (T\_0 - T)/T\_h].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[energyDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:energyDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.energyDimension}
+  The dimension of mechanical or thermal energy, “M L² T⁻²”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[volumeDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:volumeDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.volumeDimension}
+  The dimension of volume, “L³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magneticIntensityDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:magneticIntensityDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.magneticIntensityDimension}
+  The SI dimension of both magnetic field strength “H” and magnetization “M”, “A/L = C T⁻¹ L⁻¹”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[heatCapacityDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:heatCapacityDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.heatCapacityDimension}
+  \uses{decl:physics:IPhO_2026_3_C_4:energyDimension}
+  The dimension of a heat capacity, energy per absolute temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[powerDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:powerDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.powerDimension}
+  \uses{decl:physics:IPhO_2026_3_C_4:energyDimension}
+  The dimension of power or heat-flow rate, energy per time.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[molarCurieConstantDimension]
+  \label{decl:physics:IPhO_2026_3_C_4:molarCurieConstantDimension}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.molarCurieConstantDimension}
+  \uses{decl:physics:IPhO_2026_3_C_4:volumeDimension}
+  The dimension of the Curie constant “K” in “T M V = n K H”, with amount of substance tracked separately in moles.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[EnergyReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:EnergyReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.EnergyReadout}
+  \uses{decl:physics:IPhO_2026_3_C_4:energyDimension}
+  A scalar energy readout, such as the magnitudes “Qₕ” and “Q꜀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[VolumeReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:VolumeReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.VolumeReadout}
+  \uses{decl:physics:IPhO_2026_3_C_4:volumeDimension}
+  A scalar volume readout for the paramagnetic torus.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MagneticIntensityReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:MagneticIntensityReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.MagneticIntensityReadout}
+  \uses{decl:physics:IPhO_2026_3_C_4:magneticIntensityDimension}
+  A scalar readout of either magnetic field strength or magnetization.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HeatCapacityReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:HeatCapacityReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.HeatCapacityReadout}
+  \uses{decl:physics:IPhO_2026_3_C_4:heatCapacityDimension}
+  A scalar readout of the body's constant heat capacity “C꜀”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PowerReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:PowerReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.PowerReadout}
+  \uses{decl:physics:IPhO_2026_3_C_4:powerDimension}
+  A scalar readout of power or a heat-flow rate.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[TimeReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:TimeReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.TimeReadout}
+  A scalar elapsed-time readout.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AmountOfSubstanceReadout]
+  \label{decl:physics:IPhO_2026_3_C_4:AmountOfSubstanceReadout}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.AmountOfSubstanceReadout}
+  Physlib's dimension basis has no amount-of-substance coordinate, so the molar readout is kept as a separately named physical quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[CyclePoint]
+  \label{decl:physics:IPhO_2026_3_C_4:CyclePoint}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.CyclePoint}
+  The four labels in the “H”-versus-“T” cycle shown in Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[refrigerationCycleOrder]
+  \label{decl:physics:IPhO_2026_3_C_4:refrigerationCycleOrder}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.refrigerationCycleOrder}
+  \uses{decl:physics:IPhO_2026_3_C_4:CyclePoint}
+  The direction of the refrigeration cycle read from Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ParamagneticCarnotCycle]
+  \label{decl:physics:IPhO_2026_3_C_4:ParamagneticCarnotCycle}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.ParamagneticCarnotCycle}
+  \uses{decl:physics:IPhO_2026_3_C_4:molarCurieConstantDimension, decl:physics:IPhO_2026_3_C_4:EnergyReadout, decl:physics:IPhO_2026_3_C_4:VolumeReadout, decl:physics:IPhO_2026_3_C_4:MagneticIntensityReadout, decl:physics:IPhO_2026_3_C_4:AmountOfSubstanceReadout, decl:physics:IPhO_2026_3_C_4:CyclePoint}
+  Readouts describing the paramagnetic torus and the labelled points of its Carnot refrigeration cycle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ObeysParamagneticEquationOfState]
+  \label{decl:physics:IPhO_2026_3_C_4:ObeysParamagneticEquationOfState}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.ObeysParamagneticEquationOfState}
+  \uses{decl:physics:IPhO_2026_3_C_4:CyclePoint, decl:physics:IPhO_2026_3_C_4:ParamagneticCarnotCycle}
+  The paramagnetic equation of state “T M V = n K H” at every labelled cycle point.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[FollowsFigureThreeB]
+  \label{decl:physics:IPhO_2026_3_C_4:FollowsFigureThreeB}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.FollowsFigureThreeB}
+  \uses{decl:physics:IPhO_2026_3_C_4:ParamagneticCarnotCycle}
+  Temperature levels read from Figure 3b: states 1 and 4 lie on the hot isotherm, while states 2 and 3 lie on the cold isotherm.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ContinuousCoolingRun]
+  \label{decl:physics:IPhO_2026_3_C_4:ContinuousCoolingRun}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.ContinuousCoolingRun}
+  \uses{decl:physics:IPhO_2026_3_C_4:HeatCapacityReadout, decl:physics:IPhO_2026_3_C_4:PowerReadout, decl:physics:IPhO_2026_3_C_4:TimeReadout}
+  Data for cooling a finite-capacity body by continuously repeated Carnot cycles.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HasPhysicalOperatingRange]
+  \label{decl:physics:IPhO_2026_3_C_4:HasPhysicalOperatingRange}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.HasPhysicalOperatingRange}
+  \uses{decl:physics:IPhO_2026_3_C_4:ContinuousCoolingRun}
+  Endpoint, positivity, and operating-temperature conditions for an actual cooling run from “T₀” down to “T”, entirely below “Tₕ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ObeysContinuousCarnotCoolingLaws]
+  \label{decl:physics:IPhO_2026_3_C_4:ObeysContinuousCarnotCoolingLaws}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.ObeysContinuousCarnotCoolingLaws}
+  \uses{decl:physics:IPhO_2026_3_C_4:ContinuousCoolingRun}
+  Governing laws for the continuous limit of the repeated Carnot cycles.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_3_C_4:target}
+\lean{IPhO2026Problems.IPhO2026_3_C_4.IPhO_2026_3_C_4_elapsedTime}
+\uses{decl:physics:IPhO_2026_3_C_4:energyDimension, decl:physics:IPhO_2026_3_C_4:volumeDimension, decl:physics:IPhO_2026_3_C_4:magneticIntensityDimension, decl:physics:IPhO_2026_3_C_4:heatCapacityDimension, decl:physics:IPhO_2026_3_C_4:powerDimension, decl:physics:IPhO_2026_3_C_4:molarCurieConstantDimension, decl:physics:IPhO_2026_3_C_4:EnergyReadout, decl:physics:IPhO_2026_3_C_4:VolumeReadout, decl:physics:IPhO_2026_3_C_4:MagneticIntensityReadout, decl:physics:IPhO_2026_3_C_4:HeatCapacityReadout, decl:physics:IPhO_2026_3_C_4:PowerReadout, decl:physics:IPhO_2026_3_C_4:TimeReadout, decl:physics:IPhO_2026_3_C_4:AmountOfSubstanceReadout, decl:physics:IPhO_2026_3_C_4:CyclePoint, decl:physics:IPhO_2026_3_C_4:refrigerationCycleOrder, decl:physics:IPhO_2026_3_C_4:ParamagneticCarnotCycle, decl:physics:IPhO_2026_3_C_4:ObeysParamagneticEquationOfState, decl:physics:IPhO_2026_3_C_4:FollowsFigureThreeB, decl:physics:IPhO_2026_3_C_4:ContinuousCoolingRun, decl:physics:IPhO_2026_3_C_4:HasPhysicalOperatingRange, decl:physics:IPhO_2026_3_C_4:ObeysContinuousCarnotCoolingLaws}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---

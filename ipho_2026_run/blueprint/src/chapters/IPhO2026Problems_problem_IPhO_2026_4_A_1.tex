@@ -1,0 +1,279 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_A_1.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_1}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Current subquestion.}
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Recorded answer/context.}
+Figure 17 gives inner-cylinder diameter \(33.7\pm0.1\) mm.  The official
+solution gives \(H=9.5\pm0.1\) cm and \(V=85\pm2\) mL.  Thus
+\(\rho_aV\approx0.095\) g.  The solution's printed \(0.94\pm0.02\) g is a
+factor-of-ten typo: it conflicts with both the geometry and its own
+\(n=3.24\) mmol and \(N=(1.95\pm0.05)\times10^{21}\).  The corrected mass
+centre is \(0.094\) g (equivalently about \(0.095\) g from the rounded
+geometry).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-7.png
+(Figure 17 dimensions), and
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+(part A procedure).
+
+\paragraph{Formalization target.}
+Redraft the existing scaffold with an explicit Mathlib import and the current
+Physlib units.  Add the Figure 17 inner diameter, the solution's air height,
+the air molar mass \(28.96\) g/mol and Avogadro's constant as typed readouts.
+Use the corrected \(0.094\) g mass centre, and extend the target from symbolic
+formulas to the source-grounded numerical inventory.  Leave proof bodies as
+`by sorry`.
+
+\begin{definition}[Length]
+  \label{decl:physics:IPhO_2026_4_A_1:Length}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.Length}
+  A physical length, represented independently of the choice of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Volume]
+  \label{decl:physics:IPhO_2026_4_A_1:Volume}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.Volume}
+  A physical volume, with dimension “L³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Mass]
+  \label{decl:physics:IPhO_2026_4_A_1:Mass}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.Mass}
+  A physical mass.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MassDensity]
+  \label{decl:physics:IPhO_2026_4_A_1:MassDensity}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.MassDensity}
+  A mass density, with dimension “M L⁻³”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AbsoluteTemperature]
+  \label{decl:physics:IPhO_2026_4_A_1:AbsoluteTemperature}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.AbsoluteTemperature}
+  An absolute temperature.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Pressure]
+  \label{decl:physics:IPhO_2026_4_A_1:Pressure}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.Pressure}
+  A thermodynamic pressure, using Physlib's pressure quantity.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[siValue]
+  \label{decl:physics:IPhO_2026_4_A_1:siValue}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.siValue}
+  The real-valued readout of a Physlib dimensional quantity in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SubstanceCountingModel]
+  \label{decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.SubstanceCountingModel}
+  The missing amount-of-substance interface in Physlib.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ConfinedAirState]
+  \label{decl:physics:IPhO_2026_4_A_1:ConfinedAirState}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.ConfinedAirState}
+  \uses{decl:physics:IPhO_2026_4_A_1:Mass, decl:physics:IPhO_2026_4_A_1:AbsoluteTemperature, decl:physics:IPhO_2026_4_A_1:Pressure, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel}
+  Thermodynamic state and inventory of the confined air column “CA”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure17Geometry]
+  \label{decl:physics:IPhO_2026_4_A_1:Figure17Geometry}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.Figure17Geometry}
+  \uses{decl:physics:IPhO_2026_4_A_1:Length, decl:physics:IPhO_2026_4_A_1:Volume}
+  The dimensioned Figure 17 geometry, including the \(33.7\) mm inner diameter and the \(9.5\) cm confined-air height.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsochoricAirSetup]
+  \label{decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.IsochoricAirSetup}
+  \uses{decl:physics:IPhO_2026_4_A_1:MassDensity, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:ConfinedAirState, decl:physics:IPhO_2026_4_A_1:Figure17Geometry}
+  The apparatus and constants relevant to part A.1.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[cylindricalAirVolumeSI]
+  \label{decl:physics:IPhO_2026_4_A_1:cylindricalAirVolumeSI}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.cylindricalAirVolumeSI}
+  \uses{decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:Figure17Geometry}
+  The cylindrical volume of “CA” in cubic metres, as calculated from Figure 17.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[GoverningLaws]
+  \label{decl:physics:IPhO_2026_4_A_1:GoverningLaws}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.GoverningLaws}
+  \uses{decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup, decl:physics:IPhO_2026_4_A_1:cylindricalAirVolumeSI}
+  Governing physical laws for the confined air.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SourceReadouts]
+  \label{decl:physics:IPhO_2026_4_A_1:SourceReadouts}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.SourceReadouts}
+  \uses{decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup}
+  Numerical source readouts from Figures 17--18, the part A procedure, and the official solution.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ExperimentalConditions]
+  \label{decl:physics:IPhO_2026_4_A_1:ExperimentalConditions}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.ExperimentalConditions}
+  \uses{decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup}
+  The apparatus conditions prescribed immediately before part A.1.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhysicalAdmissibility]
+  \label{decl:physics:IPhO_2026_4_A_1:PhysicalAdmissibility}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.PhysicalAdmissibility}
+  \uses{decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup}
+  Positivity conditions required of the physical apparatus and constants.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ScalarEstimate]
+  \label{decl:physics:IPhO_2026_4_A_1:ScalarEstimate}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.ScalarEstimate}
+  A scalar experimental estimate, consisting of a centre and uncertainty.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[officialMassEstimateKilograms]
+  \label{decl:physics:IPhO_2026_4_A_1:officialMassEstimateKilograms}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.officialMassEstimateKilograms}
+  \uses{decl:physics:IPhO_2026_4_A_1:ScalarEstimate}
+  The source-consistent corrected estimate \(0.094\pm0.002\) g, expressed in kilograms.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[officialAmountEstimateMoles]
+  \label{decl:physics:IPhO_2026_4_A_1:officialAmountEstimateMoles}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.officialAmountEstimateMoles}
+  \uses{decl:physics:IPhO_2026_4_A_1:ScalarEstimate}
+  The reported “3.24 mmol” with “0.7 mmol” uncertainty, expressed in moles.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[officialMoleculeCountEstimate]
+  \label{decl:physics:IPhO_2026_4_A_1:officialMoleculeCountEstimate}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.officialMoleculeCountEstimate}
+  \uses{decl:physics:IPhO_2026_4_A_1:ScalarEstimate}
+  The reported “(1.95 ± 0.05) · 10²¹” molecules.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[WithinEstimate]
+  \label{decl:physics:IPhO_2026_4_A_1:WithinEstimate}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.WithinEstimate}
+  \uses{decl:physics:IPhO_2026_4_A_1:ScalarEstimate}
+  Whether a scalar readout lies within a stated experimental uncertainty.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MatchesOfficialSample]
+  \label{decl:physics:IPhO_2026_4_A_1:MatchesOfficialSample}
+  \lean{IPhO2026Problems.IPhO2026_4_A_1.MatchesOfficialSample}
+  \uses{decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup, decl:physics:IPhO_2026_4_A_1:officialMassEstimateKilograms, decl:physics:IPhO_2026_4_A_1:officialAmountEstimateMoles, decl:physics:IPhO_2026_4_A_1:officialMoleculeCountEstimate, decl:physics:IPhO_2026_4_A_1:WithinEstimate}
+  The proposition represented by the official numerical answer.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_4_A_1:target}
+\lean{IPhO2026Problems.IPhO2026_4_A_1.determineConfinedAirInventory}
+\uses{decl:physics:IPhO_2026_4_A_1:Length, decl:physics:IPhO_2026_4_A_1:Volume, decl:physics:IPhO_2026_4_A_1:Mass, decl:physics:IPhO_2026_4_A_1:MassDensity, decl:physics:IPhO_2026_4_A_1:AbsoluteTemperature, decl:physics:IPhO_2026_4_A_1:Pressure, decl:physics:IPhO_2026_4_A_1:siValue, decl:physics:IPhO_2026_4_A_1:SubstanceCountingModel, decl:physics:IPhO_2026_4_A_1:ConfinedAirState, decl:physics:IPhO_2026_4_A_1:Figure17Geometry, decl:physics:IPhO_2026_4_A_1:IsochoricAirSetup, decl:physics:IPhO_2026_4_A_1:cylindricalAirVolumeSI, decl:physics:IPhO_2026_4_A_1:GoverningLaws, decl:physics:IPhO_2026_4_A_1:SourceReadouts, decl:physics:IPhO_2026_4_A_1:ExperimentalConditions, decl:physics:IPhO_2026_4_A_1:PhysicalAdmissibility, decl:physics:IPhO_2026_4_A_1:ScalarEstimate, decl:physics:IPhO_2026_4_A_1:officialMassEstimateKilograms, decl:physics:IPhO_2026_4_A_1:officialAmountEstimateMoles, decl:physics:IPhO_2026_4_A_1:officialMoleculeCountEstimate, decl:physics:IPhO_2026_4_A_1:WithinEstimate, decl:physics:IPhO_2026_4_A_1:MatchesOfficialSample}
+For the sealed air column,
+\[
+V=\pi(d/2)^2H,\qquad m=\rho_aV,\qquad
+n=m/M_a,\qquad N=nN_A.
+\]
+With \(d=33.7\) mm, \(H=9.5\) cm and the supplied constants, these values lie
+within the corrected \(m=0.094\pm0.002\) g interval and the reported
+\(n=3.24\) mmol and \(N=(1.95\pm0.05)\times10^{21}\) intervals.
+\end{theorem}
+\begin{proof}
+Convert the diameter and air height to metres and evaluate the cylindrical
+volume, obtaining approximately \(85\) mL.  Multiplication by
+\(1.12\,\mathrm{kg\,m^{-3}}\) gives approximately \(9.5\times10^{-5}\) kg.
+Divide by the molar mass of air to obtain about \(3.24\) mmol, then multiply by
+Avogadro's constant to obtain about \(1.95\times10^{21}\) molecules.  Verify
+each result against its explicit uncertainty interval.
+\end{proof}
+% --- Archon physics formalization source end ---

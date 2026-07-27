@@ -1,0 +1,234 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_C_1.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.1
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_1}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Current subquestion.}
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Recorded answer/context.}
+The source-report transcription omits a factor \(2\) under the square root.
+The conservation laws instead give, for \(A=2\sin^2\theta+1\) and
+\(\theta\leq\pi/2\),
+\[
+\omega_{\min}=\frac{3mc^2}{\hbar A}
+  \left(1-\sqrt{1-\frac{2A\Delta U}{3mc^2}}\right).
+\]
+For \(\theta\geq\pi/2\), use the constrained value at \(\theta=\pi/2\):
+\[
+\omega_{\min}=\frac{mc^2}{\hbar}
+  \left(1-\sqrt{1-\frac{2\Delta U}{mc^2}}\right).
+\]
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Formalization target.}
+Redraft the existing compiling scaffold so its conclusion contains the corrected
+factor \(2\), while preserving the dimensioned masses, energy gap, action,
+frequency, momenta, Figure 1c angle, conservation laws, feasibility predicate,
+and minimum-frequency meaning.  Leave proof bodies as `by sorry`.
+
+\begin{definition}[MassQuantity]
+  \label{decl:physics:IPhO_2026_1_C_1:MassQuantity}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.MassQuantity}
+  The dimensionful mass of one oxygen atom.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ActionQuantity]
+  \label{decl:physics:IPhO_2026_1_C_1:ActionQuantity}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.ActionQuantity}
+  A dimensionful action, used for the reduced Planck constant.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[AngularFrequencyQuantity]
+  \label{decl:physics:IPhO_2026_1_C_1:AngularFrequencyQuantity}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.AngularFrequencyQuantity}
+  A dimensionful angular frequency.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[MomentumQuantity2]
+  \label{decl:physics:IPhO_2026_1_C_1:MomentumQuantity2}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.MomentumQuantity2}
+  A dimensionful two-dimensional momentum used for Figure 1c.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[scalarSI]
+  \label{decl:physics:IPhO_2026_1_C_1:scalarSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.scalarSI}
+  The real scalar readout of a dimensionful scalar quantity in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[speedSI]
+  \label{decl:physics:IPhO_2026_1_C_1:speedSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.speedSI}
+  The real speed readout in metres per second.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[momentumSI]
+  \label{decl:physics:IPhO_2026_1_C_1:momentumSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.momentumSI}
+  \uses{decl:physics:IPhO_2026_1_C_1:MomentumQuantity2}
+  The two Cartesian momentum components in SI units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[dot2]
+  \label{decl:physics:IPhO_2026_1_C_1:dot2}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.dot2}
+  Euclidean dot product of the two displayed momentum vectors.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[magnitude2]
+  \label{decl:physics:IPhO_2026_1_C_1:magnitude2}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.magnitude2}
+  Euclidean magnitude of a two-dimensional momentum readout.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[PhotodissociationParameters]
+  \label{decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.PhotodissociationParameters}
+  \uses{decl:physics:IPhO_2026_1_C_1:MassQuantity, decl:physics:IPhO_2026_1_C_1:ActionQuantity}
+  The physical parameters appearing in the problem.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[reducedPlanckConstantSI]
+  \label{decl:physics:IPhO_2026_1_C_1:reducedPlanckConstantSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.reducedPlanckConstantSI}
+  \uses{decl:physics:IPhO_2026_1_C_1:scalarSI, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters}
+  The SI readout of “ℏ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[lightSpeedSI]
+  \label{decl:physics:IPhO_2026_1_C_1:lightSpeedSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.lightSpeedSI}
+  \uses{decl:physics:IPhO_2026_1_C_1:speedSI, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters}
+  The SI readout of the speed of light.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[oxygenAtomMassSI]
+  \label{decl:physics:IPhO_2026_1_C_1:oxygenAtomMassSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.oxygenAtomMassSI}
+  \uses{decl:physics:IPhO_2026_1_C_1:scalarSI, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters}
+  The SI readout of the mass “m” of one oxygen atom.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[energyDifferenceSI]
+  \label{decl:physics:IPhO_2026_1_C_1:energyDifferenceSI}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.energyDifferenceSI}
+  \uses{decl:physics:IPhO_2026_1_C_1:scalarSI, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters}
+  The energy gap “ΔU = U\_f - U\_i”, in joules.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[ValidPhotodissociationParameters]
+  \label{decl:physics:IPhO_2026_1_C_1:ValidPhotodissociationParameters}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.ValidPhotodissociationParameters}
+  \uses{decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters, decl:physics:IPhO_2026_1_C_1:reducedPlanckConstantSI, decl:physics:IPhO_2026_1_C_1:lightSpeedSI, decl:physics:IPhO_2026_1_C_1:oxygenAtomMassSI, decl:physics:IPhO_2026_1_C_1:energyDifferenceSI, decl:physics:IPhO_2026_1_C_1:DissociationAt}
+  Physical parameter and angle conditions.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[DissociationAt]
+  \label{decl:physics:IPhO_2026_1_C_1:DissociationAt}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.DissociationAt}
+  \uses{decl:physics:IPhO_2026_1_C_1:MomentumQuantity2, decl:physics:IPhO_2026_1_C_1:momentumSI, decl:physics:IPhO_2026_1_C_1:dot2, decl:physics:IPhO_2026_1_C_1:magnitude2, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters, decl:physics:IPhO_2026_1_C_1:reducedPlanckConstantSI, decl:physics:IPhO_2026_1_C_1:lightSpeedSI, decl:physics:IPhO_2026_1_C_1:oxygenAtomMassSI, decl:physics:IPhO_2026_1_C_1:energyDifferenceSI}
+  “DissociationAt p θ ω” states the governing laws for a photon of angular frequency “ω”, measured in radians per second, producing the two fragments at the Figure 1c angle “θ”.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[IsMinimumDissociationFrequency]
+  \label{decl:physics:IPhO_2026_1_C_1:IsMinimumDissociationFrequency}
+  \lean{IPhO2026Problems.IPhO2026_1_C_1.IsMinimumDissociationFrequency}
+  \uses{decl:physics:IPhO_2026_1_C_1:AngularFrequencyQuantity, decl:physics:IPhO_2026_1_C_1:scalarSI, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters, decl:physics:IPhO_2026_1_C_1:DissociationAt}
+  The proposed angular frequency is feasible and no smaller feasible nonnegative frequency exists at the same outgoing “O₂” angle.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_1_C_1:target}
+\lean{IPhO2026Problems.IPhO2026_1_C_1.minimumAngularFrequency_eq}
+\uses{decl:physics:IPhO_2026_1_C_1:MassQuantity, decl:physics:IPhO_2026_1_C_1:ActionQuantity, decl:physics:IPhO_2026_1_C_1:AngularFrequencyQuantity, decl:physics:IPhO_2026_1_C_1:MomentumQuantity2, decl:physics:IPhO_2026_1_C_1:scalarSI, decl:physics:IPhO_2026_1_C_1:speedSI, decl:physics:IPhO_2026_1_C_1:momentumSI, decl:physics:IPhO_2026_1_C_1:dot2, decl:physics:IPhO_2026_1_C_1:magnitude2, decl:physics:IPhO_2026_1_C_1:PhotodissociationParameters, decl:physics:IPhO_2026_1_C_1:reducedPlanckConstantSI, decl:physics:IPhO_2026_1_C_1:lightSpeedSI, decl:physics:IPhO_2026_1_C_1:oxygenAtomMassSI, decl:physics:IPhO_2026_1_C_1:energyDifferenceSI, decl:physics:IPhO_2026_1_C_1:ValidPhotodissociationParameters, decl:physics:IPhO_2026_1_C_1:DissociationAt, decl:physics:IPhO_2026_1_C_1:IsMinimumDissociationFrequency}
+For valid dimensioned photodissociation data, the least feasible photon
+frequency equals the corrected forward-angle expression above when
+\(\theta\leq\pi/2\), and the boundary expression when
+\(\theta\geq\pi/2\).
+\end{theorem}
+\begin{proof}
+Write \(q=\hbar\omega/c\) for the incident photon momentum magnitude and
+\(p\geq0\) for the outgoing molecular momentum magnitude.  Momentum
+conservation makes the atomic momentum the vector difference, so the total
+fragment kinetic energy is
+\[
+\frac{3p^2-4pq\cos\theta+2q^2}{4m}.
+\]
+If \(\cos\theta\geq0\), this quadratic is minimized at
+\(p=2q\cos\theta/3\), giving \(q^2(2\sin^2\theta+1)/(6m)\).
+Substitute \(q=\hbar\omega/c\) into energy conservation and take the smaller
+nonnegative root of the resulting quadratic.  If \(\cos\theta\leq0\), the
+constraint \(p\geq0\) puts the minimum at \(p=0\); solving the corresponding
+quadratic gives the boundary formula.
+\end{proof}
+% --- Archon physics formalization source end ---

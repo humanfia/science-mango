@@ -1,0 +1,151 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.3
+% archon:previous-part IPhO_2026_2_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_B_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_3}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Current subquestion.}
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Recorded answer/context.}
+cos(theta\_max) = 4/5 and a = 0.12 m = 12 cm.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Reusable conclusions: alpha = R and beta = -R/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source B.2. Question: Express the power ratio P/P\_0 in terms of theta\_max. Reusable conclusions: P/P\_0 = 1/(1 - cos(theta\_max)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{definition}[PhysicalLength]
+  \label{decl:physics:IPhO_2026_2_B_3:PhysicalLength}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.PhysicalLength}
+  A physical length, represented independently of the choice of units.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[OpticalPower]
+  \label{decl:physics:IPhO_2026_2_B_3:OpticalPower}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.OpticalPower}
+  A physical power.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[centimeterUnits]
+  \label{decl:physics:IPhO_2026_2_B_3:centimeterUnits}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.centimeterUnits}
+  Unit choices obtained from SI by measuring length in centimetres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[lengthInMeters]
+  \label{decl:physics:IPhO_2026_2_B_3:lengthInMeters}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.lengthInMeters}
+  \uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength}
+  The numerical readout of a physical length in metres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[lengthInCentimeters]
+  \label{decl:physics:IPhO_2026_2_B_3:lengthInCentimeters}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.lengthInCentimeters}
+  \uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength, decl:physics:IPhO_2026_2_B_3:centimeterUnits}
+  The numerical readout of a physical length in centimetres.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[powerInSI]
+  \label{decl:physics:IPhO_2026_2_B_3:powerInSI}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.powerInSI}
+  \uses{decl:physics:IPhO_2026_2_B_3:OpticalPower}
+  The numerical SI readout of an optical power.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[HalfCylindricalMirror]
+  \label{decl:physics:IPhO_2026_2_B_3:HalfCylindricalMirror}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.HalfCylindricalMirror}
+  \uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength}
+  The half-cylindrical mirror appearing in Figure 2f.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[FullyAbsorbingCylinder]
+  \label{decl:physics:IPhO_2026_2_B_3:FullyAbsorbingCylinder}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.FullyAbsorbingCylinder}
+  \uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength}
+  The fully absorbing cylindrical container appearing in Figure 2f.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[SunlightBeam]
+  \label{decl:physics:IPhO_2026_2_B_3:SunlightBeam}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.SunlightBeam}
+  The uniform parallel sunlight incident along the optical axis.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{definition}[Figure2fSetup]
+  \label{decl:physics:IPhO_2026_2_B_3:Figure2fSetup}
+  \lean{IPhO2026Problems.IPhO2026_2_B_3.Figure2fSetup}
+  \uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength, decl:physics:IPhO_2026_2_B_3:HalfCylindricalMirror, decl:physics:IPhO_2026_2_B_3:FullyAbsorbingCylinder, decl:physics:IPhO_2026_2_B_3:SunlightBeam}
+  The physical objects and center-to-center separation shown in Figure 2f.
+\end{definition}
+\begin{proof}
+  This is the defining declaration; unfolding it gives the stated typed data or relation.
+\end{proof}
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_B_3:target}
+\lean{IPhO2026Problems.IPhO2026_2_B_3.radius_for_fivefold_power}
+\uses{decl:physics:IPhO_2026_2_B_3:PhysicalLength, decl:physics:IPhO_2026_2_B_3:OpticalPower, decl:physics:IPhO_2026_2_B_3:centimeterUnits, decl:physics:IPhO_2026_2_B_3:lengthInMeters, decl:physics:IPhO_2026_2_B_3:lengthInCentimeters, decl:physics:IPhO_2026_2_B_3:powerInSI, decl:physics:IPhO_2026_2_B_3:HalfCylindricalMirror, decl:physics:IPhO_2026_2_B_3:FullyAbsorbingCylinder, decl:physics:IPhO_2026_2_B_3:SunlightBeam, decl:physics:IPhO_2026_2_B_3:Figure2fSetup}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce statements that can later be proved by the physics prover without weakening the physical model.
+\end{proof}
+% --- Archon physics formalization source end ---
