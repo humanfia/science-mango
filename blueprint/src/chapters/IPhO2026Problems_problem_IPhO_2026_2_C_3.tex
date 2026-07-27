@@ -1,0 +1,73 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_3.lean
+% archon:source-report reports/ipho_2026_k3/problem_IPhO_2026_2_C_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_3}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Current subquestion.}
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Recorded answer/context.}
+X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Expand m\_B and b\_B to first order in Delta theta. Reusable conclusions: m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_3.lean`.
+The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a domain API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+\label{thm:physics:IPhO_2026_2_C_3:target}
+The assigned autoformalize agent should translate this physics problem into Lean declarations in the covered file, with theorem and lemma proof bodies written as `by sorry`.
+\end{theorem}
+\begin{proof}
+This is an autoformalization task, not a proof task. Produce faithful statements that can later be proved without weakening the source contract.
+\end{proof}
+% --- Archon physics formalization source end ---
+
+% --- Archon autoformalization link (added by autoformalize agent) ---
+\begin{theorem}[Limiting intersection of neighboring reflected rays]
+\label{thm:IPhO2026Problems_problem_IPhO_2026_2_C_3:limitingIntersectionCoordinates}
+\lean{IPhO2026Problems.IPhO2026_2_C_3.limitingIntersectionCoordinates}
+\leanok
+\uses{thm:physics:IPhO_2026_2_C_3:target}
+For the half-cylindrical mirror of radius $R$ in the coordinate system of
+Figure~2g, the intersection of the reflected ray A (incidence angle $\theta$)
+with the reflected neighboring ray B (incidence angle $\theta+\Delta\theta$)
+tends, as $\Delta\theta\to 0$, to the caustic point
+\[
+X_c = R\sin^3\theta, \qquad Y_c = \frac{R}{2}\cos\theta\,\bigl(2-\cos 2\theta\bigr).
+\]
+\end{theorem}
+\begin{proof}
+Formalized in Lean with a `sorry` body; the proof solves the two line
+equations for the intersection, divides by $\Delta\theta$, and uses the
+first-order expansions of part C.2 together with the part C.1 values of
+$m_A$ and $b_A$.
+\end{proof}
