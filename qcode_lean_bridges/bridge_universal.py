@@ -24,6 +24,140 @@ SUPPORTED = {
 }
 
 
+def canonical_sha256(value: Any, *, omit: str | None = None) -> str:
+    if isinstance(value, dict) and omit:
+        value = {key: item for key, item in value.items() if key != omit}
+    encoded = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _is_lower_sha256(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _resolve_certificate_path(root: Path, value: Any) -> Path:
+    if not isinstance(value, str) or not value:
+        raise ValueError("release certificate path must be a non-empty string")
+    relative = Path(value)
+    if relative.is_absolute():
+        raise ValueError("release certificate path must be relative")
+    if ".." in relative.parts:
+        raise ValueError("release certificate path must not contain '..'")
+    certificate_path = (root / relative).resolve()
+    try:
+        certificate_path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("release certificate path escapes manifest directory") from exc
+    return certificate_path
+
+
+def load_verified_release(
+    manifest_path: Path | str,
+    known_answer_trust_path: Path | str,
+) -> tuple[dict[str, Any], list[tuple[int, Path, dict[str, Any]]]]:
+    """Load a release only after checking its complete static trust boundary."""
+    path = Path(manifest_path)
+    try:
+        manifest = json.loads(path.read_text())
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"release manifest unavailable or invalid: {exc}") from exc
+    if not isinstance(manifest, dict):
+        raise ValueError("release manifest must be a JSON object")
+    if manifest.get("schema_version") != 1:
+        raise ValueError("release manifest schema_version must be 1")
+    if manifest.get("gate") != "qldpc-challenge-release":
+        raise ValueError("unexpected release gate identifier")
+    if manifest.get("passed") is not True:
+        raise ValueError("release manifest is not passed")
+    try:
+        actual_manifest_sha = canonical_sha256(manifest, omit="manifest_sha256")
+    except (TypeError, ValueError) as exc:
+        raise ValueError("release manifest is not canonical JSON") from exc
+    if manifest.get("manifest_sha256") != actual_manifest_sha:
+        raise ValueError("release manifest SHA-256 mismatch")
+
+    try:
+        trust = json.loads(Path(known_answer_trust_path).read_text())
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"known-answer trust unavailable or invalid: {exc}") from exc
+    if not isinstance(trust, dict) or trust.get("schema_version") != 1:
+        raise ValueError("known-answer trust must be a schema_version 1 object")
+    trust_artifact_sha = trust.get("artifact_sha256")
+    trust_semantic_sha = trust.get("semantic_sha256")
+    if not _is_lower_sha256(trust_artifact_sha):
+        raise ValueError("known-answer trust artifact SHA-256 is invalid")
+    if not _is_lower_sha256(trust_semantic_sha):
+        raise ValueError("known-answer trust semantic SHA-256 is invalid")
+    if not isinstance(trust.get("environment"), dict):
+        raise ValueError("known-answer trust environment must be an object")
+
+    integrity = manifest.get("known_answer_integrity")
+    if not isinstance(integrity, dict):
+        raise ValueError("release manifest lacks known-answer integrity evidence")
+    if integrity.get("passed") is not True or integrity.get("mode") != "strict":
+        raise ValueError("release known-answer integrity must be strict and passed")
+    artifact_sha = integrity.get("artifact_sha256")
+    semantic_sha = integrity.get("semantic_sha256")
+    rerun_semantic_sha = integrity.get("rerun_semantic_sha256")
+    if not all(_is_lower_sha256(value) for value in (
+        artifact_sha, semantic_sha, rerun_semantic_sha,
+    )):
+        raise ValueError("release known-answer semantic SHA-256 is invalid")
+    if semantic_sha != rerun_semantic_sha:
+        raise ValueError("release known-answer strict rerun SHA-256 mismatch")
+    if artifact_sha != trust_artifact_sha:
+        raise ValueError("release known-answer artifact differs from repository trust")
+    if semantic_sha != trust_semantic_sha or rerun_semantic_sha != trust_semantic_sha:
+        raise ValueError("release known-answer semantic evidence differs from trust")
+    if integrity.get("environment") != trust.get("environment"):
+        raise ValueError("release known-answer environment differs from trust")
+
+    entries = manifest.get("certificates")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("release manifest has no certificates")
+    root = path.parent.resolve()
+    verified: list[tuple[int, Path, dict[str, Any]]] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise ValueError(f"certificate[{index}] manifest entry is malformed")
+        certificate_path = _resolve_certificate_path(root, entry.get("file"))
+        try:
+            certificate = json.loads(certificate_path.read_text())
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise ValueError(f"certificate[{index}] unavailable or invalid: {exc}") from exc
+        if not isinstance(certificate, dict):
+            raise ValueError(f"certificate[{index}] must be a JSON object")
+        try:
+            actual_certificate_sha = canonical_sha256(
+                certificate, omit="certificate_sha256",
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"certificate[{index}] is not canonical JSON") from exc
+        if certificate.get("certificate_sha256") != actual_certificate_sha:
+            raise ValueError(f"certificate[{index}] internal SHA-256 mismatch")
+        if entry.get("certificate_sha256") != actual_certificate_sha:
+            raise ValueError(f"certificate[{index}] manifest SHA-256 mismatch")
+        verification = entry.get("verification")
+        if (
+            certificate.get("passed") is not True
+            or not isinstance(verification, dict)
+            or verification.get("passed") is not True
+        ):
+            raise ValueError(f"certificate[{index}] was not fully verified")
+        verified.append((index, certificate_path, certificate))
+    return manifest, verified
+
+
 BASIC_LEAN = r'''import Mathlib
 import Std.Tactic.BVDecide
 
@@ -302,18 +436,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--known-answer-trust", required=True, type=Path)
     parser.add_argument("--sat-timeout", type=int, default=10800)
     args = parser.parse_args()
-    release = json.loads(args.manifest.read_text())
+    _, verified_certificates = load_verified_release(
+        args.manifest, args.known_answer_trust,
+    )
     args.out.mkdir(parents=True, exist_ok=True)
     lean_dir = args.out / "QUniversal"
     lean_dir.mkdir(parents=True, exist_ok=True)
     (lean_dir / "Basic.lean").write_text(BASIC_LEAN)
     modules: list[str] = []
     objectives: list[dict[str, Any]] = []
-    for index, entry in enumerate(release.get("certificates", [])):
-        certificate_path = args.manifest.parent / entry["file"]
-        certificate = json.loads(certificate_path.read_text())
+    for index, certificate_path, certificate in verified_certificates:
         if certificate.get("certificate_type") not in SUPPORTED:
             continue
         payload = certificate_payload(certificate)

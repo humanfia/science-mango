@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from archon.commands import qcode_formalize
 from archon.commands.qcode_formalize import distance_is_exact, prepare_catalogs
 
@@ -68,6 +70,55 @@ def test_prepare_catalogs_prefers_milp_audited_rows():
     assert not upper_catalog["archon-qcode-upper"]
 
 
+def test_resolve_release_entry_accepts_file_below_manifest(tmp_path):
+    release_root = tmp_path / "release"
+    certificate = release_root / "certificates" / "candidate.json"
+    certificate.parent.mkdir(parents=True)
+    certificate.write_text("{}")
+    manifest = release_root / "challenge_manifest.json"
+
+    resolved = qcode_formalize._resolve_release_entry(
+        manifest, "certificates/candidate.json",
+    )
+
+    assert resolved == certificate.resolve()
+
+
+def test_resolve_release_entry_rejects_empty_path(tmp_path):
+    manifest = tmp_path / "release" / "challenge_manifest.json"
+    with pytest.raises(ValueError, match="non-empty relative path"):
+        qcode_formalize._resolve_release_entry(manifest, "")
+
+
+def test_resolve_release_entry_rejects_absolute_path(tmp_path):
+    manifest = tmp_path / "release" / "challenge_manifest.json"
+    with pytest.raises(ValueError, match="must be relative"):
+        qcode_formalize._resolve_release_entry(
+            manifest, str(tmp_path / "outside.json"),
+        )
+
+
+def test_resolve_release_entry_rejects_parent_traversal(tmp_path):
+    manifest = tmp_path / "release" / "challenge_manifest.json"
+    with pytest.raises(ValueError, match="cannot contain"):
+        qcode_formalize._resolve_release_entry(manifest, "../outside.json")
+
+
+def test_resolve_release_entry_rejects_symlink_escape(tmp_path):
+    release_root = tmp_path / "release"
+    certificate_dir = release_root / "certificates"
+    certificate_dir.mkdir(parents=True)
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}")
+    (certificate_dir / "escape.json").symlink_to(outside)
+    manifest = release_root / "challenge_manifest.json"
+
+    with pytest.raises(ValueError, match="escapes the release directory"):
+        qcode_formalize._resolve_release_entry(
+            manifest, "certificates/escape.json",
+        )
+
+
 def test_formalize_routes_generic_certificate_only_to_universal(
     tmp_path, monkeypatch,
 ):
@@ -111,6 +162,17 @@ def test_formalize_routes_generic_certificate_only_to_universal(
         "verify_release.py",
         "bridge_universal.py",
     ]
+    verify_call = next(
+        call for call in calls if Path(call[1]).name == "verify_release.py"
+    )
+    assert verify_call[-2:] == ["--known-answer-mode", "strict"]
+    bridge_call = next(
+        call for call in calls if Path(call[1]).name == "bridge_universal.py"
+    )
+    trust_index = bridge_call.index("--known-answer-trust")
+    assert bridge_call[trust_index + 1] == str(
+        repo / "results" / "known_answer_trust.json"
+    )
     result = json.loads((output / "manifest.json").read_text())
     assert result["universal_exact_claims"] == 1
     assert result["exact_claims"] == result["upper_bound_claims"] == 0

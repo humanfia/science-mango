@@ -65,7 +65,7 @@ jobs:
         run: >-
           uv run --with rich python -m pytest
           ../tests/test_qcode_formalize.py -q
-      - name: Check pinned known-answer artifact
+      - name: Fast-check pinned known-answer artifact
         run: uv run python scripts/check_known_answer_integrity.py --mode fast
       - name: Reject unverified committed release manifests
         shell: bash
@@ -74,7 +74,7 @@ jobs:
           found=0
           while IFS= read -r manifest; do
             found=1
-            uv run python scripts/verify_release.py "$manifest"
+            uv run python scripts/verify_release.py "$manifest" --known-answer-mode strict
           done < <(find results/runs -name challenge_manifest.json -type f -print 2>/dev/null || true)
           if [ "$found" -eq 0 ]; then
             echo "No committed challenge release manifests."

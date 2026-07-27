@@ -13,12 +13,20 @@ from evaluation.release_gate import validate_release_manifest
 
 
 def main() -> int:
+    project = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--run-id")
+    parser.add_argument(
+        "--known-answer-trust",
+        type=Path,
+        default=project / "results" / "known_answer_trust.json",
+    )
     args = parser.parse_args()
     result = validate_release_manifest(
-        args.manifest, expected_run_id=args.run_id,
+        args.manifest,
+        known_answer_trust_path=args.known_answer_trust,
+        expected_run_id=args.run_id,
     )
     print(
         f"RELEASE MANIFEST {'PASSED' if result['passed'] else 'FAILED'}: "

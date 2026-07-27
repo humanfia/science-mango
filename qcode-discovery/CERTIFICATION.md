@@ -16,15 +16,45 @@ python scripts/build_certificate.py claim.json \
   --timeout-per-logical 300 \
   --total-timeout 7200
 
-python verify.py certificate.json
+python verify.py certificate.json --known-answer-mode strict
 python scripts/finalize_challenge.py certificate.json
+
+python scripts/certify_run.py \
+  --run-id RUN_ID \
+  --known-answer-mode strict
+
+python scripts/verify_release.py \
+  results/runs/RUN_ID/challenge_manifest.json \
+  --run-id RUN_ID \
+  --known-answer-mode strict
 ```
 
-All three commands, `certify_run.py`, `verify_release.py`, formalization, and
-CI use `evaluation/certificate_dispatch.py` as the single fail-closed routing
-table.  Releases are replayed with `verify_release.py` before any Lean module
-is generated; generic CSS, PBB, and generic symplectic certificates are routed
-to `bridge_universal.py`.
+The formal verification and publication path is strict. `certify_run.py` and
+`run_challenge_pipeline.py` accept only `--known-answer-mode strict` (the
+option remains available so existing wrappers may pass `strict` explicitly);
+`finalize_challenge.py` always performs the same strict integrity check.
+Strict mode reruns all three known-answer baselines in the current environment
+and requires the stable rerun evidence to match the repository pin. Archon
+also invokes certification and release replay with strict mode before
+`--formalize` or `--prove` can generate Lean artifacts.
+
+Fast mode is development-only and is available through
+`verify.py --known-answer-mode fast` or
+`scripts/check_known_answer_integrity.py --mode fast`. These commands validate
+the pinned artifact, semantic hash, and environment without rerunning the
+three baselines. Formal certification and pipeline commands reject `fast` at
+argument parsing, before any search or release work starts.
+
+CI uses the fast check for the ordinary pinned-artifact development check, but
+every committed challenge release manifest is replayed with
+`verify_release.py --known-answer-mode strict`. This keeps routine checks short
+without weakening the release gate.
+
+All certificate commands, formalization, and CI use
+`evaluation/certificate_dispatch.py` as the single fail-closed routing table.
+Releases are replayed and their strict provenance is validated before any Lean
+module is generated. Only then are generic CSS, PBB, and generic symplectic
+certificates routed to `bridge_universal.py`.
 
 `verify.py` reconstructs matrices and logical bases, checks the concrete
 minimum-weight witness in every direction, and reruns every MILP.  A release
@@ -111,7 +141,8 @@ python scripts/backfill_search_witnesses.py results/real_win_search*.jsonl \
   --summary results/real_win_search_summary.json
 ```
 
-For a verified release, Archon invokes `bridge_universal.py`; Lean reconstructs
-the full symplectic stabilizer and complete `2k` logical quotient basis, checks
-their ranks and symplectic pairing, and proves the exact-distance lower bound
-with `bv_decide`.
+For a release with accepted strict provenance, Archon invokes
+`bridge_universal.py`; the bridge path rejects any release that has not passed
+the strict release gate. Lean reconstructs the full symplectic stabilizer and
+complete `2k` logical quotient basis, checks their ranks and symplectic pairing,
+and proves the exact-distance lower bound with `bv_decide`.

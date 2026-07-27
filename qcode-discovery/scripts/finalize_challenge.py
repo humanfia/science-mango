@@ -18,6 +18,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.certificate_dispatch import SUPPORTED_CERTIFICATE_TYPES, verify_certificate
+from evaluation.known_answer_integrity import check_known_answer_integrity
 
 
 def load_rows(path: Path) -> list[dict[str, Any]]:
@@ -41,6 +42,21 @@ def parse_args() -> argparse.Namespace:
         "--known-answer-artifact",
         type=Path,
         default=project / "results" / "known_answer_gate.json",
+    )
+    parser.add_argument(
+        "--known-answer-trust",
+        type=Path,
+        default=project / "results" / "known_answer_trust.json",
+    )
+    parser.add_argument(
+        "--known-answer-timeout-per-logical",
+        type=int,
+        default=300,
+    )
+    parser.add_argument(
+        "--known-answer-total-timeout",
+        type=int,
+        default=7200,
     )
     parser.add_argument(
         "--output",
@@ -68,26 +84,60 @@ def main() -> int:
             file=sys.stderr,
         )
         return 2
-    evaluations = []
-    for index, certificate in enumerate(rows):
-        verification = verify_certificate(
-            certificate,
-            known_answer_artifact=args.known_answer_artifact,
-            rerun_milp=True,
+
+    try:
+        integrity = check_known_answer_integrity(
+            args.known_answer_artifact,
+            args.known_answer_trust,
+            mode="strict",
+            timeout_per_logical=args.known_answer_timeout_per_logical,
+            total_timeout_per_code=args.known_answer_total_timeout,
         )
-        evaluations.append({
-            "source_index": index,
-            "claim": certificate.get("claim"),
-            "certificate_sha256": certificate.get("certificate_sha256"),
-            "result": verification,
-        })
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        integrity = {
+            "passed": False,
+            "mode": "strict",
+            "failures": [f"strict known-answer integrity failed: {exc}"],
+        }
+
+    evaluations = []
+    if integrity.get("passed") is True:
+        for index, certificate in enumerate(rows):
+            verification = verify_certificate(
+                certificate,
+                known_answer_artifact=args.known_answer_artifact,
+                rerun_milp=True,
+            )
+            evaluations.append({
+                "source_index": index,
+                "claim": certificate.get("claim"),
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "result": verification,
+            })
+    else:
+        for index, certificate in enumerate(rows):
+            evaluations.append({
+                "source_index": index,
+                "claim": certificate.get("claim"),
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "result": {
+                    "passed": False,
+                    "accepted": False,
+                    "failures": ["strict known-answer integrity failed"],
+                },
+            })
     accepted = sum(item["result"].get("passed") is True for item in evaluations)
-    passed = bool(evaluations) and accepted == len(evaluations)
+    passed = bool(
+        integrity.get("passed") is True
+        and evaluations
+        and accepted == len(evaluations)
+    )
     artifact = {
         "schema_version": 1,
         "gate": "qldpc-challenge-final-batch",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "passed": passed,
+        "known_answer_integrity": integrity,
         "summary": {
             "accepted": accepted,
             "rejected": len(evaluations) - accepted,
@@ -106,6 +156,8 @@ def main() -> int:
         f"artifact={args.output}"
     )
     if not passed:
+        for failure in integrity.get("failures") or []:
+            print(f"  known-answer: {failure}")
         for item in evaluations:
             result = item["result"]
             if not result.get("accepted"):

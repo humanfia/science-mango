@@ -25,7 +25,7 @@ def main() -> int:
         default=project / "results" / "known_answer_trust.json",
     )
     parser.add_argument(
-        "--known-answer-mode", choices=("fast", "strict"), default="fast",
+        "--known-answer-mode", choices=("fast", "strict"), default="strict",
     )
     parser.add_argument("--known-answer-timeout-per-logical", type=int, default=300)
     parser.add_argument("--known-answer-total-timeout", type=int, default=7200)

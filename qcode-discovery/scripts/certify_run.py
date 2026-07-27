@@ -53,7 +53,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--limit", type=int, default=3)
-    parser.add_argument("--known-answer-mode", choices=("fast", "strict"), default="fast")
+    parser.add_argument(
+        "--known-answer-mode",
+        choices=("strict",),
+        default="strict",
+        help="Formal releases require a fresh strict known-answer replay.",
+    )
     parser.add_argument(
         "--known-answer-artifact", type=Path,
         default=project / "results" / "known_answer_gate.json",

@@ -118,6 +118,29 @@ def _read_objectives(path: Path, tier: str) -> list[dict[str, Any]]:
     return rows
 
 
+def _resolve_release_entry(manifest_path: Path, entry_file: Any) -> Path:
+    """Resolve one certificate path without allowing release-root escapes."""
+    if not isinstance(entry_file, str) or not entry_file.strip():
+        raise ValueError(
+            "release certificate entry.file must be a non-empty relative path"
+        )
+    relative_path = Path(entry_file)
+    if relative_path.is_absolute():
+        raise ValueError("release certificate entry.file must be relative")
+    if ".." in relative_path.parts:
+        raise ValueError("release certificate entry.file cannot contain '..'")
+
+    release_root = manifest_path.parent.resolve()
+    certificate_path = (release_root / relative_path).resolve()
+    try:
+        certificate_path.relative_to(release_root)
+    except ValueError as exc:
+        raise ValueError(
+            "release certificate entry.file escapes the release directory"
+        ) from exc
+    return certificate_path
+
+
 def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
                          run_id: str, python: str, top: int,
                          witness_timeout: int, sat_timeout: int,
@@ -135,12 +158,15 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
         str(repo_dir / "scripts" / "verify_release.py"),
         str(release_manifest),
         "--run-id", run_id,
+        "--known-answer-mode", "strict",
     ], repo_dir)
     release = json.loads(release_manifest.read_text())
     bb_rows = []
     universal_count = 0
     for entry in release["certificates"]:
-        certificate_path = release_manifest.parent / entry["file"]
+        certificate_path = _resolve_release_entry(
+            release_manifest, entry.get("file"),
+        )
         certificate = json.loads(certificate_path.read_text())
         if (
             certificate.get("passed") is not True
@@ -187,6 +213,8 @@ def formalize_qcode_run(*, lean_project: Path, repo_dir: Path, bridge_dir: Path,
             str(bridge_dir / "bridge_universal.py"),
             "--manifest", str(release_manifest),
             "--out", str(run_root / "universal"),
+            "--known-answer-trust",
+            str(repo_dir / "results" / "known_answer_trust.json"),
             "--sat-timeout", str(sat_timeout),
         ], bridge_dir)
     objectives = _read_objectives(css_out / "objectives.jsonl", "css")

@@ -278,7 +278,7 @@ def qcode_discovery(
             "python", str(repo / "scripts" / "certify_run.py"),
             "--run-id", selected_run_id,
             "--limit", str(formalize_top if formalize_top is not None else top),
-            "--known-answer-mode", "fast",
+            "--known-answer-mode", "strict",
             "--timeout-per-logical", str(milp_timeout_per_logical),
             "--total-timeout", str(milp_total_timeout),
         ], cwd=repo, env=env)

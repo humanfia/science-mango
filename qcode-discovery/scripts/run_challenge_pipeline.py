@@ -18,7 +18,12 @@ def main() -> int:
         default=datetime.now(timezone.utc).strftime("challenge-%Y%m%d-%H%M%S"),
     )
     parser.add_argument("--candidate-limit", type=int, default=3)
-    parser.add_argument("--known-answer-mode", choices=("fast", "strict"), default="fast")
+    parser.add_argument(
+        "--known-answer-mode",
+        choices=("strict",),
+        default="strict",
+        help="Formal challenge pipelines require strict known-answer replay.",
+    )
     parser.add_argument("--timeout-per-logical", type=float, default=300)
     parser.add_argument("--total-timeout", type=float, default=7200)
     parser.add_argument(

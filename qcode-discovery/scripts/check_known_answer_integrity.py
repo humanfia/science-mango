@@ -16,7 +16,7 @@ from evaluation.known_answer_integrity import check_known_answer_integrity
 def main() -> int:
     project = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("fast", "strict"), default="fast")
+    parser.add_argument("--mode", choices=("fast", "strict"), default="strict")
     parser.add_argument(
         "--artifact", type=Path,
         default=project / "results" / "known_answer_gate.json",
