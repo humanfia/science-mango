@@ -1,0 +1,11 @@
+# Proof review: solved
+- Reviewed `IPhO2026Problems.problem_IPhO_2026_1_A_1`.
+- Preflight passed direct compilation with zero `sorry` and no diagnostics.
+- The trace's initial and final signatures match; no weakening or trivialization occurred.
+- No `admit`, new axiom, escape hatch, or axiom laundering is present.
+- Dimension-tagged geometry and hydrostatic, buoyancy, weight, and torque laws match the blueprint.
+- The critical zero-contact condition derives the answer; it does not assume the answer.
+- The exact result is `a = Δh/(2√2)` and uses the stated `Δh = 1.41 m`.
+- The strict `0.005 m` bound honestly certifies rounding to `0.50 m`.
+- The newest task result agrees with the prover trace and current proof.
+- Route: `solved`; no repair or redraft is needed.

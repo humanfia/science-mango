@@ -1,0 +1,234 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_A_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_2\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_A_1}
+
+\paragraph{Problem source.}
+Parallel rays strike the inside of a half-cylindrical mirror of radius R.  For
+an incident ray with transverse coordinate x, let N be its number of
+reflections.  The positive threshold x\_N is the largest distance from the
+optical axis for which a ray undergoes at most N reflections.  Use Figures
+2c--2e for the mirror and limiting-ray geometry.
+
+Current subquestion:
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Current subquestion.}
+Find the general expression for the threshold x\_N in terms of R and the positive integer N.
+
+\paragraph{Recorded answer/context.}
+x\_N = R*sin((2*N - 1)*pi/(4*N + 2)) = R*cos(pi/(2*N + 1)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-2.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_A\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract.}
+Import the available Physlib dimensional framework and represent the mirror
+radius, incident transverse coordinate, and threshold as length quantities.
+Equations involving trigonometric functions may use one explicitly named SI
+length projection; angles and direction components remain dimensionless.  The
+positive-threshold predicate must still express attainment and maximality, and
+the equal-angle reflection law must still produce the limiting-ray projection
+and the \((2N+1)\)-angle closure.  Do not retain the current undocumented
+``same fixed unit'' bare-real convention.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_A_1:target}
+  \lean{IPhO2026Problem2A1.positive_reflection_threshold_formula}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity, def:physics:IPhO_2026_2_A_1:si_length_value, def:physics:IPhO_2026_2_A_1:aux001, def:physics:IPhO_2026_2_A_1:aux002, def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux004, def:physics:IPhO_2026_2_A_1:aux005, def:physics:IPhO_2026_2_A_1:aux006, def:physics:IPhO_2026_2_A_1:aux007, def:physics:IPhO_2026_2_A_1:aux008, def:physics:IPhO_2026_2_A_1:aux009, def:physics:IPhO_2026_2_A_1:aux010, def:physics:IPhO_2026_2_A_1:aux011, def:physics:IPhO_2026_2_A_1:aux012, lem:physics:IPhO_2026_2_A_1:aux013, lem:physics:IPhO_2026_2_A_1:aux014, lem:physics:IPhO_2026_2_A_1:aux015}
+  IPhO 2026 Problem 2 A.1: the positive threshold for at most N reflections in the half-cylindrical mirror has the two equivalent official closed forms.
+\end{theorem}
+\begin{proof}
+  For the positive limiting ray, repeated equal-angle reflection across the
+  semicircle gives \((2N+1)\theta=\pi\).  Its transverse SI projection is
+  \(R\cos\theta\), hence \(x_N=R\cos(\pi/(2N+1))\).  The complementary-angle
+  identity converts this to the stated sine form; positivity of \(N\) and the
+  acute limiting branch select the required threshold.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_2_A_1:length_quantity}
+  \lean{IPhO2026Problem2A1.LengthQuantity}
+  A physical length represented by Physlib's unit-dependent dimensionful
+  carrier with length dimension.
+\end{definition}
+\begin{proof}
+  This is the specialization of Physlib's dimensionful-quantity interface to
+  the physical dimension of length.
+\end{proof}
+
+\begin{definition}[Declaration siLengthValue]
+  \label{def:physics:IPhO_2026_2_A_1:si_length_value}
+  \lean{IPhO2026Problem2A1.siLengthValue}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity}
+  The scalar value in metres obtained by evaluating a physical length with
+  Physlib's SI unit choice.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length at the SI unit choice and take the
+  underlying real readout.
+\end{proof}
+
+\begin{definition}[Declaration SourceFigure]
+  \label{def:physics:IPhO_2026_2_A_1:aux001}
+  \lean{IPhO2026Problem2A1.SourceFigure}
+  The three source panels used for the multiple-reflection model: Figure 2c is the physical half-cylinder, Figure 2d is its planar cross-section, and Figure 2e is the reflection-count plot.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AxialDirection]
+  \label{def:physics:IPhO_2026_2_A_1:aux002}
+  \lean{IPhO2026Problem2A1.AxialDirection}
+  The orientation of a ray parallel to the optical axis in the coordinate frame of Figure 2d.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCylindricalMirror]
+  \label{def:physics:IPhO_2026_2_A_1:aux003}
+  \lean{IPhO2026Problem2A1.HalfCylindricalMirror}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity, def:physics:IPhO_2026_2_A_1:si_length_value}
+  A half-cylindrical mirror with a positive Physlib length-valued radius.
+  Coordinate formulae use only the carrier's explicitly named SI projection;
+  the carrier itself, rather than a bare real, is the physical radius.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCylindricalMirror.diameter]
+  \label{def:physics:IPhO_2026_2_A_1:aux004}
+  \lean{IPhO2026Problem2A1.HalfCylindricalMirror.diameter}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity, def:physics:IPhO_2026_2_A_1:aux003}
+  The diameter marked 2R in Figure 2c.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnReflectingSemicircle]
+  \label{def:physics:IPhO_2026_2_A_1:aux005}
+  \lean{IPhO2026Problem2A1.OnReflectingSemicircle}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity, def:physics:IPhO_2026_2_A_1:si_length_value, def:physics:IPhO_2026_2_A_1:aux003}
+  The reflecting upper semicircle in the coordinate frame of Figure 2d. The optical axis is the y-axis and the origin is the circle center.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MultipleReflectionExperiment]
+  \label{def:physics:IPhO_2026_2_A_1:aux006}
+  \lean{IPhO2026Problem2A1.MultipleReflectionExperiment}
+  \uses{def:physics:IPhO_2026_2_A_1:length_quantity, def:physics:IPhO_2026_2_A_1:si_length_value, def:physics:IPhO_2026_2_A_1:aux002, def:physics:IPhO_2026_2_A_1:aux003}
+  Typed ray data for Figures 2d--2e.  The transverse coordinate is a Physlib
+  length quantity (with a named SI projection for analytic formulae), the angle
+  is dimensionless, and reflectionCount records the discrete number of impacts.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ObeysSpecularReflection]
+  \label{def:physics:IPhO_2026_2_A_1:aux007}
+  \lean{IPhO2026Problem2A1.ObeysSpecularReflection}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006}
+  The equal-angle law of specular reflection, stated at every actual impact. Angles are dimensionless real readouts in radians.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsPositiveReflectionThreshold]
+  \label{def:physics:IPhO_2026_2_A_1:aux008}
+  \lean{IPhO2026Problem2A1.IsPositiveReflectionThreshold}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006}
+  xN is the positive maximum transverse distance among incident rays that undergo at most N reflections. This is the threshold notion depicted in Figure 2e; it is not a closed-form definition of the requested answer.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LimitingRayWitness]
+  \label{def:physics:IPhO_2026_2_A_1:aux009}
+  \lean{IPhO2026Problem2A1.LimitingRayWitness}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006}
+  A limiting ray on the positive-x branch, together with the acute polar angle of its first impact point, measured from the positive x-axis. This is distinct from the optical incidence angle relative to the surface normal.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCircleProjectionGeometry]
+  \label{def:physics:IPhO_2026_2_A_1:aux010}
+  \lean{IPhO2026Problem2A1.HalfCircleProjectionGeometry}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006, def:physics:IPhO_2026_2_A_1:aux009}
+  The projection read from the right triangle in the circular cross-section: the positive transverse coordinate is R cos θ.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RepeatedReflectionClosure]
+  \label{def:physics:IPhO_2026_2_A_1:aux011}
+  \lean{IPhO2026Problem2A1.RepeatedReflectionClosure}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006, def:physics:IPhO_2026_2_A_1:aux009}
+  The angular closure obtained by applying equal-angle reflection repeatedly to the limiting ray in a semicircle. The 2N + 1 factor retains the endpoint and orientation information of the positive limiting branch.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCylinderReflectionLaws]
+  \label{def:physics:IPhO_2026_2_A_1:aux012}
+  \lean{IPhO2026Problem2A1.HalfCylinderReflectionLaws}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006, def:physics:IPhO_2026_2_A_1:aux007, def:physics:IPhO_2026_2_A_1:aux008, def:physics:IPhO_2026_2_A_1:aux009, def:physics:IPhO_2026_2_A_1:aux010, def:physics:IPhO_2026_2_A_1:aux011}
+  The governing-law interface needed from geometric optics. Besides the local equal-angle law, it exposes the limiting-ray projection and angular closure that follow from applying that law to the circular mirror.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration limiting\_first\_impact\_angle]
+  \label{lem:physics:IPhO_2026_2_A_1:aux013}
+  \lean{IPhO2026Problem2A1.limiting_first_impact_angle}
+  \uses{def:physics:IPhO_2026_2_A_1:aux003, def:physics:IPhO_2026_2_A_1:aux006, def:physics:IPhO_2026_2_A_1:aux009, def:physics:IPhO_2026_2_A_1:aux011}
+  Algebraic bridge from the repeated-reflection closure to the unique limiting angle.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration official\_answer\_angles\_complementary]
+  \label{lem:physics:IPhO_2026_2_A_1:aux014}
+  \lean{IPhO2026Problem2A1.official_answer_angles_complementary}
+  \uses{lem:physics:IPhO_2026_2_A_1:aux013}
+  The two angles occurring in the official sine and cosine answer forms are complementary.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration official\_sine\_cosine\_forms\_agree]
+  \label{lem:physics:IPhO_2026_2_A_1:aux015}
+  \lean{IPhO2026Problem2A1.official_sine_cosine_forms_agree}
+  \uses{lem:physics:IPhO_2026_2_A_1:aux013, lem:physics:IPhO_2026_2_A_1:aux014}
+  Trigonometric bridge between the two official closed forms. The Mathlib carrier for the complementary-angle step is Real.sin\_pi\_div\_two\_sub.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -1,0 +1,11 @@
+# Proof review: solved
+- Reviewed `IPhO2026Problems.IPhO2026_2_C_3.limitingIntersectionCoordinates`.
+- Supplied preflight passes direct compilation with zero `sorry`.
+- Trace axiom scans report only `propext`, `Classical.choice`, and `Quot.sound`.
+- The initial traced signature exactly matches the current theorem.
+- Actual membership in both oriented rays determines each finite support-line intersection.
+- The analytic bridge proves the positive-separation limit and both blueprint coordinates.
+- Units/dimensional roles are preserved: slope is dimensionless; intercept and coordinates scale with `R`.
+- No answer-as-assumption, branch ambiguity, numerical tolerance issue, or weakened target was found.
+- `hAngleWindow` is redundant but benign because `hIntersection` already includes angle admissibility.
+- The newest matching task result agrees with the current prover trace; route is `solved`.

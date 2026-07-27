@@ -1,0 +1,285 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_C_7.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_C_7.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id C.7
+% archon:previous-part IPhO_2026_4_C_6
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_C\_7}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_C_7}
+
+\paragraph{Problem source.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+Current subquestion:
+Combine the heat-flow relation and radial Fourier law to determine acrylic conductivity lambda.
+
+\paragraph{Current subquestion.}
+Combine the heat-flow relation and radial Fourier law to determine acrylic conductivity lambda.
+
+\paragraph{Recorded answer/context.}
+lambda = ln(r\_2/r\_1)/(2*pi*h*R\_Th). Official sample: lambda = 0.25 +/- 0.01 W/(m*K).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-14.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.6. Question: Determine the effective wall thermal resistance R\_Th from the C5 graph. Reusable conclusions: R\_Th = 1/(c\_0*m*slope). Official sample: R\_Th = 1.17 +/- 0.03 K/W. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_C\_7.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_C_7:target}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.acrylic_conductivity_formula}
+  \uses{def:physics:IPhO_2026_4_C_7:aux001, def:physics:IPhO_2026_4_C_7:aux002, def:physics:IPhO_2026_4_C_7:aux003, def:physics:IPhO_2026_4_C_7:aux004, def:physics:IPhO_2026_4_C_7:aux005, def:physics:IPhO_2026_4_C_7:aux006, def:physics:IPhO_2026_4_C_7:aux007, def:physics:IPhO_2026_4_C_7:aux008, def:physics:IPhO_2026_4_C_7:aux009, def:physics:IPhO_2026_4_C_7:aux010, def:physics:IPhO_2026_4_C_7:aux011, def:physics:IPhO_2026_4_C_7:aux012, def:physics:IPhO_2026_4_C_7:aux013, def:physics:IPhO_2026_4_C_7:aux014, def:physics:IPhO_2026_4_C_7:aux015, def:physics:IPhO_2026_4_C_7:aux016, def:physics:IPhO_2026_4_C_7:aux017, def:physics:IPhO_2026_4_C_7:aux018, def:physics:IPhO_2026_4_C_7:aux019, def:physics:IPhO_2026_4_C_7:aux020, lem:physics:IPhO_2026_4_C_7:aux021}
+  Combining the resistance model with radial Fourier conduction determines the acrylic conductivity.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration energyDimension]
+  \label{def:physics:IPhO_2026_4_C_7:aux001}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.energyDimension}
+  The physical dimension of energy, M L² T⁻².
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration heatFlowRateDimension]
+  \label{def:physics:IPhO_2026_4_C_7:aux002}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.heatFlowRateDimension}
+  The physical dimension of power or heat-flow rate, M L² T⁻³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thermalResistanceDimension]
+  \label{def:physics:IPhO_2026_4_C_7:aux003}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.thermalResistanceDimension}
+  The dimension K/W of thermal resistance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thermalConductivityDimension]
+  \label{def:physics:IPhO_2026_4_C_7:aux004}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.thermalConductivityDimension}
+  The dimension W/(m*K) of thermal conductivity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_4_C_7:aux005}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.LengthQuantity}
+  The declaration LengthQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration EnergyQuantity]
+  \label{def:physics:IPhO_2026_4_C_7:aux006}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.EnergyQuantity}
+  \uses{def:physics:IPhO_2026_4_C_7:aux001}
+  The declaration EnergyQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeatFlowRateQuantity]
+  \label{def:physics:IPhO_2026_4_C_7:aux007}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.HeatFlowRateQuantity}
+  \uses{def:physics:IPhO_2026_4_C_7:aux002}
+  The declaration HeatFlowRateQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ThermalResistanceQuantity]
+  \label{def:physics:IPhO_2026_4_C_7:aux008}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.ThermalResistanceQuantity}
+  \uses{def:physics:IPhO_2026_4_C_7:aux003}
+  The declaration ThermalResistanceQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ThermalConductivityQuantity]
+  \label{def:physics:IPhO_2026_4_C_7:aux009}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.ThermalConductivityQuantity}
+  \uses{def:physics:IPhO_2026_4_C_7:aux004}
+  The declaration ThermalConductivityQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ExperimentalMeasurement]
+  \label{def:physics:IPhO_2026_4_C_7:aux010}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.ExperimentalMeasurement}
+  A central experimental readout together with its standard uncertainty.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CylindricalWallGeometry]
+  \label{def:physics:IPhO_2026_4_C_7:aux011}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.CylindricalWallGeometry}
+  \uses{def:physics:IPhO_2026_4_C_7:aux005, def:physics:IPhO_2026_4_C_7:aux010}
+  Geometric data for the two coaxial cylinders and the water columns.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration innerRadiusMeter]
+  \label{def:physics:IPhO_2026_4_C_7:aux012}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.innerRadiusMeter}
+  \uses{def:physics:IPhO_2026_4_C_7:aux011}
+  Inner radius of the conducting acrylic wall, as an SI readout in meters.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration outerRadiusMeter]
+  \label{def:physics:IPhO_2026_4_C_7:aux013}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.outerRadiusMeter}
+  \uses{def:physics:IPhO_2026_4_C_7:aux011, def:physics:IPhO_2026_4_C_7:aux012}
+  Outer radius of the conducting acrylic wall, as an SI readout in meters.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration conductingHeightMeter]
+  \label{def:physics:IPhO_2026_4_C_7:aux014}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.conductingHeightMeter}
+  \uses{def:physics:IPhO_2026_4_C_7:aux011}
+  The wetted height of the conducting wall is the inner-cylinder water height.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration cylindricalWallAreaSquareMeter]
+  \label{def:physics:IPhO_2026_4_C_7:aux015}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.cylindricalWallAreaSquareMeter}
+  \uses{def:physics:IPhO_2026_4_C_7:aux011, def:physics:IPhO_2026_4_C_7:aux014}
+  Area 2πrh normal to radial conduction at radius r.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17AndCProcedureReadout]
+  \label{def:physics:IPhO_2026_4_C_7:aux016}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.Figure17AndCProcedureReadout}
+  \uses{def:physics:IPhO_2026_4_C_7:aux011}
+  The dimensional readouts from Figure 17 and the height setpoints in the part-C procedure. Lengths are converted from millimeters or centimeters to meters.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CylindricalConductionExperiment]
+  \label{def:physics:IPhO_2026_4_C_7:aux017}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.CylindricalConductionExperiment}
+  \uses{def:physics:IPhO_2026_4_C_7:aux003, def:physics:IPhO_2026_4_C_7:aux009, def:physics:IPhO_2026_4_C_7:aux010, def:physics:IPhO_2026_4_C_7:aux011}
+  The measured and field-valued data for the cylindrical conduction experiment. inwardHeatFlowWatt is positive from the outer cylinder into the inner cylinder. outwardHeatFlowWatt uses the positive-radial orientation appearing in the signed Fourier law.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartC6Readout]
+  \label{def:physics:IPhO_2026_4_C_7:aux018}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.PreviousPartC6Readout}
+  \uses{def:physics:IPhO_2026_4_C_7:aux017}
+  The reusable result R\_Th = 1.17 ± 0.03 K/W obtained in part C.6.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeatResistanceLaw]
+  \label{def:physics:IPhO_2026_4_C_7:aux019}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.HeatResistanceLaw}
+  \uses{def:physics:IPhO_2026_4_C_7:aux017}
+  The effective-resistance heat-flow model dQ\_in/dt = (T\_OC - T\_IC) / R\_Th.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RadialFourierLaw]
+  \label{def:physics:IPhO_2026_4_C_7:aux020}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.RadialFourierLaw}
+  \uses{def:physics:IPhO_2026_4_C_7:aux012, def:physics:IPhO_2026_4_C_7:aux013, def:physics:IPhO_2026_4_C_7:aux015, def:physics:IPhO_2026_4_C_7:aux017}
+  The signed local Fourier law for a quasi-steady cylindrical wall. The wall heat-flow rate depends on time but not on radius, encoding the no-radial-storage approximation. The explicit sign equation states dQ\_out/dt = -λ A dT/dr; the separate orientation equation connects it to heat received by the inner cylinder.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration radial\_fourier\_temperature\_difference]
+  \label{lem:physics:IPhO_2026_4_C_7:aux021}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.radial_fourier_temperature_difference}
+  \uses{def:physics:IPhO_2026_4_C_7:aux012, def:physics:IPhO_2026_4_C_7:aux013, def:physics:IPhO_2026_4_C_7:aux014, def:physics:IPhO_2026_4_C_7:aux017, def:physics:IPhO_2026_4_C_7:aux020}
+  Integrating the local radial Fourier equation across the acrylic wall gives the logarithmic temperature-difference relation.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration conductivityStandardUncertainty]
+  \label{def:physics:IPhO_2026_4_C_7:aux023}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.conductivityStandardUncertainty}
+  \uses{def:physics:IPhO_2026_4_C_7:aux003, def:physics:IPhO_2026_4_C_7:aux010, def:physics:IPhO_2026_4_C_7:aux011, def:physics:IPhO_2026_4_C_7:aux014}
+  First-order root-sum-square propagation of the independent diameter, wall-thickness, and thermal-resistance standard uncertainties through the cylindrical-wall conductivity formula. No height uncertainty is included because the source gives the 10 cm height as a setpoint without an uncertainty.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RoundsTo]
+  \label{def:physics:IPhO_2026_4_C_7:aux024}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.RoundsTo}
+  actual rounds to reported at a given reporting step.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration official\_sample\_conductivity]
+  \label{lem:physics:IPhO_2026_4_C_7:aux025}
+  \lean{IPhO2026Problems.IPhO2026_4_C_7.official_sample_conductivity}
+  \uses{def:physics:IPhO_2026_4_C_7:aux016, def:physics:IPhO_2026_4_C_7:aux017, def:physics:IPhO_2026_4_C_7:aux018, def:physics:IPhO_2026_4_C_7:aux019, def:physics:IPhO_2026_4_C_7:aux020, def:physics:IPhO_2026_4_C_7:aux023, def:physics:IPhO_2026_4_C_7:aux024, lem:physics:IPhO_2026_4_C_7:aux021, thm:physics:IPhO_2026_4_C_7:target}
+  The Figure 17 dimensions and the C.6 resistance readout give the official sample report λ = 0.25 ± 0.01 W/(m*K). The first component rounds the conductivity itself; the second rounds its propagated standard uncertainty.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

@@ -1,0 +1,180 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_4.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.4
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_4}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Current subquestion.}
+A body of heat capacity C\_c is cooled from T\_0 to T while refrigerator input power P and hot-reservoir temperature T\_h remain constant. Determine the elapsed time.
+
+\paragraph{Recorded answer/context.}
+t = (C\_c*T\_h/P)*[ln(T\_0/T) - (T\_0 - T)/T\_h].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_3_C_4:target}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.elapsed_time_formula}
+  \uses{def:physics:IPhO_2026_3_C_4:aux001, def:physics:IPhO_2026_3_C_4:aux002, def:physics:IPhO_2026_3_C_4:aux003, def:physics:IPhO_2026_3_C_4:aux004, def:physics:IPhO_2026_3_C_4:aux005, def:physics:IPhO_2026_3_C_4:aux006, def:physics:IPhO_2026_3_C_4:aux007, def:physics:IPhO_2026_3_C_4:aux008, def:physics:IPhO_2026_3_C_4:aux009, def:physics:IPhO_2026_3_C_4:aux010, def:physics:IPhO_2026_3_C_4:aux011, def:physics:IPhO_2026_3_C_4:aux012, def:physics:IPhO_2026_3_C_4:aux013, lem:physics:IPhO_2026_3_C_4:aux014}
+  The required running time for cooling the body from T₀ to T with constant heat capacity, constant refrigerator input power, and constant hot-reservoir temperature.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration EnergyDimension]
+  \label{def:physics:IPhO_2026_3_C_4:aux001}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.EnergyDimension}
+  The mechanical-energy dimension M L² T⁻².
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TemperatureQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux002}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.TemperatureQuantity}
+  An absolute-temperature quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TimeQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux003}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.TimeQuantity}
+  An elapsed-time quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VolumeQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux004}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.VolumeQuantity}
+  A volume quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MagneticFieldStrengthQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux005}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.MagneticFieldStrengthQuantity}
+  An A/m magnetic-field-strength or magnetization quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeatCapacityQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux006}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.HeatCapacityQuantity}
+  \uses{def:physics:IPhO_2026_3_C_4:aux001}
+  A constant-volume heat capacity, with dimension energy/temperature.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PowerQuantity]
+  \label{def:physics:IPhO_2026_3_C_4:aux007}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.PowerQuantity}
+  \uses{def:physics:IPhO_2026_3_C_4:aux001}
+  A power or heat-transfer-rate quantity, with dimension energy/time.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotCycleState]
+  \label{def:physics:IPhO_2026_3_C_4:aux008}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.CarnotCycleState}
+  The four labelled states in the H-versus-T Carnot-cycle figure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration next]
+  \label{def:physics:IPhO_2026_3_C_4:aux009}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.CarnotCycleState.next}
+  \uses{def:physics:IPhO_2026_3_C_4:aux008}
+  The oriented cycle read from Figure 3b: 1 → 2 → 3 → 4 → 1.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ParamagneticTorusContext]
+  \label{def:physics:IPhO_2026_3_C_4:aux010}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.ParamagneticTorusContext}
+  \uses{def:physics:IPhO_2026_3_C_4:aux002, def:physics:IPhO_2026_3_C_4:aux004, def:physics:IPhO_2026_3_C_4:aux005, def:physics:IPhO_2026_3_C_4:aux008}
+  The paramagnetic-torus context inherited by part C. The amount of substance and Curie constant are explicitly SI scalar readouts because Physlib's foundational Dimension currently has no amount-of-substance component.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotCoolingExperiment]
+  \label{def:physics:IPhO_2026_3_C_4:aux011}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.CarnotCoolingExperiment}
+  \uses{def:physics:IPhO_2026_3_C_4:aux002, def:physics:IPhO_2026_3_C_4:aux003, def:physics:IPhO_2026_3_C_4:aux006, def:physics:IPhO_2026_3_C_4:aux007, def:physics:IPhO_2026_3_C_4:aux010}
+  The fixed data of the cooling experiment. Constancy of heatCapacity, inputPower, and hotReservoirTemperature is represented by their being single experiment parameters rather than time-dependent functions.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotCoolingProcess]
+  \label{def:physics:IPhO_2026_3_C_4:aux012}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.CarnotCoolingProcess}
+  \uses{def:physics:IPhO_2026_3_C_4:aux002, def:physics:IPhO_2026_3_C_4:aux007}
+  Time-dependent readouts for the body temperature and the magnitudes of the cold- and hot-side heat-transfer rates.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SatisfiesCarnotCoolingLaw]
+  \label{def:physics:IPhO_2026_3_C_4:aux013}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.SatisfiesCarnotCoolingLaw}
+  \uses{def:physics:IPhO_2026_3_C_4:aux011, def:physics:IPhO_2026_3_C_4:aux012}
+  The governing laws for the continuously repeated Carnot cycles. The three last fields encode, respectively, dQ\_c / dQ\_h = T\_c / T\_h, dQ\_c = -C\_c dT\_c, and P = dQ\_h/dt - dQ\_c/dt.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration instantaneous\_cooling\_power\_equation]
+  \label{lem:physics:IPhO_2026_3_C_4:aux014}
+  \lean{IPhO2026Problems.IPhO2026_3_C_4.instantaneous_cooling_power_equation}
+  \uses{def:physics:IPhO_2026_3_C_4:aux011, def:physics:IPhO_2026_3_C_4:aux012, def:physics:IPhO_2026_3_C_4:aux013}
+  Eliminating the cold- and hot-side heat rates gives the instantaneous cooling equation that will be integrated in elapsed\_time\_formula.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

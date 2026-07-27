@@ -1,0 +1,128 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_B_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_B_1.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id B.1
+% archon:previous-part IPhO_2026_3_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_B\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_B_1}
+
+\paragraph{Problem source.}
+Continue with the paramagnetic torus.  Its equation of state is T*M*V = n*K*H,
+its heat capacity at constant M is C\_M = n*lambda/T\textasciicircum{}2, and dU = C\_M*dT.
+The volume is fixed and the magnetic work on the material is
+dW = mu\_0*V*H*dM.  Work and heat entering the torus are positive.
+
+Current subquestion:
+At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus.
+
+\paragraph{Current subquestion.}
+At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus.
+
+\paragraph{Recorded answer/context.}
+Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material. Reusable conclusions: dW = mu\_0*V*H*dM. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_B\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_3_B_1:target}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.heat_transferred_into_torus}
+  \uses{def:physics:IPhO_2026_3_B_1:aux001, def:physics:IPhO_2026_3_B_1:aux002, def:physics:IPhO_2026_3_B_1:aux003, def:physics:IPhO_2026_3_B_1:aux004, def:physics:IPhO_2026_3_B_1:aux005, lem:physics:IPhO_2026_3_B_1:aux006, lem:physics:IPhO_2026_3_B_1:aux007, lem:physics:IPhO_2026_3_B_1:aux008}
+  The heat transferred into the paramagnetic torus when the magnitude of H changes isothermally from H\_i to H\_f. The sweep parametrization records the orientation, so the same signed formula also covers a decreasing field magnitude.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration energyInJoules]
+  \label{def:physics:IPhO_2026_3_B_1:aux001}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.energyInJoules}
+  The SI (joule) coordinate of a dimensionful energy.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ParamagneticTorus]
+  \label{def:physics:IPhO_2026_3_B_1:aux002}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.ParamagneticTorus}
+  Fixed material and geometric data for the paramagnetic torus. materialK\_SI has the dimensional role forced by T * M * V = n * K * H, while materialLambda\_SI has the role forced by C\_M = n * lambda / T\textasciicircum{}2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsothermalFieldSweep]
+  \label{def:physics:IPhO_2026_3_B_1:aux003}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.IsothermalFieldSweep}
+  Data of a field sweep, parametrized by a dimensionless real parameter. The physical process runs from parameter 0 to parameter 1. The derivative readouts are retained explicitly so that the differential thermodynamic laws constrain the corresponding finite changes. Work and heat curves record energy entering the torus.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration netHeatEnteringInJoules]
+  \label{def:physics:IPhO_2026_3_B_1:aux004}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.netHeatEnteringInJoules}
+  \uses{def:physics:IPhO_2026_3_B_1:aux001, def:physics:IPhO_2026_3_B_1:aux003}
+  The signed heat transferred into the torus during the physical sweep.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SatisfiesIsothermalParamagneticTorusLaws]
+  \label{def:physics:IPhO_2026_3_B_1:aux005}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.SatisfiesIsothermalParamagneticTorusLaws}
+  \uses{def:physics:IPhO_2026_3_B_1:aux001, def:physics:IPhO_2026_3_B_1:aux002, def:physics:IPhO_2026_3_B_1:aux003}
+  Governing laws and calibrated readouts for the isothermal field sweep. The magneticWorkLaw field is the reusable result of part A.3. The firstLawSignConvention equation expresses that both work and heat entering the torus are positive. No field states the requested finite heat formula.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration internalEnergyRate\_eq\_zero]
+  \label{lem:physics:IPhO_2026_3_B_1:aux006}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.internalEnergyRate_eq_zero}
+  \uses{def:physics:IPhO_2026_3_B_1:aux002, def:physics:IPhO_2026_3_B_1:aux003, def:physics:IPhO_2026_3_B_1:aux005}
+  Along an isothermal sweep, dU = C\_M dT forces the internal-energy rate to vanish.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration magnetizationRate\_eq]
+  \label{lem:physics:IPhO_2026_3_B_1:aux007}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.magnetizationRate_eq}
+  \uses{def:physics:IPhO_2026_3_B_1:aux002, def:physics:IPhO_2026_3_B_1:aux003, def:physics:IPhO_2026_3_B_1:aux005, lem:physics:IPhO_2026_3_B_1:aux006}
+  The equation of state and the oriented linear field sweep determine the magnetization rate.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration heatRate\_eq]
+  \label{lem:physics:IPhO_2026_3_B_1:aux008}
+  \lean{IPhO2026Problems.ProblemIPhO2026_3_B_1.heatRate_eq}
+  \uses{def:physics:IPhO_2026_3_B_1:aux002, def:physics:IPhO_2026_3_B_1:aux003, def:physics:IPhO_2026_3_B_1:aux005, lem:physics:IPhO_2026_3_B_1:aux006, lem:physics:IPhO_2026_3_B_1:aux007}
+  Combining the first law, isothermal internal-energy law, equation of state, and magnetic work law determines the instantaneous heat rate.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

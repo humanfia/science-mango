@@ -1,0 +1,243 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_C_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_C_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_3_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_3_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_C_3}
+
+\paragraph{Problem source.}
+The paramagnetic torus executes the Carnot refrigeration cycle
+1 -> 2 -> 3 -> 4 -> 1 shown in Figure 3b in the H-versus-T plane.  T\_h and T\_c
+are the hot- and cold-reservoir temperatures; Q\_h is the magnitude of heat
+delivered to the hot reservoir and Q\_c is the magnitude absorbed from the cold
+reservoir.  The equation of state is T*M*V = n*K*H and the isothermal heat
+relation from part B may be reused.
+
+Current subquestion:
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Current subquestion.}
+Using the supplied potassium-chromate and liquid-helium data, find the helium temperature after one cycle.
+
+\paragraph{Recorded answer/context.}
+Q\_c = 1.29e-1 J, so |Delta T| = 9.92e-3 K and T\_final = 0.99008 K.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: At fixed temperature T, H changes from H\_i to H\_f. Find the heat Q transferred into the torus. Reusable conclusions: Q = -(mu\_0*n*K/(2*T))*(H\_f\textasciicircum{}2 - H\_i\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Express M\_1 in terms of M\_2, M\_3, and M\_4. Reusable conclusions: M\_1 = sqrt(M\_2\textasciicircum{}2 - M\_3\textasciicircum{}2 + M\_4\textasciicircum{}2), taking the nonnegative magnitude. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_C\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_3_C_3:target}
+  \lean{IPhO2026Problems.Problem3C3.IPhO_2026_3_C_3_helium_temperature_after_one_cycle}
+  \uses{def:physics:IPhO_2026_3_C_3:aux001, def:physics:IPhO_2026_3_C_3:aux002, def:physics:IPhO_2026_3_C_3:aux003, def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux005, def:physics:IPhO_2026_3_C_3:aux006, def:physics:IPhO_2026_3_C_3:aux007, def:physics:IPhO_2026_3_C_3:aux008, def:physics:IPhO_2026_3_C_3:aux009, def:physics:IPhO_2026_3_C_3:aux010, def:physics:IPhO_2026_3_C_3:aux011, def:physics:IPhO_2026_3_C_3:aux012, def:physics:IPhO_2026_3_C_3:aux013, def:physics:IPhO_2026_3_C_3:aux014, def:physics:IPhO_2026_3_C_3:aux015, def:physics:IPhO_2026_3_C_3:aux016, def:physics:IPhO_2026_3_C_3:aux017, def:physics:IPhO_2026_3_C_3:aux018, def:physics:IPhO_2026_3_C_3:aux019}
+  After one cycle, the torus absorbs approximately 0.129 J; the helium cools by approximately 0.00992 K, to approximately 0.99008 K. The bounds are numerical-rounding envelopes around the values reported in the official answer, rather than measurement-uncertainty assumptions.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration PhysicalRole]
+  \label{def:physics:IPhO_2026_3_C_3:aux001}
+  \lean{IPhO2026Problems.Problem3C3.PhysicalRole}
+  Physical roles of the scalar SI readouts occurring in problem 3 C.3.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PhysicalRole.dimension]
+  \label{def:physics:IPhO_2026_3_C_3:aux002}
+  \lean{IPhO2026Problems.Problem3C3.PhysicalRole.dimension}
+  \uses{def:physics:IPhO_2026_3_C_3:aux001}
+  The Physlib dimension carried by each physical role. Physlib's foundational dimensions do not include amount of substance. Consequently the mole is dimensionless here, while its physical role is retained by the amountOfSubstance, molarMass, and curieConstant indices.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SIQuantity]
+  \label{def:physics:IPhO_2026_3_C_3:aux003}
+  \lean{IPhO2026Problems.Problem3C3.SIQuantity}
+  \uses{def:physics:IPhO_2026_3_C_3:aux001, def:physics:IPhO_2026_3_C_3:aux002}
+  A nonnegative scalar readout in SI units, indexed by its physical role.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SIQuantity.siValue]
+  \label{def:physics:IPhO_2026_3_C_3:aux004}
+  \lean{IPhO2026Problems.Problem3C3.SIQuantity.siValue}
+  \uses{def:physics:IPhO_2026_3_C_3:aux001, def:physics:IPhO_2026_3_C_3:aux003}
+  The real-valued SI coordinate of a physical readout.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CyclePoint]
+  \label{def:physics:IPhO_2026_3_C_3:aux005}
+  \lean{IPhO2026Problems.Problem3C3.CyclePoint}
+  The four labelled vertices in Figure 3b.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotLegKind]
+  \label{def:physics:IPhO_2026_3_C_3:aux006}
+  \lean{IPhO2026Problems.Problem3C3.CarnotLegKind}
+  Physical kind and orientation of each outgoing Carnot-cycle leg.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TorusStateReading]
+  \label{def:physics:IPhO_2026_3_C_3:aux007}
+  \lean{IPhO2026Problems.Problem3C3.TorusStateReading}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003}
+  The H-versus-T coordinates and magnetization at a labelled cycle point.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotTorusCycle]
+  \label{def:physics:IPhO_2026_3_C_3:aux008}
+  \lean{IPhO2026Problems.Problem3C3.CarnotTorusCycle}
+  \uses{def:physics:IPhO_2026_3_C_3:aux005, def:physics:IPhO_2026_3_C_3:aux006, def:physics:IPhO_2026_3_C_3:aux007}
+  Figure 3b with the directed order 1 → 2 → 3 → 4 → 1.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ParamagneticTorus]
+  \label{def:physics:IPhO_2026_3_C_3:aux009}
+  \lean{IPhO2026Problems.Problem3C3.ParamagneticTorus}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003}
+  Potassium-chromate paramagnetic torus data.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LiquidHeliumSample]
+  \label{def:physics:IPhO_2026_3_C_3:aux010}
+  \lean{IPhO2026Problems.Problem3C3.LiquidHeliumSample}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003}
+  Liquid-helium sample data.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RefrigerationSetup]
+  \label{def:physics:IPhO_2026_3_C_3:aux011}
+  \lean{IPhO2026Problems.Problem3C3.RefrigerationSetup}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003, def:physics:IPhO_2026_3_C_3:aux009, def:physics:IPhO_2026_3_C_3:aux010}
+  All material data and the vacuum permeability used by the cycle.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CycleHeatExchange]
+  \label{def:physics:IPhO_2026_3_C_3:aux012}
+  \lean{IPhO2026Problems.Problem3C3.CycleHeatExchange}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003}
+  Magnitudes Q\_c and Q\_h associated with one oriented cycle.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SuppliedReadouts]
+  \label{def:physics:IPhO_2026_3_C_3:aux013}
+  \lean{IPhO2026Problems.Problem3C3.SuppliedReadouts}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux008, def:physics:IPhO_2026_3_C_3:aux011}
+  Exact SI readouts supplied in C.3, together with the standard value of μ₀.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TorusVolumeMassBalance]
+  \label{def:physics:IPhO_2026_3_C_3:aux014}
+  \lean{IPhO2026Problems.Problem3C3.TorusVolumeMassBalance}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux011}
+  The material volume is mass divided by density: V ρ = n m\_molar.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ParamagneticEquationOfState]
+  \label{def:physics:IPhO_2026_3_C_3:aux015}
+  \lean{IPhO2026Problems.Problem3C3.ParamagneticEquationOfState}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux005, def:physics:IPhO_2026_3_C_3:aux008, def:physics:IPhO_2026_3_C_3:aux011}
+  The given paramagnetic equation of state T M V = n K H at every vertex.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotTemperaturePattern]
+  \label{def:physics:IPhO_2026_3_C_3:aux016}
+  \lean{IPhO2026Problems.Problem3C3.CarnotTemperaturePattern}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux008}
+  The two horizontal-temperature branches and their hot/cold orientation.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartC2MagnetizationRelation]
+  \label{def:physics:IPhO_2026_3_C_3:aux017}
+  \lean{IPhO2026Problems.Problem3C3.PreviousPartC2MagnetizationRelation}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux008}
+  Reusable conclusion of previous part C.2, with the nonnegative square-root branch selected by the magnitude-valued magnetization readouts.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CarnotIsothermalHeatLaw]
+  \label{def:physics:IPhO_2026_3_C_3:aux018}
+  \lean{IPhO2026Problems.Problem3C3.CarnotIsothermalHeatLaw}
+  \uses{def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux008, def:physics:IPhO_2026_3_C_3:aux011, def:physics:IPhO_2026_3_C_3:aux012}
+  The B.1 isothermal heat law applied to the oriented cold and hot legs. Heat entering the torus is positive. Thus Q\_c is the positive heat entering on 2 → 3, while Q\_h is the positive magnitude of the heat leaving on 4 → 1.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeliumCalorimetryLaw]
+  \label{def:physics:IPhO_2026_3_C_3:aux019}
+  \lean{IPhO2026Problems.Problem3C3.HeliumCalorimetryLaw}
+  \uses{def:physics:IPhO_2026_3_C_3:aux003, def:physics:IPhO_2026_3_C_3:aux004, def:physics:IPhO_2026_3_C_3:aux011, def:physics:IPhO_2026_3_C_3:aux012}
+  Constant-density, constant-specific-heat calorimetry for the helium. The energy absorbed by the torus is removed from the helium. The inequality selects the cooling rather than heating orientation of the signed balance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+% --- Archon physics formalization source end ---

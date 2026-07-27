@@ -1,0 +1,238 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_5.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_A_5.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.5
+% archon:previous-part IPhO_2026_4_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_5}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_5}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Current subquestion.}
+Determine the constant-volume thermal pressure coefficient beta\_0 = (1/P\_0)*(Delta P/Delta T).
+
+\paragraph{Recorded answer/context.}
+Official sample: beta\_0 = 0.0034 +/- 0.0007 K\textasciicircum{}(-1); ideal-gas reference 1/273.15 K = 0.0037 K\textasciicircum{}(-1).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Plot pressure as a function of temperature from A2. Reusable conclusions: The expected isochoric ideal-gas plot is linear: P is proportional to absolute T. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_A\_5.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract.}
+Keep the experimental coefficient separate from the ideal-gas comparison.
+Introduce a measured reference pressure and a pressure-versus-temperature
+secant or regression slope, each with an absolute uncertainty covering the
+underlying quantity.  Prove the general quotient formula
+\(\beta_0=s/P_0\) and propagate the two input intervals through this positive
+quotient.  The official solution data include the fitted central slope
+\(0.3229\ {\rm kPa\,K^{-1}}\) and reference pressure
+\(P_0=101.3\) kPa; use a regression/error certificate, not membership in a
+fixed output band, as the experimental premise.  Separately derive the ideal
+reference \(1/273.15\ {\rm K^{-1}}\) and its \(0.0037\) rounding.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_A_5:target}
+  \lean{IPhO2026Problems.Problem4A5.IPhO2026_4_A_5_thermalPressureCoefficient}
+  \uses{def:physics:IPhO_2026_4_A_5:aux001, def:physics:IPhO_2026_4_A_5:aux002, def:physics:IPhO_2026_4_A_5:aux003, def:physics:IPhO_2026_4_A_5:aux004, def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007, def:physics:IPhO_2026_4_A_5:aux008, def:physics:IPhO_2026_4_A_5:aux009, def:physics:IPhO_2026_4_A_5:aux010, def:physics:IPhO_2026_4_A_5:aux011, def:physics:IPhO_2026_4_A_5:aux012, def:physics:IPhO_2026_4_A_5:aux013, def:physics:IPhO_2026_4_A_5:aux014, def:physics:IPhO_2026_4_A_5:aux015, lem:physics:IPhO_2026_4_A_5:aux016, lem:physics:IPhO_2026_4_A_5:aux017}
+  Determine the experimental constant-volume pressure coefficient from the
+  measured positive regression slope and reference pressure, propagate their
+  uncertainties to a coefficient interval, and keep this result distinct
+  from the ideal-gas value \(1/273.15\ {\rm K^{-1}}\).
+\end{theorem}
+\begin{proof}
+  By definition the pressure change along the fitted line is
+  \(s\,\Delta T\), so \(\beta_0=(1/P_0)(\Delta P/\Delta T)=s/P_0\).
+  Positivity makes this quotient increasing in \(s\) and decreasing in
+  \(P_0\), giving the endpoint error interval.  Instantiate the regression
+  certificate for the experimental report.  For the ideal comparison,
+  isochoric \(PV=nRT\) gives \(s=P_0/T_0\), hence
+  \(\beta_0=1/T_0\).
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration ApparatusLabel]
+  \label{def:physics:IPhO_2026_4_A_5:aux001}
+  \lean{IPhO2026Problems.Problem4A5.ApparatusLabel}
+  Labels used for the apparatus in Figure 17 and on the official source page.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17Geometry]
+  \label{def:physics:IPhO_2026_4_A_5:aux002}
+  \lean{IPhO2026Problems.Problem4A5.Figure17Geometry}
+  The cylinder dimensions read from Figure 17, expressed as SI scalar readouts.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsochoricApparatus]
+  \label{def:physics:IPhO_2026_4_A_5:aux003}
+  \lean{IPhO2026Problems.Problem4A5.IsochoricApparatus}
+  \uses{def:physics:IPhO_2026_4_A_5:aux002}
+  The part of the experimental apparatus relevant to the sealed air column. Scalar fields are explicitly SI readouts; pressure itself is represented below by Physlib's dimensionful DimPressure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsPreparedIsochoricApparatus]
+  \label{def:physics:IPhO_2026_4_A_5:aux004}
+  \lean{IPhO2026Problems.Problem4A5.IsPreparedIsochoricApparatus}
+  \uses{def:physics:IPhO_2026_4_A_5:aux003}
+  The Figure 17 geometry and the instructions h = 4.5 cm, ρₐ = 1.12 kg/m³, with both valves closed. The final equality is the cylindrical volume of CA remaining above the propylene glycol.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration pressureInPascals]
+  \label{def:physics:IPhO_2026_4_A_5:aux005}
+  \lean{IPhO2026Problems.Problem4A5.pressureInPascals}
+  The numerical value, in pascals, of a dimensionful pressure in SI units.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration temperatureInKelvin]
+  \label{def:physics:IPhO_2026_4_A_5:aux006}
+  \lean{IPhO2026Problems.Problem4A5.temperatureInKelvin}
+  The real readout of an absolute temperature. Throughout this experiment the arbitrary temperature unit carried by Temperature is fixed to kelvin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsochoricHeatingRun]
+  \label{def:physics:IPhO_2026_4_A_5:aux007}
+  \lean{IPhO2026Problems.Problem4A5.IsochoricHeatingRun}
+  \uses{def:physics:IPhO_2026_4_A_5:aux003}
+  One constant-volume heating run. pressureAt is a physical, dimensionful pressure, while the amount of substance and gas constant are SI scalar readouts in mol and J mol⁻¹ K⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration UsesStandardReferenceState]
+  \label{def:physics:IPhO_2026_4_A_5:aux008}
+  \lean{IPhO2026Problems.Problem4A5.UsesStandardReferenceState}
+  \uses{def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007}
+  The system reference temperature is 273.15 K and its pressure is positive.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsHeatingBranch]
+  \label{def:physics:IPhO_2026_4_A_5:aux009}
+  \lean{IPhO2026Problems.Problem4A5.IsHeatingBranch}
+  \uses{def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007}
+  Orientation information for the recorded branch: the second state is reached by heating, and the measured pressure increases along that branch.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ObeysIsochoricIdealGasLaw]
+  \label{def:physics:IPhO_2026_4_A_5:aux010}
+  \lean{IPhO2026Problems.Problem4A5.ObeysIsochoricIdealGasLaw}
+  \uses{def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007}
+  The governing ideal-gas law P V = n R T for the sealed air column. The one apparatus volume is used at every temperature, encoding the isochoric process.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasIsochoricPressureLinearity]
+  \label{def:physics:IPhO_2026_4_A_5:aux011}
+  \lean{IPhO2026Problems.Problem4A5.HasIsochoricPressureLinearity}
+  \uses{def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007, def:physics:IPhO_2026_4_A_5:aux009}
+  Reusable content of part A.3: the pressure plot is proportional to absolute temperature. The quantified equation makes this a constraining interface.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thermalPressureCoefficientPerKelvin]
+  \label{def:physics:IPhO_2026_4_A_5:aux012}
+  \lean{IPhO2026Problems.Problem4A5.thermalPressureCoefficientPerKelvin}
+  \uses{def:physics:IPhO_2026_4_A_5:aux005, def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007, def:physics:IPhO_2026_4_A_5:aux009}
+  The source definition β₀ = (1 / P₀) (ΔP / ΔT), with the reference-to-heated orientation fixed by IsHeatingBranch. Its dimensional role is inverse kelvin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Estimate]
+  \label{def:physics:IPhO_2026_4_A_5:aux013}
+  \lean{IPhO2026Problems.Problem4A5.Estimate}
+  A scalar estimate together with its symmetric reported uncertainty.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Estimate.Contains]
+  \label{def:physics:IPhO_2026_4_A_5:aux014}
+  \lean{IPhO2026Problems.Problem4A5.Estimate.Contains}
+  \uses{def:physics:IPhO_2026_4_A_5:aux013}
+  Membership in the closed symmetric uncertainty band of an estimate.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration officialCoefficientEstimatePerKelvin]
+  \label{def:physics:IPhO_2026_4_A_5:aux015}
+  \lean{IPhO2026Problems.Problem4A5.officialCoefficientEstimatePerKelvin}
+  \uses{def:physics:IPhO_2026_4_A_5:aux013}
+  The official experimental answer 0.0034 ± 0.0007 K⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration idealGasLaw\_implies\_isochoricPressureLinearity]
+  \label{lem:physics:IPhO_2026_4_A_5:aux016}
+  \lean{IPhO2026Problems.Problem4A5.idealGasLaw_implies_isochoricPressureLinearity}
+  \uses{def:physics:IPhO_2026_4_A_5:aux004, def:physics:IPhO_2026_4_A_5:aux007, def:physics:IPhO_2026_4_A_5:aux010, def:physics:IPhO_2026_4_A_5:aux011}
+  The ideal-gas law at fixed positive volume supplies the proportionality used in the pressure-versus-temperature plot of part A.3.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration thermalPressureCoefficient\_eq\_inverse\_referenceTemperature]
+  \label{lem:physics:IPhO_2026_4_A_5:aux017}
+  \lean{IPhO2026Problems.Problem4A5.thermalPressureCoefficient_eq_inverse_referenceTemperature}
+  \uses{def:physics:IPhO_2026_4_A_5:aux006, def:physics:IPhO_2026_4_A_5:aux007, def:physics:IPhO_2026_4_A_5:aux008, def:physics:IPhO_2026_4_A_5:aux009, def:physics:IPhO_2026_4_A_5:aux011, def:physics:IPhO_2026_4_A_5:aux012, lem:physics:IPhO_2026_4_A_5:aux016}
+  For a positive reference state and a genuinely heated second state, the normalized secant slope of an isochoric proportionality is 1 / T₀.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

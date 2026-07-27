@@ -1,0 +1,11 @@
+# Proof review summary
+- Status: solved; route: solved.
+- Reviewed `IPhO2026Problems.IPhO2026_2_C_2.rayB_firstOrderExpansion`.
+- Deterministic preflight compiles with zero `sorry`; only unused-context warnings remain.
+- The signature is preserved and both conclusions retain genuine `O(Δθ²)` remainders.
+- Slope, intercept, signs, and first-order coefficients match the blueprint answer.
+- The intercept remains a Physlib length read through the named SI projection.
+- Figure labels, incoming/outgoing branch data, and nonzero denominator conditions are retained.
+- The exact specular-law hypothesis supplies C.1 coefficients at the neighboring angle; it does not assume the requested asymptotic bounds.
+- The current trace and newest matching task result agree and record standard-axiom verification plus successful compilation/build.
+- No blocker or redraft is required.

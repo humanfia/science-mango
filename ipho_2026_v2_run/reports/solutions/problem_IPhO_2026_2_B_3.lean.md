@@ -1,0 +1,11 @@
+# Review: solved
+- Target: `IPhO2026Problem2B3.ipho2026_problem2_B3`.
+- Deterministic preflight: direct compilation passed; `sorry_count = 0`.
+- Trace scan found no `sorry`, `admit`, `native_decide`, or introduced axiom.
+- The trace’s initial and final declarations show unchanged signatures.
+- B.1 cutoff geometry and B.2 power ratio are permitted prior-part results.
+- Positivity cancels the baseline; `0 ≤ θ_max ≤ π/2` selects `sin θ_max = 3/5`.
+- Substitution with `R = 1 m` yields `a = 0.12 m`; the unit definition yields `12 cm`.
+- The exact answer matches the blueprint; no uncertainty or tolerance was requested.
+- The newest task result agrees with the current trace and preflight.
+- Route: `solved`; no blocker or next step.

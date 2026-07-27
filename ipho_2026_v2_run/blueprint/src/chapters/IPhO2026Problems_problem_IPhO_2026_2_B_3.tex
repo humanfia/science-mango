@@ -1,0 +1,194 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.3
+% archon:previous-part IPhO_2026_2_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_B_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_3}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Current subquestion.}
+For R = 1.0 m, find a such that P = 5*P\_0, and report it in cm.
+
+\paragraph{Recorded answer/context.}
+cos(theta\_max) = 4/5 and a = 0.12 m = 12 cm.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Reusable conclusions: alpha = R and beta = -R/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source B.2. Question: Express the power ratio P/P\_0 in terms of theta\_max. Reusable conclusions: P/P\_0 = 1/(1 - cos(theta\_max)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_B_3:target}
+  \lean{IPhO2026Problem2B3.ipho2026_problem2_B3}
+  \uses{def:physics:IPhO_2026_2_B_3:aux001, def:physics:IPhO_2026_2_B_3:aux002, def:physics:IPhO_2026_2_B_3:aux003, def:physics:IPhO_2026_2_B_3:aux004, def:physics:IPhO_2026_2_B_3:aux005, def:physics:IPhO_2026_2_B_3:aux006, def:physics:IPhO_2026_2_B_3:aux007, def:physics:IPhO_2026_2_B_3:aux008, def:physics:IPhO_2026_2_B_3:aux009, def:physics:IPhO_2026_2_B_3:aux010, def:physics:IPhO_2026_2_B_3:aux011, def:physics:IPhO_2026_2_B_3:aux012, lem:physics:IPhO_2026_2_B_3:aux013, lem:physics:IPhO_2026_2_B_3:aux014}
+  Answer to IPhO 2026 theoretical problem 2, part B.3: the operating point has cos θ\_max = 4/5, and the required radius is 0.12 m = 12 cm.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration radiantPowerDimension]
+  \label{def:physics:IPhO_2026_2_B_3:aux001}
+  \lean{IPhO2026Problem2B3.radiantPowerDimension}
+  The physical dimension of radiant power, mass * length² / time³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration irradianceDimension]
+  \label{def:physics:IPhO_2026_2_B_3:aux002}
+  \lean{IPhO2026Problem2B3.irradianceDimension}
+  The physical dimension of irradiance, power / area = mass / time³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_2_B_3:aux003}
+  \lean{IPhO2026Problem2B3.LengthQuantity}
+  A unit-independent physical length.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RadiantPowerQuantity]
+  \label{def:physics:IPhO_2026_2_B_3:aux004}
+  \lean{IPhO2026Problem2B3.RadiantPowerQuantity}
+  \uses{def:physics:IPhO_2026_2_B_3:aux001}
+  A unit-independent physical radiant power.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IrradianceQuantity]
+  \label{def:physics:IPhO_2026_2_B_3:aux005}
+  \lean{IPhO2026Problem2B3.IrradianceQuantity}
+  \uses{def:physics:IPhO_2026_2_B_3:aux002}
+  A unit-independent physical irradiance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration lengthInMetres]
+  \label{def:physics:IPhO_2026_2_B_3:aux006}
+  \lean{IPhO2026Problem2B3.lengthInMetres}
+  \uses{def:physics:IPhO_2026_2_B_3:aux003}
+  The numerical value of a length in metres (the SI length unit).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration lengthInCentimetres]
+  \label{def:physics:IPhO_2026_2_B_3:aux007}
+  \lean{IPhO2026Problem2B3.lengthInCentimetres}
+  \uses{def:physics:IPhO_2026_2_B_3:aux003, def:physics:IPhO_2026_2_B_3:aux006}
+  The numerical value of a length in centimetres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration powerInWatts]
+  \label{def:physics:IPhO_2026_2_B_3:aux008}
+  \lean{IPhO2026Problem2B3.powerInWatts}
+  \uses{def:physics:IPhO_2026_2_B_3:aux004}
+  The numerical value of a radiant power in SI units (watts).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration irradianceInSI]
+  \label{def:physics:IPhO_2026_2_B_3:aux009}
+  \lean{IPhO2026Problem2B3.irradianceInSI}
+  \uses{def:physics:IPhO_2026_2_B_3:aux005}
+  The numerical value of an irradiance in SI units (W / m²).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SolarCooker]
+  \label{def:physics:IPhO_2026_2_B_3:aux010}
+  \lean{IPhO2026Problem2B3.SolarCooker}
+  \uses{def:physics:IPhO_2026_2_B_3:aux003, def:physics:IPhO_2026_2_B_3:aux005}
+  The named physical data of the solar cooker in Figure 2f. Directions are dimensionless vectors in three-dimensional space. They are chosen with consistent orientations, so equality of direction representatives encodes the parallelism stated in the problem.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2fAssumptions]
+  \label{def:physics:IPhO_2026_2_B_3:aux011}
+  \lean{IPhO2026Problem2B3.Figure2fAssumptions}
+  \uses{def:physics:IPhO_2026_2_B_3:aux006, def:physics:IPhO_2026_2_B_3:aux009, def:physics:IPhO_2026_2_B_3:aux010}
+  The figure-derived geometry and operating regime stated in the problem. Every substantive geometric or optical assertion is exposed as an equation or inequality rather than hidden in an opaque predicate.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartResults]
+  \label{def:physics:IPhO_2026_2_B_3:aux012}
+  \lean{IPhO2026Problem2B3.PreviousPartResults}
+  \uses{def:physics:IPhO_2026_2_B_3:aux004, def:physics:IPhO_2026_2_B_3:aux006, def:physics:IPhO_2026_2_B_3:aux008, def:physics:IPhO_2026_2_B_3:aux010}
+  The reusable conclusions of parts B.1 and B.2, restated locally because this lane must not import sibling problem files. The first equation is the Figure 2f cutoff-ray geometry. The second is the received-power law for uniform parallel illumination and a fully absorbing container in the one-reflection regime.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration cosine\_thetaMax\_of\_fivefold\_power]
+  \label{lem:physics:IPhO_2026_2_B_3:aux013}
+  \lean{IPhO2026Problem2B3.cosine_thetaMax_of_fivefold_power}
+  \uses{def:physics:IPhO_2026_2_B_3:aux004, def:physics:IPhO_2026_2_B_3:aux008, def:physics:IPhO_2026_2_B_3:aux010, def:physics:IPhO_2026_2_B_3:aux012}
+  At a fivefold power gain over a positive baseline, the B.2 power law forces cos θ\_max = 4/5.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration container\_radius\_of\_fivefold\_power]
+  \label{lem:physics:IPhO_2026_2_B_3:aux014}
+  \lean{IPhO2026Problem2B3.container_radius_of_fivefold_power}
+  \uses{def:physics:IPhO_2026_2_B_3:aux004, def:physics:IPhO_2026_2_B_3:aux006, def:physics:IPhO_2026_2_B_3:aux007, def:physics:IPhO_2026_2_B_3:aux008, def:physics:IPhO_2026_2_B_3:aux010, def:physics:IPhO_2026_2_B_3:aux011, def:physics:IPhO_2026_2_B_3:aux012, lem:physics:IPhO_2026_2_B_3:aux013}
+  Using both previous-part laws and the nonnegative incidence-angle branch, R = 1 m together with a fivefold power gain forces the requested container radius.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

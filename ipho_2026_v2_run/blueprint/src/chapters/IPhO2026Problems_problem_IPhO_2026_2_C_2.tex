@@ -1,0 +1,241 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_2.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_2}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Expand m\_B and b\_B to first order in Delta theta.
+
+\paragraph{Current subquestion.}
+Expand m\_B and b\_B to first order in Delta theta.
+
+\paragraph{Recorded answer/context.}
+m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract.}
+Use the same Physlib-backed length carrier and named SI projection as C.1 for
+the mirror radius, coordinates, and intercept.  The slope and angular
+increment are dimensionless.  Keep the conclusion as two genuine local
+first-order expansions with quadratic remainders; for the intercept, apply
+the asymptotic statement to its SI-length projection rather than replacing a
+length by a bare real.  Retain the nonzero sine/cosine conditions and the
+Figure 2g incoming/outgoing orientation.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_C_2:target}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.rayB_firstOrderExpansion}
+  \uses{def:physics:IPhO_2026_2_C_2:length_quantity, def:physics:IPhO_2026_2_C_2:length_si, def:physics:IPhO_2026_2_C_2:aux001, def:physics:IPhO_2026_2_C_2:aux002, def:physics:IPhO_2026_2_C_2:aux003, def:physics:IPhO_2026_2_C_2:aux004, def:physics:IPhO_2026_2_C_2:aux005, def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007, def:physics:IPhO_2026_2_C_2:aux008, def:physics:IPhO_2026_2_C_2:aux009, def:physics:IPhO_2026_2_C_2:aux010, def:physics:IPhO_2026_2_C_2:aux011, def:physics:IPhO_2026_2_C_2:aux012, def:physics:IPhO_2026_2_C_2:aux013, lem:physics:IPhO_2026_2_C_2:aux014, lem:physics:IPhO_2026_2_C_2:aux015}
+  IPhO 2026 Problem 2 C.2: the reflected line of the neighboring ray B has the stated first-order slope and intercept expansions as Δθ → 0. The two IsBigO conclusions say that the displayed remainders are bounded by a constant multiple of Δθ² near zero. Thus the approximation order in the source is part of the theorem contract rather than being silently discarded.
+\end{theorem}
+\begin{proof}
+  Apply the exact C.1 coefficient laws at \(\theta+\Delta\theta\).  The
+  derivatives of \(\cot(2\theta)\) and \(R/(2\cos\theta)\) are respectively
+  \(-2\csc^2(2\theta)\) and
+  \(R\tan\theta/(2\cos\theta)\).  Taylor expansion on a neighborhood where
+  the stated denominators stay nonzero leaves remainders bounded by a constant
+  times \((\Delta\theta)^2\).
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_2_C_2:length_quantity}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.LengthQuantity}
+  A unit-independent physical length represented by Physlib's dimensionful
+  carrier with length dimension.
+\end{definition}
+\begin{proof}
+  This is the specialization of Physlib's dimensionful-quantity interface to
+  the physical dimension of length.
+\end{proof}
+
+\begin{definition}[Declaration lengthSI]
+  \label{def:physics:IPhO_2026_2_C_2:length_si}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.lengthSI}
+  \uses{def:physics:IPhO_2026_2_C_2:length_quantity}
+  The scalar projection of a physical length in metres under Physlib's SI
+  unit choice.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length at the SI unit choice and take its
+  underlying real readout.
+\end{proof}
+
+\begin{definition}[Declaration Point2D]
+  \label{def:physics:IPhO_2026_2_C_2:aux001}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.Point2D}
+  \uses{def:physics:IPhO_2026_2_C_2:length_quantity}
+  A point in the two-dimensional cross-section used in Figure 2g.  Both
+  coordinates are Physlib length quantities with a shared named SI projection.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Direction2D]
+  \label{def:physics:IPhO_2026_2_C_2:aux002}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.Direction2D}
+  A directed vector in the Figure 2g coordinate frame. Its components are used only to retain the incoming/outgoing orientation of an optical ray.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration verticalIncomingDirection]
+  \label{def:physics:IPhO_2026_2_C_2:aux003}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.verticalIncomingDirection}
+  \uses{def:physics:IPhO_2026_2_C_2:aux002}
+  The upward vertical direction of the parallel incident rays in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AffineLineReadout]
+  \label{def:physics:IPhO_2026_2_C_2:aux004}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.AffineLineReadout}
+  \uses{def:physics:IPhO_2026_2_C_2:length_quantity, def:physics:IPhO_2026_2_C_2:length_si}
+  A reflected straight line with dimensionless slope and Physlib
+  length-valued intercept.  Its scalar analytic equation uses the intercept's
+  named SI projection.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2gRayLabel]
+  \label{def:physics:IPhO_2026_2_C_2:aux005}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.Figure2gRayLabel}
+  Incidence-point labels from Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OpticalRay2D]
+  \label{def:physics:IPhO_2026_2_C_2:aux006}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.OpticalRay2D}
+  \uses{def:physics:IPhO_2026_2_C_2:aux001, def:physics:IPhO_2026_2_C_2:aux002, def:physics:IPhO_2026_2_C_2:aux004, def:physics:IPhO_2026_2_C_2:aux005}
+  The data retained for an incident ray and its reflected branch. Angles are real numbers measured in radians in the convention of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCylindricalMirror]
+  \label{def:physics:IPhO_2026_2_C_2:aux007}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.HalfCylindricalMirror}
+  \uses{def:physics:IPhO_2026_2_C_2:length_quantity, def:physics:IPhO_2026_2_C_2:length_si}
+  The half-cylindrical mirror, represented by a positive Physlib
+  length-valued circular cross-section radius.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnUpperSemicircle]
+  \label{def:physics:IPhO_2026_2_C_2:aux008}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.OnUpperSemicircle}
+  \uses{def:physics:IPhO_2026_2_C_2:aux001, def:physics:IPhO_2026_2_C_2:aux007}
+  A point lies on the upper semicircular cross-section of the mirror.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AffineLineReadout.Contains]
+  \label{def:physics:IPhO_2026_2_C_2:aux009}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.AffineLineReadout.Contains}
+  \uses{def:physics:IPhO_2026_2_C_2:aux001, def:physics:IPhO_2026_2_C_2:aux004}
+  A point lies on a reflected line in the signed coordinate convention of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasFigure2gGeometry]
+  \label{def:physics:IPhO_2026_2_C_2:aux010}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.HasFigure2gGeometry}
+  \uses{def:physics:IPhO_2026_2_C_2:aux003, def:physics:IPhO_2026_2_C_2:aux005, def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007, def:physics:IPhO_2026_2_C_2:aux008, def:physics:IPhO_2026_2_C_2:aux009}
+  The geometry and orientation read directly from Figure 2g for a ray whose incidence angle is φ. In particular, the incoming ray is vertical and the reflected ray is taken on the left-going branch.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HaveParallelIncomingDirections]
+  \label{def:physics:IPhO_2026_2_C_2:aux011}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.HaveParallelIncomingDirections}
+  \uses{def:physics:IPhO_2026_2_C_2:aux006}
+  The two incident rays are parallel with the same directed incoming orientation, as specified in C.2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SatisfiesPreviousPartC1]
+  \label{def:physics:IPhO_2026_2_C_2:aux012}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.SatisfiesPreviousPartC1}
+  \uses{def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007}
+  The reusable result of C.1 for the ray labelled A. This is previous-part input, rather than either of the first-order conclusions requested in C.2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SatisfiesHalfCylindricalSpecularLaw]
+  \label{def:physics:IPhO_2026_2_C_2:aux013}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.SatisfiesHalfCylindricalSpecularLaw}
+  \uses{def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007}
+  The exact coefficient consequence of specular reflection from the circular mirror at an arbitrary incidence angle. C.2 applies this governing law at θ + Δθ and then takes its first-order expansion.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration slope\_eq\_of\_specular\_law]
+  \label{lem:physics:IPhO_2026_2_C_2:aux014}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.slope_eq_of_specular_law}
+  \uses{def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007, def:physics:IPhO_2026_2_C_2:aux013}
+  The exact slope equation exposed by the circular-mirror reflection law.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration intercept\_eq\_of\_specular\_law]
+  \label{lem:physics:IPhO_2026_2_C_2:aux015}
+  \lean{IPhO2026Problems.IPhO2026_2_C_2.intercept_eq_of_specular_law}
+  \uses{def:physics:IPhO_2026_2_C_2:aux006, def:physics:IPhO_2026_2_C_2:aux007, def:physics:IPhO_2026_2_C_2:aux013, lem:physics:IPhO_2026_2_C_2:aux014}
+  The exact intercept equation exposed by the circular-mirror reflection law.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

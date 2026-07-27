@@ -1,0 +1,258 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_A_1.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_1\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_A_1}
+
+\paragraph{Problem source.}
+Two water reservoirs are separated by a vertical wall MN.  A square slot of
+vertical size a*sqrt(2)/2 is sealed by a fully submerged solid cube of side a
+and density 3*rho\_0, where rho\_0 is the density of water.  The cube is hinged
+frictionlessly at O and may rotate about an axis perpendicular to the figure.
+The maximum permitted difference in water levels is Delta h = 1.41 m.  Use
+Figure 1a on the source page for the exact geometry and lever arms.
+
+Current subquestion:
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Current subquestion.}
+Calculate the side length a that makes Delta h = 1.41 m the maximum permissible water-level difference.
+
+\paragraph{Recorded answer/context.}
+a = Delta h/(2*sqrt(2)) = 0.50 m.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-1.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_A\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_1_A_1:target}
+  \lean{IPhO2026Problems.problem_IPhO_2026_1_A_1}
+  \uses{def:physics:IPhO_2026_1_A_1:aux001, def:physics:IPhO_2026_1_A_1:aux002, def:physics:IPhO_2026_1_A_1:aux003, def:physics:IPhO_2026_1_A_1:aux004, def:physics:IPhO_2026_1_A_1:aux005, def:physics:IPhO_2026_1_A_1:aux006, def:physics:IPhO_2026_1_A_1:aux007, def:physics:IPhO_2026_1_A_1:aux008, def:physics:IPhO_2026_1_A_1:aux009, def:physics:IPhO_2026_1_A_1:aux010, def:physics:IPhO_2026_1_A_1:aux011, def:physics:IPhO_2026_1_A_1:aux012, def:physics:IPhO_2026_1_A_1:aux013, def:physics:IPhO_2026_1_A_1:aux014, def:physics:IPhO_2026_1_A_1:aux015, def:physics:IPhO_2026_1_A_1:aux016, def:physics:IPhO_2026_1_A_1:aux017, lem:physics:IPhO_2026_1_A_1:aux018, lem:physics:IPhO_2026_1_A_1:aux019, lem:physics:IPhO_2026_1_A_1:aux020, lem:physics:IPhO_2026_1_A_1:aux021, lem:physics:IPhO_2026_1_A_1:aux022}
+  IPhO 2026 T1-A1: the critical cube side is Δh / (2√2). For the stated Δh = 1.41 m, its exact SI readout rounds to the reported 0.50 m at two decimal places; the strict 0.005 m error bound expresses that rounding and is not an experimental-uncertainty assumption.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration areaDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux001}
+  \lean{IPhO2026Problems.HydrostaticGateA1.areaDimension}
+  Dimension of an area.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration volumeDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux002}
+  \lean{IPhO2026Problems.HydrostaticGateA1.volumeDimension}
+  Dimension of a volume.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration massDensityDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux003}
+  \lean{IPhO2026Problems.HydrostaticGateA1.massDensityDimension}
+  Dimension of mass density.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration accelerationDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux004}
+  \lean{IPhO2026Problems.HydrostaticGateA1.accelerationDimension}
+  Dimension of acceleration.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration forceDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux005}
+  \lean{IPhO2026Problems.HydrostaticGateA1.forceDimension}
+  Dimension of force.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration pressureDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux006}
+  \lean{IPhO2026Problems.HydrostaticGateA1.pressureDimension}
+  Dimension of pressure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration torqueDimension]
+  \label{def:physics:IPhO_2026_1_A_1:aux007}
+  \lean{IPhO2026Problems.HydrostaticGateA1.torqueDimension}
+  \uses{def:physics:IPhO_2026_1_A_1:aux005}
+  Dimension of torque.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration FigurePoint]
+  \label{def:physics:IPhO_2026_1_A_1:aux008}
+  \lean{IPhO2026Problems.HydrostaticGateA1.FigurePoint}
+  The three labelled points appearing in Figure 1a.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration wallMN]
+  \label{def:physics:IPhO_2026_1_A_1:aux009}
+  \lean{IPhO2026Problems.HydrostaticGateA1.wallMN}
+  \uses{def:physics:IPhO_2026_1_A_1:aux008}
+  The vertical wall in Figure 1a has labelled endpoints M and N.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration hingePoint]
+  \label{def:physics:IPhO_2026_1_A_1:aux010}
+  \lean{IPhO2026Problems.HydrostaticGateA1.hingePoint}
+  \uses{def:physics:IPhO_2026_1_A_1:aux008}
+  The frictionless rotation axis passes through the labelled point O.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TorqueSense]
+  \label{def:physics:IPhO_2026_1_A_1:aux011}
+  \lean{IPhO2026Problems.HydrostaticGateA1.TorqueSense}
+  Orientation data needed to distinguish the two opposing torques.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure1aGeometry]
+  \label{def:physics:IPhO_2026_1_A_1:aux012}
+  \lean{IPhO2026Problems.HydrostaticGateA1.Figure1aGeometry}
+  \uses{def:physics:IPhO_2026_1_A_1:aux001, def:physics:IPhO_2026_1_A_1:aux002}
+  Dimensioned geometric readouts from the cube, slot, and lever arms in Figure 1a.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MatchesFigure1a]
+  \label{def:physics:IPhO_2026_1_A_1:aux013}
+  \lean{IPhO2026Problems.HydrostaticGateA1.MatchesFigure1a}
+  \uses{def:physics:IPhO_2026_1_A_1:aux012}
+  The mathematical consequences of the geometry in Figure 1a. In particular, the slot has width a, vertical size a * √2 / 2, and the pressure and effective-weight lever arms about O are both a / (2 * √2).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HydrostaticGate]
+  \label{def:physics:IPhO_2026_1_A_1:aux014}
+  \lean{IPhO2026Problems.HydrostaticGateA1.HydrostaticGate}
+  \uses{def:physics:IPhO_2026_1_A_1:aux002, def:physics:IPhO_2026_1_A_1:aux003, def:physics:IPhO_2026_1_A_1:aux004, def:physics:IPhO_2026_1_A_1:aux005, def:physics:IPhO_2026_1_A_1:aux006, def:physics:IPhO_2026_1_A_1:aux007, def:physics:IPhO_2026_1_A_1:aux011, def:physics:IPhO_2026_1_A_1:aux012}
+  All physical quantities needed for the two reservoirs, the submerged cube, and the forces and torques acting on it.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ObeysHydrostaticLaws]
+  \label{def:physics:IPhO_2026_1_A_1:aux015}
+  \lean{IPhO2026Problems.HydrostaticGateA1.ObeysHydrostaticLaws}
+  \uses{def:physics:IPhO_2026_1_A_1:aux014}
+  Hydrostatic, buoyancy, weight, and moment-arm laws for the fully submerged cube. These equations are independent of the requested value of a.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AtMaximumPermissibleDifference]
+  \label{def:physics:IPhO_2026_1_A_1:aux016}
+  \lean{IPhO2026Problems.HydrostaticGateA1.AtMaximumPermissibleDifference}
+  \uses{def:physics:IPhO_2026_1_A_1:aux014}
+  The limiting configuration described in the official solution: the lower edge of the opening has just lost contact with the cube, the hinge contributes no torque about O, and the two oppositely oriented torque magnitudes balance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MatchesProblemData]
+  \label{def:physics:IPhO_2026_1_A_1:aux017}
+  \lean{IPhO2026Problems.HydrostaticGateA1.MatchesProblemData}
+  \uses{def:physics:IPhO_2026_1_A_1:aux014}
+  The numerical data printed in the problem statement.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration opening\_area\_readout]
+  \label{lem:physics:IPhO_2026_1_A_1:aux018}
+  \lean{IPhO2026Problems.HydrostaticGateA1.opening_area_readout}
+  \uses{def:physics:IPhO_2026_1_A_1:aux013, def:physics:IPhO_2026_1_A_1:aux014}
+  Figure 1a's slot geometry gives the effective opening area a² / √2.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration critical\_torque\_balance]
+  \label{lem:physics:IPhO_2026_1_A_1:aux019}
+  \lean{IPhO2026Problems.HydrostaticGateA1.critical_torque_balance}
+  \uses{def:physics:IPhO_2026_1_A_1:aux014, def:physics:IPhO_2026_1_A_1:aux015, def:physics:IPhO_2026_1_A_1:aux016, lem:physics:IPhO_2026_1_A_1:aux018}
+  At the limiting configuration, the zero contact and hinge torques reduce static equilibrium to equality of the pressure and effective-weight torques.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration side\_length\_from\_hydrostatic\_balance]
+  \label{lem:physics:IPhO_2026_1_A_1:aux020}
+  \lean{IPhO2026Problems.HydrostaticGateA1.side_length_from_hydrostatic_balance}
+  \uses{def:physics:IPhO_2026_1_A_1:aux013, def:physics:IPhO_2026_1_A_1:aux014, def:physics:IPhO_2026_1_A_1:aux015, def:physics:IPhO_2026_1_A_1:aux016, lem:physics:IPhO_2026_1_A_1:aux018, lem:physics:IPhO_2026_1_A_1:aux019}
+  The hydrostatic and torque equations determine the cube side in terms of the two densities and the level difference.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration side\_length\_for\_triple\_density]
+  \label{lem:physics:IPhO_2026_1_A_1:aux021}
+  \lean{IPhO2026Problems.HydrostaticGateA1.side_length_for_triple_density}
+  \uses{def:physics:IPhO_2026_1_A_1:aux013, def:physics:IPhO_2026_1_A_1:aux014, def:physics:IPhO_2026_1_A_1:aux015, def:physics:IPhO_2026_1_A_1:aux016, lem:physics:IPhO_2026_1_A_1:aux018, lem:physics:IPhO_2026_1_A_1:aux019, lem:physics:IPhO_2026_1_A_1:aux020}
+  For a block of density 3ρ₀, the general critical-balance formula simplifies to a = Δh / (2√2).
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration stated\_value\_rounds\_to\_half\_meter]
+  \label{lem:physics:IPhO_2026_1_A_1:aux022}
+  \lean{IPhO2026Problems.HydrostaticGateA1.stated_value_rounds_to_half_meter}
+  \uses{lem:physics:IPhO_2026_1_A_1:aux018, lem:physics:IPhO_2026_1_A_1:aux019, lem:physics:IPhO_2026_1_A_1:aux020, lem:physics:IPhO_2026_1_A_1:aux021}
+  The exact value obtained from Δh = 1.41 m is within half of one hundredth of 0.50 m, so 0.50 m is the correct two-decimal report.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

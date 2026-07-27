@@ -1,0 +1,171 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_2.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.2
+% archon:previous-part IPhO_2026_2_B_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_2}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Current subquestion.}
+Express the power ratio P/P\_0 in terms of theta\_max.
+
+\paragraph{Recorded answer/context.}
+P/P\_0 = 1/(1 - cos(theta\_max)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.1. Question: Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R. Reusable conclusions: alpha = R and beta = -R/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_B_2:target}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.power_ratio_eq_one_div_one_sub_cos}
+  \uses{def:physics:IPhO_2026_2_B_2:aux001, def:physics:IPhO_2026_2_B_2:aux002, def:physics:IPhO_2026_2_B_2:aux003, def:physics:IPhO_2026_2_B_2:aux004, def:physics:IPhO_2026_2_B_2:aux005, def:physics:IPhO_2026_2_B_2:aux006, def:physics:IPhO_2026_2_B_2:aux007, def:physics:IPhO_2026_2_B_2:aux008, def:physics:IPhO_2026_2_B_2:aux009, def:physics:IPhO_2026_2_B_2:aux010, lem:physics:IPhO_2026_2_B_2:aux011, lem:physics:IPhO_2026_2_B_2:aux012}
+  For the Figure 2f solar cooker, the actual-to-no-mirror received-power ratio is 1 / (1 - cos θ\_max).
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration LengthReadout]
+  \label{def:physics:IPhO_2026_2_B_2:aux001}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.LengthReadout}
+  A length readout in one fixed coherent unit system.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration opticalPowerDimension]
+  \label{def:physics:IPhO_2026_2_B_2:aux002}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.opticalPowerDimension}
+  The physical dimension mass · length² · time⁻³ of optical power.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration irradianceDimension]
+  \label{def:physics:IPhO_2026_2_B_2:aux003}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.irradianceDimension}
+  The physical dimension mass · time⁻³ of irradiance (power per unit area).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PowerReadout]
+  \label{def:physics:IPhO_2026_2_B_2:aux004}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.PowerReadout}
+  \uses{def:physics:IPhO_2026_2_B_2:aux002}
+  An optical-power readout in the same fixed coherent unit system.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IrradianceReadout]
+  \label{def:physics:IPhO_2026_2_B_2:aux005}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.IrradianceReadout}
+  \uses{def:physics:IPhO_2026_2_B_2:aux003}
+  A solar-irradiance readout in the same fixed coherent unit system.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2fSetup]
+  \label{def:physics:IPhO_2026_2_B_2:aux006}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.Figure2fSetup}
+  \uses{def:physics:IPhO_2026_2_B_2:aux001, def:physics:IPhO_2026_2_B_2:aux004, def:physics:IPhO_2026_2_B_2:aux005}
+  The dimensioned quantities and ray observables named in Figure 2f. The three direction fields are dimensionless coordinate vectors. The incidence angle is measured from the mirror normal at the point of incidence. The common axialLength is the illuminated length of both cylinders; it cancels from the requested power ratio.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2fGeometry]
+  \label{def:physics:IPhO_2026_2_B_2:aux007}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.Figure2fGeometry}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006}
+  The geometric and orientation readouts of Figure 2f. The existential scalar in axes\_parallel gives an equation witnessing parallelism rather than leaving it as an opaque geometric predicate. The strict acute-angle branch fixes the physical incidence-angle orientation.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartB1Result]
+  \label{def:physics:IPhO_2026_2_B_2:aux008}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.PreviousPartB1Result}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006}
+  The reusable conclusion of Part B.1, represented without importing its Lean output: a = α sin θ\_max + β sin (2 θ\_max), with α = R and β = -R/2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ValidFigure2fRayOptics]
+  \label{def:physics:IPhO_2026_2_B_2:aux009}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.ValidFigure2fRayOptics}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006}
+  The ray-level assumptions from the problem statement. Uniform intensity and parallelism are exposed as equalities. Perfect absorption and the one-reflection condition are exposed as implications, while the maximum-angle condition supplies both an upper bound and a limiting ray.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2fPowerBalance]
+  \label{def:physics:IPhO_2026_2_B_2:aux010}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.Figure2fPowerBalance}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006}
+  Power accounting for constant uniform irradiance. The two width equations are the Figure 2f projected-aperture readouts. The two power equations state that a fully absorbed parallel beam carries irradiance times projected area, with the common projected area written as width times axial length. None of these fields states the requested final ratio.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration container\_radius\_factorization]
+  \label{lem:physics:IPhO_2026_2_B_2:aux011}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.container_radius_factorization}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006, def:physics:IPhO_2026_2_B_2:aux008}
+  Part B.1 and the double-angle identity rewrite the container radius in a form that displays the factor which will cancel against the collected aperture.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration power\_ratio\_eq\_projected\_width\_ratio]
+  \label{lem:physics:IPhO_2026_2_B_2:aux012}
+  \lean{IPhO2026Problems.IPhO_2026_2_B_2.power_ratio_eq_projected_width_ratio}
+  \uses{def:physics:IPhO_2026_2_B_2:aux006, def:physics:IPhO_2026_2_B_2:aux007, def:physics:IPhO_2026_2_B_2:aux010, lem:physics:IPhO_2026_2_B_2:aux011}
+  The common irradiance and axial extent cancel, so the power ratio equals the ratio of the two projected widths.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

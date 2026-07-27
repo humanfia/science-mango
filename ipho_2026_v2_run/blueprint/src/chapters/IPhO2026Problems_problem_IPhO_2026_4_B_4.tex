@@ -1,0 +1,184 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_B_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_B_4.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id B.4
+% archon:previous-part IPhO_2026_4_B_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_B\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_B_4}
+
+\paragraph{Problem source.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+Current subquestion:
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Current subquestion.}
+Assuming dry air plus water vapor and zero vapor pressure at T\_0, express P\_v using P\_atm, H\_0, H, T\_0, and T.
+
+\paragraph{Recorded answer/context.}
+P\_v = P\_atm*[1 - (H\_0*T)/(H*T\_0)].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-12.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.3. Question: Extrapolate the B2 graph to determine H\_0 at 0 degrees Celsius. Reusable conclusions: Official sample: H\_0 = 5.9 cm, corresponding to V\_0 = 53.4 mL. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_B\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_B_4:target}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.vaporPressurePascal_eq}
+  \uses{def:physics:IPhO_2026_4_B_4:aux001, def:physics:IPhO_2026_4_B_4:aux002, def:physics:IPhO_2026_4_B_4:aux003, def:physics:IPhO_2026_4_B_4:aux004, def:physics:IPhO_2026_4_B_4:aux005, def:physics:IPhO_2026_4_B_4:aux006, def:physics:IPhO_2026_4_B_4:aux007, def:physics:IPhO_2026_4_B_4:aux008, def:physics:IPhO_2026_4_B_4:aux009, def:physics:IPhO_2026_4_B_4:aux010, def:physics:IPhO_2026_4_B_4:aux011, def:physics:IPhO_2026_4_B_4:aux012, def:physics:IPhO_2026_4_B_4:aux013, def:physics:IPhO_2026_4_B_4:aux014}
+  In the Figure 19 idealized pressure-balance model, Pᵥ = P\_atm * (1 - H₀ * T / (H * T₀)). Here every symbol denotes the corresponding SI scalar readout carried by apparatus.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration PressureMeasurement]
+  \label{def:physics:IPhO_2026_4_B_4:aux001}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.PressureMeasurement}
+  A pressure together with its calibrated scalar readout in pascals.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LengthMeasurement]
+  \label{def:physics:IPhO_2026_4_B_4:aux002}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.LengthMeasurement}
+  A length together with its calibrated scalar readout in metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AreaMeasurement]
+  \label{def:physics:IPhO_2026_4_B_4:aux003}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.AreaMeasurement}
+  An area together with its calibrated scalar readout in square metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VolumeMeasurement]
+  \label{def:physics:IPhO_2026_4_B_4:aux004}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.VolumeMeasurement}
+  A volume together with its calibrated scalar readout in cubic metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AbsoluteTemperatureMeasurement]
+  \label{def:physics:IPhO_2026_4_B_4:aux005}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.AbsoluteTemperatureMeasurement}
+  An absolute temperature together with its calibrated kelvin readout.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration InnerCylinderGasState]
+  \label{def:physics:IPhO_2026_4_B_4:aux006}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.InnerCylinderGasState}
+  \uses{def:physics:IPhO_2026_4_B_4:aux001, def:physics:IPhO_2026_4_B_4:aux002, def:physics:IPhO_2026_4_B_4:aux004, def:physics:IPhO_2026_4_B_4:aux005}
+  The scalar and dimensionful readouts for one equilibrium state of the gas inside the inner cylinder.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure19Apparatus]
+  \label{def:physics:IPhO_2026_4_B_4:aux007}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.Figure19Apparatus}
+  \uses{def:physics:IPhO_2026_4_B_4:aux001, def:physics:IPhO_2026_4_B_4:aux003, def:physics:IPhO_2026_4_B_4:aux006}
+  The Figure 19 apparatus data needed in B.4. The same uniform inner cylinder cross-section is used at the reference and measured states.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration officialB3ReferenceHeightMetre]
+  \label{def:physics:IPhO_2026_4_B_4:aux008}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.officialB3ReferenceHeightMetre}
+  Official sample readout from the preceding graph extrapolation, B.3: H₀ = 5.9 cm. B.4 is stated for a general measured H₀, so this constant is recorded but is not assumed by the main theorem.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration officialB3ReferenceVolumeCubicMetre]
+  \label{def:physics:IPhO_2026_4_B_4:aux009}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.officialB3ReferenceVolumeCubicMetre}
+  Official sample volume corresponding to the B.3 extrapolation: V₀ = 53.4 mL.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration icePointTemperatureKelvin]
+  \label{def:physics:IPhO_2026_4_B_4:aux010}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.icePointTemperatureKelvin}
+  The reference temperature T₀ = 273.15 K specified by the experiment.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration universalGasConstantJoulePerMoleKelvin]
+  \label{def:physics:IPhO_2026_4_B_4:aux011}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.universalGasConstantJoulePerMoleKelvin}
+  The gas-constant readout prescribed for the later vapor-pressure fit.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ClausiusClapeyronContext]
+  \label{def:physics:IPhO_2026_4_B_4:aux012}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.ClausiusClapeyronContext}
+  \uses{def:physics:IPhO_2026_4_B_4:aux001, def:physics:IPhO_2026_4_B_4:aux005, def:physics:IPhO_2026_4_B_4:aux011}
+  Parameters appearing in the Clausius--Clapeyron relation quoted before B.4. This is kept separate from the B.4 dry-air calibration model: the quoted law uses a positive reference saturation pressure, whereas B.4 asks the experimenter to neglect vapor pressure in the extrapolated reference state.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ObeysClausiusClapeyron]
+  \label{def:physics:IPhO_2026_4_B_4:aux013}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.ObeysClausiusClapeyron}
+  \uses{def:physics:IPhO_2026_4_B_4:aux011, def:physics:IPhO_2026_4_B_4:aux012}
+  The logarithmic Clausius--Clapeyron law from the experimental problem. It exposes both positivity and the equation, so it is a constraining physical relation rather than an opaque predicate. It is contextual for later parts and is not an assumption of vaporPressurePascal\_eq.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration B4Assumptions]
+  \label{def:physics:IPhO_2026_4_B_4:aux014}
+  \lean{IPhO2026Problems.IPhO2026_4_B_4.B4Assumptions}
+  \uses{def:physics:IPhO_2026_4_B_4:aux007, def:physics:IPhO_2026_4_B_4:aux010}
+  Governing laws and figure readouts used for B.4. The two icOc...PressureBalance equations are the exact idealization of the approximately atmospheric IC pressure produced by matching the water levels. The final requested expression for vapor pressure is deliberately not a field of this structure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+% --- Archon physics formalization source end ---

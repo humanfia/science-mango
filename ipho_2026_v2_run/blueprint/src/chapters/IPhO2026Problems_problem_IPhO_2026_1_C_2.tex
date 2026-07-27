@@ -1,0 +1,246 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_C_2.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.2
+% archon:previous-part IPhO_2026_1_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_2}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Current subquestion.}
+For theta = pi/6, Delta U = 1.10 eV, and m = 16.0 amu, calculate hbar*omega\_min - Delta U in eV.
+
+\paragraph{Recorded answer/context.}
+hbar*omega\_min - Delta U = 2.03e-11 eV.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m. Reusable conclusions: For theta <= pi/2, omega\_min = 3*m*c\textasciicircum{}2*[1 - sqrt(1 - (2*Delta U/(3*m*c\textasciicircum{}2))*(1 + 2*sin(theta)\textasciicircum{}2))]/[hbar*(1 + 2*sin(theta)\textasciicircum{}2)]. For theta >= pi/2 use the same threshold evaluated at theta = pi/2. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_C\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_1_C_2:target}
+  \lean{IPhO2026_1_C_2.threshold_excess_energy_rounds_to_official_value}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001, def:physics:IPhO_2026_1_C_2:aux002, def:physics:IPhO_2026_1_C_2:aux003, def:physics:IPhO_2026_1_C_2:aux004, def:physics:IPhO_2026_1_C_2:aux005, def:physics:IPhO_2026_1_C_2:aux006, def:physics:IPhO_2026_1_C_2:aux007, def:physics:IPhO_2026_1_C_2:aux008, def:physics:IPhO_2026_1_C_2:aux009, def:physics:IPhO_2026_1_C_2:aux010, def:physics:IPhO_2026_1_C_2:aux011, def:physics:IPhO_2026_1_C_2:aux012, def:physics:IPhO_2026_1_C_2:aux013, def:physics:IPhO_2026_1_C_2:aux014, def:physics:IPhO_2026_1_C_2:aux015, def:physics:IPhO_2026_1_C_2:aux016, def:physics:IPhO_2026_1_C_2:aux017, def:physics:IPhO_2026_1_C_2:aux018, def:physics:IPhO_2026_1_C_2:aux019, def:physics:IPhO_2026_1_C_2:aux020}
+  For θ = π/6, ΔU = 1.10 eV, and m = 16.0 amu, the threshold excess energy rounds to 2.03 × 10⁻¹¹ eV to three significant figures. The radius 5 × 10⁻¹⁴ eV is half a unit in the last reported decimal place; it encodes rounding of the answer, not experimental uncertainty.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration DimMass]
+  \label{def:physics:IPhO_2026_1_C_2:aux001}
+  \lean{IPhO2026_1_C_2.DimMass}
+  A physical mass, represented independently of a choice of units.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimAngularFrequency]
+  \label{def:physics:IPhO_2026_1_C_2:aux002}
+  \lean{IPhO2026_1_C_2.DimAngularFrequency}
+  An angular frequency, with physical dimension inverse time.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimAction]
+  \label{def:physics:IPhO_2026_1_C_2:aux003}
+  \lean{IPhO2026_1_C_2.DimAction}
+  An action, the dimension carried by the reduced Planck constant.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimMomentum]
+  \label{def:physics:IPhO_2026_1_C_2:aux004}
+  \lean{IPhO2026_1_C_2.DimMomentum}
+  A dimensionful spatial momentum.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration atomicMassUnit]
+  \label{def:physics:IPhO_2026_1_C_2:aux005}
+  \lean{IPhO2026_1_C_2.atomicMassUnit}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001}
+  The atomic mass unit, using its SI value in kilograms.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration energySI]
+  \label{def:physics:IPhO_2026_1_C_2:aux006}
+  \lean{IPhO2026_1_C_2.energySI}
+  SI energy readout, in joules.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration massSI]
+  \label{def:physics:IPhO_2026_1_C_2:aux007}
+  \lean{IPhO2026_1_C_2.massSI}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001}
+  SI mass readout, in kilograms.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration angularFrequencySI]
+  \label{def:physics:IPhO_2026_1_C_2:aux008}
+  \lean{IPhO2026_1_C_2.angularFrequencySI}
+  \uses{def:physics:IPhO_2026_1_C_2:aux002}
+  SI angular-frequency readout, in radians per second.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration actionSI]
+  \label{def:physics:IPhO_2026_1_C_2:aux009}
+  \lean{IPhO2026_1_C_2.actionSI}
+  \uses{def:physics:IPhO_2026_1_C_2:aux003}
+  SI action readout, in joule-seconds.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration momentumSI]
+  \label{def:physics:IPhO_2026_1_C_2:aux010}
+  \lean{IPhO2026_1_C_2.momentumSI}
+  \uses{def:physics:IPhO_2026_1_C_2:aux004}
+  SI coordinate readout of a dimensionful momentum.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration energyInElectronVolts]
+  \label{def:physics:IPhO_2026_1_C_2:aux011}
+  \lean{IPhO2026_1_C_2.energyInElectronVolts}
+  \uses{def:physics:IPhO_2026_1_C_2:aux006}
+  The number of electronvolts in a physical energy.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration massInAtomicMassUnits]
+  \label{def:physics:IPhO_2026_1_C_2:aux012}
+  \lean{IPhO2026_1_C_2.massInAtomicMassUnits}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001, def:physics:IPhO_2026_1_C_2:aux005, def:physics:IPhO_2026_1_C_2:aux007}
+  The number of atomic mass units in a physical mass.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration restEnergyInElectronVolts]
+  \label{def:physics:IPhO_2026_1_C_2:aux013}
+  \lean{IPhO2026_1_C_2.restEnergyInElectronVolts}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001, def:physics:IPhO_2026_1_C_2:aux006, def:physics:IPhO_2026_1_C_2:aux007}
+  The rest energy m c², expressed in electronvolts.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SourceFigure]
+  \label{def:physics:IPhO_2026_1_C_2:aux014}
+  \lean{IPhO2026_1_C_2.SourceFigure}
+  The source diagram used to specify the momentum geometry.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OzonePhotodissociation]
+  \label{def:physics:IPhO_2026_1_C_2:aux015}
+  \lean{IPhO2026_1_C_2.OzonePhotodissociation}
+  \uses{def:physics:IPhO_2026_1_C_2:aux001, def:physics:IPhO_2026_1_C_2:aux002, def:physics:IPhO_2026_1_C_2:aux003, def:physics:IPhO_2026_1_C_2:aux004, def:physics:IPhO_2026_1_C_2:aux014}
+  Physical data for the threshold photodissociation γ + O₃ → O₂ + O shown in Fig. 1c. All momenta are two-dimensional because Fig. 1c fixes the scattering plane. The O₂ and O masses are respectively 2m and m, where atomMass is m.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ClassicalPhotodissociationLaws]
+  \label{def:physics:IPhO_2026_1_C_2:aux016}
+  \lean{IPhO2026_1_C_2.ClassicalPhotodissociationLaws}
+  \uses{def:physics:IPhO_2026_1_C_2:aux006, def:physics:IPhO_2026_1_C_2:aux007, def:physics:IPhO_2026_1_C_2:aux008, def:physics:IPhO_2026_1_C_2:aux009, def:physics:IPhO_2026_1_C_2:aux010, def:physics:IPhO_2026_1_C_2:aux015}
+  The governing physical laws used in part C. These fields expose the SI equations needed to eliminate the abstract physical objects: the definition of ΔU, the photon relations E = ℏω and p = E/c, the Fig. 1c orientation, momentum conservation, and non-relativistic energy conservation for fragment masses 2m and m.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration effectiveThresholdAngle]
+  \label{def:physics:IPhO_2026_1_C_2:aux017}
+  \lean{IPhO2026_1_C_2.effectiveThresholdAngle}
+  Above a right angle, the C.1 threshold is the threshold at π/2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thresholdShapeFactor]
+  \label{def:physics:IPhO_2026_1_C_2:aux018}
+  \lean{IPhO2026_1_C_2.thresholdShapeFactor}
+  \uses{def:physics:IPhO_2026_1_C_2:aux017}
+  The angular factor occurring after minimization over the fragment momentum.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartC1Threshold]
+  \label{def:physics:IPhO_2026_1_C_2:aux019}
+  \lean{IPhO2026_1_C_2.PreviousPartC1Threshold}
+  \uses{def:physics:IPhO_2026_1_C_2:aux011, def:physics:IPhO_2026_1_C_2:aux013, def:physics:IPhO_2026_1_C_2:aux015, def:physics:IPhO_2026_1_C_2:aux017, def:physics:IPhO_2026_1_C_2:aux018}
+  The reusable content of part C.1, stated as the energy-balance equation for the lower threshold root. It is equivalent to the energy-conserving closed form and also records the θ ≥ π/2 branch through effectiveThresholdAngle.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration requestedExcessEnergyInElectronVolts]
+  \label{def:physics:IPhO_2026_1_C_2:aux020}
+  \lean{IPhO2026_1_C_2.requestedExcessEnergyInElectronVolts}
+  \uses{def:physics:IPhO_2026_1_C_2:aux006, def:physics:IPhO_2026_1_C_2:aux008, def:physics:IPhO_2026_1_C_2:aux009, def:physics:IPhO_2026_1_C_2:aux011, def:physics:IPhO_2026_1_C_2:aux015}
+  The scalar electronvolt readout of the requested quantity ℏ ω\_min - ΔU.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+% --- Archon physics formalization source end ---

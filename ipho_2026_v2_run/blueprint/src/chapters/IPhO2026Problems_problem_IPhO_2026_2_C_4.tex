@@ -1,0 +1,189 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_4.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_4.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.4
+% archon:previous-part IPhO_2026_2_C_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_4}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_4}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Current subquestion.}
+For theta << 1, put the caustic in the form Y\_c = v*|X\_c|\textasciicircum{}(p/q) + u. Determine u, v, and the integers p,q.
+
+\paragraph{Recorded answer/context.}
+u = R/2, v = (3/4)*R\textasciicircum{}(1/3), p = 2, and q = 3.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.3. Question: Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays. Reusable conclusions: X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_4.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_C_4:target}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.smallAngleCausticPowerLaw}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001, def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux003, def:physics:IPhO_2026_2_C_4:aux004, def:physics:IPhO_2026_2_C_4:aux005, def:physics:IPhO_2026_2_C_4:aux006, def:physics:IPhO_2026_2_C_4:aux007, def:physics:IPhO_2026_2_C_4:aux008, def:physics:IPhO_2026_2_C_4:aux009, def:physics:IPhO_2026_2_C_4:aux010, def:physics:IPhO_2026_2_C_4:aux011, def:physics:IPhO_2026_2_C_4:aux012, def:physics:IPhO_2026_2_C_4:aux013, lem:physics:IPhO_2026_2_C_4:aux014}
+  IPhO 2026 problem 2, part C.4. The C.3 caustic has offset u = R/2, coefficient v = (3/4) R\textasciicircum{}(1/3), and reduced exponent p/q = 2/3.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration Figure2gFrame]
+  \label{def:physics:IPhO_2026_2_C_4:aux001}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.Figure2gFrame}
+  The coordinate convention of Figure 2g. The mirror is the upper half of the circle centered at the origin, the positive x-axis points to the right, and the positive y-axis points upward. All length-valued real numbers below are numerical readouts in lengthUnit.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ReflectedRayReadout]
+  \label{def:physics:IPhO_2026_2_C_4:aux002}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.ReflectedRayReadout}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001}
+  The scalar data of a reflected ray in Figure 2g. The slope is dimensionless, while interceptReadout is a length readout in the unit fixed by Figure2gFrame.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedLineYReadout]
+  \label{def:physics:IPhO_2026_2_C_4:aux003}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.reflectedLineYReadout}
+  \uses{def:physics:IPhO_2026_2_C_4:aux002}
+  The y-coordinate readout on a reflected line at the given x readout.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration mirrorPointXReadout]
+  \label{def:physics:IPhO_2026_2_C_4:aux004}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.mirrorPointXReadout}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001}
+  The x readout of the mirror point labelled by θ in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration mirrorPointYReadout]
+  \label{def:physics:IPhO_2026_2_C_4:aux005}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.mirrorPointYReadout}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001}
+  The y readout of the mirror point labelled by θ in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SatisfiesFigure2gReflectionLaw]
+  \label{def:physics:IPhO_2026_2_C_4:aux006}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.SatisfiesFigure2gReflectionLaw}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001, def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux003, def:physics:IPhO_2026_2_C_4:aux004, def:physics:IPhO_2026_2_C_4:aux005}
+  The specular-reflection law for the vertical, mutually parallel incident rays in Figure 2g. For nondegenerate angles the reflected line has slope cot (2θ), intercept R / (2 cos θ), and passes through the corresponding point of the half-cylindrical mirror. The equations make this interface mathematically constraining; the angle θ = 0 is excluded from the finite-slope chart.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration FormsNeighboringRayCaustic]
+  \label{def:physics:IPhO_2026_2_C_4:aux007}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.FormsNeighboringRayCaustic}
+  \uses{def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux003}
+  Neighboring reflected rays at angles θ (ray A) and θ + Δθ (ray B) intersect at the supplied readouts, and these intersections tend to the caustic as Δθ → 0, with Δθ ≠ 0. The restriction 0 < |θ| < 1 is the nondegenerate small-angle chart used in part C.4.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasPreviousPartC3Coordinates]
+  \label{def:physics:IPhO_2026_2_C_4:aux008}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.HasPreviousPartC3Coordinates}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001}
+  The reusable result of part C.3, restated locally as required by the natural-language-prerequisite policy.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2gCausticModel]
+  \label{def:physics:IPhO_2026_2_C_4:aux009}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.Figure2gCausticModel}
+  \uses{def:physics:IPhO_2026_2_C_4:aux001, def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux006, def:physics:IPhO_2026_2_C_4:aux007, def:physics:IPhO_2026_2_C_4:aux008}
+  A complete local optical model for Figure 2g and the caustic used in part C.4.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedRayA]
+  \label{def:physics:IPhO_2026_2_C_4:aux010}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.reflectedRayA}
+  \uses{def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux009}
+  Figure label A: the reflected member of the family incident at θ.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedRayB]
+  \label{def:physics:IPhO_2026_2_C_4:aux011}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.reflectedRayB}
+  \uses{def:physics:IPhO_2026_2_C_4:aux002, def:physics:IPhO_2026_2_C_4:aux009}
+  Figure label B: the neighboring reflected member incident at θ + Δθ.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CausticPowerLawParameters]
+  \label{def:physics:IPhO_2026_2_C_4:aux012}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.CausticPowerLawParameters}
+  Candidate parameters for a leading small-angle power law Y\_c = v |X\_c|\textasciicircum{}(p/q) + u. uReadout is a length readout. vScaleReadout is the numerical coefficient in the selected length unit; for the answer p/q = 2/3, it has the associated dimensional role length\textasciicircum{}(1/3).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasSmallAnglePowerLaw]
+  \label{def:physics:IPhO_2026_2_C_4:aux013}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.HasSmallAnglePowerLaw}
+  \uses{def:physics:IPhO_2026_2_C_4:aux009, def:physics:IPhO_2026_2_C_4:aux012}
+  The rigorous meaning of the source's small-angle normal form: after removing the vertical offset, the two sides are asymptotically equivalent as θ → 0 through nonzero angles. The exponent is required to be a reduced fraction.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration deltaThetaEventuallySmallerThanTheta]
+  \label{lem:physics:IPhO_2026_2_C_4:aux014}
+  \lean{IPhO2026Problems.IPhO2026_2_C_4.deltaThetaEventuallySmallerThanTheta}
+  As Δθ → 0, every fixed nonzero θ eventually satisfies the source hierarchy |Δθ| < |θ|, the precise local content needed from Δθ ≪ θ.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

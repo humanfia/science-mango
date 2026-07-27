@@ -1,0 +1,400 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_C_6.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_C_6.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id C.6
+% archon:previous-part IPhO_2026_4_C_5
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_C\_6}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_C_6}
+
+\paragraph{Problem source.}
+Water in the inner and outer cylinders exchanges heat radially through an
+acrylic cylindrical wall.  Record T\_IC and T\_OC versus time.  The heat-flow
+model is dQ/dt = (T\_OC - T\_IC)/R\_Th.  For radial Fourier conduction,
+dQ/dt = -lambda*A*dT/dr.  Ignore apparatus heat capacity where instructed and
+use the dimensions in Figure 17.
+
+Current subquestion:
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Current subquestion.}
+Determine the effective wall thermal resistance R\_Th from the C5 graph.
+
+\paragraph{Recorded answer/context.}
+R\_Th = 1/(c\_0*m*slope). Official sample: R\_Th = 1.17 +/- 0.03 K/W.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-13.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.5. Question: Graph the finite-difference rate (T\_IC,j-T\_IC,j-1)/(t\_j-t\_j-1) against the corresponding average T\_OC-T\_IC. Reusable conclusions: The graph is linear, with slope 1/(c\_0*m*R\_Th) under the stated model. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_C\_6.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract and source reconciliation.}
+Retain the existing Physlib dimensions and instantiate the symbolic theorem
+with the official C.1--C.5 readouts: the temperature-time table, inner-water
+mass \(89\pm1\) g, \(c_0=4184\ {\rm J\,kg^{-1}K^{-1}}\), and the fitted
+slope \(a=(2.28\pm0.06)\times10^{-3}\ {\rm s^{-1}}\).  The solution page
+prints \(10^{-5}\), but its table regression and its stated
+\(1.17\ {\rm K/W}\) result both force \(10^{-3}\); formalize this as a
+source typo rather than importing the inconsistent exponent.
+
+Model the mass and slope as measured inputs with standard uncertainties.
+Derive the central reciprocal \(R_{\rm Th}=1/(c_0ma)\), propagate both
+uncertainties through the reciprocal (using the stated standard-uncertainty
+convention and sensitivity/RSS law), and then prove the reporting-rounding
+statement \(1.17\pm0.03\ {\rm K/W}\).  A disconnected fixed estimate
+definition is not substantive evidence.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_C_6:target}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.determineEffectiveWallThermalResistance}
+  \uses{def:physics:IPhO_2026_4_C_6:aux001, def:physics:IPhO_2026_4_C_6:aux002, def:physics:IPhO_2026_4_C_6:aux003, def:physics:IPhO_2026_4_C_6:aux004, def:physics:IPhO_2026_4_C_6:aux005, def:physics:IPhO_2026_4_C_6:aux006, def:physics:IPhO_2026_4_C_6:aux007, def:physics:IPhO_2026_4_C_6:aux008, def:physics:IPhO_2026_4_C_6:aux009, def:physics:IPhO_2026_4_C_6:aux010, def:physics:IPhO_2026_4_C_6:aux011, def:physics:IPhO_2026_4_C_6:aux012, def:physics:IPhO_2026_4_C_6:aux013, def:physics:IPhO_2026_4_C_6:aux014, def:physics:IPhO_2026_4_C_6:aux015, def:physics:IPhO_2026_4_C_6:aux016, def:physics:IPhO_2026_4_C_6:aux017, def:physics:IPhO_2026_4_C_6:aux018, def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux020, def:physics:IPhO_2026_4_C_6:aux021, def:physics:IPhO_2026_4_C_6:aux022, def:physics:IPhO_2026_4_C_6:aux023, def:physics:IPhO_2026_4_C_6:aux024, def:physics:IPhO_2026_4_C_6:aux025, def:physics:IPhO_2026_4_C_6:aux026, def:physics:IPhO_2026_4_C_6:aux027, def:physics:IPhO_2026_4_C_6:aux028, def:physics:IPhO_2026_4_C_6:aux029, def:physics:IPhO_2026_4_C_6:aux030, def:physics:IPhO_2026_4_C_6:aux031, def:physics:IPhO_2026_4_C_6:aux032}
+  The effective wall resistance is obtained by solving the C.5 slope relation. No C.6 answer is included in the hypotheses: previousPart.slopeLaw is exactly the reusable C.5 conclusion recorded in the source.
+\end{theorem}
+\begin{proof}
+  Combining inner-water calorimetry with the resistance law gives
+  \(dT_{\rm IC}/dt=(T_{\rm OC}-T_{\rm IC})/(c_0mR_{\rm Th})\);
+  therefore the C.5 regression slope is \(a=1/(c_0mR_{\rm Th})\).
+  Positivity permits solving for \(R_{\rm Th}\).  Apply the reciprocal-product
+  sensitivities to the independent mass and slope standard uncertainties,
+  combine them in quadrature, and evaluate the source regression certificate;
+  the central value and propagated uncertainty round to \(1.17\) and \(0.03\).
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration DimLength]
+  \label{def:physics:IPhO_2026_4_C_6:aux001}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimLength}
+  A length quantity, whose SI readout is in metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimTime]
+  \label{def:physics:IPhO_2026_4_C_6:aux002}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTime}
+  A time quantity, whose SI readout is in seconds.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimMass]
+  \label{def:physics:IPhO_2026_4_C_6:aux003}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimMass}
+  A mass quantity, whose SI readout is in kilograms.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimTemperature]
+  \label{def:physics:IPhO_2026_4_C_6:aux004}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperature}
+  An absolute temperature or temperature difference, with SI readout in kelvin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration heatFlowRateDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux005}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.heatFlowRateDimension}
+  The dimension of a heat-flow rate (power), kg m² s⁻³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration temperatureRateDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux006}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.temperatureRateDimension}
+  The dimension of a temperature rate, K s⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration inverseTimeDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux007}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.inverseTimeDimension}
+  The dimension of the slope in the C.5 graph, s⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration specificHeatCapacityDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux008}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.specificHeatCapacityDimension}
+  The dimension of specific heat capacity, J kg⁻¹ K⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thermalResistanceDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux009}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.thermalResistanceDimension}
+  The dimension of thermal resistance, K W⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration thermalConductivityDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux010}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.thermalConductivityDimension}
+  The dimension of thermal conductivity, W m⁻¹ K⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration temperatureGradientDimension]
+  \label{def:physics:IPhO_2026_4_C_6:aux011}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.temperatureGradientDimension}
+  The dimension of a radial temperature gradient, K m⁻¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimHeatFlowRate]
+  \label{def:physics:IPhO_2026_4_C_6:aux012}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimHeatFlowRate}
+  \uses{def:physics:IPhO_2026_4_C_6:aux005}
+  The declaration DimHeatFlowRate introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimTemperatureRate]
+  \label{def:physics:IPhO_2026_4_C_6:aux013}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperatureRate}
+  \uses{def:physics:IPhO_2026_4_C_6:aux006}
+  The declaration DimTemperatureRate introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimInverseTime]
+  \label{def:physics:IPhO_2026_4_C_6:aux014}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimInverseTime}
+  \uses{def:physics:IPhO_2026_4_C_6:aux007}
+  The declaration DimInverseTime introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimSpecificHeatCapacity]
+  \label{def:physics:IPhO_2026_4_C_6:aux015}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimSpecificHeatCapacity}
+  \uses{def:physics:IPhO_2026_4_C_6:aux008}
+  The declaration DimSpecificHeatCapacity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimThermalResistance]
+  \label{def:physics:IPhO_2026_4_C_6:aux016}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimThermalResistance}
+  \uses{def:physics:IPhO_2026_4_C_6:aux009}
+  The declaration DimThermalResistance introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimThermalConductivity]
+  \label{def:physics:IPhO_2026_4_C_6:aux017}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimThermalConductivity}
+  \uses{def:physics:IPhO_2026_4_C_6:aux010}
+  The declaration DimThermalConductivity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DimTemperatureGradient]
+  \label{def:physics:IPhO_2026_4_C_6:aux018}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.DimTemperatureGradient}
+  \uses{def:physics:IPhO_2026_4_C_6:aux011}
+  The declaration DimTemperatureGradient introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration siValue]
+  \label{def:physics:IPhO_2026_4_C_6:aux019}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.siValue}
+  The real-valued SI component of a dimensionful quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration areaInSquareMetres]
+  \label{def:physics:IPhO_2026_4_C_6:aux020}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.areaInSquareMetres}
+  The SI area component, in square metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration quantityOfSI]
+  \label{def:physics:IPhO_2026_4_C_6:aux021}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.quantityOfSI}
+  Construct a dimensionful quantity from a real SI component.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17Dimensions]
+  \label{def:physics:IPhO_2026_4_C_6:aux022}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.Figure17Dimensions}
+  \uses{def:physics:IPhO_2026_4_C_6:aux001}
+  The geometry and water heights attached to Figure 17. The source page for C.6 does not reproduce the numerical cylinder radii, so they remain explicit dimensionful inputs. The two water heights are fixed by the experimental procedure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17Dimensions.Valid]
+  \label{def:physics:IPhO_2026_4_C_6:aux023}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.Figure17Dimensions.Valid}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux020, def:physics:IPhO_2026_4_C_6:aux022}
+  Geometric constraints from the nested cylindrical apparatus. The area relation uses the mean wall radius, appropriate for the stated slim-wall Fourier model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ThermalExperiment]
+  \label{def:physics:IPhO_2026_4_C_6:aux024}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ThermalExperiment}
+  \uses{def:physics:IPhO_2026_4_C_6:aux003, def:physics:IPhO_2026_4_C_6:aux004, def:physics:IPhO_2026_4_C_6:aux012, def:physics:IPhO_2026_4_C_6:aux013, def:physics:IPhO_2026_4_C_6:aux015, def:physics:IPhO_2026_4_C_6:aux016, def:physics:IPhO_2026_4_C_6:aux017, def:physics:IPhO_2026_4_C_6:aux018, def:physics:IPhO_2026_4_C_6:aux022}
+  All physical records used in C.6. Real arguments named t\_s and r\_m are scalar coordinates in seconds and metres; every recorded physical value is still a dimensionful quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ThermalExperiment.ValidParameters]
+  \label{def:physics:IPhO_2026_4_C_6:aux025}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ThermalExperiment.ValidParameters}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux024}
+  Positivity conditions for the material parameters appearing in denominators.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ThermalExperiment.SatisfiesLaws]
+  \label{def:physics:IPhO_2026_4_C_6:aux026}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ThermalExperiment.SatisfiesLaws}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux020, def:physics:IPhO_2026_4_C_6:aux024}
+  The governing model. The sign convention is explicit: heat flow is positive from OC to IC, while the radial derivative is taken outwards, hence the minus sign in Fourier's law. The calorimetry equation has no apparatus heat-capacity term, encoding the instructed approximation.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration C5GraphReadout]
+  \label{def:physics:IPhO_2026_4_C_6:aux027}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.C5GraphReadout}
+  \uses{def:physics:IPhO_2026_4_C_6:aux014, def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux024}
+  The finite-difference graph constructed in C.5. Its horizontal coordinate is the interval-average T\_OC - T\_IC, its vertical coordinate is the corresponding finite-difference IC heating rate, and its fitted line passes through the origin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration C5PreviousPartResult]
+  \label{def:physics:IPhO_2026_4_C_6:aux028}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.C5PreviousPartResult}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux024, def:physics:IPhO_2026_4_C_6:aux027}
+  The reusable conclusion of part C.5, stated locally because the problem policy forbids importing a sibling Lean output.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SlopeMeasurement]
+  \label{def:physics:IPhO_2026_4_C_6:aux029}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.SlopeMeasurement}
+  \uses{def:physics:IPhO_2026_4_C_6:aux014}
+  A fitted C.5 slope together with its symmetric absolute uncertainty.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SlopeMeasurement.ValidFor]
+  \label{def:physics:IPhO_2026_4_C_6:aux030}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.SlopeMeasurement.ValidFor}
+  \uses{def:physics:IPhO_2026_4_C_6:aux014, def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux029}
+  The measured interval covers the true fitted slope. Its strict lower endpoint is positive, which preserves the physically relevant positive-slope branch when taking reciprocals.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ResistanceEstimate]
+  \label{def:physics:IPhO_2026_4_C_6:aux031}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.ResistanceEstimate}
+  \uses{def:physics:IPhO_2026_4_C_6:aux016}
+  A resistance estimate with a symmetric absolute uncertainty in K/W.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration officialSampleEstimate]
+  \label{def:physics:IPhO_2026_4_C_6:aux032}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.officialSampleEstimate}
+  \uses{def:physics:IPhO_2026_4_C_6:aux009, def:physics:IPhO_2026_4_C_6:aux021, def:physics:IPhO_2026_4_C_6:aux031}
+  The official sample readout 1.17 ± 0.03 K/W.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration determineEffectiveWallThermalResistanceWithUncertainty]
+  \label{lem:physics:IPhO_2026_4_C_6:aux034}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.determineEffectiveWallThermalResistanceWithUncertainty}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux023, def:physics:IPhO_2026_4_C_6:aux024, def:physics:IPhO_2026_4_C_6:aux025, def:physics:IPhO_2026_4_C_6:aux026, def:physics:IPhO_2026_4_C_6:aux027, def:physics:IPhO_2026_4_C_6:aux028, def:physics:IPhO_2026_4_C_6:aux029, def:physics:IPhO_2026_4_C_6:aux030, thm:physics:IPhO_2026_4_C_6:target}
+  Propagation of a symmetric C.5 slope uncertainty through the reciprocal resistance formula. The resulting interval is asymmetric in principle; this theorem gives a conservative symmetric bound about the nominal reciprocal.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration officialSampleEstimateReadout]
+  \label{lem:physics:IPhO_2026_4_C_6:aux035}
+  \lean{IPhO2026Problems.IPhO2026_4_C_6.officialSampleEstimateReadout}
+  \uses{def:physics:IPhO_2026_4_C_6:aux019, def:physics:IPhO_2026_4_C_6:aux032, thm:physics:IPhO_2026_4_C_6:target, lem:physics:IPhO_2026_4_C_6:aux034}
+  The two scalar SI components of the official sample estimate.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

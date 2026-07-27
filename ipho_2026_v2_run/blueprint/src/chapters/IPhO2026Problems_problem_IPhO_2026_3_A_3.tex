@@ -1,0 +1,241 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_A_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_A_3.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id A.3
+% archon:previous-part IPhO_2026_3_A_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_A\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_A_3}
+
+\paragraph{Problem source.}
+A homogeneous isotropic paramagnetic torus has mean radius R, inner radius r
+with r << R, volume V, and cross-sectional area A.  An insulated conducting
+wire is wound densely around it with N turns and instantaneous current I.
+Fields H and B and magnetization M are approximately uniform in the torus.
+Use B = mu\_0*H + mu\_0*M, Ampere's law, and the sign convention that work and
+heat entering the paramagnetic torus are positive.
+
+Current subquestion:
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Current subquestion.}
+Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material.
+
+\paragraph{Recorded answer/context.}
+dW = mu\_0*V*H*dM.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-2.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.2. Question: Find the work dW\_emf performed by the external voltage source when B changes by dB. Reusable conclusions: dW\_emf = V*H*dB. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_A\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_3_A_3:target}
+  \lean{IPhO2026Problems.Problem3A3.materialWork_eq_mu0_volume_H_dM}
+  \uses{def:physics:IPhO_2026_3_A_3:aux001, def:physics:IPhO_2026_3_A_3:aux002, def:physics:IPhO_2026_3_A_3:aux003, def:physics:IPhO_2026_3_A_3:aux004, def:physics:IPhO_2026_3_A_3:aux005, def:physics:IPhO_2026_3_A_3:aux006, def:physics:IPhO_2026_3_A_3:aux007, def:physics:IPhO_2026_3_A_3:aux008, def:physics:IPhO_2026_3_A_3:aux009, def:physics:IPhO_2026_3_A_3:aux010, def:physics:IPhO_2026_3_A_3:aux011, lem:physics:IPhO_2026_3_A_3:aux012, lem:physics:IPhO_2026_3_A_3:aux013, def:physics:IPhO_2026_3_A_3:aux014, def:physics:IPhO_2026_3_A_3:aux015, def:physics:IPhO_2026_3_A_3:aux016, def:physics:IPhO_2026_3_A_3:aux017, def:physics:IPhO_2026_3_A_3:aux018, def:physics:IPhO_2026_3_A_3:aux019, lem:physics:IPhO_2026_3_A_3:aux020}
+  After subtracting the vacuum-core contribution, the work done on the paramagnetic material is dW = μ₀ V H dM.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration Length]
+  \label{def:physics:IPhO_2026_3_A_3:aux001}
+  \lean{IPhO2026Problems.Problem3A3.Length}
+  Length, used for the radii R and r.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Volume]
+  \label{def:physics:IPhO_2026_3_A_3:aux002}
+  \lean{IPhO2026Problems.Problem3A3.Volume}
+  Volume, with dimension L³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Area]
+  \label{def:physics:IPhO_2026_3_A_3:aux003}
+  \lean{IPhO2026Problems.Problem3A3.Area}
+  Cross-sectional area, with dimension L².
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ElectricCurrent]
+  \label{def:physics:IPhO_2026_3_A_3:aux004}
+  \lean{IPhO2026Problems.Problem3A3.ElectricCurrent}
+  Electric current, with dimension charge/time.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MagneticFieldStrength]
+  \label{def:physics:IPhO_2026_3_A_3:aux005}
+  \lean{IPhO2026Problems.Problem3A3.MagneticFieldStrength}
+  Magnetic field strength H, with SI unit A/m.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Magnetization]
+  \label{def:physics:IPhO_2026_3_A_3:aux006}
+  \lean{IPhO2026Problems.Problem3A3.Magnetization}
+  Magnetization M, which has the same dimension as H.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MagneticFluxDensity]
+  \label{def:physics:IPhO_2026_3_A_3:aux007}
+  \lean{IPhO2026Problems.Problem3A3.MagneticFluxDensity}
+  Magnetic flux density B, with SI unit tesla.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VacuumPermeability]
+  \label{def:physics:IPhO_2026_3_A_3:aux008}
+  \lean{IPhO2026Problems.Problem3A3.VacuumPermeability}
+  Vacuum permeability μ₀, with SI dimension mass·length/charge².
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Energy]
+  \label{def:physics:IPhO_2026_3_A_3:aux009}
+  \lean{IPhO2026Problems.Problem3A3.Energy}
+  Work/energy, grounded by Physlib's dimensionful energy type.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration siValue]
+  \label{def:physics:IPhO_2026_3_A_3:aux010}
+  \lean{IPhO2026Problems.Problem3A3.siValue}
+  The numerical value of a dimensionful real quantity in SI units.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration energyFromSI]
+  \label{def:physics:IPhO_2026_3_A_3:aux011}
+  \lean{IPhO2026Problems.Problem3A3.energyFromSI}
+  \uses{def:physics:IPhO_2026_3_A_3:aux009}
+  Construct a dimensionful energy from a numerical value in joules.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration dimensionful\_ext\_si]
+  \label{lem:physics:IPhO_2026_3_A_3:aux012}
+  \lean{IPhO2026Problems.Problem3A3.dimensionful_ext_si}
+  \uses{def:physics:IPhO_2026_3_A_3:aux010, def:physics:IPhO_2026_3_A_3:aux011}
+  Evaluation in SI is injective on quantities of any fixed dimension.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration siValue\_energyFromSI]
+  \label{lem:physics:IPhO_2026_3_A_3:aux013}
+  \lean{IPhO2026Problems.Problem3A3.siValue_energyFromSI}
+  \uses{def:physics:IPhO_2026_3_A_3:aux010, def:physics:IPhO_2026_3_A_3:aux011, lem:physics:IPhO_2026_3_A_3:aux012}
+  energyFromSI has the prescribed numerical value in joules.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration ToroidalOrientation]
+  \label{def:physics:IPhO_2026_3_A_3:aux014}
+  \lean{IPhO2026Problems.Problem3A3.ToroidalOrientation}
+  Choice of the common positive direction around the torus.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration WorkSignConvention]
+  \label{def:physics:IPhO_2026_3_A_3:aux015}
+  \lean{IPhO2026Problems.Problem3A3.WorkSignConvention}
+  Sign convention for signed work increments.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TorusData]
+  \label{def:physics:IPhO_2026_3_A_3:aux016}
+  \lean{IPhO2026Problems.Problem3A3.TorusData}
+  \uses{def:physics:IPhO_2026_3_A_3:aux001, def:physics:IPhO_2026_3_A_3:aux002, def:physics:IPhO_2026_3_A_3:aux003, def:physics:IPhO_2026_3_A_3:aux004, def:physics:IPhO_2026_3_A_3:aux005, def:physics:IPhO_2026_3_A_3:aux006, def:physics:IPhO_2026_3_A_3:aux007, def:physics:IPhO_2026_3_A_3:aux008, def:physics:IPhO_2026_3_A_3:aux014, def:physics:IPhO_2026_3_A_3:aux015}
+  The homogeneous isotropic paramagnetic torus and winding in Figure 3a. The field entries are uniform components along toroidalOrientation.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration FieldIncrements]
+  \label{def:physics:IPhO_2026_3_A_3:aux017}
+  \lean{IPhO2026Problems.Problem3A3.FieldIncrements}
+  \uses{def:physics:IPhO_2026_3_A_3:aux005, def:physics:IPhO_2026_3_A_3:aux006, def:physics:IPhO_2026_3_A_3:aux007}
+  Signed infinitesimal field changes used in A.3.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration WorkIncrements]
+  \label{def:physics:IPhO_2026_3_A_3:aux018}
+  \lean{IPhO2026Problems.Problem3A3.WorkIncrements}
+  \uses{def:physics:IPhO_2026_3_A_3:aux009}
+  Signed infinitesimal work transfers. Under the required convention, a positive value denotes energy entering the named recipient.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Assumptions]
+  \label{def:physics:IPhO_2026_3_A_3:aux019}
+  \lean{IPhO2026Problems.Problem3A3.Assumptions}
+  \uses{def:physics:IPhO_2026_3_A_3:aux010, def:physics:IPhO_2026_3_A_3:aux015, def:physics:IPhO_2026_3_A_3:aux016, def:physics:IPhO_2026_3_A_3:aux017, def:physics:IPhO_2026_3_A_3:aux018}
+  All assumptions used to derive A.3. In particular, this interface contains the work decomposition and the vacuum comparison, but does not contain the requested formula for materialWorkdW.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration materialWork\_siValue\_eq]
+  \label{lem:physics:IPhO_2026_3_A_3:aux020}
+  \lean{IPhO2026Problems.Problem3A3.materialWork_siValue_eq}
+  \uses{def:physics:IPhO_2026_3_A_3:aux010, def:physics:IPhO_2026_3_A_3:aux016, def:physics:IPhO_2026_3_A_3:aux017, def:physics:IPhO_2026_3_A_3:aux018, def:physics:IPhO_2026_3_A_3:aux019, lem:physics:IPhO_2026_3_A_3:aux012, lem:physics:IPhO_2026_3_A_3:aux013}
+  Scalar bridge for the A.3 subtraction: the material-work value in joules is μ₀ V H dM.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

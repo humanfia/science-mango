@@ -1,0 +1,404 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_A_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_A_1.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id A.1
+
+\chapter{Physics problem IPhO\_2026\_4\_A\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_A_1}
+
+\paragraph{Problem source.}
+The experimental apparatus contains a sealed air column (CA) in the inner
+cylinder.  Propylene glycol is introduced to h = 4.5 cm so the air volume is
+fixed.  Use the cylinder dimensions in Figure 17, ambient air density
+rho\_a = 1.12 kg/m\textasciicircum{}3, and the ideal-gas law P*V = n*R*T.  The outer-cylinder
+water bath is heated while pressure and temperature are recorded.
+
+Current subquestion:
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Current subquestion.}
+Determine the mass m, amount n, and number N of molecules in the confined air column.
+
+\paragraph{Recorded answer/context.}
+Official sample: m = 0.94 +/- 0.02 g, n = 3.24 mmol (reported uncertainty 0.7 mmol), N = (1.95 +/- 0.05)e21.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-9.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_A\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract and source reconciliation.}
+Use the Figure 17 inner diameter \(33.7\pm0.1\) mm, measured air-column
+height \(9.5\pm0.1\) cm, derived volume \(85\pm2\) mL, ambient density
+\(1.12\ {\rm kg\,m^{-3}}\), air molar mass \(28.96\ {\rm g\,mol^{-1}}\),
+and Avogadro constant \(6.022\times10^{23}\ {\rm mol^{-1}}\).  Model length,
+volume, density, and mass with Physlib quantities and identify every scalar
+calculation as an SI projection.  The governing chain for this subquestion is
+\(V=\pi d^2H/4\), \(m=\rho V\), \(n=m/M_a\), and \(N=nN_A\); pressure and
+temperature traces are later-part context, not missing A.1 premises.
+
+The official solution's printed \(0.94\) g and \(0.7\) mmol uncertainty are
+each displaced by one decimal place relative to the same solution's volume,
+molar amount, molecule count, and error scale.  Do not assert the inconsistent
+three-number report as a joint consequence.  Keep the printed report as
+source data, expose the discrepancy, and make the substantive target the
+symbolic inventory plus propagated intervals supporting
+\(0.094\pm0.002\) g, \(3.24\pm0.07\) mmol, and
+\((1.95\pm0.05)\times10^{21}\).
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_A_1:target}
+  \lean{IPhO2026Problems.Problem4A1.officialSampleTarget}
+  \uses{def:physics:IPhO_2026_4_A_1:aux001, def:physics:IPhO_2026_4_A_1:aux002, def:physics:IPhO_2026_4_A_1:aux003, def:physics:IPhO_2026_4_A_1:aux004, def:physics:IPhO_2026_4_A_1:aux005, def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux007, def:physics:IPhO_2026_4_A_1:aux008, def:physics:IPhO_2026_4_A_1:aux009, def:physics:IPhO_2026_4_A_1:aux010, def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux013, def:physics:IPhO_2026_4_A_1:aux014, def:physics:IPhO_2026_4_A_1:aux015, def:physics:IPhO_2026_4_A_1:aux016, def:physics:IPhO_2026_4_A_1:aux017, def:physics:IPhO_2026_4_A_1:aux018, def:physics:IPhO_2026_4_A_1:aux019, def:physics:IPhO_2026_4_A_1:aux020, def:physics:IPhO_2026_4_A_1:aux021, lem:physics:IPhO_2026_4_A_1:aux022, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux024, def:physics:IPhO_2026_4_A_1:aux025, def:physics:IPhO_2026_4_A_1:aux026, def:physics:IPhO_2026_4_A_1:aux027, def:physics:IPhO_2026_4_A_1:aux028, def:physics:IPhO_2026_4_A_1:aux029, def:physics:IPhO_2026_4_A_1:aux030, def:physics:IPhO_2026_4_A_1:aux031, def:physics:IPhO_2026_4_A_1:aux032, lem:physics:IPhO_2026_4_A_1:aux033, def:physics:IPhO_2026_4_A_1:aux034}
+  Determine the confined-air volume, mass, amount, and molecule population
+  from the Figure 17/readout intervals, and propagate those intervals to the
+  internally consistent sample values above.  The declaration must also
+  distinguish the two apparent decimal slips in the published sample from the
+  corrected consequence of the physical laws.
+\end{theorem}
+\begin{proof}
+  Bound the cylindrical volume monotonically using the diameter and height
+  endpoints.  Multiply by the nonnegative density bounds for the mass
+  interval, divide by the positive air molar mass for the amount interval, and
+  multiply by Avogadro's constant for the molecule interval.  Direct endpoint
+  evaluation yields the corrected reported bands; the printed \(0.94\) g and
+  \(0.7\) mmol scale cannot simultaneously agree with the resulting amount
+  and molecule count.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_4_A_1:aux001}
+  \lean{IPhO2026Problems.Problem4A1.LengthQuantity}
+  A length carrying Physlib's length dimension.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VolumeQuantity]
+  \label{def:physics:IPhO_2026_4_A_1:aux002}
+  \lean{IPhO2026Problems.Problem4A1.VolumeQuantity}
+  A volume carrying dimension L³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MassQuantity]
+  \label{def:physics:IPhO_2026_4_A_1:aux003}
+  \lean{IPhO2026Problems.Problem4A1.MassQuantity}
+  A mass carrying Physlib's mass dimension.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TemperatureQuantity]
+  \label{def:physics:IPhO_2026_4_A_1:aux004}
+  \lean{IPhO2026Problems.Problem4A1.TemperatureQuantity}
+  An absolute temperature carrying Physlib's temperature dimension.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MassDensityQuantity]
+  \label{def:physics:IPhO_2026_4_A_1:aux005}
+  \lean{IPhO2026Problems.Problem4A1.MassDensityQuantity}
+  A mass density carrying dimension M L⁻³.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration siValue]
+  \label{def:physics:IPhO_2026_4_A_1:aux006}
+  \lean{IPhO2026Problems.Problem4A1.siValue}
+  The numerical value of a dimensionful real quantity in SI units.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AmountOfSubstance]
+  \label{def:physics:IPhO_2026_4_A_1:aux007}
+  \lean{IPhO2026Problems.Problem4A1.AmountOfSubstance}
+  Amount of substance, represented by its nonnegative scalar readout in moles. Physlib's current five-base-dimension system has no amount-of-substance dimension, so this is kept distinct from dimensionless real numbers.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MoleculePopulation]
+  \label{def:physics:IPhO_2026_4_A_1:aux008}
+  \lean{IPhO2026Problems.Problem4A1.MoleculePopulation}
+  A nonnegative experimental estimate of the number of molecules.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ScalarMeasurement]
+  \label{def:physics:IPhO_2026_4_A_1:aux009}
+  \lean{IPhO2026Problems.Problem4A1.ScalarMeasurement}
+  A scalar reading reported as central ± uncertainty.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Covers]
+  \label{def:physics:IPhO_2026_4_A_1:aux010}
+  \lean{IPhO2026Problems.Problem4A1.ScalarMeasurement.Covers}
+  \uses{def:physics:IPhO_2026_4_A_1:aux009}
+  The usual absolute-error semantics of a central ± uncertainty report.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration lower]
+  \label{def:physics:IPhO_2026_4_A_1:aux011}
+  \lean{IPhO2026Problems.Problem4A1.ScalarMeasurement.lower}
+  \uses{def:physics:IPhO_2026_4_A_1:aux009}
+  Lower endpoint of the reported error interval.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration upper]
+  \label{def:physics:IPhO_2026_4_A_1:aux012}
+  \lean{IPhO2026Problems.Problem4A1.ScalarMeasurement.upper}
+  \uses{def:physics:IPhO_2026_4_A_1:aux009}
+  Upper endpoint of the reported error interval.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration InventoryReport]
+  \label{def:physics:IPhO_2026_4_A_1:aux013}
+  \lean{IPhO2026Problems.Problem4A1.InventoryReport}
+  \uses{def:physics:IPhO_2026_4_A_1:aux009}
+  The three quantities reported in the official sample solution. The units of the fields are respectively grams, millimoles, and 10²¹ molecules.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration officialSample]
+  \label{def:physics:IPhO_2026_4_A_1:aux014}
+  \lean{IPhO2026Problems.Problem4A1.officialSample}
+  \uses{def:physics:IPhO_2026_4_A_1:aux013}
+  The recorded official sample, including all three reported uncertainties.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17Geometry]
+  \label{def:physics:IPhO_2026_4_A_1:aux015}
+  \lean{IPhO2026Problems.Problem4A1.Figure17Geometry}
+  \uses{def:physics:IPhO_2026_4_A_1:aux001, def:physics:IPhO_2026_4_A_1:aux002}
+  Figure 17 labels needed to calculate the cylindrical confined-air volume.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure17GeometryLaw]
+  \label{def:physics:IPhO_2026_4_A_1:aux016}
+  \lean{IPhO2026Problems.Problem4A1.Figure17GeometryLaw}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux015}
+  The geometric interpretation of Figure 17 and the prescribed h = 4.5 cm. The equations are stated on SI readouts, so the right-hand volume is in cubic metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ConfinedAirColumnState]
+  \label{def:physics:IPhO_2026_4_A_1:aux017}
+  \lean{IPhO2026Problems.Problem4A1.ConfinedAirColumnState}
+  \uses{def:physics:IPhO_2026_4_A_1:aux002, def:physics:IPhO_2026_4_A_1:aux003, def:physics:IPhO_2026_4_A_1:aux004, def:physics:IPhO_2026_4_A_1:aux005, def:physics:IPhO_2026_4_A_1:aux007, def:physics:IPhO_2026_4_A_1:aux008}
+  The physical inventory and thermodynamic state of the sealed air column CA.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ValveLabel]
+  \label{def:physics:IPhO_2026_4_A_1:aux018}
+  \lean{IPhO2026Problems.Problem4A1.ValveLabel}
+  The two valves explicitly named in the experimental procedure.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsochoricApparatusRun]
+  \label{def:physics:IPhO_2026_4_A_1:aux019}
+  \lean{IPhO2026Problems.Problem4A1.IsochoricApparatusRun}
+  \uses{def:physics:IPhO_2026_4_A_1:aux002, def:physics:IPhO_2026_4_A_1:aux004, def:physics:IPhO_2026_4_A_1:aux015, def:physics:IPhO_2026_4_A_1:aux017, def:physics:IPhO_2026_4_A_1:aux018}
+  The isochoric heating procedure after valves D and E are closed. Time is only a trace parameter here; the subquestion uses the fixed-volume consequence, not a choice of time unit.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AirInventoryLaws]
+  \label{def:physics:IPhO_2026_4_A_1:aux020}
+  \lean{IPhO2026Problems.Problem4A1.AirInventoryLaws}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux017}
+  Governing physical laws for the CA inventory. gasConstantSI has scalar unit J mol⁻¹ K⁻¹, and avogadroPerMole has scalar unit molecules mol⁻¹. These dimensions cannot currently be expressed by Physlib because amount of substance is not among its base dimensions.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AmbientDensityReadout]
+  \label{def:physics:IPhO_2026_4_A_1:aux021}
+  \lean{IPhO2026Problems.Problem4A1.AmbientDensityReadout}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux017, def:physics:IPhO_2026_4_A_1:aux020}
+  The ambient-density datum printed in the problem statement.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration determineConfinedAirInventory]
+  \label{lem:physics:IPhO_2026_4_A_1:aux022}
+  \lean{IPhO2026Problems.Problem4A1.determineConfinedAirInventory}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux016, def:physics:IPhO_2026_4_A_1:aux019, def:physics:IPhO_2026_4_A_1:aux020}
+  Exact symbolic determination of mass, amount, and molecule population. This conclusion is not a field of AirInventoryLaws: it substitutes the Figure 17 cylinder volume and algebraically solves the ideal-gas and Avogadro relations.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration ExperimentalInputReadouts]
+  \label{def:physics:IPhO_2026_4_A_1:aux023}
+  \lean{IPhO2026Problems.Problem4A1.ExperimentalInputReadouts}
+  \uses{def:physics:IPhO_2026_4_A_1:aux009}
+  Uncertain scalar inputs used for interval propagation. Length fields are in metres, density in kg m⁻³, pressure in pascals, and temperature in kelvin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration InputReadoutsCover]
+  \label{def:physics:IPhO_2026_4_A_1:aux024}
+  \lean{IPhO2026Problems.Problem4A1.InputReadoutsCover}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux010, def:physics:IPhO_2026_4_A_1:aux019, def:physics:IPhO_2026_4_A_1:aux023}
+  The readout intervals contain the actual SI components of the apparatus.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ValidInputReadouts]
+  \label{def:physics:IPhO_2026_4_A_1:aux025}
+  \lean{IPhO2026Problems.Problem4A1.ValidInputReadouts}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023}
+  Positivity conditions needed for monotone interval propagation.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedVolumeLower]
+  \label{def:physics:IPhO_2026_4_A_1:aux026}
+  \lean{IPhO2026Problems.Problem4A1.propagatedVolumeLower}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023}
+  Lower volume bound obtained from the cylinder readout intervals.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedVolumeUpper]
+  \label{def:physics:IPhO_2026_4_A_1:aux027}
+  \lean{IPhO2026Problems.Problem4A1.propagatedVolumeUpper}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023}
+  Upper volume bound obtained from the cylinder readout intervals.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedMassLower]
+  \label{def:physics:IPhO_2026_4_A_1:aux028}
+  \lean{IPhO2026Problems.Problem4A1.propagatedMassLower}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux026}
+  Mass interval obtained by multiplying the density and volume intervals.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedMassUpper]
+  \label{def:physics:IPhO_2026_4_A_1:aux029}
+  \lean{IPhO2026Problems.Problem4A1.propagatedMassUpper}
+  \uses{def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux027}
+  The declaration propagatedMassUpper introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedAmountLower]
+  \label{def:physics:IPhO_2026_4_A_1:aux030}
+  \lean{IPhO2026Problems.Problem4A1.propagatedAmountLower}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux026}
+  Amount interval obtained from n = PV/(RT).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration propagatedAmountUpper]
+  \label{def:physics:IPhO_2026_4_A_1:aux031}
+  \lean{IPhO2026Problems.Problem4A1.propagatedAmountUpper}
+  \uses{def:physics:IPhO_2026_4_A_1:aux011, def:physics:IPhO_2026_4_A_1:aux012, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux027}
+  The declaration propagatedAmountUpper introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration InventoryInPropagatedBounds]
+  \label{def:physics:IPhO_2026_4_A_1:aux032}
+  \lean{IPhO2026Problems.Problem4A1.InventoryInPropagatedBounds}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux017, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux028, def:physics:IPhO_2026_4_A_1:aux029, def:physics:IPhO_2026_4_A_1:aux030, def:physics:IPhO_2026_4_A_1:aux031}
+  The propagated inventory interval, including the Avogadro conversion.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration propagateInventoryUncertainty]
+  \label{lem:physics:IPhO_2026_4_A_1:aux033}
+  \lean{IPhO2026Problems.Problem4A1.propagateInventoryUncertainty}
+  \uses{def:physics:IPhO_2026_4_A_1:aux016, def:physics:IPhO_2026_4_A_1:aux019, def:physics:IPhO_2026_4_A_1:aux020, def:physics:IPhO_2026_4_A_1:aux023, def:physics:IPhO_2026_4_A_1:aux024, def:physics:IPhO_2026_4_A_1:aux025, def:physics:IPhO_2026_4_A_1:aux032, lem:physics:IPhO_2026_4_A_1:aux022}
+  Propagation of the input readout uncertainties to m, n, and N.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration AgreesWithOfficialSample]
+  \label{def:physics:IPhO_2026_4_A_1:aux034}
+  \lean{IPhO2026Problems.Problem4A1.AgreesWithOfficialSample}
+  \uses{def:physics:IPhO_2026_4_A_1:aux006, def:physics:IPhO_2026_4_A_1:aux010, def:physics:IPhO_2026_4_A_1:aux014, def:physics:IPhO_2026_4_A_1:aux017}
+  The relation asserting agreement with every number in the official sample. The conversions are kg → g, mol → mmol, and molecules to units of 10²¹.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+% --- Archon physics formalization source end ---

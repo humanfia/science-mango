@@ -1,0 +1,301 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_3.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_3.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.3
+% archon:previous-part IPhO_2026_2_C_1
+% archon:previous-part-policy natural_language_prerequisite_only
+% archon:previous-part IPhO_2026_2_C_2
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_3}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_3}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Current subquestion.}
+Find the limiting intersection coordinates (X\_c,Y\_c) of the neighboring reflected rays.
+
+\paragraph{Recorded answer/context.}
+X\_c = R*sin(theta)\textasciicircum{}3; Y\_c = (R/2)*cos(theta)*(2 - cos(2*theta)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source C.1. Question: Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R. Reusable conclusions: m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\item Source C.2. Question: Expand m\_B and b\_B to first order in Delta theta. Reusable conclusions: m\_B = cot(2*theta) - 2*csc(2*theta)\textasciicircum{}2*Delta theta; b\_B = [R/(2*cos(theta))]*(1 + tan(theta)*Delta theta), up to O(Delta theta\textasciicircum{}2). Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_3.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_C_3:target}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.limitingIntersectionCoordinates}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux002, def:physics:IPhO_2026_2_C_3:aux003, def:physics:IPhO_2026_2_C_3:aux004, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006, def:physics:IPhO_2026_2_C_3:aux007, def:physics:IPhO_2026_2_C_3:aux008, def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux010, def:physics:IPhO_2026_2_C_3:aux011, def:physics:IPhO_2026_2_C_3:aux012, def:physics:IPhO_2026_2_C_3:aux013, def:physics:IPhO_2026_2_C_3:aux014, def:physics:IPhO_2026_2_C_3:aux015, lem:physics:IPhO_2026_2_C_3:aux016, def:physics:IPhO_2026_2_C_3:aux017, def:physics:IPhO_2026_2_C_3:aux018, def:physics:IPhO_2026_2_C_3:aux019, def:physics:IPhO_2026_2_C_3:aux020, lem:physics:IPhO_2026_2_C_3:aux021, def:physics:IPhO_2026_2_C_3:aux022, lem:physics:IPhO_2026_2_C_3:aux023, lem:physics:IPhO_2026_2_C_3:aux024, lem:physics:IPhO_2026_2_C_3:aux025}
+  IPhO 2026 problem 2, part C.3: the limiting intersection coordinates of neighboring reflected rays are X\_c = R sin(θ)\textasciicircum{}3 and Y\_c = (R/2) cos(θ) (2 - cos(2θ)). The intersection function is constrained only by actual membership in both outgoing reflected rays for all sufficiently small positive separations.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration PlanarPoint]
+  \label{def:physics:IPhO_2026_2_C_3:aux001}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.PlanarPoint}
+  The two-dimensional cross-section of the half-cylindrical mirror. Space 2 is Physlib's physical Euclidean space with a fixed choice of length unit; its real coordinates are therefore length readouts in that unit.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration xCoord]
+  \label{def:physics:IPhO_2026_2_C_3:aux002}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.xCoord}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001}
+  The x coordinate in the coordinate system of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration yCoord]
+  \label{def:physics:IPhO_2026_2_C_3:aux003}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.yCoord}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001}
+  The y coordinate in the coordinate system of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration planarPoint]
+  \label{def:physics:IPhO_2026_2_C_3:aux004}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.planarPoint}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001}
+  A point specified by its Figure 2g coordinate readouts.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration xCoord\_planarPoint]
+  \label{lem:physics:IPhO_2026_2_C_3:aux005}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.xCoord_planarPoint}
+  \uses{def:physics:IPhO_2026_2_C_3:aux002, def:physics:IPhO_2026_2_C_3:aux004}
+  The declaration xCoord\_planarPoint introduces a typed component of the physical model.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration yCoord\_planarPoint]
+  \label{lem:physics:IPhO_2026_2_C_3:aux006}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.yCoord_planarPoint}
+  \uses{def:physics:IPhO_2026_2_C_3:aux003, def:physics:IPhO_2026_2_C_3:aux004, lem:physics:IPhO_2026_2_C_3:aux005}
+  The declaration yCoord\_planarPoint introduces a typed component of the physical model.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration OrientedRay2D]
+  \label{def:physics:IPhO_2026_2_C_3:aux007}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.OrientedRay2D}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001}
+  A directed physical ray in the two-dimensional cross-section. The vertex is the reflection point and the direction selects the outgoing half-line.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OrientedRay2D.Contains]
+  \label{def:physics:IPhO_2026_2_C_3:aux008}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.OrientedRay2D.Contains}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux002, def:physics:IPhO_2026_2_C_3:aux003, def:physics:IPhO_2026_2_C_3:aux007}
+  Membership in the outgoing branch of an oriented ray. Requiring a nonnegative affine parameter preserves the orientation shown by the arrows in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsAdmissibleAngle]
+  \label{def:physics:IPhO_2026_2_C_3:aux009}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.IsAdmissibleAngle}
+  The incidence angles represented on the right half of the upper semicircular mirror in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnUpperSemicircularMirror]
+  \label{def:physics:IPhO_2026_2_C_3:aux010}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.OnUpperSemicircularMirror}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux002, def:physics:IPhO_2026_2_C_3:aux003}
+  The upper semicircle of radius R, expressed in the coordinate readouts of Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration impactPoint]
+  \label{def:physics:IPhO_2026_2_C_3:aux011}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.impactPoint}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux004}
+  The point at which the vertical incoming ray indexed by α meets the mirror.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedSlope]
+  \label{def:physics:IPhO_2026_2_C_3:aux012}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.reflectedSlope}
+  The dimensionless slope of a reflected ray, as obtained in part C.1.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedIntercept]
+  \label{def:physics:IPhO_2026_2_C_3:aux013}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.reflectedIntercept}
+  The length-valued intercept readout of a reflected ray, as obtained in part C.1. R and this intercept are measured in the same coordinate unit.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LiesOnReflectedSupport]
+  \label{def:physics:IPhO_2026_2_C_3:aux014}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.LiesOnReflectedSupport}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux002, def:physics:IPhO_2026_2_C_3:aux003, def:physics:IPhO_2026_2_C_3:aux012, def:physics:IPhO_2026_2_C_3:aux013}
+  The affine support line of the reflected ray at incidence angle α.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2gOptics]
+  \label{def:physics:IPhO_2026_2_C_3:aux015}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.Figure2gOptics}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux007, def:physics:IPhO_2026_2_C_3:aux008, def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux011, def:physics:IPhO_2026_2_C_3:aux014}
+  Governing geometry and reflection data for Figure 2g. All incoming rays share the displayed vertical direction, so rays indexed by θ and θ + Δθ are parallel before reflection. The last field is the reusable C.1 reflection law; it constrains every point of the outgoing branch by an explicit affine equation and does not prescribe the caustic.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration impactPoint\_on\_upperSemicircularMirror]
+  \label{lem:physics:IPhO_2026_2_C_3:aux016}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.impactPoint_on_upperSemicircularMirror}
+  \uses{def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux010, def:physics:IPhO_2026_2_C_3:aux011, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006}
+  The incidence point given by the Figure 2g coordinate readout lies on the upper semicircular mirror.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration IsNeighboringReflectedIntersection]
+  \label{def:physics:IPhO_2026_2_C_3:aux017}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.IsNeighboringReflectedIntersection}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux008, def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux015}
+  The explicit, constraining meaning of being the intersection of reflected ray A at θ and neighboring reflected ray B at θ + δ.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration slopeFirstOrderRemainder]
+  \label{def:physics:IPhO_2026_2_C_3:aux018}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.slopeFirstOrderRemainder}
+  \uses{def:physics:IPhO_2026_2_C_3:aux012}
+  Remainder in the C.2 first-order expansion of the neighboring reflected ray's slope. The coefficient 2 / sin(2θ)\textasciicircum{}2 is 2 csc(2θ)\textasciicircum{}2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration interceptFirstOrderRemainder]
+  \label{def:physics:IPhO_2026_2_C_3:aux019}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.interceptFirstOrderRemainder}
+  \uses{def:physics:IPhO_2026_2_C_3:aux013}
+  Remainder in the C.2 first-order expansion of the neighboring reflected ray's intercept.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasFigure2gFirstOrderExpansions]
+  \label{def:physics:IPhO_2026_2_C_3:aux020}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.HasFigure2gFirstOrderExpansions}
+  \uses{def:physics:IPhO_2026_2_C_3:aux018, def:physics:IPhO_2026_2_C_3:aux019}
+  The precise O(Δθ²) interpretation of both first-order expansions quoted from part C.2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration previousPartC2\_firstOrderExpansions]
+  \label{lem:physics:IPhO_2026_2_C_3:aux021}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.previousPartC2_firstOrderExpansions}
+  \uses{def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux020, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006, lem:physics:IPhO_2026_2_C_3:aux016}
+  The reusable result of part C.2, formulated with an actual asymptotic error rather than an informal truncation symbol.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration supportIntersectionCandidate]
+  \label{def:physics:IPhO_2026_2_C_3:aux022}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.supportIntersectionCandidate}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux004, def:physics:IPhO_2026_2_C_3:aux012, def:physics:IPhO_2026_2_C_3:aux013}
+  The intersection of two distinct affine support lines, written in Figure 2g coordinates. This is an algebraic bridge, not the limiting caustic formula.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration reflectedSlope\_ne\_of\_angle\_lt]
+  \label{lem:physics:IPhO_2026_2_C_3:aux023}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.reflectedSlope_ne_of_angle_lt}
+  \uses{def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux012, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006, lem:physics:IPhO_2026_2_C_3:aux016, lem:physics:IPhO_2026_2_C_3:aux021}
+  On the admissible branch, increasing the incidence angle changes the reflected slope, so neighboring support lines are distinct.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration neighboringIntersection\_eq\_supportIntersectionCandidate]
+  \label{lem:physics:IPhO_2026_2_C_3:aux024}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.neighboringIntersection_eq_supportIntersectionCandidate}
+  \uses{def:physics:IPhO_2026_2_C_3:aux001, def:physics:IPhO_2026_2_C_3:aux015, def:physics:IPhO_2026_2_C_3:aux017, def:physics:IPhO_2026_2_C_3:aux022, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006, lem:physics:IPhO_2026_2_C_3:aux016, lem:physics:IPhO_2026_2_C_3:aux021, lem:physics:IPhO_2026_2_C_3:aux023}
+  Ray membership and the C.1 support-line law determine the finite neighboring-ray intersection uniquely.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration supportIntersectionCandidate\_tendsto]
+  \label{lem:physics:IPhO_2026_2_C_3:aux025}
+  \lean{IPhO2026Problems.IPhO2026_2_C_3.supportIntersectionCandidate_tendsto}
+  \uses{def:physics:IPhO_2026_2_C_3:aux004, def:physics:IPhO_2026_2_C_3:aux009, def:physics:IPhO_2026_2_C_3:aux022, lem:physics:IPhO_2026_2_C_3:aux005, lem:physics:IPhO_2026_2_C_3:aux006, lem:physics:IPhO_2026_2_C_3:aux016, lem:physics:IPhO_2026_2_C_3:aux021, lem:physics:IPhO_2026_2_C_3:aux023, lem:physics:IPhO_2026_2_C_3:aux024}
+  Pure analytic bridge: the intersections of the C.1 support lines tend to the displayed caustic point as the positive angular separation tends to zero. The proof obligation includes the trigonometric simplification of both coordinates.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

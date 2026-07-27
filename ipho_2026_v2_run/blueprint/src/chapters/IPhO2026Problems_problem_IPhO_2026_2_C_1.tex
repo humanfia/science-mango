@@ -1,0 +1,286 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_C_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_C_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id C.1
+
+\chapter{Physics problem IPhO\_2026\_2\_C\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_C_1}
+
+\paragraph{Problem source.}
+For the half-cylindrical mirror of radius R, ray A is incident at angle theta
+and its reflected line is y = m\_A*x + b\_A.  A neighboring parallel ray B is
+incident at theta + Delta theta, with Delta theta much smaller than theta, and
+its reflected line is y = m\_B*x + b\_B.  The envelope/intersection of neighboring
+rays forms the caustic.  Use Figure 2g and its coordinate convention.
+
+Current subquestion:
+Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R.
+
+\paragraph{Current subquestion.}
+Write the slope m\_A and intercept b\_A of reflected ray A in terms of theta and R.
+
+\paragraph{Recorded answer/context.}
+m\_A = cot(2*theta), and b\_A = R/(2*cos(theta)).
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-4.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_C\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract.}
+Import Physlib and make the mirror radius, point coordinates, and line
+intercept length-valued.  If the analytic geometry is written in scalar
+coordinates, expose a named SI-length projection and state every coordinate
+and intercept equation through it.  The slope, angles, and normalized
+direction components are dimensionless.  Preserve the upward incoming ray,
+radial outward normal, down-left reflected branch, and the vector
+specular-reflection equation.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_C_1:target}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.rayA_slope_and_intercept}
+  \uses{def:physics:IPhO_2026_2_C_1:length_quantity, def:physics:IPhO_2026_2_C_1:length_in_metres, def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux003, def:physics:IPhO_2026_2_C_1:aux004, def:physics:IPhO_2026_2_C_1:aux005, def:physics:IPhO_2026_2_C_1:aux006, def:physics:IPhO_2026_2_C_1:aux007, def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux009, def:physics:IPhO_2026_2_C_1:aux010, def:physics:IPhO_2026_2_C_1:aux011, def:physics:IPhO_2026_2_C_1:aux012, def:physics:IPhO_2026_2_C_1:aux013, def:physics:IPhO_2026_2_C_1:aux014, def:physics:IPhO_2026_2_C_1:aux015, def:physics:IPhO_2026_2_C_1:aux016, def:physics:IPhO_2026_2_C_1:aux017, lem:physics:IPhO_2026_2_C_1:aux018, lem:physics:IPhO_2026_2_C_1:aux019, lem:physics:IPhO_2026_2_C_1:aux020}
+  IPhO 2026, Problem 2, C.1. In the Figure 2g coordinate convention, the reflected ray A has slope cot (2 * theta) and intercept R / (2 * cos theta).
+\end{theorem}
+\begin{proof}
+  Reflect the upward unit direction in the radial unit normal at
+  \((R\sin\theta,R\cos\theta)\).  The selected outgoing branch has components
+  proportional to \((-\sin 2\theta,-\cos 2\theta)\), so the supporting-line
+  slope is \(\cot(2\theta)\).  Substituting the impact point into the line
+  equation and simplifying gives the SI intercept \(R/(2\cos\theta)\).
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration LengthQuantity]
+  \label{def:physics:IPhO_2026_2_C_1:length_quantity}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.LengthQuantity}
+  A unit-independent physical length represented by Physlib's dimensionful
+  carrier with length dimension.
+\end{definition}
+\begin{proof}
+  This is the specialization of Physlib's dimensionful-quantity interface to
+  the physical dimension of length.
+\end{proof}
+
+\begin{definition}[Declaration lengthInMetres]
+  \label{def:physics:IPhO_2026_2_C_1:length_in_metres}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.lengthInMetres}
+  \uses{def:physics:IPhO_2026_2_C_1:length_quantity}
+  The scalar projection of a physical length in metres under Physlib's SI
+  unit choice.
+\end{definition}
+\begin{proof}
+  Evaluate the dimensionful length at the SI unit choice and take its
+  underlying real readout.
+\end{proof}
+
+\begin{definition}[Declaration PlanePoint]
+  \label{def:physics:IPhO_2026_2_C_1:aux001}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlanePoint}
+  \uses{def:physics:IPhO_2026_2_C_1:length_quantity}
+  A point in the Cartesian cross-section of Figure 2g.  Both coordinates are
+  Physlib length quantities; analytic line equations refer to their common
+  named SI-length projection.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PlaneDirection]
+  \label{def:physics:IPhO_2026_2_C_1:aux002}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection}
+  A dimensionless propagation direction in the Cartesian cross-section.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration dot]
+  \label{def:physics:IPhO_2026_2_C_1:aux003}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection.dot}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002}
+  The coordinate dot product on directions in the plane.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsNonzero]
+  \label{def:physics:IPhO_2026_2_C_1:aux004}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection.IsNonzero}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002}
+  A direction is nonzero when at least one Cartesian component is nonzero.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsUnit]
+  \label{def:physics:IPhO_2026_2_C_1:aux005}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection.IsUnit}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux003}
+  The normal used in the reflection formula has unit Euclidean length.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration reflectedByNormal]
+  \label{def:physics:IPhO_2026_2_C_1:aux006}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection.reflectedByNormal}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux003}
+  Reflection of a propagation direction from a surface with a unit outward normal. For an incoming direction d and normal n, this is d - 2 (d ⬝ n) n.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsSpecularReflection]
+  \label{def:physics:IPhO_2026_2_C_1:aux007}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.PlaneDirection.IsSpecularReflection}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux005, def:physics:IPhO_2026_2_C_1:aux006}
+  The specular-reflection law at a mirror point, expressed as a constraining vector equation rather than as the requested slope/intercept formula.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HalfCylindricalMirror]
+  \label{def:physics:IPhO_2026_2_C_1:aux008}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.HalfCylindricalMirror}
+  \uses{def:physics:IPhO_2026_2_C_1:length_quantity, def:physics:IPhO_2026_2_C_1:length_in_metres}
+  The upper semicircular cross-section of a half-cylindrical mirror, whose
+  radius is a positive Physlib length quantity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnReflectingSurface]
+  \label{def:physics:IPhO_2026_2_C_1:aux009}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.HalfCylindricalMirror.OnReflectingSurface}
+  \uses{def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux008}
+  Membership in the reflecting upper semicircle in Figure 2g.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SlopeInterceptLine]
+  \label{def:physics:IPhO_2026_2_C_1:aux010}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.SlopeInterceptLine}
+  \uses{def:physics:IPhO_2026_2_C_1:length_quantity, def:physics:IPhO_2026_2_C_1:length_in_metres}
+  A line in the Figure 2g convention \(y=mx+b\).  Its slope is
+  dimensionless, while its intercept is a Physlib length quantity; incidence
+  is stated through the coordinates' named SI projections.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Contains]
+  \label{def:physics:IPhO_2026_2_C_1:aux011}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.SlopeInterceptLine.Contains}
+  \uses{def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux010}
+  A point lies on a slope-intercept line.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasDirection]
+  \label{def:physics:IPhO_2026_2_C_1:aux012}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.SlopeInterceptLine.HasDirection}
+  \uses{def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux010}
+  A nonvertical line has direction as a supporting direction. This equation keeps the orientation-free line geometry separate from the oriented propagation direction of an optical ray.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OpticalRayAtPoint]
+  \label{def:physics:IPhO_2026_2_C_1:aux013}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.OpticalRayAtPoint}
+  \uses{def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux004}
+  An oriented optical ray together with a marked point on its path.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2gRayInteraction]
+  \label{def:physics:IPhO_2026_2_C_1:aux014}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.Figure2gRayInteraction}
+  \uses{def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux002, def:physics:IPhO_2026_2_C_1:aux007, def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux009, def:physics:IPhO_2026_2_C_1:aux010, def:physics:IPhO_2026_2_C_1:aux011, def:physics:IPhO_2026_2_C_1:aux012, def:physics:IPhO_2026_2_C_1:aux013}
+  The physical and figure-derived data for one ray striking the mirror at incidence angle incidenceAngle. Angles are measured in radians. The line coefficients remain unconstrained except through the hit-point, direction, and specular-reflection equations; in particular, neither requested closed form is assumed here.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration mA]
+  \label{def:physics:IPhO_2026_2_C_1:aux015}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.Figure2gRayInteraction.mA}
+  \uses{def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux014}
+  The scalar readout denoted by m\_A when the interaction is ray A.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration bA]
+  \label{def:physics:IPhO_2026_2_C_1:aux016}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.Figure2gRayInteraction.bA}
+  \uses{def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux014}
+  The Physlib length-valued intercept denoted by \(b_A\); its closed-form
+  equality is stated through the named SI-length projection.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Figure2gCausticSetup]
+  \label{def:physics:IPhO_2026_2_C_1:aux017}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.Figure2gCausticSetup}
+  \uses{def:physics:IPhO_2026_2_C_1:aux001, def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux011, def:physics:IPhO_2026_2_C_1:aux014}
+  Context retained for the later caustic construction: ray B is parallel to ray A, has incidence angle theta + deltaTheta, and intersects ray A's reflected line at the sampled caustic point. relativeScale makes the informal condition Δθ ≪ θ explicit without choosing an unstated numerical tolerance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration reflected\_direction\_from\_specular\_law]
+  \label{lem:physics:IPhO_2026_2_C_1:aux018}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.reflected_direction_from_specular_law}
+  \uses{def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux014}
+  The vector reflection law and Figure 2g orientation select the outgoing down-left branch and give its doubled-angle direction.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration reflected\_line\_slope]
+  \label{lem:physics:IPhO_2026_2_C_1:aux019}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.reflected_line_slope}
+  \uses{def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux014, def:physics:IPhO_2026_2_C_1:aux015, lem:physics:IPhO_2026_2_C_1:aux018}
+  The direction equation of the reflected supporting line determines its dimensionless slope.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration reflected\_line\_intercept]
+  \label{lem:physics:IPhO_2026_2_C_1:aux020}
+  \lean{IPhO2026Problems.IPhO2026_2_C_1.reflected_line_intercept}
+  \uses{def:physics:IPhO_2026_2_C_1:aux008, def:physics:IPhO_2026_2_C_1:aux014, def:physics:IPhO_2026_2_C_1:aux016, lem:physics:IPhO_2026_2_C_1:aux018, lem:physics:IPhO_2026_2_C_1:aux019}
+  Incidence of the reflected line at the mirror hit point determines its length-valued intercept.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

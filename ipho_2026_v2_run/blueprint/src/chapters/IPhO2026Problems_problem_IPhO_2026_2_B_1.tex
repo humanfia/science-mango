@@ -1,0 +1,357 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_2_B_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_2_B_1.source.json
+% archon:problem-id IPhO_2026_2
+% archon:part-id B.1
+
+\chapter{Physics problem IPhO\_2026\_2\_B\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_2_B_1}
+
+\paragraph{Problem source.}
+A half-cylindrical mirror of radius R illuminates a fully absorbing cylindrical
+container of radius a.  Their axes are parallel, and the container center lies
+R/2 from the mirror center on the symmetry plane.  Uniform parallel sunlight
+arrives along the optical axis.  Any ray absorbed by the container reflects at
+most once.  Let theta\_max be the largest incidence angle on the mirror among
+rays that strike the container, and let P\_0 be the power the cylinder would
+receive without the mirror.  See Figure 2f.
+
+Current subquestion:
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Current subquestion.}
+Given a = alpha*sin(theta\_max) + beta*sin(2*theta\_max), determine alpha and beta in terms of R.
+
+\paragraph{Recorded answer/context.}
+alpha = R and beta = -R/2.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T2\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_2\_B\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 004 proof-review redraft contract.}
+Do not assume that arbitrary \(\alpha,\beta\) already form the coefficients of
+the full limiting-radius function.  Starting only from the solar-cooker setup,
+the ray model, maximal-ray tangency, and the fact that
+\(\theta_{\max}\) is the attained maximum, derive the actual container-radius
+equation.  The final theorem must exhibit coefficients \(\alpha,\beta\) for
+that derived equation and identify them as
+\(\alpha=R\) and \(\beta=-R/2\).  Thus every load-bearing Figure 2f hypothesis
+feeds the answer, rather than being decorative beside an answer-bearing
+coefficient assumption.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_2_B_1:target}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.coefficients_from_solar_cooker_geometry}
+  \uses{def:physics:IPhO_2026_2_B_1:aux003, def:physics:IPhO_2026_2_B_1:aux009, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux017, def:physics:IPhO_2026_2_B_1:aux022, def:physics:IPhO_2026_2_B_1:aux023, def:physics:IPhO_2026_2_B_1:aux024, lem:physics:IPhO_2026_2_B_1:aux025, lem:physics:IPhO_2026_2_B_1:aux026, lem:physics:IPhO_2026_2_B_1:aux027, lem:physics:IPhO_2026_2_B_1:aux028}
+  From the maximum reflected ray in Figure 2f, there exist length
+  coefficients \(\alpha,\beta\) such that
+  \(a=\alpha\sin\theta_{\max}+\beta\sin(2\theta_{\max})\), with
+  \(\alpha=R\) and \(\beta=-R/2\).
+\end{theorem}
+\begin{proof}
+  Maximal-ray tangency supplies the attained ray tangent to the absorbing
+  cylinder.  Its signed perpendicular distance from the container center is
+  therefore the positive container radius.  Replacing the ray by the
+  canonical incidence point and specularly reflected direction at
+  \(\theta_{\max}\), and using that the centers are separated by \(R/2\),
+  gives
+  \(a=R\sin\theta_{\max}-(R/2)\sin(2\theta_{\max})\).
+  Taking \(\alpha=R\) and \(\beta=-R/2\) proves both the displayed source
+  relation and the requested coefficient values.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration CrossSection]
+  \label{def:physics:IPhO_2026_2_B_1:aux001}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.CrossSection}
+  The two-dimensional cross-section perpendicular to the parallel cylinder axes.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AxisSpace]
+  \label{def:physics:IPhO_2026_2_B_1:aux002}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.AxisSpace}
+  The ambient space in which the two cylinder-axis directions are compared.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Length]
+  \label{def:physics:IPhO_2026_2_B_1:aux003}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.Length}
+  A dimension-tagged length. Coefficients may be signed, although physical radii are positive.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration powerDimension]
+  \label{def:physics:IPhO_2026_2_B_1:aux004}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.powerDimension}
+  The physical dimension of power, mass * length\textasciicircum{}2 / time\textasciicircum{}3.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration irradianceDimension]
+  \label{def:physics:IPhO_2026_2_B_1:aux005}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.irradianceDimension}
+  The physical dimension of irradiance, power per unit area.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Power]
+  \label{def:physics:IPhO_2026_2_B_1:aux006}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.Power}
+  \uses{def:physics:IPhO_2026_2_B_1:aux004}
+  A dimension-tagged power, used for the source quantity P₀.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Irradiance]
+  \label{def:physics:IPhO_2026_2_B_1:aux007}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.Irradiance}
+  \uses{def:physics:IPhO_2026_2_B_1:aux005}
+  A dimension-tagged irradiance (power per unit area).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration cross2D]
+  \label{def:physics:IPhO_2026_2_B_1:aux008}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.cross2D}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001}
+  The oriented scalar cross product of two vectors in the cross-section.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration scaledLength]
+  \label{def:physics:IPhO_2026_2_B_1:aux009}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.scaledLength}
+  \uses{def:physics:IPhO_2026_2_B_1:aux003}
+  Multiplication of a dimension-tagged length by a signed dimensionless scalar.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SolarCookerSetup]
+  \label{def:physics:IPhO_2026_2_B_1:aux010}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.SolarCookerSetup}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux002, def:physics:IPhO_2026_2_B_1:aux003, def:physics:IPhO_2026_2_B_1:aux006, def:physics:IPhO_2026_2_B_1:aux007, def:physics:IPhO_2026_2_B_1:aux008}
+  The physical and coordinate data of the solar cooker. The common orientation chosen for the two unit axis vectors is a coordinate choice; their equality records the source statement that the axes are parallel. The optical axis points in the direction of the incoming sunlight and from the mirror center toward the container center.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnHalfMirror]
+  \label{def:physics:IPhO_2026_2_B_1:aux011}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.OnHalfMirror}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010}
+  Membership in the half-circular mirror in the Figure 2f cross-section.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration OnContainerBoundary]
+  \label{def:physics:IPhO_2026_2_B_1:aux012}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.OnContainerBoundary}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010}
+  Membership in the circular boundary of the absorbing container.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration InContainer]
+  \label{def:physics:IPhO_2026_2_B_1:aux013}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.InContainer}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010}
+  Membership in the closed cross-sectional disk of the absorbing container.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration canonicalIncidencePoint]
+  \label{def:physics:IPhO_2026_2_B_1:aux014}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.canonicalIncidencePoint}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010}
+  The mirror incidence point corresponding to an incidence angle theta. The coordinate readout is measured in metres.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration canonicalOutwardNormal]
+  \label{def:physics:IPhO_2026_2_B_1:aux015}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.canonicalOutwardNormal}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010}
+  The outward radial unit normal at the canonical incidence point.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration canonicalReflectedDirection]
+  \label{def:physics:IPhO_2026_2_B_1:aux016}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.canonicalReflectedDirection}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux015}
+  The reflected direction obtained from the vector form of the specular reflection law, v\_out = v\_in - 2 ⟪v\_in,n⟫ n.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration limitingRadiusMeters]
+  \label{def:physics:IPhO_2026_2_B_1:aux017}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.limitingRadiusMeters}
+  \uses{def:physics:IPhO_2026_2_B_1:aux008, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux014, def:physics:IPhO_2026_2_B_1:aux016}
+  The signed perpendicular-distance readout from the canonical reflected line to the container center. The branch convention in Figure 2f makes it nonnegative for the limiting ray.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DirectedRay]
+  \label{def:physics:IPhO_2026_2_B_1:aux018}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.DirectedRay}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001}
+  A directed light ray with its number of previous mirror reflections.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SpecularReflection]
+  \label{def:physics:IPhO_2026_2_B_1:aux019}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.SpecularReflection}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001}
+  The vector form of specular reflection. This local interface is used because Mathlib's affine reflection does not supply a geometric-optics ray law.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration RayHitsContainer]
+  \label{def:physics:IPhO_2026_2_B_1:aux020}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.RayHitsContainer}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux013}
+  A forward ray intersects the closed absorbing cylinder cross-section.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration LimitingTangentRay]
+  \label{def:physics:IPhO_2026_2_B_1:aux021}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.LimitingTangentRay}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux008, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux012}
+  A limiting reflected ray is tangent to the container on the forward branch. The last two fields preserve both the tangency equation and the signed-side choice needed to recover a positive radius.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration SolarOpticsModel]
+  \label{def:physics:IPhO_2026_2_B_1:aux022}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.SolarOpticsModel}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux011, def:physics:IPhO_2026_2_B_1:aux014, def:physics:IPhO_2026_2_B_1:aux015, def:physics:IPhO_2026_2_B_1:aux016, def:physics:IPhO_2026_2_B_1:aux018, def:physics:IPhO_2026_2_B_1:aux019, def:physics:IPhO_2026_2_B_1:aux020}
+  The governing ray-optics model. Its Prop-valued classifications are not opaque witnesses: the fields below expose absorption, reflection-count, incidence-coordinate, specular-reflection, and container-hit consequences.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsMaximumIncidenceAngle]
+  \label{def:physics:IPhO_2026_2_B_1:aux023}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.IsMaximumIncidenceAngle}
+  \uses{def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux022}
+  thetaMax is attained and bounds every reflected ray that strikes the container.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MaximalRayTangencyLaw]
+  \label{def:physics:IPhO_2026_2_B_1:aux024}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.MaximalRayTangencyLaw}
+  \uses{def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux021, def:physics:IPhO_2026_2_B_1:aux022, def:physics:IPhO_2026_2_B_1:aux023}
+  The geometric extremality law saying that a largest-angle ray which still strikes the convex cylinder is tangent to it. This is an explicit bridge, not an assumption about the requested coefficients.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration maximum\_incidence\_ray\_is\_tangent]
+  \label{lem:physics:IPhO_2026_2_B_1:aux025}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.maximum_incidence_ray_is_tangent}
+  \uses{def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux021, def:physics:IPhO_2026_2_B_1:aux022, def:physics:IPhO_2026_2_B_1:aux023, def:physics:IPhO_2026_2_B_1:aux024}
+  Elimination form of the maximal-ray tangency law.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration limiting\_tangent\_radius\_eq\_signedDistance]
+  \label{lem:physics:IPhO_2026_2_B_1:aux026}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.limiting_tangent_radius_eq_signedDistance}
+  \uses{def:physics:IPhO_2026_2_B_1:aux001, def:physics:IPhO_2026_2_B_1:aux008, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux021, lem:physics:IPhO_2026_2_B_1:aux025}
+  Tangency converts the physical container radius into the signed perpendicular distance from the ray to the container center.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration maximum\_ray\_containerRadius\_eq\_limitingRadius]
+  \label{lem:physics:IPhO_2026_2_B_1:aux027}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.maximum_ray_containerRadius_eq_limitingRadius}
+  \uses{def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux017, def:physics:IPhO_2026_2_B_1:aux022, def:physics:IPhO_2026_2_B_1:aux023, def:physics:IPhO_2026_2_B_1:aux024, lem:physics:IPhO_2026_2_B_1:aux025, lem:physics:IPhO_2026_2_B_1:aux026}
+  For the maximum-incidence ray in the ray model, the actual container radius equals the canonical limiting-radius readout.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration limitingRadiusMeters\_eq\_trigFormula]
+  \label{lem:physics:IPhO_2026_2_B_1:aux028}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.limitingRadiusMeters_eq_trigFormula}
+  \uses{def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux017, lem:physics:IPhO_2026_2_B_1:aux025, lem:physics:IPhO_2026_2_B_1:aux026, lem:physics:IPhO_2026_2_B_1:aux027}
+  Expanding the canonical incidence point, specular-reflection equation, and center offset from Figure 2f gives the two-term trigonometric radius formula.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration AreTrigCoefficients]
+  \label{def:physics:IPhO_2026_2_B_1:aux029}
+  \lean{IPhO2026Problems.IPhO2026_2_B_1.AreTrigCoefficients}
+  \uses{def:physics:IPhO_2026_2_B_1:aux003, def:physics:IPhO_2026_2_B_1:aux010, def:physics:IPhO_2026_2_B_1:aux017}
+  An auxiliary functional notion saying that alpha and beta are universal
+  coefficients of the limiting-radius function.  The final B.1 theorem does
+  not assume this notion; it derives and exhibits the source coefficients
+  from the maximum-ray geometry.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+% --- Archon physics formalization source end ---

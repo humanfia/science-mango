@@ -1,0 +1,289 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_1_C_1.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_1_C_1.source.json
+% archon:problem-id IPhO_2026_1
+% archon:part-id C.1
+
+\chapter{Physics problem IPhO\_2026\_1\_C\_1}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_1_C_1}
+
+\paragraph{Problem source.}
+A photon of angular frequency omega is absorbed by an ozone molecule O3 at rest,
+dissociating it into O2 and O.  Let U\_i and U\_f be the ground-state energies of
+O3 and O2 and define Delta U = U\_f - U\_i.  The outgoing O2 momentum makes angle
+theta with the incident photon.  Treat the oxygen fragments classically and
+non-relativistically, take the mass of an oxygen atom to be m, and use photon
+momentum p\_gamma = E\_gamma/c = hbar*omega/c.
+
+Current subquestion:
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Current subquestion.}
+Determine the minimum angular frequency omega\_min required for dissociation at outgoing O2 angle theta, in terms of hbar, c, theta, Delta U, and m.
+
+\paragraph{Recorded answer/context.}
+For theta <= pi/2, omega\_min = 3*m*c\textasciicircum{}2*[1 - sqrt(1 - (2*Delta U/(3*m*c\textasciicircum{}2))*(1 + 2*sin(theta)\textasciicircum{}2))]/[hbar*(1 + 2*sin(theta)\textasciicircum{}2)]. For theta >= pi/2 use the same threshold evaluated at theta = pi/2.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T1\_page-3.png
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_1\_C\_1.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 004 proof-review redraft contract.}
+The scalar event-balance lemma must assume the applicability conditions on the
+physical parameters.  In particular, positivity of \(\hbar\), the photon
+frequency, and \(c\) makes the quantity called the photon-momentum magnitude
+nonnegative.  Do not assert the radial formula for arbitrary signed parameter
+readouts.  Preserve the already established threshold expression and the
+downstream theorem statements.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_1_C_1:target}
+  \lean{IPhO2026Problem1C1.minimumAngularFrequency_isDissociationThreshold}
+  \uses{def:physics:IPhO_2026_1_C_1:aux001, def:physics:IPhO_2026_1_C_1:aux002, def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux006, def:physics:IPhO_2026_1_C_1:aux007, def:physics:IPhO_2026_1_C_1:aux008, def:physics:IPhO_2026_1_C_1:aux009, def:physics:IPhO_2026_1_C_1:aux010, def:physics:IPhO_2026_1_C_1:aux011, def:physics:IPhO_2026_1_C_1:aux012, def:physics:IPhO_2026_1_C_1:aux013, def:physics:IPhO_2026_1_C_1:aux014, def:physics:IPhO_2026_1_C_1:aux015, lem:physics:IPhO_2026_1_C_1:aux016, lem:physics:IPhO_2026_1_C_1:aux017, lem:physics:IPhO_2026_1_C_1:aux018, def:physics:IPhO_2026_1_C_1:aux019, def:physics:IPhO_2026_1_C_1:aux020, lem:physics:IPhO_2026_1_C_1:aux021, lem:physics:IPhO_2026_1_C_1:aux022}
+  The explicit formula itself is proved to be the minimum required angular
+  frequency; no threshold formula is assumed as a governing law.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration MomentumPlane]
+  \label{def:physics:IPhO_2026_1_C_1:aux001}
+  \lean{IPhO2026Problem1C1.MomentumPlane}
+  The two-dimensional momentum-coordinate space used for Figure 1c.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration figure1cIncidentDirection]
+  \label{def:physics:IPhO_2026_1_C_1:aux002}
+  \lean{IPhO2026Problem1C1.figure1cIncidentDirection}
+  \uses{def:physics:IPhO_2026_1_C_1:aux001}
+  The incident-photon direction (the horizontal dashed ray in Figure 1c).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Parameters]
+  \label{def:physics:IPhO_2026_1_C_1:aux003}
+  \lean{IPhO2026Problem1C1.Parameters}
+  Scalar readouts for the photodissociation experiment in one coherent unit system. The fields have dimensions energy · time, mass, speed, and energy, respectively. The oxygen atom's ground-state energy is the chosen zero of energy, as in the source energy balance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Parameters.energyGap]
+  \label{def:physics:IPhO_2026_1_C_1:aux004}
+  \lean{IPhO2026Problem1C1.Parameters.energyGap}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003}
+  The dissociation energy gap ΔU = U\_f - U\_i.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Parameters.Valid]
+  \label{def:physics:IPhO_2026_1_C_1:aux005}
+  \lean{IPhO2026Problem1C1.Parameters.Valid}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004}
+  Applicability conditions for the classical threshold formula. The last inequality keeps the relevant discriminants strictly positive and is the quantitative small-energy condition appropriate to the nonrelativistic model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration photonEnergy]
+  \label{def:physics:IPhO_2026_1_C_1:aux006}
+  \lean{IPhO2026Problem1C1.photonEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003}
+  Photon energy E\_γ = ℏω in the chosen coherent units.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration photonMomentumMagnitude]
+  \label{def:physics:IPhO_2026_1_C_1:aux007}
+  \lean{IPhO2026Problem1C1.photonMomentumMagnitude}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux006}
+  Photon momentum magnitude p\_γ = E\_γ / c = ℏω/c.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration fragmentKineticEnergy]
+  \label{def:physics:IPhO_2026_1_C_1:aux008}
+  \lean{IPhO2026Problem1C1.fragmentKineticEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux001, def:physics:IPhO_2026_1_C_1:aux003}
+  Classical, nonrelativistic kinetic energy of the outgoing fragments. The oxygen molecule has mass 2m, hence its term is |p|²/(4m); the oxygen atom has mass m, hence its term is |q|²/(2m).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration DissociationEvent]
+  \label{def:physics:IPhO_2026_1_C_1:aux009}
+  \lean{IPhO2026Problem1C1.DissociationEvent}
+  \uses{def:physics:IPhO_2026_1_C_1:aux001, def:physics:IPhO_2026_1_C_1:aux002, def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux006, def:physics:IPhO_2026_1_C_1:aux007, def:physics:IPhO_2026_1_C_1:aux008}
+  A single event satisfying the governing laws of the isolated photodissociation process. The named momentum fields distinguish the incoming photon from both outgoing fragments. The angle is Mathlib's unoriented angle in [0, π], matching the angle label θ in Figure 1c.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration KinematicallyAllowed]
+  \label{def:physics:IPhO_2026_1_C_1:aux010}
+  \lean{IPhO2026Problem1C1.KinematicallyAllowed}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux009}
+  Dissociation at the stated angle and frequency is kinematically possible.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration radialFragmentKineticEnergy]
+  \label{def:physics:IPhO_2026_1_C_1:aux011}
+  \lean{IPhO2026Problem1C1.radialFragmentKineticEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux007}
+  The radial form of the total fragment kinetic energy after eliminating the oxygen-atom momentum with momentum conservation. Here r = |p\_\{O₂\}|.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration angularFactor]
+  \label{def:physics:IPhO_2026_1_C_1:aux012}
+  \lean{IPhO2026Problem1C1.angularFactor}
+  The angular factor 1 + 2 sin² θ appearing in the threshold.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration minimumFragmentKineticEnergy]
+  \label{def:physics:IPhO_2026_1_C_1:aux013}
+  \lean{IPhO2026Problem1C1.minimumFragmentKineticEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux007, def:physics:IPhO_2026_1_C_1:aux012}
+  Infimum of the radial fragment kinetic energy at fixed photon momentum. For forward angles the minimizing oxygen-molecule momentum is nonnegative. For angles at or beyond π/2, the constrained infimum occurs as that momentum tends to zero.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HasEnoughPhotonEnergy]
+  \label{def:physics:IPhO_2026_1_C_1:aux014}
+  \lean{IPhO2026Problem1C1.HasEnoughPhotonEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004, def:physics:IPhO_2026_1_C_1:aux006, def:physics:IPhO_2026_1_C_1:aux013}
+  The exact scalar feasibility condition obtained by minimizing over the outgoing oxygen-molecule momentum magnitude. At and beyond π/2 the infimum requires zero O₂ momentum, for which the angle would not be physically defined; consequently actual events satisfy a strict inequality there.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsDissociationThreshold]
+  \label{def:physics:IPhO_2026_1_C_1:aux015}
+  \lean{IPhO2026Problem1C1.IsDissociationThreshold}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux010}
+  An infimum characterization of the minimum required angular frequency. This permits the backscattering threshold to be a limiting value even when no event with nonzero outgoing O₂ momentum occurs exactly at that value.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration event\_scalar\_energy\_balance]
+  \label{lem:physics:IPhO_2026_1_C_1:aux016}
+  \lean{IPhO2026Problem1C1.event_scalar_energy_balance}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux006, def:physics:IPhO_2026_1_C_1:aux007, def:physics:IPhO_2026_1_C_1:aux008, def:physics:IPhO_2026_1_C_1:aux009, def:physics:IPhO_2026_1_C_1:aux011}
+  Under the parameter-validity conditions, vector conservation and the
+  Figure 1c angle imply the scalar energy law.
+\end{lemma}
+\begin{proof}
+  Energy conservation first gives photon energy as the dissociation gap plus
+  the two fragment kinetic energies.  Momentum conservation replaces the
+  atomic momentum by photon momentum minus molecular momentum.  Validity and
+  the event's positive frequency make \(\hbar\omega/c\) positive, so the norm
+  of the photon vector is exactly this magnitude rather than its absolute
+  value.  The Figure 1c angle identity then evaluates the cross term as
+  \(2p_\gamma\lVert p_{O_2}\rVert\cos\theta\), yielding the stated radial
+  expression.
+\end{proof}
+
+\begin{lemma}[Declaration radialFragmentKineticEnergy\_lower\_bound]
+  \label{lem:physics:IPhO_2026_1_C_1:aux017}
+  \lean{IPhO2026Problem1C1.radialFragmentKineticEnergy_lower_bound}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux011, def:physics:IPhO_2026_1_C_1:aux013, lem:physics:IPhO_2026_1_C_1:aux016}
+  The constrained radial kinetic energy is bounded below by the appropriate forward/backscattering infimum.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration kinematicallyAllowed\_iff\_hasEnoughPhotonEnergy]
+  \label{lem:physics:IPhO_2026_1_C_1:aux018}
+  \lean{IPhO2026Problem1C1.kinematicallyAllowed_iff_hasEnoughPhotonEnergy}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux010, def:physics:IPhO_2026_1_C_1:aux014, lem:physics:IPhO_2026_1_C_1:aux016, lem:physics:IPhO_2026_1_C_1:aux017}
+  The vector event interface is neither opaque nor underdetermined: eliminating the two momentum vectors gives exactly the scalar minimized-energy condition.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration effectiveThresholdAngle]
+  \label{def:physics:IPhO_2026_1_C_1:aux019}
+  \lean{IPhO2026Problem1C1.effectiveThresholdAngle}
+  Clamp the Figure 1c angle to the forward limiting value π/2.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration minimumAngularFrequencyExpression]
+  \label{def:physics:IPhO_2026_1_C_1:aux020}
+  \lean{IPhO2026Problem1C1.minimumAngularFrequencyExpression}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004, def:physics:IPhO_2026_1_C_1:aux012, def:physics:IPhO_2026_1_C_1:aux019}
+  The threshold expression obtained from the lower root of the energy quadratic. The factor 2 multiplying ΔU under the square root is present in the official solution and is also required by the numerical result in part C.2. The generated blueprint's recorded-answer line omitted this factor.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration minimumAngularFrequencyExpression\_energy\_boundary]
+  \label{lem:physics:IPhO_2026_1_C_1:aux021}
+  \lean{IPhO2026Problem1C1.minimumAngularFrequencyExpression_energy_boundary}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux004, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux006, def:physics:IPhO_2026_1_C_1:aux013, def:physics:IPhO_2026_1_C_1:aux020, lem:physics:IPhO_2026_1_C_1:aux016, lem:physics:IPhO_2026_1_C_1:aux017, lem:physics:IPhO_2026_1_C_1:aux018}
+  The displayed expression is the lower root of the minimized energy equation.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration isDissociationThreshold\_unique]
+  \label{lem:physics:IPhO_2026_1_C_1:aux022}
+  \lean{IPhO2026Problem1C1.isDissociationThreshold_unique}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux015, lem:physics:IPhO_2026_1_C_1:aux016, lem:physics:IPhO_2026_1_C_1:aux017, lem:physics:IPhO_2026_1_C_1:aux018, lem:physics:IPhO_2026_1_C_1:aux021}
+  An infimum threshold, when it exists, is unique.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration minimumAngularFrequency\_eq]
+  \label{lem:physics:IPhO_2026_1_C_1:aux024}
+  \lean{IPhO2026Problem1C1.minimumAngularFrequency_eq}
+  \uses{def:physics:IPhO_2026_1_C_1:aux003, def:physics:IPhO_2026_1_C_1:aux005, def:physics:IPhO_2026_1_C_1:aux015, def:physics:IPhO_2026_1_C_1:aux020, lem:physics:IPhO_2026_1_C_1:aux016, lem:physics:IPhO_2026_1_C_1:aux017, lem:physics:IPhO_2026_1_C_1:aux018, lem:physics:IPhO_2026_1_C_1:aux021, lem:physics:IPhO_2026_1_C_1:aux022, thm:physics:IPhO_2026_1_C_1:target}
+  Equivalent value form: any scalar already identified semantically as the minimum dissociation frequency equals the explicit expression.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

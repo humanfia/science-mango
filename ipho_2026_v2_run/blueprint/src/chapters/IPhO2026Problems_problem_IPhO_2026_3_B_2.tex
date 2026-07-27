@@ -1,0 +1,285 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_3_B_2.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_3_B_2.source.json
+% archon:problem-id IPhO_2026_3
+% archon:part-id B.2
+% archon:previous-part IPhO_2026_3_A_3
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_3\_B\_2}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_3_B_2}
+
+\paragraph{Problem source.}
+Continue with the paramagnetic torus.  Its equation of state is T*M*V = n*K*H,
+its heat capacity at constant M is C\_M = n*lambda/T\textasciicircum{}2, and dU = C\_M*dT.
+The volume is fixed and the magnetic work on the material is
+dW = mu\_0*V*H*dM.  Work and heat entering the torus are positive.
+
+Current subquestion:
+For an adiabatic change H\_i -> H\_f starting at T\_i, determine Delta T = T\_f - T\_i.
+
+\paragraph{Current subquestion.}
+For an adiabatic change H\_i -> H\_f starting at T\_i, determine Delta T = T\_f - T\_i.
+
+\paragraph{Recorded answer/context.}
+Delta T = T\_i*[sqrt((lambda + mu\_0*K*H\_f\textasciicircum{}2)/(lambda + mu\_0*K*H\_i\textasciicircum{}2)) - 1].
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/T3\_page-3.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source A.3. Question: Subtract the vacuum-core contribution and write the work dW done on the paramagnetic material. Reusable conclusions: dW = mu\_0*V*H*dM. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_3\_B\_2.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_3_B_2:target}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.adiabatic_temperature_change}
+  \uses{def:physics:IPhO_2026_3_B_2:aux001, def:physics:IPhO_2026_3_B_2:aux002, def:physics:IPhO_2026_3_B_2:aux003, def:physics:IPhO_2026_3_B_2:aux004, def:physics:IPhO_2026_3_B_2:aux005, def:physics:IPhO_2026_3_B_2:aux006, def:physics:IPhO_2026_3_B_2:aux007, def:physics:IPhO_2026_3_B_2:aux008, def:physics:IPhO_2026_3_B_2:aux009, def:physics:IPhO_2026_3_B_2:aux010, def:physics:IPhO_2026_3_B_2:aux011, def:physics:IPhO_2026_3_B_2:aux012, def:physics:IPhO_2026_3_B_2:aux013, def:physics:IPhO_2026_3_B_2:aux014, def:physics:IPhO_2026_3_B_2:aux015, def:physics:IPhO_2026_3_B_2:aux016, def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018, def:physics:IPhO_2026_3_B_2:aux019, def:physics:IPhO_2026_3_B_2:aux020, lem:physics:IPhO_2026_3_B_2:aux021, def:physics:IPhO_2026_3_B_2:aux022, def:physics:IPhO_2026_3_B_2:aux023, lem:physics:IPhO_2026_3_B_2:aux024}
+  For an adiabatic change from Hᵢ to H\_f, the requested temperature change ΔT = T\_f - Tᵢ. The positivity assumptions in the physical model and along the path select the positive square-root branch.
+\end{theorem}
+\begin{proof}
+  Use the typed geometry, governing-law, branch, and measurement interfaces listed in the declaration index.  Eliminate the intermediate readouts in their physical order and then evaluate the requested exact or uncertainty relation.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration volumeDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux001}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.volumeDimension}
+  The dimension of volume.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration energyDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux002}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.energyDimension}
+  The dimension of energy.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration magneticFieldStrengthDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux003}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magneticFieldStrengthDimension}
+  The dimension of both magnetic field strength H and magnetization M.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration heatCapacityDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux004}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.heatCapacityDimension}
+  \uses{def:physics:IPhO_2026_3_B_2:aux002}
+  The dimension of heat capacity.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration curieConstantDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux005}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.curieConstantDimension}
+  \uses{def:physics:IPhO_2026_3_B_2:aux001}
+  The dimension assigned to the Curie-law constant K. Physlib.Dimension does not include amount of substance among its base dimensions, so the mole readout n is kept separately and K carries the remaining temperature-times-volume dimension.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration heatCapacityParameterDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux006}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.heatCapacityParameterDimension}
+  \uses{def:physics:IPhO_2026_3_B_2:aux002}
+  The dimension of the heat-capacity parameter λ.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration vacuumPermeabilityDimension]
+  \label{def:physics:IPhO_2026_3_B_2:aux007}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.vacuumPermeabilityDimension}
+  The SI dimension of vacuum permeability μ₀.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration TemperatureQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux008}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.TemperatureQuantity}
+  The declaration TemperatureQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VolumeQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux009}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.VolumeQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux001}
+  The declaration VolumeQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration EnergyQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux010}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.EnergyQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux002}
+  The declaration EnergyQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MagneticFieldStrengthQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux011}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.MagneticFieldStrengthQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux003}
+  The declaration MagneticFieldStrengthQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration MagnetizationQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux012}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.MagnetizationQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux003}
+  The declaration MagnetizationQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeatCapacityQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux013}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.HeatCapacityQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux004}
+  The declaration HeatCapacityQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CurieConstantQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux014}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.CurieConstantQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux005}
+  The declaration CurieConstantQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration HeatCapacityParameterQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux015}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.HeatCapacityParameterQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux006}
+  The declaration HeatCapacityParameterQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VacuumPermeabilityQuantity]
+  \label{def:physics:IPhO_2026_3_B_2:aux016}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.VacuumPermeabilityQuantity}
+  \uses{def:physics:IPhO_2026_3_B_2:aux007}
+  The declaration VacuumPermeabilityQuantity introduces a typed component of the physical model.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ParamagneticTorusModel]
+  \label{def:physics:IPhO_2026_3_B_2:aux017}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.ParamagneticTorusModel}
+  \uses{def:physics:IPhO_2026_3_B_2:aux009, def:physics:IPhO_2026_3_B_2:aux014, def:physics:IPhO_2026_3_B_2:aux015, def:physics:IPhO_2026_3_B_2:aux016}
+  Fixed data of the paramagnetic torus. The real components are coherent-SI readouts. Positivity records physical admissibility, not the requested temperature-change formula.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration AdiabaticPathReadout]
+  \label{def:physics:IPhO_2026_3_B_2:aux018}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.AdiabaticPathReadout}
+  \uses{def:physics:IPhO_2026_3_B_2:aux008, def:physics:IPhO_2026_3_B_2:aux010, def:physics:IPhO_2026_3_B_2:aux011, def:physics:IPhO_2026_3_B_2:aux012, def:physics:IPhO_2026_3_B_2:aux013}
+  Measured quantities along a dimensionless process parameter s. The interval endpoints s = 0 and s = 1 represent the incoming and outgoing states. Since s is dimensionless, the heat and work input rates below have the dimension of energy.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration processDomain]
+  \label{def:physics:IPhO_2026_3_B_2:aux019}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.processDomain}
+  The closed parameter interval occupied by the change.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration IsAdiabaticQuasistaticChange]
+  \label{def:physics:IPhO_2026_3_B_2:aux020}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.IsAdiabaticQuasistaticChange}
+  \uses{def:physics:IPhO_2026_3_B_2:aux008, def:physics:IPhO_2026_3_B_2:aux011, def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018, def:physics:IPhO_2026_3_B_2:aux019}
+  The governing laws and endpoint readouts for a quasistatic adiabatic change. The sign convention is exposed by first\_law: positive heatInputRateSI and positive workInputRateSI both increase the internal energy. The field magnetic\_work is the reusable conclusion of part A.3.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration reduced\_adiabatic\_temperature\_ode]
+  \label{lem:physics:IPhO_2026_3_B_2:aux021}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.reduced_adiabatic_temperature_ode}
+  \uses{def:physics:IPhO_2026_3_B_2:aux008, def:physics:IPhO_2026_3_B_2:aux011, def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018, def:physics:IPhO_2026_3_B_2:aux019, def:physics:IPhO_2026_3_B_2:aux020}
+  The differential laws reduce to the separable magnetocaloric ODE. This is the algebra-and-product-rule bridge from the physical assumptions to the invariant used in the endpoint calculation.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{definition}[Declaration magnetothermalScaleSI]
+  \label{def:physics:IPhO_2026_3_B_2:aux022}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magnetothermalScaleSI}
+  \uses{def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018}
+  The positive energy-times-temperature scale occurring in the ODE.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration magnetothermalInvariantSI]
+  \label{def:physics:IPhO_2026_3_B_2:aux023}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magnetothermalInvariantSI}
+  \uses{def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018, def:physics:IPhO_2026_3_B_2:aux022}
+  The path invariant obtained by separating the reduced ODE.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration magnetothermal\_invariant\_constant]
+  \label{lem:physics:IPhO_2026_3_B_2:aux024}
+  \lean{IPhO2026Problems.IPhO2026_3_B_2.magnetothermal_invariant_constant}
+  \uses{def:physics:IPhO_2026_3_B_2:aux008, def:physics:IPhO_2026_3_B_2:aux011, def:physics:IPhO_2026_3_B_2:aux017, def:physics:IPhO_2026_3_B_2:aux018, def:physics:IPhO_2026_3_B_2:aux019, def:physics:IPhO_2026_3_B_2:aux020, def:physics:IPhO_2026_3_B_2:aux023, lem:physics:IPhO_2026_3_B_2:aux021}
+  Along any admissible adiabatic path, T² / (λ + μ₀ K H²) is constant. Mathlib's derivative-zero-on-an-interval theorem can carry the final calculus step once the reduced ODE has been established.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---

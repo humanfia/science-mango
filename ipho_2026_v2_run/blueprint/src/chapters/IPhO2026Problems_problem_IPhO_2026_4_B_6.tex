@@ -1,0 +1,227 @@
+% --- Archon physics formalization source begin ---
+% archon:physics
+% archon:covers IPhO2026Problems/problem_IPhO_2026_4_B_6.lean
+% archon:source-report reports/ipho_2026/problem_IPhO_2026_4_B_6.source.json
+% archon:problem-id IPhO_2026_4
+% archon:part-id B.6
+% archon:previous-part IPhO_2026_4_B_5
+% archon:previous-part-policy natural_language_prerequisite_only
+
+\chapter{Physics problem IPhO\_2026\_4\_B\_6}
+\label{ch:IPhO2026Problems_problem_IPhO_2026_4_B_6}
+
+\paragraph{Problem source.}
+The inner cylinder contains dry air plus water vapor at total pressure
+approximately P\_atm.  The water level is adjusted and its height H is recorded
+as temperature T falls.  At T\_0 = 273.15 K, extrapolated height is H\_0 and the
+water vapor pressure may be taken as zero.  Vapor pressure obeys
+ln(P\_v/P\_v0) = -(Q\_v/R)*(1/T - 1/T\_0).  Use the experimental procedure and
+geometry on pages 11--12.
+
+Current subquestion:
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Current subquestion.}
+Convert Q\_v into latent heat per unit mass L\_v and state the formula.
+
+\paragraph{Recorded answer/context.}
+L\_v = Q\_v/M\_0 = 2190 +/- 110 kJ/kg.
+
+\paragraph{Figure/image path.}
+/root/proposal\_for\_physic/science-mango/ipho\_2026\_source/image/E1\_page-12.png
+
+\paragraph{Reusable previous-part conclusions.}
+\begin{itemize}
+\item Source B.5. Question: Construct a Clausius-Clapeyron graph and use it to determine the molar latent heat Q\_v. Reusable conclusions: Plot ln(P\_v/P\_atm) against 1/T; official sample slope is -4700 +/- 200 K and Q\_v = 39 +/- 2 kJ/mol. Policy: natural\_language\_prerequisite\_only; do\_not\_import\_Lean\_output
+\end{itemize}
+
+\paragraph{Formalization target.}
+create a compiling Lean file with sorry bodies at `IPhO2026Problems/problem\_IPhO\_2026\_4\_B\_6.lean`. The Lean declarations must preserve the physical quantities, dimensions or dimensional roles, figure labels, governing-law hypotheses, and final relation expressed by this problem.
+Use Mathlib/Physlib names found through LeanExplore where available. If a physics API is missing, introduce faithful local abstractions rather than scalar placeholder aliases.
+
+\paragraph{Iteration 002 redraft contract.}
+Import Physlib and use dimensionful carriers for energy, mass, and specific
+latent energy \(E/M\), with named SI projections.  Because the available
+dimension system has no amount-of-substance base dimension, molar quantities
+may remain in a local role-indexed carrier, but the conversion to energy per
+mass must genuinely land in the Physlib-derived specific-energy dimension.
+Retain the B.5 input \(39\pm2\) kJ/mol, the positive water molar mass, the
+extensivity equations, and explicit uncertainty propagation.  A display-unit
+enumeration alone is not sufficient physical grounding.
+
+\begin{theorem}[Physics formalization target]
+  \label{thm:physics:IPhO_2026_4_B_6:target}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.latent_heat_of_vaporization_per_unit_mass}
+  \uses{def:physics:IPhO_2026_4_B_6:aux001, def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux003, def:physics:IPhO_2026_4_B_6:aux004, def:physics:IPhO_2026_4_B_6:aux005, def:physics:IPhO_2026_4_B_6:aux006, def:physics:IPhO_2026_4_B_6:aux007, def:physics:IPhO_2026_4_B_6:aux008, def:physics:IPhO_2026_4_B_6:aux009, def:physics:IPhO_2026_4_B_6:aux010, def:physics:IPhO_2026_4_B_6:aux011, def:physics:IPhO_2026_4_B_6:aux012, lem:physics:IPhO_2026_4_B_6:aux013, lem:physics:IPhO_2026_4_B_6:aux014, lem:physics:IPhO_2026_4_B_6:aux015}
+  IPhO 2026 Problem 4 B.6: converting the B.5 molar latent heat by the water molar mass gives the latent heat of vaporization per unit mass, propagates its uncertainty, and supports the official 2190 ± 110 kJ/kg report.
+\end{theorem}
+\begin{proof}
+  For any nonzero vaporized amount, extensivity gives
+  \(Q=nQ_v=mL_v\), while \(m=nM_0\).  Cancelling the positive amount yields
+  \(L_v=Q_v/M_0\) in the specific-energy SI projection.  With the molar mass
+  treated as exact, divide the B.5 absolute uncertainty by the same positive
+  \(M_0\); the resulting interval supports the rounded
+  \(2190\pm110\) kJ/kg report.
+\end{proof}
+\section*{Formal declaration index}
+The following blocks record the typed carriers and bridge declarations used by the target.  Their dependency lists follow the declaration-level model in the covered Lean file.
+
+\begin{definition}[Declaration DisplayUnit]
+  \label{def:physics:IPhO_2026_4_B_6:aux001}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.DisplayUnit}
+  Display units used only at the experimental readout boundary.  Energy,
+  mass, and energy-per-mass are carried by Physlib dimensions; molar
+  quantities retain distinct local roles because the available dimension
+  system has no amount-of-substance base dimension.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration Measurement]
+  \label{def:physics:IPhO_2026_4_B_6:aux002}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.Measurement}
+  \uses{def:physics:IPhO_2026_4_B_6:aux001}
+  A measured value and absolute uncertainty whose physical carrier is selected
+  by its role.  Dimensionful energy, mass, and specific-energy roles use
+  Physlib quantities and expose named SI projections; molar display roles
+  remain explicitly indexed local scalars.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CylinderLabel]
+  \label{def:physics:IPhO_2026_4_B_6:aux003}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.CylinderLabel}
+  The two cylinders named in the experimental apparatus.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration GraphAxisQuantity]
+  \label{def:physics:IPhO_2026_4_B_6:aux004}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.GraphAxisQuantity}
+  Axis quantities used in the Clausius--Clapeyron graph of part B.5.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration ClausiusClapeyronPlot]
+  \label{def:physics:IPhO_2026_4_B_6:aux005}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.ClausiusClapeyronPlot}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux004}
+  The graph constructed in B.5. Its slope has units of kelvin because the vertical coordinate is dimensionless and the horizontal coordinate has units of inverse kelvin.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration WaterVaporExperiment]
+  \label{def:physics:IPhO_2026_4_B_6:aux006}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.WaterVaporExperiment}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux003}
+  Scalar readouts and named apparatus quantities from pages 11--12. waterHeight and referenceWaterHeight are the quantities denoted by H and H₀; temperature and referenceTemperature are T and T₀. clausiusReferencePressure is the positive normalization pressure Pᵥ₀ in the logarithm. It is deliberately distinct from vaporPressureAtFreezing, which the experimental approximation sets to zero.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VaporPressureLaws]
+  \label{def:physics:IPhO_2026_4_B_6:aux007}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.VaporPressureLaws}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux006}
+  Governing thermodynamic and apparatus relations used in parts B.4--B.5. The central value of molarLatentHeat is expressed in kJ/mol, hence the factor 1000 in the Clausius--Clapeyron equation with R in J/(mol·K).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration PreviousPartB5Result]
+  \label{def:physics:IPhO_2026_4_B_6:aux008}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.PreviousPartB5Result}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux005}
+  The reusable experimental conclusion of B.5. This is input data for B.6, not the requested conversion to latent heat per unit mass.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration WaterMolarMassData]
+  \label{def:physics:IPhO_2026_4_B_6:aux009}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.WaterMolarMassData}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002}
+  The molar mass datum for water, expressed in kg/mol.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VaporizationBatch]
+  \label{def:physics:IPhO_2026_4_B_6:aux010}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.VaporizationBatch}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002}
+  One nonzero batch of vaporized water.  Its mass and transferred energy are
+  Physlib quantities, while its amount is the documented local molar scalar;
+  these are extensive quantities rather than aliases for \(Q_v,M_0,L_v\).
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration VaporizationExtensivity]
+  \label{def:physics:IPhO_2026_4_B_6:aux011}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.VaporizationExtensivity}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux010}
+  Extensivity laws for a vaporized batch.  The energy can be computed from
+  amount times molar latent heat or from Physlib mass times Physlib
+  specific-energy.  The two uncertainty equations express propagation under
+  multiplication by the exact batch amount or mass; they do not assume the
+  requested quotient formula.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{definition}[Declaration CompatibleReportedMeasurement]
+  \label{def:physics:IPhO_2026_4_B_6:aux012}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.CompatibleReportedMeasurement}
+  \uses{def:physics:IPhO_2026_4_B_6:aux001, def:physics:IPhO_2026_4_B_6:aux002}
+  A printed central ± uncertainty result is compatible with an unrounded measurement when the printed central value lies inside the propagated uncertainty interval and the two uncertainty magnitudes differ by at most the stated reporting tolerance.
+\end{definition}
+\begin{proof}
+  This is the typed definition of the stated physical carrier; its fields or defining equation provide the claimed data.
+\end{proof}
+
+\begin{lemma}[Declaration specific\_latent\_heat\_formula\_of\_extensivity]
+  \label{lem:physics:IPhO_2026_4_B_6:aux013}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.specific_latent_heat_formula_of_extensivity}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux010, def:physics:IPhO_2026_4_B_6:aux011}
+  Extensivity of energy, amount, and mass implies the requested central-value conversion Lᵥ = Qᵥ / M₀.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration specific\_latent\_heat\_uncertainty\_of\_extensivity]
+  \label{lem:physics:IPhO_2026_4_B_6:aux014}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.specific_latent_heat_uncertainty_of_extensivity}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux010, def:physics:IPhO_2026_4_B_6:aux011, lem:physics:IPhO_2026_4_B_6:aux013}
+  The extensive uncertainty equations give the corresponding uncertainty propagation through division by the exact molar mass.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+
+\begin{lemma}[Declaration official\_specific\_latent\_heat\_report]
+  \label{lem:physics:IPhO_2026_4_B_6:aux015}
+  \lean{IPhO2026Problems.IPhO2026_4_B_6.official_specific_latent_heat_report}
+  \uses{def:physics:IPhO_2026_4_B_6:aux002, def:physics:IPhO_2026_4_B_6:aux005, def:physics:IPhO_2026_4_B_6:aux008, def:physics:IPhO_2026_4_B_6:aux009, def:physics:IPhO_2026_4_B_6:aux012, lem:physics:IPhO_2026_4_B_6:aux013, lem:physics:IPhO_2026_4_B_6:aux014}
+  The rounded B.5 input 39 ± 2 kJ/mol, divided by 0.018 kg/mol, is compatible with the official B.6 report 2190 ± 110 kJ/kg. The tolerance 2 kJ/kg applies only to rounding the propagated uncertainty; the central-value comparison uses the propagated uncertainty interval itself.
+\end{lemma}
+\begin{proof}
+  Substitute the cited governing relations in order and use the stated positivity, orientation, and branch conditions to obtain the conclusion.
+\end{proof}
+% --- Archon physics formalization source end ---
