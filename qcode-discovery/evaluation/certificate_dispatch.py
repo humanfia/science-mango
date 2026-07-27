@@ -8,16 +8,19 @@ from typing import Any, Callable
 from evaluation.certificate import build_css_certificate, verify_css_certificate
 from evaluation.matrix_certificate import (
     CERTIFICATE_TYPE as MATRIX_CSS_TYPE,
+)
+from evaluation.matrix_certificate import (
     build_matrix_css_certificate,
     verify_matrix_css_certificate,
 )
 from evaluation.noncss_certificate import (
     MATRIX_TYPE as NONCSS_MATRIX_TYPE,
+)
+from evaluation.noncss_certificate import (
     PBB_TYPE,
     build_noncss_certificate,
     verify_noncss_certificate,
 )
-
 
 BB_CSS_TYPE = "qldpc-css-bb-exact"
 SUPPORTED_CERTIFICATE_TYPES = (
@@ -67,11 +70,13 @@ def build_certificate(
         "total_timeout": total_timeout,
     }
     if builder is build_css_certificate:
-        kwargs.update({
-            "checkpoint_path": checkpoint_path,
-            "resume": resume,
-            "solver_workers": solver_workers,
-        })
+        kwargs.update(
+            {
+                "checkpoint_path": checkpoint_path,
+                "resume": resume,
+                "solver_workers": solver_workers,
+            }
+        )
     return builder(
         claim,
         **kwargs,
@@ -102,14 +107,16 @@ def verify_certificate(
         "known_answer_artifact": known_answer_artifact,
         "rerun_milp": rerun_milp,
         "timeout_per_logical": timeout_per_logical,
+        "total_timeout": total_timeout,
+        "solver_workers": solver_workers,
     }
     if verifier is verify_css_certificate:
-        kwargs.update({
-            "checkpoint_path": checkpoint_path,
-            "resume": resume,
-            "total_timeout": total_timeout,
-            "solver_workers": solver_workers,
-        })
+        kwargs.update(
+            {
+                "checkpoint_path": checkpoint_path,
+                "resume": resume,
+            }
+        )
     return verifier(
         certificate,
         **kwargs,

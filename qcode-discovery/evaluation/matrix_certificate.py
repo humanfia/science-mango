@@ -17,6 +17,7 @@ from evaluation.certificate import (
     _direction_specs,
     _file_sha256,
     _highs_version,
+    _validate_solver_workers,
     pack_vector,
     solve_css_direction,
     unpack_vector,
@@ -30,7 +31,6 @@ from evaluation.final_gate import (
 )
 from evaluation.matrix_io import build_css_from_matrices, css_parameters, pack_matrix
 from evaluation.registry import check_code_novelty
-
 
 SCHEMA_VERSION = 1
 CERTIFICATE_TYPE = "qldpc-css-matrix-exact"
@@ -115,14 +115,18 @@ def build_matrix_css_certificate(
         if remaining <= 0:
             break
         evidence = solve_css_direction(
-            checks, target, timeout=min(float(timeout_per_logical), remaining),
+            checks,
+            target,
+            timeout=min(float(timeout_per_logical), remaining),
         )
-        evidence.update({
-            "logical_type": logical_type,
-            "logical_index": index,
-            "check_matrix": check_name,
-            "target_logical": pack_vector(target),
-        })
+        evidence.update(
+            {
+                "logical_type": logical_type,
+                "logical_index": index,
+                "check_matrix": check_name,
+                "target_logical": pack_vector(target),
+            }
+        )
         directions.append(evidence)
 
     exact = len(directions) == 2 * k and all(
@@ -134,12 +138,15 @@ def build_matrix_css_certificate(
         for item in directions
     )
     objectives = [
-        int(item["objective"]) for item in directions
+        int(item["objective"])
+        for item in directions
         if item.get("objective") is not None
     ]
     distance = min(objectives) if objectives else 0
     gate = _static_gate(
-        code, hx, hz,
+        code,
+        hx,
+        hz,
         distance=distance,
         exact=exact,
         known_answer_artifact=known_answer_artifact,
@@ -189,7 +196,9 @@ def build_matrix_css_certificate(
             "elapsed_s": time.monotonic() - started,
             "directions": directions,
         },
-        "upper_witness": None if best is None else {
+        "upper_witness": None
+        if best is None
+        else {
             "logical_type": best["logical_type"],
             "logical_index": best["logical_index"],
             "weight": best["objective"],
@@ -209,7 +218,19 @@ def verify_matrix_css_certificate(
     known_answer_artifact: Path | str,
     rerun_milp: bool = True,
     timeout_per_logical: float | None = None,
+    total_timeout: float | None = None,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
+    workers = _validate_solver_workers(solver_workers)
+    if timeout_per_logical is not None:
+        timeout_per_logical = float(timeout_per_logical)
+        if not math.isfinite(timeout_per_logical) or timeout_per_logical <= 0:
+            raise ValueError("timeout_per_logical must be a positive finite number")
+    if total_timeout is not None:
+        total_timeout = float(total_timeout)
+        if not math.isfinite(total_timeout) or total_timeout <= 0:
+            raise ValueError("total_timeout must be a positive finite number")
+    verify_started = time.monotonic()
     failures: list[str] = []
     checks = {
         "schema": (
@@ -225,12 +246,12 @@ def verify_matrix_css_certificate(
         claim = certificate["claim"]
         code, hx, hz = build_css_from_matrices(claim["H_X"], claim["H_Z"])
         n, k = css_parameters(hx, hz)
-        checks["known_answer_sha256"] = (
-            certificate["known_answer"]["artifact_sha256"]
-            == _file_sha256(known_answer_artifact)
-        )
+        checks["known_answer_sha256"] = certificate["known_answer"][
+            "artifact_sha256"
+        ] == _file_sha256(known_answer_artifact)
         checks["matrix_sha256"] = certificate.get("matrix_sha256") == {
-            "hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz),
+            "hx": _matrix_sha256(hx),
+            "hz": _matrix_sha256(hz),
         }
         specs = _direction_specs(code)
         directions = certificate["milp"]["directions"]
@@ -260,11 +281,36 @@ def verify_matrix_css_certificate(
             local.append("identity/order mismatch")
         local.extend(verify_direction_evidence(evidence, matrix, target))
         if rerun_milp:
-            timeout = timeout_per_logical
-            if timeout is None:
-                timeout = float(certificate["solver"]["timeout_per_logical_s"])
-            rerun = solve_css_direction(matrix, target, timeout=timeout)
-            if not (
+            remaining = None
+            if total_timeout is not None:
+                remaining = total_timeout - (time.monotonic() - verify_started)
+            if remaining is not None and remaining <= 0:
+                local.append("rerun total timeout exhausted")
+                rerun = None
+            else:
+                raw_timeout = timeout_per_logical
+                if raw_timeout is None:
+                    raw_timeout = certificate.get("solver", {}).get(
+                        "timeout_per_logical_s", 300
+                    )
+                try:
+                    timeout = float(raw_timeout)
+                except (TypeError, ValueError, OverflowError):
+                    timeout = math.nan
+                if not math.isfinite(timeout) or timeout <= 0:
+                    local.append("invalid rerun timeout")
+                    rerun = None
+                else:
+                    effective_timeout = timeout
+                    if remaining is not None:
+                        effective_timeout = min(timeout, remaining)
+                    rerun = solve_css_direction(
+                        matrix,
+                        target,
+                        timeout=effective_timeout,
+                        solver_workers=workers,
+                    )
+            if rerun is not None and not (
                 rerun["success"] is True
                 and rerun["mip_gap"] == 0.0
                 and rerun["objective"] == evidence.get("objective")
@@ -275,7 +321,8 @@ def verify_matrix_css_certificate(
     checks["stored_direction_evidence"] = not direction_failures
     checks["milp_rerun"] = rerun_milp and not direction_failures
     objectives = [
-        int(item["objective"]) for item in directions
+        int(item["objective"])
+        for item in directions
         if item.get("objective") is not None
     ]
     distance = min(objectives) if objectives else 0
@@ -285,13 +332,17 @@ def verify_matrix_css_certificate(
         and int(claim.get("d", -1)) == distance
     )
     gate = _static_gate(
-        code, hx, hz,
+        code,
+        hx,
+        hz,
         distance=distance,
-        exact=all((
-            checks["direction_count"],
-            checks["stored_direction_evidence"],
-            checks["milp_rerun"],
-        )),
+        exact=all(
+            (
+                checks["direction_count"],
+                checks["stored_direction_evidence"],
+                checks["milp_rerun"],
+            )
+        ),
         known_answer_artifact=known_answer_artifact,
     )
     checks["final_gate"] = gate["accepted"]

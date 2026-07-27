@@ -132,6 +132,146 @@ sector. A threshold proof automatically enters the complete exact certificate
 builder and independent MILP replay; the threshold artifact alone is not a
 release certificate. The worker-product guard prevents solver oversubscription.
 
+## Resumable five-stage campaigns
+
+Archon is the user-facing lifecycle controller for the complete campaign, while
+qcode remains the deterministic execution and evidence layer. The five machine
+stages are:
+
+1. run the Humanize search loop, or bind an existing candidate JSON/JSONL pool;
+2. perform the sector-level proof audit and build certificates for direct
+   threshold proofs;
+3. send only Stage 2 `UNRESOLVED` candidates to the direction audit, then build
+   and independently replay any resulting certificates;
+4. merge and deduplicate only exact certificates whose independent
+   verification sidecar is bound to the current certificate payload,
+   canonical candidate digest, and known-answer artifact; and
+5. rerun the strict three-baseline integrity gate and final challenge gate when
+   at least one verified certificate exists. Strict certificate replay uses a
+   cumulative batch deadline and bounded solver workers; BB replay checkpoints
+   live under `solver-state/strict-verification/` and resume by default.
+
+Stage 3 is durably skipped when Stage 2 has no unresolved candidates. Stage 5
+is also durably skipped when Stage 4 has no verified certificate; that is a
+valid completed campaign, not a release. The only successful terminal states
+are `COMPLETED_WIN` and `COMPLETED_NO_WIN`. An operational, artifact-validation,
+review, or strict-gate failure is recorded as `FAILED` and produces a nonzero
+foreground/worker exit.
+
+`COMPLETED_NO_WIN` is scoped to the candidates actually admitted by this run's
+configured budgets. In particular, `stage2.top` and `stage3.top` truncate their
+audit queues (`stage3.top = 0` means all Stage 2 unresolved rows). Therefore
+`COMPLETED_NO_WIN` does not prove that no winning object exists in the full
+search space.
+
+The checked-in
+[`configs/five_stage_campaign.example.json`](configs/five_stage_campaign.example.json)
+is a bounded example that audits an existing pool. Change its `run_id` for
+each logically distinct campaign. From the science-mango project root:
+
+```bash
+# Foreground execution.
+archon qcode-campaign run . \
+  --config qcode-discovery/configs/five_stage_campaign.example.json
+
+# Detached execution. It starts a new process session, ignores SIGHUP, and
+# therefore survives closing the launching terminal (but not a host reboot).
+archon qcode-campaign start . \
+  --config qcode-discovery/configs/five_stage_campaign.example.json
+
+archon qcode-campaign status . --run-id qcode-five-stage-example
+archon qcode-campaign cancel . --run-id qcode-five-stage-example
+```
+
+`run`, `start`, `status`, and `cancel` all accept `--repo-dir` when
+`qcode-discovery` is not at its default project-relative location. `run` and
+`start` also accept `--run-id`, `--stage-review/--no-stage-review`,
+`--reviewer-model`, and `--reviewer-effort` overrides. `cancel` verifies the
+stored PID start time, uid, command hash, process group, and session before it
+sends a signal; it refuses a stale or reused PID.
+
+To use a generated Humanize search instead of an existing pool, remove
+`candidate_inputs` and add a `stage1` object. For example:
+
+```json
+{
+  "stage1": {
+    "max_rounds": 5,
+    "iterations_per_round": 20,
+    "milp_top": 3,
+    "milp_timeout_per_logical": 300,
+    "milp_total_timeout": 7200,
+    "patience": 3,
+    "codex_cli": true
+  }
+}
+```
+
+This fragment is merged into the top level of the example configuration; it is
+not a complete second config. `candidate_inputs` and `stage1` are mutually
+exclusive.
+
+### Reviewer authority
+
+Humanize reviews every checkpoint by default, but reviews never become
+mathematical evidence. During a generated Stage 1 search, the per-round
+reviewer may guide later rounds through recommended focus, search-context
+suggestions, evidence-backed BitLessons, and an eligible stop recommendation.
+When Stage 1 binds an existing pool, its review is advisory because there is no
+later search round to steer.
+
+Stage 2 through Stage 5 reviewers are strictly advisory. They may record risks,
+recommended follow-up, and evidence-backed BitLessons, but they cannot change
+`UNRESOLVED`, exactness, certificate or verification flags, stage routing, or
+the strict final gate. A reviewer failure leaves the completed machine artifact
+intact; resuming retries only that review.
+
+### State, logs, and resume
+
+Each run has one fixed control root:
+
+```text
+qcode-discovery/results/humanize/pipelines/<run-id>/
+├── state.json
+├── process.json
+├── process.lock
+├── pipeline.lock
+├── pipeline.log
+├── artifacts/
+├── logs/
+├── reviews/
+└── solver-state/
+```
+
+`pipeline.log` is the combined detached-worker log. Per-stage command logs live
+under `logs/`, review prompts and JSON decisions under `reviews/`, and atomic
+machine outputs under `artifacts/`. Generated Stage 1 Humanize round state,
+events, archive, and `bitlesson.md` additionally live in
+`results/humanize/<run-id>/`.
+
+Stage 5 records its replay budget and per-certificate checkpoint path in the
+final-gate artifact. Exhausting the cumulative replay budget rejects all
+remaining certificates fail-closed; it is never interpreted as a no-win proof.
+
+Resume is enabled by default. A successful machine stage is reused only when
+its command/config fingerprint, input hashes, and output hashes still match.
+Failed, timed-out, incomplete, or tampered artifacts are never accepted as a
+cache hit. Running the same command again with the same `run_id` resumes at the
+first invalid stage and invalidates its downstream stages. In particular:
+
+- a Stage 2 budget change reruns Stage 2 onward;
+- a Stage 3 budget change preserves Stages 1-2 and reruns Stage 3 onward;
+- certificate budget changes rerun Stage 2 onward because certification is
+  entered from both audit stages;
+- strict known-answer budget changes preserve Stages 1-4 and rerun Stage 5;
+  and
+- changing reviewer model or effort reruns reviews without rerunning valid
+  machine stages.
+
+Candidate input content or generated Stage 1 search identity is immutable
+within a run. Use a new `run_id` if either changes. This prevents a resumed
+campaign from silently attaching old proofs to a different search.
+
 Search output records every candidate that reaches proof screening, including
 concrete low-weight counter-witnesses that rigorously exclude a win. Existing
 PBB search artifacts can be upgraded to the same self-contained format with:

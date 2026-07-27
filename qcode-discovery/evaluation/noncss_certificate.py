@@ -6,6 +6,7 @@ import importlib.metadata
 import math
 import platform
 import time
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,8 @@ from evaluation.certificate import (
     _certificate_sha256,
     _file_sha256,
     _highs_version,
+    _reset_highs_scheduler,
+    _validate_solver_workers,
     pack_vector,
     unpack_vector,
 )
@@ -37,7 +40,6 @@ from evaluation.pbb_code import (
 )
 from evaluation.registry import check_code_novelty
 
-
 SCHEMA_VERSION = 1
 FORMULATION = "symplectic-logical-anticommutation-milp-v1"
 PBB_TYPE = "qldpc-pbb-noncss-exact"
@@ -56,8 +58,10 @@ def solve_symplectic_direction(
     target_logical: np.ndarray,
     *,
     timeout: float,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
     checks = np.asarray(stabilizer, dtype=np.uint8) & 1
+    workers = _validate_solver_workers(solver_workers)
     target = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
     num_checks, two_n = checks.shape
     if two_n % 2 or target.size != two_n:
@@ -65,7 +69,7 @@ def solve_symplectic_direction(
     n = two_n // 2
     num_vars = 3 * n + num_checks + 1
     objective = np.zeros(num_vars)
-    objective[2 * n:3 * n] = 1
+    objective[2 * n : 3 * n] = 1
     rows: list[np.ndarray] = []
     lower: list[float] = []
     upper: list[float] = []
@@ -83,14 +87,14 @@ def solve_symplectic_direction(
     for index, check in enumerate(checks):
         row = np.zeros(num_vars)
         row[:n] = check[n:]
-        row[n:2 * n] = check[:n]
+        row[n : 2 * n] = check[:n]
         row[3 * n + index] = -2
         rows.append(row)
         lower.append(0)
         upper.append(0)
     row = np.zeros(num_vars)
     row[:n] = target[n:]
-    row[n:2 * n] = target[:n]
+    row[n : 2 * n] = target[:n]
     row[-1] = -2
     rows.append(row)
     lower.append(1)
@@ -101,20 +105,27 @@ def solve_symplectic_direction(
     for index, check in enumerate(checks):
         variable_upper[3 * n + index] = np.ceil(check.sum() / 2)
     variable_upper[-1] = np.ceil(target.sum() / 2)
-    options: dict[str, Any] = {"presolve": True}
+    options: dict[str, Any] = {"presolve": True, "threads": workers}
     if 0 < timeout < 1e9:
         options["time_limit"] = float(timeout)
     started = time.monotonic()
-    solved = milp(
-        c=objective,
-        constraints=LinearConstraint(np.asarray(rows), lower, upper),
-        integrality=np.ones(num_vars),
-        bounds=Bounds(variable_lower, variable_upper),
-        options=options,
-    )
+    _reset_highs_scheduler()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"Unrecognized options detected: .*threads.*HiGHS verbatim\.",
+            category=RuntimeWarning,
+        )
+        solved = milp(
+            c=objective,
+            constraints=LinearConstraint(np.asarray(rows), lower, upper),
+            integrality=np.ones(num_vars),
+            bounds=Bounds(variable_lower, variable_upper),
+            options=options,
+        )
     operator = None
     if solved.x is not None:
-        operator = pack_vector(np.rint(solved.x[:2 * n]).astype(np.uint8))
+        operator = pack_vector(np.rint(solved.x[: 2 * n]).astype(np.uint8))
 
     def number(name: str, *, integer: bool = False):
         value = getattr(solved, name, None)
@@ -132,6 +143,7 @@ def solve_symplectic_direction(
         "mip_node_count": number("mip_node_count", integer=True),
         "elapsed_s": time.monotonic() - started,
         "operator": operator,
+        "solver_workers": workers,
     }
 
 
@@ -186,7 +198,9 @@ def verify_symplectic_direction(
         and float(evidence.get("mip_gap", math.inf)) == 0.0
         and math.isclose(
             float(evidence.get("mip_dual_bound", math.inf)),
-            float(objective), rel_tol=0.0, abs_tol=1e-7,
+            float(objective),
+            rel_tol=0.0,
+            abs_tol=1e-7,
         )
     ):
         failures.append("stored solver result is not a zero-gap optimum")
@@ -295,25 +309,30 @@ def build_noncss_certificate(
         if remaining <= 0:
             break
         evidence = solve_symplectic_direction(
-            stabilizer, target,
+            stabilizer,
+            target,
             timeout=min(float(timeout_per_logical), remaining),
         )
-        evidence.update({
-            "logical_index": index,
-            "target_logical": pack_vector(target),
-        })
+        evidence.update(
+            {
+                "logical_index": index,
+                "target_logical": pack_vector(target),
+            }
+        )
         directions.append(evidence)
     exact = len(directions) == 2 * k and all(
         not verify_symplectic_direction(item, stabilizer, logicals[index])
         for index, item in enumerate(directions)
     )
     objectives = [
-        int(item["objective"]) for item in directions
+        int(item["objective"])
+        for item in directions
         if item.get("objective") is not None
     ]
     distance = min(objectives) if objectives else 0
     gate = _static_gate(
-        code, stabilizer,
+        code,
+        stabilizer,
         distance=distance,
         exact=exact,
         known_answer_artifact=known_answer_artifact,
@@ -361,7 +380,9 @@ def build_noncss_certificate(
             "elapsed_s": time.monotonic() - started,
             "directions": directions,
         },
-        "upper_witness": None if best is None else {
+        "upper_witness": None
+        if best is None
+        else {
             "logical_index": best["logical_index"],
             "weight": best["objective"],
             "operator": best["operator"],
@@ -395,7 +416,19 @@ def verify_noncss_certificate(
     known_answer_artifact: Path | str,
     rerun_milp: bool = True,
     timeout_per_logical: float | None = None,
+    total_timeout: float | None = None,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
+    workers = _validate_solver_workers(solver_workers)
+    if timeout_per_logical is not None:
+        timeout_per_logical = float(timeout_per_logical)
+        if not math.isfinite(timeout_per_logical) or timeout_per_logical <= 0:
+            raise ValueError("timeout_per_logical must be a positive finite number")
+    if total_timeout is not None:
+        total_timeout = float(total_timeout)
+        if not math.isfinite(total_timeout) or total_timeout <= 0:
+            raise ValueError("total_timeout must be a positive finite number")
+    verify_started = time.monotonic()
     checks = {
         "schema": (
             certificate.get("schema_version") == SCHEMA_VERSION
@@ -411,10 +444,9 @@ def verify_noncss_certificate(
         n, k = noncss_parameters(stabilizer)
         logicals = get_symplectic_logicals(code)
         directions = certificate["milp"]["directions"]
-        checks["known_answer_sha256"] = (
-            certificate["known_answer"]["artifact_sha256"]
-            == _file_sha256(known_answer_artifact)
-        )
+        checks["known_answer_sha256"] = certificate["known_answer"][
+            "artifact_sha256"
+        ] == _file_sha256(known_answer_artifact)
         checks["matrix_sha256"] = certificate.get("matrix_sha256") == {
             "symplectic": _matrix_sha256(stabilizer),
         }
@@ -442,11 +474,36 @@ def verify_noncss_certificate(
             local.append("identity/order mismatch")
         local.extend(verify_symplectic_direction(evidence, stabilizer, target))
         if rerun_milp:
-            timeout = timeout_per_logical
-            if timeout is None:
-                timeout = float(certificate["solver"]["timeout_per_logical_s"])
-            rerun = solve_symplectic_direction(stabilizer, target, timeout=timeout)
-            if not (
+            remaining = None
+            if total_timeout is not None:
+                remaining = total_timeout - (time.monotonic() - verify_started)
+            if remaining is not None and remaining <= 0:
+                local.append("rerun total timeout exhausted")
+                rerun = None
+            else:
+                raw_timeout = timeout_per_logical
+                if raw_timeout is None:
+                    raw_timeout = certificate.get("solver", {}).get(
+                        "timeout_per_logical_s", 300
+                    )
+                try:
+                    timeout = float(raw_timeout)
+                except (TypeError, ValueError, OverflowError):
+                    timeout = math.nan
+                if not math.isfinite(timeout) or timeout <= 0:
+                    local.append("invalid rerun timeout")
+                    rerun = None
+                else:
+                    effective_timeout = timeout
+                    if remaining is not None:
+                        effective_timeout = min(timeout, remaining)
+                    rerun = solve_symplectic_direction(
+                        stabilizer,
+                        target,
+                        timeout=effective_timeout,
+                        solver_workers=workers,
+                    )
+            if rerun is not None and not (
                 rerun["success"] is True
                 and rerun["mip_gap"] == 0.0
                 and rerun["objective"] == evidence.get("objective")
@@ -457,7 +514,8 @@ def verify_noncss_certificate(
     checks["stored_direction_evidence"] = not direction_failures
     checks["milp_rerun"] = rerun_milp and not direction_failures
     objectives = [
-        int(item["objective"]) for item in directions
+        int(item["objective"])
+        for item in directions
         if item.get("objective") is not None
     ]
     distance = min(objectives) if objectives else 0
@@ -467,13 +525,16 @@ def verify_noncss_certificate(
         and int(claim.get("d", -1)) == distance
     )
     gate = _static_gate(
-        code, stabilizer,
+        code,
+        stabilizer,
         distance=distance,
-        exact=all((
-            checks["direction_count"],
-            checks["stored_direction_evidence"],
-            checks["milp_rerun"],
-        )),
+        exact=all(
+            (
+                checks["direction_count"],
+                checks["stored_direction_evidence"],
+                checks["milp_rerun"],
+            )
+        ),
         known_answer_artifact=known_answer_artifact,
     )
     checks["final_gate"] = gate["accepted"]
