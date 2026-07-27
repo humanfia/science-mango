@@ -11,6 +11,7 @@ from scripts.audit_candidate_pool import (
     audit_candidate,
     canonicalize_for_audit,
     certify_candidate,
+    certify_selected_candidates,
     rank_candidate_files,
     read_candidate_jsonl,
     safe_digest,
@@ -30,6 +31,20 @@ def _construction(marker: int) -> dict:
         "n": 72,
         "k": 2,
         "required_distance": 21,
+    }
+
+
+def _fake_certificate(identifier: str, *, passed: bool, exact: bool) -> dict:
+    completed = 1 if exact else 0
+    return {
+        "certificate_type": "fake",
+        "certificate_sha256": identifier,
+        "passed": passed,
+        "milp": {
+            "exact": exact,
+            "completed_directions": completed,
+            "expected_directions": 1,
+        },
     }
 
 
@@ -147,10 +162,8 @@ def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
     def build(candidate, **kwargs):
         calls["built"].append((candidate, kwargs))
         return {
-            "certificate_type": "fake",
-            "certificate_sha256": "cert-a",
+            **_fake_certificate("cert-a", passed=True, exact=True),
             "claim": candidate,
-            "passed": True,
         }
 
     def verify(certificate, **kwargs):
@@ -170,9 +183,31 @@ def test_audit_resumes_one_sector_and_certifies_threshold_proof(tmp_path):
     assert result["status"] == "THRESHOLD_PROVEN"
     assert result["resumed_sectors"] == 1
     assert calls["solved"] == [("X", 12, 20, 3, (0, 36))]
+    assert calls["built"] == calls["verified"] == []
+    assert result["certificate"] == {
+        "attempted": False,
+        "deferred": True,
+    }
+
+    def certifier(candidate, candidate_digest, phase_config):
+        return certify_candidate(
+            candidate,
+            candidate_digest,
+            phase_config,
+            builder=build,
+            verifier=verify,
+        )
+
+    certifications = certify_selected_candidates(
+        [ranked],
+        config,
+        certificate_workers=1,
+        certifier=certifier,
+    )
+    certified = certifications[digest]
     assert len(calls["built"]) == len(calls["verified"]) == 1
-    assert result["certificate"]["certificate_passed"] is True
-    assert result["certificate"]["verification_passed"] is True
+    assert certified["certificate_passed"] is True
+    assert certified["verification_passed"] is True
     paths = state_paths(tmp_path, digest)
     assert json.loads(paths["audit"].read_text())["status"] == "THRESHOLD_PROVEN"
     assert json.loads(paths["certificate"].read_text())["passed"] is True
@@ -193,10 +228,9 @@ def test_completed_certificate_and_verification_are_resumed(tmp_path):
         candidate,
         digest,
         config,
-        builder=lambda claim, **kwargs: {
-            "certificate_sha256": "cert-b",
-            "passed": True,
-        },
+        builder=lambda claim, **kwargs: _fake_certificate(
+            "cert-b", passed=True, exact=True,
+        ),
         verifier=lambda certificate, **kwargs: {"passed": True},
     )
 
@@ -217,6 +251,60 @@ def test_completed_certificate_and_verification_are_resumed(tmp_path):
     assert second["verification_resumed"] is True
     assert "/" not in safe_digest(digest)
     assert len(safe_digest(digest)) == 64
+
+
+def test_incomplete_certificate_is_retried_from_checkpoint(tmp_path):
+    calls = []
+
+    def build(claim, **kwargs):
+        calls.append(kwargs)
+        return _fake_certificate(
+            f"incomplete-{len(calls)}", passed=False, exact=False,
+        )
+
+    config = AuditConfig(state_dir=tmp_path)
+    first = certify_candidate(
+        _construction(1), "incomplete", config, builder=build,
+    )
+    second = certify_candidate(
+        _construction(1), "incomplete", config, builder=build,
+    )
+
+    assert len(calls) == 2
+    assert calls[1]["resume"] is True
+    assert first["certificate_exact"] is False
+    assert second["certificate_resumed"] is False
+
+
+def test_failed_verification_is_retried_and_resumes_checkpoint(tmp_path):
+    builds = []
+    verification_calls = []
+
+    def build(claim, **kwargs):
+        builds.append(kwargs)
+        return _fake_certificate("exact-win", passed=True, exact=True)
+
+    def verify(certificate, **kwargs):
+        verification_calls.append(kwargs)
+        return {"passed": len(verification_calls) == 2}
+
+    config = AuditConfig(state_dir=tmp_path)
+    first = certify_candidate(
+        _construction(2), "verify-retry", config,
+        builder=build, verifier=verify,
+    )
+    second = certify_candidate(
+        _construction(2), "verify-retry", config,
+        builder=build, verifier=verify,
+    )
+
+    assert len(builds) == 1
+    assert len(verification_calls) == 2
+    assert verification_calls[1]["resume"] is True
+    assert first["verification_passed"] is False
+    assert second["certificate_resumed"] is True
+    assert second["verification_resumed"] is False
+    assert second["verification_passed"] is True
 
 
 def test_failed_certificate_skips_independent_milp_rerun(tmp_path):

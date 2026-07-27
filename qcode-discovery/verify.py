@@ -30,7 +30,18 @@ def main() -> int:
     parser.add_argument("--known-answer-timeout-per-logical", type=int, default=300)
     parser.add_argument("--known-answer-total-timeout", type=int, default=7200)
     parser.add_argument("--timeout-per-logical", type=float, default=None)
+    parser.add_argument("--total-timeout", type=float, default=7200)
+    parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument(
+        "--resume",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    parser.add_argument("--solver-workers", type=int, default=1)
     args = parser.parse_args()
+    checkpoint = args.checkpoint or args.certificate.with_suffix(
+        args.certificate.suffix + ".verify.checkpoint.json",
+    )
     try:
         integrity = check_known_answer_integrity(
             args.known_answer_artifact,
@@ -50,6 +61,10 @@ def main() -> int:
             known_answer_artifact=args.known_answer_artifact,
             rerun_milp=True,
             timeout_per_logical=args.timeout_per_logical,
+            checkpoint_path=checkpoint,
+            resume=args.resume,
+            total_timeout=args.total_timeout,
+            solver_workers=args.solver_workers,
         )
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
         print(f"VERIFICATION FAILED: {exc}", file=sys.stderr)

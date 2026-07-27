@@ -56,12 +56,25 @@ def build_certificate(
     known_answer_artifact: Path | str,
     timeout_per_logical: float = 300,
     total_timeout: float = 7200,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
-    return builder_for_claim(claim)(
+    builder = builder_for_claim(claim)
+    kwargs: dict[str, Any] = {
+        "known_answer_artifact": known_answer_artifact,
+        "timeout_per_logical": timeout_per_logical,
+        "total_timeout": total_timeout,
+    }
+    if builder is build_css_certificate:
+        kwargs.update({
+            "checkpoint_path": checkpoint_path,
+            "resume": resume,
+            "solver_workers": solver_workers,
+        })
+    return builder(
         claim,
-        known_answer_artifact=known_answer_artifact,
-        timeout_per_logical=timeout_per_logical,
-        total_timeout=total_timeout,
+        **kwargs,
     )
 
 
@@ -79,10 +92,25 @@ def verify_certificate(
     known_answer_artifact: Path | str,
     rerun_milp: bool = True,
     timeout_per_logical: float | None = None,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
+    total_timeout: float | None = None,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
-    return verifier_for_certificate(certificate)(
+    verifier = verifier_for_certificate(certificate)
+    kwargs: dict[str, Any] = {
+        "known_answer_artifact": known_answer_artifact,
+        "rerun_milp": rerun_milp,
+        "timeout_per_logical": timeout_per_logical,
+    }
+    if verifier is verify_css_certificate:
+        kwargs.update({
+            "checkpoint_path": checkpoint_path,
+            "resume": resume,
+            "total_timeout": total_timeout,
+            "solver_workers": solver_workers,
+        })
+    return verifier(
         certificate,
-        known_answer_artifact=known_answer_artifact,
-        rerun_milp=rerun_milp,
-        timeout_per_logical=timeout_per_logical,
+        **kwargs,
     )

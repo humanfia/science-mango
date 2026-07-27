@@ -11,6 +11,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from evaluation.certificate_dispatch import build_certificate
+from scripts.screen_frontier_candidate import (
+    STAGE3_GATE,
+    claim_from_threshold_artifact,
+)
+
+
+def _unwrap_candidate(value: dict) -> dict:
+    if value.get("gate") == STAGE3_GATE:
+        return claim_from_threshold_artifact(value)
+    return value
 
 
 def load_one(path: Path, index: int) -> dict:
@@ -20,12 +30,12 @@ def load_one(path: Path, index: int) -> dict:
     except json.JSONDecodeError:
         value = [json.loads(line) for line in text.splitlines() if line.strip()]
     if isinstance(value, dict):
-        return value
+        return _unwrap_candidate(value)
     if not isinstance(value, list) or not 0 <= index < len(value):
         raise ValueError(f"candidate index {index} is unavailable")
     if not isinstance(value[index], dict):
         raise ValueError("selected candidate is not a JSON object")
-    return value[index]
+    return _unwrap_candidate(value[index])
 
 
 def main() -> int:
@@ -40,7 +50,17 @@ def main() -> int:
     )
     parser.add_argument("--timeout-per-logical", type=float, default=300)
     parser.add_argument("--total-timeout", type=float, default=7200)
+    parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument(
+        "--resume",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+    )
+    parser.add_argument("--solver-workers", type=int, default=1)
     args = parser.parse_args()
+    checkpoint = args.checkpoint or args.output.with_suffix(
+        args.output.suffix + ".checkpoint.json",
+    )
     try:
         claim = load_one(args.candidate, args.index)
         certificate = build_certificate(
@@ -48,6 +68,9 @@ def main() -> int:
             known_answer_artifact=args.known_answer_artifact,
             timeout_per_logical=args.timeout_per_logical,
             total_timeout=args.total_timeout,
+            checkpoint_path=checkpoint,
+            resume=args.resume,
+            solver_workers=args.solver_workers,
         )
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
         print(f"CERTIFICATE BUILD FAILED: {exc}", file=sys.stderr)

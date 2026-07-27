@@ -13,8 +13,10 @@ import hashlib
 import importlib.metadata
 import json
 import math
+import os
 import platform
 import time
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +33,8 @@ from evaluation.registry import check_code_novelty
 
 SCHEMA_VERSION = 1
 FORMULATION = "css-logical-anticommutation-milp-v1"
+BUILD_CHECKPOINT_TYPE = "qldpc-css-bb-build-checkpoint-v1"
+VERIFY_CHECKPOINT_TYPE = "qldpc-css-bb-verify-checkpoint-v1"
 
 
 def _package_version(name: str) -> str | None:
@@ -50,6 +54,15 @@ def _highs_version() -> str | None:
         )
     except (ImportError, AttributeError):
         return None
+
+
+def _reset_highs_scheduler() -> None:
+    """Allow this serial process to apply a new explicit thread budget."""
+    try:
+        from scipy.optimize._highspy import _core
+        _core._Highs.resetGlobalScheduler(True)
+    except (ImportError, AttributeError, RuntimeError):
+        pass
 
 
 def _json_sha256(value: Any) -> str:
@@ -72,6 +85,171 @@ def _certificate_sha256(certificate: dict[str, Any]) -> str:
     unsigned = dict(certificate)
     unsigned.pop("certificate_sha256", None)
     return _json_sha256(unsigned)
+
+
+def _atomic_write_json(path: Path | str, value: dict[str, Any]) -> None:
+    """Durably replace one JSON checkpoint without exposing partial writes."""
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_name(
+        f".{destination.name}.{os.getpid()}.{time.time_ns()}.tmp"
+    )
+    try:
+        with temporary.open("w", encoding="utf-8") as stream:
+            json.dump(
+                value,
+                stream,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, destination)
+        try:
+            directory_fd = os.open(destination.parent, os.O_RDONLY)
+        except OSError:
+            return
+        try:
+            os.fsync(directory_fd)
+        except OSError:
+            pass
+        finally:
+            os.close(directory_fd)
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _solver_environment() -> dict[str, Any]:
+    return {
+        "formulation": FORMULATION,
+        "interface": "scipy.optimize.milp",
+        "backend": "HiGHS",
+        "scipy_version": _package_version("scipy"),
+        "highs_version": _highs_version(),
+        "presolve": True,
+        "python": platform.python_version(),
+        "numpy": _package_version("numpy"),
+        "qldpc": _package_version("qldpc"),
+    }
+
+
+def _validate_solver_workers(solver_workers: int) -> int:
+    if isinstance(solver_workers, bool) or not isinstance(solver_workers, int):
+        raise ValueError("solver_workers must be an integer")
+    workers = solver_workers
+    if not 1 <= workers <= 8:
+        raise ValueError("solver_workers must be between 1 and 8")
+    return workers
+
+
+def _direction_key(
+    logical_type: str,
+    logical_index: int,
+    check_matrix: str,
+) -> str:
+    return f"{logical_type}:{int(logical_index)}:{check_matrix}"
+
+
+def _evidence_key(evidence: dict[str, Any]) -> str | None:
+    try:
+        return _direction_key(
+            str(evidence["logical_type"]),
+            int(evidence["logical_index"]),
+            str(evidence["check_matrix"]),
+        )
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _write_direction_checkpoint(
+    path: Path | str,
+    *,
+    checkpoint_type: str,
+    binding: dict[str, Any],
+    directions: dict[str, dict[str, Any]],
+    specs: list[tuple[str, int, str, np.ndarray, np.ndarray]],
+) -> None:
+    ordered = []
+    for logical_type, index, check_name, _, _ in specs:
+        evidence = directions.get(_direction_key(logical_type, index, check_name))
+        if evidence is not None:
+            ordered.append(evidence)
+    _atomic_write_json(path, {
+        "schema_version": SCHEMA_VERSION,
+        "checkpoint_type": checkpoint_type,
+        "binding": binding,
+        "completed_directions": len(ordered),
+        "directions": ordered,
+    })
+
+
+def _load_direction_checkpoint(
+    path: Path | str,
+    *,
+    checkpoint_type: str,
+    binding: dict[str, Any],
+    specs: list[tuple[str, int, str, np.ndarray, np.ndarray]],
+    expected_objectives: dict[str, int] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Load only algebraically valid, zero-gap optima for rebuilt specs."""
+    try:
+        with Path(path).open(encoding="utf-8") as stream:
+            checkpoint = json.load(stream)
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(checkpoint, dict):
+        return {}
+    if (
+        checkpoint.get("schema_version") != SCHEMA_VERSION
+        or checkpoint.get("checkpoint_type") != checkpoint_type
+    ):
+        return {}
+    if checkpoint.get("binding") != binding:
+        return {}
+    records = checkpoint.get("directions")
+    if not isinstance(records, list):
+        return {}
+
+    expected = {
+        _direction_key(logical_type, index, check_name): (checks, target)
+        for logical_type, index, check_name, checks, target in specs
+    }
+    reusable: dict[str, dict[str, Any]] = {}
+    for evidence in records:
+        if not isinstance(evidence, dict):
+            continue
+        key = _evidence_key(evidence)
+        if key is None or key in reusable or key not in expected:
+            continue
+        checks, target = expected[key]
+        try:
+            failures = verify_direction_evidence(evidence, checks, target)
+            evidence_workers = int(evidence["solver_workers"])
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+        if (
+            evidence.get("formulation") != FORMULATION
+            or evidence.get("solver") != "scipy.optimize.milp"
+            or evidence.get("backend") != "HiGHS"
+        ):
+            continue
+        if failures:
+            continue
+        if not 1 <= evidence_workers <= 8:
+            continue
+        if (
+            expected_objectives is not None
+            and evidence.get("objective") != expected_objectives.get(key)
+        ):
+            continue
+        reusable[key] = evidence
+    return reusable
 
 
 def pack_vector(vector: np.ndarray) -> dict[str, Any]:
@@ -103,8 +281,13 @@ def solve_css_direction(
     target_logical: np.ndarray,
     *,
     timeout: float,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
     """Solve one certificate MILP and retain its concrete optimizer."""
+    workers = _validate_solver_workers(solver_workers)
+    timeout = float(timeout)
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("timeout must be a positive finite number")
     checks = np.asarray(check_matrix, dtype=np.uint8) & 1
     logical = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
     num_checks, n = checks.shape
@@ -126,18 +309,25 @@ def solve_css_direction(
     upper = np.ones(num_vars)
     upper[n:n + num_checks] = np.ceil(checks.sum(axis=1) / 2)
     upper[-1] = np.ceil(logical.sum() / 2)
-    options: dict[str, Any] = {"presolve": True}
+    options: dict[str, Any] = {"presolve": True, "threads": workers}
     if 0 < timeout < 1e9:
         options["time_limit"] = float(timeout)
 
     started = time.monotonic()
-    solved = milp(
-        c=objective,
-        constraints=LinearConstraint(matrix, rhs, rhs),
-        integrality=np.ones(num_vars),
-        bounds=Bounds(lower, upper),
-        options=options,
-    )
+    _reset_highs_scheduler()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"Unrecognized options detected: .*threads.*HiGHS verbatim\.",
+            category=RuntimeWarning,
+        )
+        solved = milp(
+            c=objective,
+            constraints=LinearConstraint(matrix, rhs, rhs),
+            integrality=np.ones(num_vars),
+            bounds=Bounds(lower, upper),
+            options=options,
+        )
     elapsed = time.monotonic() - started
     operator = None
     if solved.x is not None:
@@ -151,6 +341,10 @@ def solve_css_direction(
         return int(round(value)) if integer else float(value)
 
     return {
+        "formulation": FORMULATION,
+        "solver": "scipy.optimize.milp",
+        "backend": "HiGHS",
+        "solver_workers": workers,
         "success": bool(solved.success),
         "status": int(solved.status),
         "message": str(solved.message),
@@ -169,6 +363,7 @@ def solve_css_below_threshold(
     *,
     max_weight: int,
     timeout: float,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
     """Decide whether one logical coset contains an operator up to max_weight.
 
@@ -177,6 +372,10 @@ def solve_css_below_threshold(
     replayable operator format as ``solve_css_direction``.  HiGHS status 2 is
     an infeasibility proof for the bounded integer model.
     """
+    workers = _validate_solver_workers(solver_workers)
+    timeout = float(timeout)
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("timeout must be a positive finite number")
     checks = np.asarray(check_matrix, dtype=np.uint8) & 1
     logical = np.asarray(target_logical, dtype=np.uint8).reshape(-1) & 1
     num_checks, n = checks.shape
@@ -204,20 +403,27 @@ def solve_css_below_threshold(
     upper = np.ones(num_vars)
     upper[n:n + num_checks] = np.ceil(checks.sum(axis=1) / 2)
     upper[-1] = np.ceil(logical.sum() / 2)
-    options: dict[str, Any] = {"presolve": True}
+    options: dict[str, Any] = {"presolve": True, "threads": workers}
     if 0 < timeout < 1e9:
         options["time_limit"] = float(timeout)
 
     started = time.monotonic()
-    solved = milp(
-        c=objective,
-        constraints=LinearConstraint(
-            matrix, constraint_lower, constraint_upper,
-        ),
-        integrality=np.ones(num_vars),
-        bounds=Bounds(lower, upper),
-        options=options,
-    )
+    _reset_highs_scheduler()
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=r"Unrecognized options detected: .*threads.*HiGHS verbatim\.",
+            category=RuntimeWarning,
+        )
+        solved = milp(
+            c=objective,
+            constraints=LinearConstraint(
+                matrix, constraint_lower, constraint_upper,
+            ),
+            integrality=np.ones(num_vars),
+            bounds=Bounds(lower, upper),
+            options=options,
+        )
     elapsed = time.monotonic() - started
     operator = None
     weight = None
@@ -234,6 +440,9 @@ def solve_css_below_threshold(
 
     return {
         "formulation": "css-logical-threshold-feasibility-v1",
+        "solver": "scipy.optimize.milp",
+        "backend": "HiGHS",
+        "solver_workers": workers,
         "max_weight": int(max_weight),
         "success": bool(solved.success),
         "status": int(solved.status),
@@ -424,7 +633,11 @@ def verify_css_witness(
     if int(np.dot(target, operator) & 1) != 1:
         failures.append("operator does not anticommute with target logical")
     objective = evidence.get("objective")
-    if objective is None or int(objective) != int(operator.sum()):
+    if (
+        isinstance(objective, bool)
+        or not isinstance(objective, int)
+        or objective != int(operator.sum())
+    ):
         failures.append("objective does not equal operator weight")
     return failures
 
@@ -446,7 +659,9 @@ def verify_direction_evidence(
     objective = evidence.get("objective")
     if not (
         evidence.get("success") is True
-        and int(evidence.get("status", -1)) == 0
+        and isinstance(evidence.get("status"), int)
+        and not isinstance(evidence.get("status"), bool)
+        and evidence.get("status") == 0
         and objective is not None
         and float(evidence.get("mip_gap", math.inf)) == 0.0
         and math.isclose(
@@ -481,8 +696,18 @@ def build_css_certificate(
     known_answer_artifact: Path | str,
     timeout_per_logical: float = 300,
     total_timeout: float = 7200,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
     """Recompute a claim and produce full per-direction solver evidence."""
+    workers = _validate_solver_workers(solver_workers)
+    timeout_per_logical = float(timeout_per_logical)
+    total_timeout = float(total_timeout)
+    if not math.isfinite(timeout_per_logical) or timeout_per_logical <= 0:
+        raise ValueError("timeout_per_logical must be a positive finite number")
+    if not math.isfinite(total_timeout) or total_timeout <= 0:
+        raise ValueError("total_timeout must be a positive finite number")
     if claim.get("C_terms") or claim.get("D_terms"):
         raise ValueError("CSS certificate builder does not accept PBB/non-CSS claims")
     ell, m = int(claim["ell"]), int(claim["m"])
@@ -494,15 +719,50 @@ def build_css_certificate(
     n = int(code.num_qudits)
     k = n - _rank_f2(hx) - _rank_f2(hz)
 
+    specs = _direction_specs(code)
+    matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
+    known_answer_sha256 = _file_sha256(known_answer_artifact)
+    checkpoint_binding = {
+        "claim_sha256": _json_sha256(claim),
+        "matrix_sha256": matrix_sha256,
+        "known_answer_sha256": known_answer_sha256,
+        "solver": _solver_environment(),
+    }
+    reusable: dict[str, dict[str, Any]] = {}
+    if checkpoint_path is not None:
+        checkpoint = Path(checkpoint_path)
+        if resume and checkpoint.exists():
+            reusable = _load_direction_checkpoint(
+                checkpoint,
+                checkpoint_type=BUILD_CHECKPOINT_TYPE,
+                binding=checkpoint_binding,
+                specs=specs,
+            )
+        _write_direction_checkpoint(
+            checkpoint,
+            checkpoint_type=BUILD_CHECKPOINT_TYPE,
+            binding=checkpoint_binding,
+            directions=reusable,
+            specs=specs,
+        )
+
     directions = []
+    reused_directions = 0
     started = time.monotonic()
-    for logical_type, index, check_name, checks, target in _direction_specs(code):
+    for logical_type, index, check_name, checks, target in specs:
+        key = _direction_key(logical_type, index, check_name)
+        cached = reusable.get(key)
+        if cached is not None:
+            directions.append(cached)
+            reused_directions += 1
+            continue
         remaining = total_timeout - (time.monotonic() - started)
         if remaining <= 0:
             break
         evidence = solve_css_direction(
             checks, target,
             timeout=min(float(timeout_per_logical), remaining),
+            solver_workers=workers,
         )
         evidence.update({
             "logical_type": logical_type,
@@ -511,6 +771,16 @@ def build_css_certificate(
             "target_logical": pack_vector(target),
         })
         directions.append(evidence)
+        if not verify_direction_evidence(evidence, checks, target):
+            reusable[key] = evidence
+            if checkpoint_path is not None:
+                _write_direction_checkpoint(
+                    checkpoint_path,
+                    checkpoint_type=BUILD_CHECKPOINT_TYPE,
+                    binding=checkpoint_binding,
+                    directions=reusable,
+                    specs=specs,
+                )
 
     expected_count = 2 * k
     all_optimal = (
@@ -572,12 +842,9 @@ def build_css_certificate(
         "certificate_type": "qldpc-css-bb-exact",
         "formulation": FORMULATION,
         "claim": normalized_claim,
-        "matrix_sha256": {
-            "hx": _matrix_sha256(hx),
-            "hz": _matrix_sha256(hz),
-        },
+        "matrix_sha256": matrix_sha256,
         "known_answer": {
-            "artifact_sha256": _file_sha256(known_answer_artifact),
+            "artifact_sha256": known_answer_sha256,
         },
         "solver": {
             "interface": "scipy.optimize.milp",
@@ -585,6 +852,7 @@ def build_css_certificate(
             "scipy_version": _package_version("scipy"),
             "highs_version": _highs_version(),
             "presolve": True,
+            "solver_workers": workers,
             "timeout_per_logical_s": timeout_per_logical,
             "total_timeout_s": total_timeout,
         },
@@ -597,6 +865,7 @@ def build_css_certificate(
             "exact": all_optimal,
             "expected_directions": expected_count,
             "completed_directions": len(directions),
+            "resumed_directions": reused_directions,
             "d_x": d_x,
             "d_z": d_z,
             "distance": distance,
@@ -623,8 +892,27 @@ def verify_css_certificate(
     known_answer_artifact: Path | str,
     rerun_milp: bool = True,
     timeout_per_logical: float | None = None,
+    checkpoint_path: Path | str | None = None,
+    resume: bool = False,
+    total_timeout: float | None = None,
+    solver_workers: int = 1,
 ) -> dict[str, Any]:
     """Verify integrity, static evidence, and optionally every MILP optimum."""
+    workers = _validate_solver_workers(solver_workers)
+    if timeout_per_logical is not None:
+        timeout_per_logical = float(timeout_per_logical)
+        if (
+            not math.isfinite(timeout_per_logical)
+            or timeout_per_logical <= 0
+        ):
+            raise ValueError(
+                "timeout_per_logical must be a positive finite number",
+            )
+    if total_timeout is not None:
+        total_timeout = float(total_timeout)
+        if not math.isfinite(total_timeout) or total_timeout <= 0:
+            raise ValueError("total_timeout must be a positive finite number")
+    verify_started = time.monotonic()
     failures: list[str] = []
     checks: dict[str, bool] = {}
     checks["schema"] = (
@@ -636,9 +924,10 @@ def verify_css_certificate(
         certificate.get("certificate_sha256") == _certificate_sha256(certificate)
     )
     try:
+        known_answer_sha256 = _file_sha256(known_answer_artifact)
         checks["known_answer_sha256"] = (
             certificate["known_answer"]["artifact_sha256"]
-            == _file_sha256(known_answer_artifact)
+            == known_answer_sha256
         )
         claim = certificate["claim"]
         code = build_bb_code(
@@ -648,48 +937,160 @@ def verify_css_certificate(
         hx, hz, _, _ = get_code_matrices(code)
         hx = np.asarray(hx, dtype=np.uint8) & 1
         hz = np.asarray(hz, dtype=np.uint8) & 1
+        matrix_sha256 = {"hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz)}
         checks["matrix_sha256"] = certificate.get("matrix_sha256") == {
             "hx": _matrix_sha256(hx), "hz": _matrix_sha256(hz),
         }
         specs = _direction_specs(code)
         directions = certificate["milp"]["directions"]
+        if not isinstance(directions, list):
+            raise TypeError("milp.directions must be a list")
+        if not all(isinstance(item, dict) for item in directions):
+            raise TypeError("every MILP direction must be an object")
     except (KeyError, TypeError, ValueError, OSError) as exc:
         failures.append(f"certificate reconstruction failed: {exc}")
         return {"passed": False, "checks": checks, "failures": failures}
 
+    expected_objectives: dict[str, Any] = {}
+    for position, spec in enumerate(specs):
+        logical_type, index, check_name, _, _ = spec
+        if position < len(directions) and isinstance(directions[position], dict):
+            expected_objectives[_direction_key(
+                logical_type, index, check_name,
+            )] = directions[position].get("objective")
+    checkpoint_binding = {
+        "certificate_sha256": _json_sha256(certificate),
+        "claim_sha256": _json_sha256(claim),
+        "matrix_sha256": matrix_sha256,
+        "known_answer_sha256": known_answer_sha256,
+        "solver": _solver_environment(),
+    }
+    reusable: dict[str, dict[str, Any]] = {}
+    if rerun_milp and checkpoint_path is not None:
+        checkpoint = Path(checkpoint_path)
+        if resume and checkpoint.exists():
+            reusable = _load_direction_checkpoint(
+                checkpoint,
+                checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+                binding=checkpoint_binding,
+                specs=specs,
+                expected_objectives=expected_objectives,
+            )
+        _write_direction_checkpoint(
+            checkpoint,
+            checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+            binding=checkpoint_binding,
+            directions=reusable,
+            specs=specs,
+        )
+
     checks["direction_count"] = len(directions) == len(specs) == 2 * int(code.dimension)
     direction_failures: list[dict[str, Any]] = []
+    stored_direction_failures: list[dict[str, Any]] = []
     rerun_matches = True
+    reused_directions = 0
     for position, spec in enumerate(specs):
         logical_type, index, check_name, checks_matrix, target = spec
         if position >= len(directions):
-            direction_failures.append({"position": position, "failures": ["missing"]})
+            missing = {"position": position, "failures": ["missing"]}
+            direction_failures.append(missing)
+            stored_direction_failures.append(missing)
             rerun_matches = False
             continue
         evidence = directions[position]
         local = []
-        if (
-            evidence.get("logical_type") != logical_type
-            or int(evidence.get("logical_index", -1)) != index
-            or evidence.get("check_matrix") != check_name
-        ):
+        try:
+            identity_matches = (
+                evidence.get("logical_type") == logical_type
+                and int(evidence.get("logical_index", -1)) == index
+                and evidence.get("check_matrix") == check_name
+            )
+        except (TypeError, ValueError, OverflowError):
+            identity_matches = False
+        if not identity_matches:
             local.append("direction identity/order mismatch")
-        local.extend(verify_direction_evidence(evidence, checks_matrix, target))
+        try:
+            local.extend(
+                verify_direction_evidence(evidence, checks_matrix, target),
+            )
+        except (TypeError, ValueError, OverflowError) as exc:
+            local.append(f"invalid direction evidence: {exc}")
+        if local:
+            stored_direction_failures.append({
+                "logical_type": logical_type,
+                "logical_index": index,
+                "failures": list(local),
+            })
         if rerun_milp:
-            timeout = timeout_per_logical
-            if timeout is None:
-                timeout = float(
-                    certificate.get("solver", {}).get("timeout_per_logical_s", 300)
-                )
-            rerun = solve_css_direction(checks_matrix, target, timeout=timeout)
-            if not (
-                rerun["success"] is True
-                and rerun["mip_gap"] == 0.0
-                and rerun["objective"] == evidence.get("objective")
-            ):
+            key = _direction_key(logical_type, index, check_name)
+            rerun = reusable.get(key)
+            rerun_valid = rerun is not None
+            if rerun is not None:
+                reused_directions += 1
+            else:
+                remaining = None
+                if total_timeout is not None:
+                    remaining = total_timeout - (
+                        time.monotonic() - verify_started
+                    )
+                if remaining is not None and remaining <= 0:
+                    local.append("rerun total timeout exhausted")
+                    rerun_matches = False
+                    rerun = None
+                else:
+                    raw_timeout = timeout_per_logical
+                    if raw_timeout is None:
+                        raw_timeout = certificate.get(
+                            "solver", {},
+                        ).get("timeout_per_logical_s", 300)
+                    try:
+                        timeout = float(raw_timeout)
+                    except (TypeError, ValueError, OverflowError):
+                        timeout = math.nan
+                    if not math.isfinite(timeout) or timeout <= 0:
+                        local.append("invalid rerun timeout")
+                        rerun_matches = False
+                        rerun = None
+                    else:
+                        effective_timeout = float(timeout)
+                        if remaining is not None:
+                            effective_timeout = min(
+                                effective_timeout, float(remaining),
+                            )
+                        rerun = solve_css_direction(
+                            checks_matrix,
+                            target,
+                            timeout=effective_timeout,
+                            solver_workers=workers,
+                        )
+                        rerun.update({
+                            "logical_type": logical_type,
+                            "logical_index": index,
+                            "check_matrix": check_name,
+                            "target_logical": pack_vector(target),
+                        })
+                        rerun_valid = (
+                            not verify_direction_evidence(
+                                rerun, checks_matrix, target,
+                            )
+                            and rerun.get("objective")
+                            == evidence.get("objective")
+                        )
+                        if rerun_valid:
+                            reusable[key] = rerun
+                            if checkpoint_path is not None:
+                                _write_direction_checkpoint(
+                                    checkpoint_path,
+                                    checkpoint_type=VERIFY_CHECKPOINT_TYPE,
+                                    binding=checkpoint_binding,
+                                    directions=reusable,
+                                    specs=specs,
+                                )
+            if rerun is not None and not rerun_valid:
                 local.append(
                     "rerun optimum mismatch: "
-                    f"stored={evidence.get('objective')} rerun={rerun.get('objective')}"
+                    f"stored={evidence.get('objective')} "
+                    f"rerun={rerun.get('objective')}"
                 )
                 rerun_matches = False
         if local:
@@ -699,12 +1100,15 @@ def verify_css_certificate(
                 "failures": local,
             })
 
-    checks["stored_direction_evidence"] = not direction_failures
+    checks["stored_direction_evidence"] = not stored_direction_failures
     checks["milp_rerun"] = rerun_matches if rerun_milp else False
-    objectives = [
-        int(item["objective"]) for item in directions
-        if item.get("objective") is not None
-    ]
+    try:
+        objectives = [
+            int(item["objective"]) for item in directions
+            if item.get("objective") is not None
+        ]
+    except (KeyError, TypeError, ValueError, OverflowError):
+        objectives = []
     stored_distance = certificate.get("milp", {}).get("distance")
     checks["distance_recomputed"] = bool(
         objectives and stored_distance == min(objectives)
@@ -731,5 +1135,10 @@ def verify_css_certificate(
         "distance": stored_distance,
         "directions_verified": len(specs) - len(direction_failures),
         "directions_total": len(specs),
+        "rerun_directions_completed": len(reusable),
+        "resumed_directions": reused_directions,
+        "rerun_elapsed_s": time.monotonic() - verify_started,
+        "total_timeout_s": total_timeout,
+        "solver_workers": workers,
         "final_gate": gate,
     }

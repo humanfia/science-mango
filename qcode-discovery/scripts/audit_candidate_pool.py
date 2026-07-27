@@ -5,8 +5,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
+import math
 import os
+import platform
 import sys
 import uuid
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -23,6 +26,10 @@ from evaluation.proof_triage import (
     deduplicate_ranked,
 )
 from evaluation.registry import check_code_novelty
+from scripts.screen_frontier_candidate import (
+    STAGE3_GATE,
+    claim_from_threshold_artifact,
+)
 from scripts.screen_frontier_xor import (
     TERMINAL_STATUSES,
     load_replayable_sectors,
@@ -34,6 +41,14 @@ from scripts.screen_frontier_xor import (
 
 PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_KNOWN_ANSWER = PROJECT / "results" / "known_answer_gate.json"
+CACHE_SCHEMA_VERSION = 2
+SOLVER_RUNTIME_PACKAGES = (
+    "numpy",
+    "ortools",
+    "qldpc",
+    "scipy",
+    "highspy",
+)
 
 
 @dataclass(frozen=True)
@@ -49,7 +64,9 @@ class AuditConfig:
     known_answer_artifact: Path = DEFAULT_KNOWN_ANSWER
     certificate_timeout_per_logical_s: float = 300
     certificate_total_timeout_s: float = 7200
+    certificate_solver_workers: int = 1
     verification_timeout_per_logical_s: float = 300
+    verification_total_timeout_s: float = 7200
 
 
 def _atomic_write_text(path: Path, text: str) -> None:
@@ -58,8 +75,20 @@ def _atomic_write_text(path: Path, text: str) -> None:
         f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp",
     )
     try:
-        temporary.write_text(text)
+        with temporary.open("w") as stream:
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
         temporary.replace(path)
+        try:
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            directory_fd = None
+        if directory_fd is not None:
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
     finally:
         temporary.unlink(missing_ok=True)
 
@@ -163,6 +192,47 @@ def safe_digest(canonical_digest: str) -> str:
     return hashlib.sha256(str(canonical_digest).encode()).hexdigest()
 
 
+def _file_sha256(path: Path | str) -> str | None:
+    """Hash a cache dependency, preserving a stable missing-file marker."""
+
+    digest = hashlib.sha256()
+    try:
+        with Path(path).open("rb") as stream:
+            while chunk := stream.read(1024 * 1024):
+                digest.update(chunk)
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def _json_sha256(value: Mapping[str, Any]) -> str:
+    encoded = json.dumps(
+        dict(value),
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _package_version(name: str) -> str:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return "unavailable"
+
+
+def solver_runtime_fingerprint() -> dict[str, Any]:
+    """Return the runtime identity that makes solver caches reproducible."""
+
+    return {
+        "python": platform.python_version(),
+        "packages": {
+            name: _package_version(name)
+            for name in SOLVER_RUNTIME_PACKAGES
+        },
+    }
+
+
 def state_paths(
     state_dir: Path,
     canonical_digest: str,
@@ -171,7 +241,16 @@ def state_paths(
     return {
         "audit": state_dir / "xor" / f"{token}.json",
         "certificate": state_dir / "certificates" / f"{token}.json",
+        "certificate_metadata": (
+            state_dir / "certificates" / f"{token}.cache.json"
+        ),
         "verification": state_dir / "certificates" / f"{token}.verify.json",
+        "certificate_checkpoint": (
+            state_dir / "checkpoints" / f"{token}.build.json"
+        ),
+        "verification_checkpoint": (
+            state_dir / "checkpoints" / f"{token}.verify.json"
+        ),
     }
 
 
@@ -353,6 +432,94 @@ def select_audit_candidates(
     return selected, stats
 
 
+def _certificate_budget(config: AuditConfig) -> dict[str, float | int]:
+    return {
+        "timeout_per_logical_s": config.certificate_timeout_per_logical_s,
+        "total_timeout_s": config.certificate_total_timeout_s,
+        "solver_workers": config.certificate_solver_workers,
+    }
+
+
+def _verification_budget(config: AuditConfig) -> dict[str, float | int]:
+    return {
+        "timeout_per_logical_s": config.verification_timeout_per_logical_s,
+        "total_timeout_s": config.verification_total_timeout_s,
+        "solver_workers": config.certificate_solver_workers,
+    }
+
+
+def _certificate_is_exact(certificate: Mapping[str, Any]) -> bool:
+    milp = certificate.get("milp")
+    if not isinstance(milp, Mapping) or milp.get("exact") is not True:
+        return False
+    try:
+        return int(milp["completed_directions"]) == int(
+            milp["expected_directions"],
+        )
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
+def _cache_binding_matches(
+    metadata: Mapping[str, Any] | None,
+    *,
+    canonical_digest: str,
+    candidate_payload_sha256: str,
+    known_answer_sha256: str | None,
+    solver_runtime: Mapping[str, Any],
+) -> bool:
+    return bool(
+        isinstance(metadata, Mapping)
+        and metadata.get("schema_version") == CACHE_SCHEMA_VERSION
+        and metadata.get("canonical_digest") == canonical_digest
+        and metadata.get("candidate_payload_sha256") == candidate_payload_sha256
+        and metadata.get("known_answer_sha256") == known_answer_sha256
+        and metadata.get("solver_runtime") == solver_runtime
+    )
+
+
+def _certificate_cache_reusable(
+    certificate: Mapping[str, Any] | None,
+    metadata: Mapping[str, Any] | None,
+    *,
+    canonical_digest: str,
+    known_answer_sha256: str | None,
+    candidate_payload_sha256: str,
+    solver_runtime: Mapping[str, Any],
+) -> tuple[bool, bool]:
+    """Return (reusable, checkpoint-compatible) for a certificate cache."""
+
+    binding_matches = _cache_binding_matches(
+        metadata,
+        canonical_digest=canonical_digest,
+        candidate_payload_sha256=candidate_payload_sha256,
+        known_answer_sha256=known_answer_sha256,
+        solver_runtime=solver_runtime,
+    )
+    if certificate is None or not binding_matches:
+        return False, False
+    if metadata.get("certificate_payload_sha256") != _json_sha256(certificate):
+        return False, False
+    # Incomplete work is never terminal; its checkpoint keeps valid directions.
+    return _certificate_is_exact(certificate), True
+
+
+def _call_with_checkpoint(
+    operation: Callable[..., dict[str, Any]],
+    positional: Mapping[str, Any],
+    *,
+    checkpoint_path: Path,
+    resume: bool,
+    kwargs: Mapping[str, Any],
+) -> dict[str, Any]:
+    return operation(
+        dict(positional),
+        checkpoint_path=checkpoint_path,
+        resume=resume,
+        **dict(kwargs),
+    )
+
+
 def certify_candidate(
     candidate: dict[str, Any],
     canonical_digest: str,
@@ -363,52 +530,133 @@ def certify_candidate(
 ) -> dict[str, Any]:
     """Build and independently verify a durable exact certificate.
 
-    A completed build and verification sidecar are reusable.  This matters
-    because each operation may itself contain many long-running MILP solves.
+    Exact terminal results are reusable. Incomplete builds and failed
+    verification runs resume checkpoints. Every cache is bound to the
+    candidate, known-answer artifact, and solver runtime.
     """
 
     builder = build_certificate if builder is None else builder
     verifier = verify_certificate if verifier is None else verifier
     paths = state_paths(config.state_dir, canonical_digest)
+    known_answer_sha256 = _file_sha256(config.known_answer_artifact)
+    solver_runtime = solver_runtime_fingerprint()
+    build_budget = _certificate_budget(config)
+    candidate_payload_sha256 = _json_sha256(candidate)
 
     certificate = (
         _load_json_object(paths["certificate"]) if config.resume else None
     )
-    certificate_resumed = certificate is not None
-    if certificate is None:
-        certificate = builder(
+    certificate_metadata = (
+        _load_json_object(paths["certificate_metadata"])
+        if config.resume else None
+    )
+    reusable, checkpoint_compatible = _certificate_cache_reusable(
+        certificate,
+        certificate_metadata,
+        canonical_digest=canonical_digest,
+        known_answer_sha256=known_answer_sha256,
+        candidate_payload_sha256=candidate_payload_sha256,
+        solver_runtime=solver_runtime,
+    )
+    certificate_resumed = reusable
+    if not reusable:
+        checkpoint_resume = bool(
+            config.resume
+            and (
+                checkpoint_compatible
+                or certificate_metadata is None
+            )
+        )
+        certificate = _call_with_checkpoint(
+            builder,
             candidate,
-            known_answer_artifact=config.known_answer_artifact,
-            timeout_per_logical=config.certificate_timeout_per_logical_s,
-            total_timeout=config.certificate_total_timeout_s,
+            checkpoint_path=paths["certificate_checkpoint"],
+            resume=checkpoint_resume,
+            kwargs={
+                "known_answer_artifact": config.known_answer_artifact,
+                "timeout_per_logical": (
+                    config.certificate_timeout_per_logical_s
+                ),
+                "total_timeout": config.certificate_total_timeout_s,
+                "solver_workers": config.certificate_solver_workers,
+            },
         )
         atomic_write_json(paths["certificate"], certificate)
+        atomic_write_json(
+            paths["certificate_metadata"],
+            {
+                "schema_version": CACHE_SCHEMA_VERSION,
+                "kind": "qldpc-certificate-cache",
+                "canonical_digest": canonical_digest,
+                "known_answer_sha256": known_answer_sha256,
+                "candidate_payload_sha256": candidate_payload_sha256,
+                "solver_runtime": solver_runtime,
+                "budget": build_budget,
+                "exact": _certificate_is_exact(certificate),
+                "passed": certificate.get("passed") is True,
+                "certificate_sha256": certificate.get("certificate_sha256"),
+                "certificate_payload_sha256": _json_sha256(certificate),
+            },
+        )
 
     certificate_sha256 = certificate.get("certificate_sha256")
+    certificate_payload_sha256 = _json_sha256(certificate)
+    certificate_exact = _certificate_is_exact(certificate)
+    certificate_passed = bool(
+        certificate_exact and certificate.get("passed") is True,
+    )
+    verify_budget = _verification_budget(config)
     verification_envelope = (
         _load_json_object(paths["verification"]) if config.resume else None
     )
     verification = None
     verification_resumed = False
-    if (
-        verification_envelope is not None
-        and verification_envelope.get("schema_version") == 1
-        and verification_envelope.get("canonical_digest")
-        == canonical_digest
-        and certificate_sha256 is not None
-        and verification_envelope.get("certificate_sha256")
-        == certificate_sha256
+    verification_binding_matches = bool(
+        _cache_binding_matches(
+            verification_envelope,
+            canonical_digest=canonical_digest,
+            candidate_payload_sha256=candidate_payload_sha256,
+            known_answer_sha256=known_answer_sha256,
+            solver_runtime=solver_runtime,
+        )
+        and verification_envelope.get("certificate_payload_sha256")
+        == certificate_payload_sha256
         and isinstance(verification_envelope.get("verification"), dict)
-    ):
-        verification = verification_envelope["verification"]
-        verification_resumed = True
+    )
+    if verification_binding_matches:
+        cached_verification = verification_envelope["verification"]
+        successful = cached_verification.get("passed") is True
+        terminal_skip = bool(
+            cached_verification.get("skipped") is True
+            and not certificate_passed
+            and certificate_exact
+        )
+        if successful or terminal_skip:
+            verification = cached_verification
+            verification_resumed = True
     if verification is None:
-        if certificate.get("passed") is True:
-            verification = verifier(
+        if certificate_passed:
+            verification_checkpoint_resume = bool(
+                config.resume
+                and (
+                    verification_binding_matches
+                    or verification_envelope is None
+                )
+            )
+            verification = _call_with_checkpoint(
+                verifier,
                 certificate,
-                known_answer_artifact=config.known_answer_artifact,
-                rerun_milp=True,
-                timeout_per_logical=config.verification_timeout_per_logical_s,
+                checkpoint_path=paths["verification_checkpoint"],
+                resume=verification_checkpoint_resume,
+                kwargs={
+                    "known_answer_artifact": config.known_answer_artifact,
+                    "rerun_milp": True,
+                    "timeout_per_logical": (
+                        config.verification_timeout_per_logical_s
+                    ),
+                    "total_timeout": config.verification_total_timeout_s,
+                    "solver_workers": config.certificate_solver_workers,
+                },
             )
         else:
             verification = {
@@ -421,9 +669,15 @@ def certify_candidate(
         atomic_write_json(
             paths["verification"],
             {
-                "schema_version": 1,
+                "schema_version": CACHE_SCHEMA_VERSION,
+                "kind": "qldpc-certificate-verification-cache",
                 "canonical_digest": canonical_digest,
+                "known_answer_sha256": known_answer_sha256,
+                "candidate_payload_sha256": candidate_payload_sha256,
+                "solver_runtime": solver_runtime,
+                "budget": verify_budget,
                 "certificate_sha256": certificate_sha256,
+                "certificate_payload_sha256": certificate_payload_sha256,
                 "verification": verification,
             },
         )
@@ -431,8 +685,13 @@ def certify_candidate(
     return {
         "attempted": True,
         "certificate_path": str(paths["certificate"]),
+        "certificate_checkpoint_path": str(paths["certificate_checkpoint"]),
         "verification_path": str(paths["verification"]),
-        "certificate_passed": certificate.get("passed") is True,
+        "verification_checkpoint_path": str(
+            paths["verification_checkpoint"],
+        ),
+        "certificate_exact": certificate_exact,
+        "certificate_passed": certificate_passed,
         "verification_passed": verification.get("passed") is True,
         "verification_attempted": verification.get("skipped") is not True,
         "certificate_resumed": certificate_resumed,
@@ -448,6 +707,8 @@ def audit_candidate(
     replay_loader: Callable[..., list[dict[str, Any]]] | None = None,
     sector_solver: Callable[[tuple[Any, ...]], dict[str, Any]] | None = None,
     artifact_writer: Callable[..., dict[str, Any]] | None = None,
+    # Retained for source compatibility only. Stage 2 deliberately never
+    # invokes certificate work inside a candidate/CP-SAT worker.
     certificate_builder: Callable[..., dict[str, Any]] | None = None,
     certificate_verifier: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
@@ -555,24 +816,10 @@ def audit_candidate(
         "completed_sectors": artifact["completed_sectors"],
         "resumed_sectors": resumed_sectors,
     }
-    if artifact["status"] == "THRESHOLD_PROVEN" and config.certify:
-        try:
-            result["certificate"] = certify_candidate(
-                candidate,
-                canonical_digest,
-                config,
-                builder=certificate_builder,
-                verifier=certificate_verifier,
-            )
-        except Exception as exc:  # preserve the completed threshold proof
-            result["certificate"] = {
-                "attempted": True,
-                "certificate_passed": False,
-                "verification_passed": False,
-                "error": f"{type(exc).__name__}: {exc}",
-            }
-    elif artifact["status"] == "THRESHOLD_PROVEN":
+    if artifact["status"] == "THRESHOLD_PROVEN":
         result["certificate"] = {"attempted": False}
+        if config.certify:
+            result["certificate"]["deferred"] = True
     return result
 
 
@@ -629,6 +876,172 @@ def audit_selected_candidates(
     return sorted(results, key=lambda item: order[item["canonical_digest"]])
 
 
+def _certificate_phase_item(
+    item: Mapping[str, Any],
+) -> tuple[dict[str, Any], str]:
+    """Normalize a ranked row or Stage-3 artifact for exact certification."""
+
+    nested = item.get("candidate")
+    gate = item.get("gate")
+    if gate == STAGE3_GATE:
+        raw_candidate = claim_from_threshold_artifact(item)
+    elif gate is not None:
+        raise ValueError(f"unsupported certification artifact gate: {gate}")
+    elif isinstance(nested, Mapping):
+        raw_candidate = dict(nested)
+    else:
+        raw_candidate = dict(item)
+
+    digest_values: list[str] = []
+    for digest_value in (
+        item.get("canonical_digest"),
+        raw_candidate.get("canonical_digest"),
+    ):
+        if digest_value:
+            digest_values.append(str(digest_value))
+    identity = item.get("triage_identity")
+    if isinstance(identity, Mapping) and identity.get("canonical_digest"):
+        digest_values.append(str(identity["canonical_digest"]))
+    nested_identity = raw_candidate.get("triage_identity")
+    if (
+        isinstance(nested_identity, Mapping)
+        and nested_identity.get("canonical_digest")
+    ):
+        digest_values.append(str(nested_identity["canonical_digest"]))
+    if not digest_values:
+        raise ValueError("certification item lacks a canonical digest")
+    if len(set(digest_values)) != 1:
+        raise ValueError("certification item has conflicting canonical digests")
+    canonical_digest = digest_values[0]
+    return (
+        _construction_candidate(raw_candidate, canonical_digest),
+        canonical_digest,
+    )
+
+
+def _certificate_phase_failure(exc: Exception) -> dict[str, Any]:
+    return {
+        "attempted": True,
+        "certificate_passed": False,
+        "verification_passed": False,
+        "error": f"{type(exc).__name__}: {exc}",
+    }
+
+
+def _certificate_worker(
+    payload: tuple[
+        dict[str, Any],
+        str,
+        AuditConfig,
+        Callable[..., dict[str, Any]],
+    ],
+) -> tuple[str, dict[str, Any]]:
+    candidate, canonical_digest, config, certifier = payload
+    return (
+        canonical_digest,
+        certifier(candidate, canonical_digest, config),
+    )
+
+
+def certify_selected_candidates(
+    items: Iterable[Mapping[str, Any]],
+    config: AuditConfig,
+    *,
+    certificate_workers: int = 1,
+    max_total_workers: int | None = None,
+    certifier: Callable[..., dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Run exact certification in a separate, bounded campaign phase.
+
+    Callers must finish all screening workers before entering this function.
+    Ranked Stage-2 rows and successful Stage-3 artifacts share this entrypoint.
+    """
+
+    if certificate_workers < 1:
+        raise ValueError("certificate_workers must be positive")
+    if max_total_workers is not None:
+        validate_worker_budget(
+            certificate_workers,
+            config.certificate_solver_workers,
+            max_total_workers,
+        )
+    certifier = certify_candidate if certifier is None else certifier
+    prepared: list[tuple[dict[str, Any], str]] = []
+    seen: set[str] = set()
+    for item in items:
+        candidate, canonical_digest = _certificate_phase_item(item)
+        if canonical_digest in seen:
+            continue
+        seen.add(canonical_digest)
+        prepared.append((candidate, canonical_digest))
+
+    if not config.certify:
+        return {
+            digest: {"attempted": False}
+            for _, digest in prepared
+        }
+
+    results: dict[str, dict[str, Any]] = {}
+    if certificate_workers == 1:
+        for candidate, digest in prepared:
+            try:
+                results[digest] = certifier(candidate, digest, config)
+            except Exception as exc:
+                results[digest] = _certificate_phase_failure(exc)
+        return results
+
+    with ProcessPoolExecutor(max_workers=certificate_workers) as executor:
+        futures = {
+            executor.submit(
+                _certificate_worker,
+                (candidate, digest, config, certifier),
+            ): digest
+            for candidate, digest in prepared
+        }
+        completed: dict[str, dict[str, Any]] = {}
+        for future in as_completed(futures):
+            digest = futures[future]
+            try:
+                returned_digest, result = future.result()
+                if returned_digest != digest:
+                    raise ValueError("certificate worker returned wrong digest")
+                completed[digest] = result
+            except Exception as exc:
+                completed[digest] = _certificate_phase_failure(exc)
+    return {
+        digest: completed[digest]
+        for _, digest in prepared
+    }
+
+
+def merge_certification_results(
+    screening_results: Iterable[Mapping[str, Any]],
+    certifications: Mapping[str, Mapping[str, Any]],
+    *,
+    certify: bool,
+) -> list[dict[str, Any]]:
+    """Merge the non-overlapping certification phase into screen results."""
+
+    merged: list[dict[str, Any]] = []
+    for result in screening_results:
+        updated = dict(result)
+        if updated.get("status") == "THRESHOLD_PROVEN":
+            digest = str(updated["canonical_digest"])
+            if not certify:
+                updated["certificate"] = {"attempted": False}
+            elif digest in certifications:
+                updated["certificate"] = dict(certifications[digest])
+            else:
+                updated["certificate"] = {
+                    "attempted": False,
+                    "certificate_passed": False,
+                    "verification_passed": False,
+                    "error": "missing result from certification phase",
+                }
+        merged.append(updated)
+    return merged
+
+
 def _annotate_ranked(
     ranked: list[dict[str, Any]],
     selected_digests: set[str],
@@ -659,6 +1072,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=300)
     parser.add_argument("--candidate-workers", type=int, default=2)
     parser.add_argument("--solver-workers", type=int, default=4)
+    parser.add_argument("--certificate-workers", type=int, default=1)
+    parser.add_argument("--certificate-solver-workers", type=int, default=1)
     parser.add_argument("--max-total-workers", type=int, default=8)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument(
@@ -692,6 +1107,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=300,
     )
+    parser.add_argument(
+        "--verification-total-timeout",
+        type=float,
+        default=7200,
+    )
     return parser
 
 
@@ -705,13 +1125,20 @@ def main(argv: list[str] | None = None) -> int:
         "certificate_timeout_per_logical",
         "certificate_total_timeout",
         "verification_timeout_per_logical",
+        "verification_total_timeout",
     ):
-        if getattr(args, name) <= 0:
+        value = getattr(args, name)
+        if not math.isfinite(value) or value <= 0:
             parser.error(f"{name.replace('_', '-')} must be positive")
     try:
         validate_worker_budget(
             args.candidate_workers,
             args.solver_workers,
+            args.max_total_workers,
+        )
+        validate_worker_budget(
+            args.certificate_workers,
+            args.certificate_solver_workers,
             args.max_total_workers,
         )
         ranked, counts = rank_candidate_files(args.inputs)
@@ -742,14 +1169,42 @@ def main(argv: list[str] | None = None) -> int:
             args.certificate_timeout_per_logical
         ),
         certificate_total_timeout_s=args.certificate_total_timeout,
+        certificate_solver_workers=args.certificate_solver_workers,
         verification_timeout_per_logical_s=(
             args.verification_timeout_per_logical
         ),
+        verification_total_timeout_s=args.verification_total_timeout,
     )
-    results = audit_selected_candidates(
+    screening_results = audit_selected_candidates(
         selected,
         config,
         candidate_workers=args.candidate_workers,
+    )
+    # Stage 2 is fully complete and durable before Stage 4 can consume CPU.
+    atomic_write_jsonl(
+        args.ranked_output,
+        _annotate_ranked(ranked, selected_digests, screening_results),
+    )
+    threshold_digests = {
+        str(result["canonical_digest"])
+        for result in screening_results
+        if result.get("status") == "THRESHOLD_PROVEN"
+    }
+    certificate_items = [
+        candidate for candidate in selected
+        if str(candidate["triage_identity"]["canonical_digest"])
+        in threshold_digests
+    ]
+    certifications = certify_selected_candidates(
+        certificate_items,
+        config,
+        certificate_workers=args.certificate_workers,
+        max_total_workers=args.max_total_workers,
+    )
+    results = merge_certification_results(
+        screening_results,
+        certifications,
+        certify=args.certify,
     )
     annotated = _annotate_ranked(ranked, selected_digests, results)
     atomic_write_jsonl(args.ranked_output, annotated)
@@ -779,17 +1234,45 @@ def main(argv: list[str] | None = None) -> int:
                 args.candidate_workers * args.solver_workers
             ),
         },
+        "phase_worker_budgets": {
+            "phases_overlap": False,
+            "sector_audit": {
+                "candidate_workers": args.candidate_workers,
+                "solver_workers_per_candidate": args.solver_workers,
+                "configured_solver_workers": (
+                    args.candidate_workers * args.solver_workers
+                ),
+                "max_total_workers": args.max_total_workers,
+            },
+            "certification": {
+                "enabled": args.certify,
+                "certificate_workers": args.certificate_workers,
+                "solver_workers_per_certificate": (
+                    args.certificate_solver_workers
+                ),
+                "configured_solver_workers": (
+                    args.certificate_workers
+                    * args.certificate_solver_workers
+                ),
+                "max_total_workers": args.max_total_workers,
+            },
+        },
         "certify": args.certify,
         "status_counts": status_counts,
         "certified_wins": certified,
+        "certificate_operational_errors": sum(
+            bool(result.get("certificate", {}).get("error"))
+            for result in results
+        ),
         "ranked_output": str(args.ranked_output),
         "state_dir": str(args.state_dir),
         "results": results,
     }
     atomic_write_json(args.summary_output, summary)
     print(json.dumps(summary, indent=2))
-    return 0 if not any(
-        result["status"] == "ERROR" for result in results
+    return 0 if not (
+        any(result["status"] == "ERROR" for result in results)
+        or summary["certificate_operational_errors"]
     ) else 2
 
 
