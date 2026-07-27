@@ -19,6 +19,13 @@ def _milestone(rel: str, status: str = "solved") -> dict:
         "timestamp": "2026-07-23T00:00:00Z",
         "target": {"file": rel, "theorem": "example"},
         "status": status,
+        "proof_review": {
+            "schema_version": 1,
+            "route": "solved" if status == "solved" else "retry_proof",
+            "reason": "target audit completed",
+            "evidence": "Lean and contract evidence checked",
+            "redraft_kind": "not_applicable",
+        },
         "attempts": [{
             "attempt": 1,
             "strategy": "review",
@@ -69,6 +76,8 @@ class ParallelReviewTest(unittest.TestCase):
             self.assertIn("Do not fail a target", prompt)
             self.assertIn("Do not edit Lean, blueprint, PROGRESS.md", prompt)
             self.assertIn(str(output / "milestones.jsonl"), prompt)
+            self.assertIn("needs_redraft", prompt)
+            self.assertIn("missing foundational bridge", prompt)
 
     def test_milestone_validation_is_target_strict(self):
         with tempfile.TemporaryDirectory() as td:
@@ -80,6 +89,13 @@ class ParallelReviewTest(unittest.TestCase):
             row, error = load_target_milestone(path, "B.lean")
             self.assertIsNone(row)
             self.assertIn("!=", error)
+
+            legacy = _milestone("A.lean")
+            legacy.pop("proof_review")
+            path.write_text(json.dumps(legacy) + "\n")
+            row, error = load_target_milestone(path, "A.lean")
+            self.assertIsNone(row)
+            self.assertIn("routing certificate is missing", error)
 
     def test_failure_round_halves_concurrency_then_aggregates(self):
         with tempfile.TemporaryDirectory() as td:

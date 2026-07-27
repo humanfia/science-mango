@@ -417,6 +417,27 @@ class BuildReviewPromptPhysicsTest(unittest.TestCase):
         self.assertIn('"bridge_obligations"', prompt)
         self.assertIn("legacy bare `passed` verdict", prompt)
 
+    def test_proof_gate_requires_root_cause_routing_certificate(self):
+        prompt = build_review_prompt(
+            project_name="physics_proj",
+            project_path=self.root,
+            state_dir=self.state,
+            stage="prover",
+            session_num=2,
+            session_dir=self.state / "proof-journal" / "sessions" / "session_002",
+            attempts_file=self.state / "attempts.json",
+            combined_prover_log=self.state / "logs" / "iter-002" / "prover.jsonl",
+            iter_num=2,
+            proof_review_gate=True,
+        )
+
+        self.assertIn("Mandatory per-target proof Review routing verdict", prompt)
+        self.assertIn('"route": "solved|retry_proof|needs_redraft|blocked_infrastructure"', prompt)
+        self.assertIn("underdetermined theorem/countermodel", prompt)
+        self.assertIn("revoke the old", prompt)
+        self.assertIn("missing", prompt)
+        self.assertIn("mathematical bridge normally means `needs_redraft`", prompt)
+
     def test_non_physics_project_does_not_inject_review_checklist(self):
         (self.root / "blueprint" / "src" / "chapters" / "Phys.tex").write_text(
             "% ordinary chapter\n",

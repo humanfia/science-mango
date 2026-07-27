@@ -215,6 +215,11 @@ Write your report to `.archon/task_results/physics-reviewer-<slug>.md`.
 ## Minor
 - <finding>
 
+## Proof-stage routing recommendation
+- **Route**: solved / retry_proof / needs_redraft / blocked_infrastructure
+- **Redraft kind**: not_applicable / underdetermined_contract / answer_as_assumption / missing_uncertainty / branch_ambiguous / missing_foundational_bridge / wrong_or_weakened_target / other_modeling_defect
+- **Reason and evidence**: <specific contract evidence and, when relevant, Lean goal/error>
+
 ## Overall verdict
 <one sentence: SOUND / NEEDS REDRAFT / BLOCKED ON GROUNDING / BLOCKED ON MODELING>
 ```
@@ -262,7 +267,11 @@ gaps that do not affect physical meaning.
 
 If any must-fix-this-iter item exists, the overall verdict must be
 `BLOCKED ON MODELING` or `BLOCKED ON GROUNDING`; do not write SOUND and do not
-mark the target COMPLETE.
+mark the target COMPLETE. Route a contract/modeling/grounding bridge defect to
+`needs_redraft`. Route to `retry_proof` only when the contract is faithful and
+derivable and the remaining work is proof construction. Reserve
+`blocked_infrastructure` for an indispensable unavailable external capability;
+a missing mathematical bridge normally needs redrafting/local formalization.
 
 ## Return Value
 

@@ -2001,6 +2001,7 @@ def build_review_prompt(
     recent_iter_window: int = 3,
     compact_input_pack: Path | None = None,
     formalization_review_gate: bool = False,
+    proof_review_gate: bool = False,
 ) -> str:
     sidecar_block = _iter_sidecar_context_block(
         state_dir, iter_num,
@@ -2089,6 +2090,58 @@ def build_review_prompt(
             attempts.
         """)
 
+    proof_gate_block = ""
+    if proof_review_gate and normalize_stage_for_prompt_path(stage) == "prover":
+        proof_gate_block = dedent("""
+
+            ## Mandatory per-target proof Review routing verdict
+
+            This prover run has a hard routing gate. Every target represented
+            in `milestones.jsonl` MUST include:
+
+            ```json
+            "proof_review": {
+              "schema_version": 1,
+              "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
+              "reason": "specific root-cause classification",
+              "evidence": "Lean goal/error plus contract evidence",
+              "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+            }
+            ```
+
+            Route by root cause, not merely by the last Lean error:
+
+            - `solved`: the exact faithful contract compiles with no active
+              placeholder or laundering; top-level milestone status is
+              `solved`.
+            - `retry_proof`: the statement is faithful, sufficiently modeled,
+              and derivable, but the proof needs different tactics, lemmas,
+              arithmetic normalization, elaboration repair, or more heartbeats.
+              Use `redraft_kind=not_applicable`.
+            - `needs_redraft`: proving exposed a contract defect. This includes
+              an underdetermined theorem/countermodel, answer-as-assumption,
+              missing requested output, unpropagated uncertainty, ambiguous
+              signed branch/orientation, weakened/wrong target, opaque local
+              predicate with no eliminator, or a missing foundational bridge
+              that must be formalized before theorem proving can honestly
+              continue. Use top-level status `blocked` and the closest concrete
+              `redraft_kind`. The orchestrator will revoke the old
+              formalization pass certificate and route only this target back
+              to `autoformalize`.
+            - `blocked_infrastructure`: the contract is sound and adequately
+              modeled, but an unavailable external tool/library/permission is
+              indispensable and neither local helper formalization nor a
+              statement redraft can repair it. Use this sparingly; a missing
+              mathematical bridge normally means `needs_redraft`, not
+              infrastructure.
+
+            A compiling but unfaithful/underdetermined theorem is never
+            `solved` or `retry_proof`. A tactic failure does not by itself
+            justify statement redraft. Keep top-level milestone status
+            consistent: `solved` only for route `solved`; use `partial` or
+            `blocked` otherwise.
+        """)
+
     return dedent(f"""\
         You are the review agent for project '{project_name}'. Current stage: {stage}.
         Archon iteration: {iter_num:03d}.
@@ -2104,5 +2157,5 @@ def build_review_prompt(
           {session_dir}/summary.md
           {session_dir}/recommendations.md
           {state_dir}/PROJECT_STATUS.md""") \
-        + formalization_gate_block + memory_block + sidecar_block + catalog_block + doctor_block + physics_block + sync_block \
+        + formalization_gate_block + proof_gate_block + memory_block + sidecar_block + catalog_block + doctor_block + physics_block + sync_block \
         + debug_feedback_block(debug_feedback, state_dir, "review", iter_num)

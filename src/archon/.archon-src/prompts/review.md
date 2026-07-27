@@ -105,6 +105,31 @@ One JSON object per line, one entry per target theorem:
 
 The `attempts` array must reflect ACTUAL attempts from `attempts_raw.jsonl`. Do NOT summarize multiple attempts as "tried various approaches" — list each one with `code_tried` + `lean_error`.
 
+When the current stage is `prover` and the proof Review gate is enabled,
+every milestone must also include this root-cause routing certificate:
+
+```json
+"proof_review": {
+  "schema_version": 1,
+  "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
+  "reason": "specific root cause",
+  "evidence": "Lean goal/error plus statement-contract evidence",
+  "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+}
+```
+
+Use `retry_proof` only when the statement is faithful and derivable and the
+remaining failure is proof construction (tactics, lemmas, arithmetic,
+elaboration, or budget). Use `needs_redraft` when proving exposes an
+underdetermined/wrong/weakened contract, answer-as-assumption, missing output,
+uncertainty or branch omission, opaque relation without an eliminator, or a
+missing foundational bridge. Use `blocked_infrastructure` only for an
+indispensable unavailable external capability that neither a local helper nor a
+statement redraft can repair. A missing mathematical bridge normally means
+`needs_redraft`. Keep top-level status consistent: only `route=solved` may use
+`status=solved`; redraft/infrastructure routes use `status=blocked`.
+
+
 ### `recommendations.md`
 
 Concrete next-plan-iter recommendations:

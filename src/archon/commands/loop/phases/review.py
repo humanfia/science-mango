@@ -30,7 +30,10 @@ from archon.state.progress import is_complete, write_stage
 from archon.state.progress import read_stage
 from archon.subagents.audit import check_mandatory_dispatched
 
-from ..formalization_review_gate import apply_formalization_review
+from ..formalization_review_gate import (
+    apply_formalization_review,
+    reopen_formalization_targets,
+)
 from ..parallel_review import run_parallel_target_reviews
 from ..proof_review_gate import apply_proof_review, load_proof_review_state
 from ..review_preflight import (
@@ -475,6 +478,7 @@ class ReviewPhase(Phase):
         blockers, reset_complete = self._run_physics_doctor_gate()
         formalization_result = None
         proof_result = None
+        proof_redrafts_reopened: tuple[str, ...] = ()
         if formalization_gate_active:
             formalization_result = apply_formalization_review(
                 state_dir=ctx.state_dir,
@@ -510,11 +514,43 @@ class ReviewPhase(Phase):
                 max_iterations=getattr(ctx.options, "proof_review_max_iterations", 3),
             )
             log.info(
-                "proof Review retry gate: "
+                "proof Review routing gate: "
                 f"solved={len(proof_result.solved)}, "
                 f"retry={len(proof_result.retry)}, "
+                f"needs_redraft={len(proof_result.needs_redraft)}, "
+                f"blocked_infrastructure="
+                f"{len(proof_result.blocked_infrastructure)}, "
                 f"exhausted={len(proof_result.exhausted)}"
             )
+            if proof_result.needs_redraft:
+                proof_state = load_proof_review_state(ctx.state_dir)
+                proof_targets = proof_state.get("targets", {})
+                if not isinstance(proof_targets, dict):
+                    proof_targets = {}
+                redraft_records = {
+                    rel: (
+                        proof_targets.get(rel)
+                        if isinstance(proof_targets.get(rel), dict)
+                        else "proof Review requested statement redraft"
+                    )
+                    for rel in proof_result.needs_redraft
+                }
+                proof_redrafts_reopened = reopen_formalization_targets(
+                    state_dir=ctx.state_dir,
+                    project_path=ctx.project_path,
+                    progress_file=ctx.progress_file,
+                    redrafts=redraft_records,
+                    iter_num=ctx.iter_num,
+                    max_iterations=getattr(
+                        ctx.options, "formalization_review_max_iterations", 3,
+                    ),
+                )
+                ctx.current_stage = read_stage(ctx.progress_file)
+                log.warn(
+                    "proof Review routed "
+                    f"{len(proof_redrafts_reopened)} target(s) back to "
+                    f"'{ctx.current_stage}' and revoked their pass certificates"
+                )
 
         review_secs = int(time.monotonic() - review_start)
         log.info(f"Review phase finished ({review_secs}s)")
@@ -567,6 +603,11 @@ class ReviewPhase(Phase):
                 "review.proofGateEnabled": True,
                 "review.proofGateSolved": len(proof_result.solved),
                 "review.proofGateRetry": len(proof_result.retry),
+                "review.proofGateNeedsRedraft": len(proof_result.needs_redraft),
+                "review.proofGateInfrastructureBlocked": len(
+                    proof_result.blocked_infrastructure
+                ),
+                "review.proofGateRedraftsReopened": len(proof_redrafts_reopened),
                 "review.proofGateExhausted": len(proof_result.exhausted),
                 "review.proofGateReviewed": len(proof_result.reviewed),
             })
@@ -798,6 +839,7 @@ class ReviewPhase(Phase):
             recent_iter_window=resolve_recent_iter_window(cfg),
             compact_input_pack=compact_input_pack,
             formalization_review_gate=ctx.options.formalization_review_gate,
+            proof_review_gate=getattr(ctx.options, "proof_review_gate", False),
         )
         if self._review_preflight_path and self._review_candidate_pack:
             prompt = deterministic_review_prompt_prefix(

@@ -56,6 +56,8 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
                 "DFailedFormal.lean": "theorem d : True := by sorry\n",
                 "EExhausted.lean": "theorem e : True := by sorry\n",
                 "FNoop.lean": "theorem f : True := by trivial\n",
+                "GRedraft.lean": "theorem g : True := by sorry\n",
+                "HInfrastructure.lean": "theorem h : True := by sorry\n",
             }
             for rel, body in files.items():
                 self._target(root, chapters, rel, body)
@@ -74,6 +76,10 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
                     "ZRetry.lean": {"status": "retry", "attempts": 2, "reason": "review failed"},
                     "CSolved.lean": {"status": "solved", "attempts": 1},
                     "EExhausted.lean": {"status": "proof_review_exhausted", "attempts": 3},
+                    "GRedraft.lean": {"status": "needs_redraft", "attempts": 1},
+                    "HInfrastructure.lean": {
+                        "status": "blocked_infrastructure", "attempts": 1,
+                    },
                 }
             }
             (state / "proof-review-gate.json").write_text(

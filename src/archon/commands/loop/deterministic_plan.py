@@ -162,7 +162,10 @@ def select_deterministic_candidates(
         raw_record = proof_targets.get(rel, {}) if proof_gate_enabled else {}
         record = raw_record if isinstance(raw_record, dict) else {}
         status = str(record.get("status") or "new")
-        if status in {"solved", "proof_review_exhausted"}:
+        if status in {
+            "solved", "proof_review_exhausted", "needs_redraft",
+            "blocked_infrastructure",
+        }:
             continue
         attempts = int(record.get("attempts") or 0)
         retry_rank = 0 if status == "retry" else 1

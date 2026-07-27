@@ -95,6 +95,7 @@ class ProverPhase(Phase):
             state_dir=ctx.state_dir,
             project_path=ctx.project_path,
             enabled=getattr(ctx.options, "proof_review_gate", False),
+            stage=ctx.current_stage,
         )
 
         if proof_dropped:

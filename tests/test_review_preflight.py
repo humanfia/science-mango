@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from archon.commands.loop.formalization_review_gate import STATE_VERSION
 from archon.commands.loop.phases.review import ReviewPhase
 from archon.commands.loop.review_preflight import (
     deterministic_review_prompt_prefix,
@@ -239,6 +240,103 @@ class ReviewPreflightTest(unittest.TestCase):
             self.assertEqual(called, [target])
             gate = json.loads((state / "proof-review-gate.json").read_text())
             self.assertEqual(gate["targets"]["A.lean"]["status"], "solved")
+
+    def test_review_phase_redraft_route_revokes_formalization_certificate(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            state = root / ".archon"
+            iter_dir = state / "logs" / "iter-007"
+            session = state / "proof-journal" / "sessions" / "session_7"
+            iter_dir.mkdir(parents=True)
+            session.mkdir(parents=True)
+            target = root / "Problems" / "A.lean"
+            target.parent.mkdir(parents=True)
+            target.write_text("theorem a : True := by sorry\n", encoding="utf-8")
+            progress = state / "PROGRESS.md"
+            progress.write_text(
+                "# Progress\n\n## Current Stage\n\nprover\n\n"
+                "## Stages\n\n- autoformalize\n- prover\n\n"
+                "## Current Objectives\n\n1. **`Problems/A.lean`** — prove.\n",
+                encoding="utf-8",
+            )
+            (state / "formalization-review-gate.json").write_text(
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "max_iterations": 3,
+                    "targets": {
+                        "Problems/A.lean": {
+                            "status": "passed",
+                            "reviews": 1,
+                            "certificate": {"old": "passing certificate"},
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+            (session / "milestones.jsonl").write_text(
+                json.dumps({
+                    "target": {"file": "Problems/A.lean", "theorem": "a"},
+                    "status": "blocked",
+                    "proof_review": {
+                        "schema_version": 1,
+                        "route": "needs_redraft",
+                        "reason": "opaque relation admits a countermodel",
+                        "evidence": "all hypotheses hold while the goal is false",
+                        "redraft_kind": "underdetermined_contract",
+                    },
+                }) + "\n",
+                encoding="utf-8",
+            )
+            meta = iter_dir / "meta.json"
+            meta.write_text("{}\n", encoding="utf-8")
+            ctx = SimpleNamespace(
+                options=SimpleNamespace(
+                    formalization_review_gate=True,
+                    formalization_review_max_iterations=3,
+                    proof_review_gate=True,
+                    proof_review_max_iterations=3,
+                    no_review=False,
+                    max_parallel=1,
+                ),
+                current_stage="prover",
+                progress_file=progress,
+                project_path=root,
+                state_dir=state,
+                skip_now=set(),
+                dry_run=False,
+                iter_meta=meta,
+                iter_dir=iter_dir,
+                iter_num=7,
+                dashboard_url=None,
+            )
+            phase = ReviewPhase(ctx)
+            phase._invoke_review = lambda: True
+
+            with (
+                patch("archon.commands.loop.phases.review.commit_phase"),
+                patch(
+                    "archon.commands.loop.phases.review.check_mandatory_dispatched"
+                ),
+            ):
+                phase.run()
+
+            proof_gate = json.loads(
+                (state / "proof-review-gate.json").read_text(encoding="utf-8")
+            )
+            formal_gate = json.loads(
+                (state / "formalization-review-gate.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(proof_gate["targets"]["Problems/A.lean"]["status"],
+                             "needs_redraft")
+            self.assertEqual(formal_gate["targets"]["Problems/A.lean"]["status"],
+                             "retry")
+            self.assertEqual(formal_gate["targets"]["Problems/A.lean"]["certificate"],
+                             {})
+            self.assertIn("autoformalize", progress.read_text(encoding="utf-8"))
+            self.assertIn("physics-formalize", progress.read_text(encoding="utf-8"))
+            metadata = json.loads(meta.read_text(encoding="utf-8"))
+            self.assertEqual(metadata["review"]["proofGateNeedsRedraft"], 1)
+            self.assertEqual(metadata["review"]["proofGateRedraftsReopened"], 1)
 
 
 if __name__ == "__main__":

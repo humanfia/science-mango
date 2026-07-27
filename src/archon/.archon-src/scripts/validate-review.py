@@ -69,6 +69,58 @@ def validate(session_dir: str, attempts_path: str = None):
         if status not in valid_statuses:
             warnings.append(f"WARN: milestone {i} has non-standard status '{status}' (expected: {valid_statuses})")
 
+        proof_review = m.get('proof_review')
+        if proof_review is None and isinstance(m.get('findings'), dict):
+            proof_review = m['findings'].get('proof_review')
+        if proof_review is not None:
+            valid_routes = {
+                'solved', 'retry_proof', 'needs_redraft',
+                'blocked_infrastructure',
+            }
+            valid_redraft_kinds = {
+                'not_applicable', 'underdetermined_contract',
+                'answer_as_assumption', 'missing_uncertainty',
+                'branch_ambiguous', 'missing_foundational_bridge',
+                'wrong_or_weakened_target', 'other_modeling_defect',
+            }
+            if not isinstance(proof_review, dict):
+                issues.append(f"FAIL: milestone {i} proof_review is not an object")
+            else:
+                route = str(proof_review.get('route') or '').strip().lower()
+                kind = str(proof_review.get('redraft_kind') or '').strip().lower()
+                if proof_review.get('schema_version') != 1:
+                    warnings.append(
+                        f"WARN: milestone {i} proof_review schema_version is not 1"
+                    )
+                if route not in valid_routes:
+                    issues.append(
+                        f"FAIL: milestone {i} has invalid proof_review route '{route}'"
+                    )
+                if not str(proof_review.get('reason') or '').strip():
+                    warnings.append(f"WARN: milestone {i} proof_review has no reason")
+                if not str(proof_review.get('evidence') or '').strip():
+                    warnings.append(f"WARN: milestone {i} proof_review has no evidence")
+                if kind not in valid_redraft_kinds:
+                    issues.append(
+                        f"FAIL: milestone {i} has invalid redraft_kind '{kind}'"
+                    )
+                if route == 'needs_redraft' and kind == 'not_applicable':
+                    issues.append(
+                        f"FAIL: milestone {i} needs_redraft lacks a concrete kind"
+                    )
+                if route != 'needs_redraft' and kind not in {'', 'not_applicable'}:
+                    issues.append(
+                        f"FAIL: milestone {i} route={route} has redraft kind '{kind}'"
+                    )
+                if (route == 'solved') != (status == 'solved'):
+                    issues.append(
+                        f"FAIL: milestone {i} proof route/status are inconsistent"
+                    )
+                if route in {'needs_redraft', 'blocked_infrastructure'} and status != 'blocked':
+                    issues.append(
+                        f"FAIL: milestone {i} route={route} requires status=blocked"
+                    )
+
         if status not in ('blocked', 'not_started'):
             attempts = m.get('attempts', [])
             if not attempts:

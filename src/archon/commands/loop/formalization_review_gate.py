@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from archon.state import parse_objective_files
 from archon.state.progress import write_stage
@@ -341,6 +341,90 @@ def _write_report(state_dir: Path, data: dict[str, Any]) -> None:
     (state_dir / REPORT_FILENAME).write_text("\n".join(lines), encoding="utf-8")
 
 
+def reopen_formalization_targets(
+    *,
+    state_dir: Path,
+    project_path: Path,
+    progress_file: Path,
+    redrafts: Mapping[str, Mapping[str, Any] | str],
+    iter_num: int,
+    max_iterations: int,
+) -> tuple[str, ...]:
+    """Revoke prior pass certificates and route exact targets to redrafting.
+
+    The old certificate remains only in ``reopen_history`` for auditability;
+    dispatch gating sees the live ``retry`` status and therefore permits the
+    target in autoformalize while forbidding it in prover.
+    """
+    max_iterations = max(1, int(max_iterations))
+    data = load_gate_state(state_dir) or _initial_state(max_iterations)
+    data["max_iterations"] = max_iterations
+    targets: dict[str, Any] = data.setdefault("targets", {})
+    reopened: list[str] = []
+    objective_details: dict[str, tuple[str, str]] = {}
+
+    for raw_rel, raw_proof_record in redrafts.items():
+        rel = _relative_file(str(raw_rel), project_path)
+        if not rel:
+            continue
+        proof_record = (
+            dict(raw_proof_record)
+            if isinstance(raw_proof_record, Mapping)
+            else {"reason": str(raw_proof_record)}
+        )
+        old = targets.get(rel) if isinstance(targets.get(rel), dict) else {}
+        reopen_history = old.get("reopen_history")
+        reopen_history = (
+            list(reopen_history) if isinstance(reopen_history, list) else []
+        )
+        reason = " ".join(str(proof_record.get("reason") or "").split())
+        if not reason:
+            reason = "proof Review found a statement/modeling defect"
+        redraft_kind = str(
+            proof_record.get("redraft_kind") or "other_modeling_defect"
+        ).strip()
+        reopen_history.append({
+            "reopened_at": _utcnow(),
+            "proof_review_iter": iter_num,
+            "proof_review_reason": reason,
+            "redraft_kind": redraft_kind,
+            "previous_status": old.get("status"),
+            "previous_reviews": int(old.get("reviews") or 0),
+            "previous_reason": old.get("reason"),
+            "previous_certificate": old.get("certificate"),
+        })
+        targets[rel] = {
+            **old,
+            "status": "retry",
+            "reason": f"proof Review requested redraft: {reason}",
+            "updated_at": _utcnow(),
+            "review_schema_version": REVIEW_SCHEMA_VERSION,
+            "certificate": {},
+            "certificate_revoked_at": _utcnow(),
+            "reopened_by": "proof_review",
+            "last_reopened_iter": iter_num,
+            "redraft_kind": redraft_kind,
+            "reopen_history": reopen_history[-20:],
+        }
+        objective_details[rel] = (redraft_kind, reason[:800])
+        reopened.append(rel)
+
+    if not reopened:
+        return ()
+    data["last_reopened_iter"] = iter_num
+    data["updated_at"] = _utcnow()
+    _write_state(state_dir, data)
+    _write_report(state_dir, data)
+    write_stage(progress_file, "autoformalize")
+    _replace_objectives(progress_file, [
+        f"- **`{rel}`** — Proof Review routed this target to statement redraft "
+        f"({objective_details[rel][0]}): {objective_details[rel][1]} "
+        "[prover-mode: physics-formalize]"
+        for rel in sorted(set(reopened))
+    ])
+    return tuple(sorted(set(reopened)))
+
+
 def apply_formalization_review(
     *,
     state_dir: Path,
@@ -392,6 +476,7 @@ def apply_formalization_review(
         else:
             status = "retry"
         targets[rel] = {
+            **old,
             "status": status,
             "reviews": reviews,
             "last_review_iter": iter_num,
@@ -411,6 +496,18 @@ def apply_formalization_review(
     exhausted = tuple(sorted(
         k for k, v in targets.items() if v.get("status") == "review_exhausted"
     ))
+
+    # A proof Review redraft quarantine is released only by a fresh structured
+    # formalization pass. Import locally to keep the two persisted gates
+    # independently loadable.
+    if passed:
+        from .proof_review_gate import reset_proof_review_targets_after_redraft
+
+        reset_proof_review_targets_after_redraft(
+            state_dir=state_dir,
+            targets=passed,
+            iter_num=iter_num,
+        )
 
     if retry:
         write_stage(progress_file, "autoformalize")

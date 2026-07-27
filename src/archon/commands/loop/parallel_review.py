@@ -13,6 +13,12 @@ from typing import Callable
 from archon.agent import ClaudeBackend, build_runner
 from archon.commands.tooling.project_config import HarnessDescriptor
 
+from .proof_review_gate import (
+    PROOF_REVIEW_ROUTES,
+    PROOF_REVIEW_SCHEMA_VERSION,
+    REDRAFT_KINDS,
+)
+
 
 @dataclass(frozen=True)
 class TargetReviewSpec:
@@ -34,6 +40,45 @@ class TargetReviewOutcome:
 
 def _utcnow() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _validate_proof_review_route(row: dict, status: str) -> str:
+    raw = row.get("proof_review")
+    if raw is None:
+        findings = row.get("findings")
+        if isinstance(findings, dict):
+            raw = findings.get("proof_review")
+    if not isinstance(raw, dict):
+        return "milestone proof_review routing certificate is missing"
+    try:
+        schema_version = int(raw.get("schema_version"))
+    except (TypeError, ValueError):
+        schema_version = 0
+    if schema_version != PROOF_REVIEW_SCHEMA_VERSION:
+        return f"unsupported proof_review schema_version {schema_version!r}"
+    route = str(raw.get("route") or "").strip().lower().replace("-", "_")
+    if route not in PROOF_REVIEW_ROUTES:
+        return f"unsupported proof_review route {route!r}"
+    if not str(raw.get("reason") or "").strip():
+        return "proof_review reason is missing"
+    if not str(raw.get("evidence") or "").strip():
+        return "proof_review evidence is missing"
+    redraft_kind = str(raw.get("redraft_kind") or "").strip().lower()
+    if redraft_kind not in REDRAFT_KINDS:
+        return f"unsupported proof_review redraft_kind {redraft_kind!r}"
+    if route == "needs_redraft" and redraft_kind == "not_applicable":
+        return "needs_redraft requires a concrete redraft_kind"
+    if route != "needs_redraft" and redraft_kind != "not_applicable":
+        return f"route {route!r} requires redraft_kind=not_applicable"
+    if route == "solved" and status != "solved":
+        return "proof_review route=solved requires milestone status=solved"
+    if route != "solved" and status == "solved":
+        return f"proof_review route={route} contradicts milestone status=solved"
+    if route in {"needs_redraft", "blocked_infrastructure"} and status != "blocked":
+        return f"proof_review route={route} requires milestone status=blocked"
+    if route == "retry_proof" and status not in {"partial", "blocked"}:
+        return "proof_review route=retry_proof requires status=partial|blocked"
+    return ""
 
 
 def load_target_milestone(path: Path, expected_rel: str) -> tuple[dict | None, str]:
@@ -61,6 +106,9 @@ def load_target_milestone(path: Path, expected_rel: str) -> tuple[dict | None, s
         status = str(row.get("status") or "").strip().lower()
         if status not in {"solved", "partial", "blocked", "not_started"}:
             return None, f"unsupported milestone status {status!r}"
+        route_error = _validate_proof_review_route(row, status)
+        if route_error:
+            return None, route_error
         rows.append(row)
     if len(rows) != 1:
         return None, f"expected exactly one milestone row, found {len(rows)}"
@@ -145,6 +193,13 @@ Write exactly one JSON object line to {milestone}. Required shape:
   "timestamp": "{_utcnow()}",
   "target": {{"file": "{rel}", "theorem": "<reviewed declaration>"}},
   "status": "solved|partial|blocked|not_started",
+  "proof_review": {{
+    "schema_version": {PROOF_REVIEW_SCHEMA_VERSION},
+    "route": "solved|retry_proof|needs_redraft|blocked_infrastructure",
+    "reason": "<specific root cause>",
+    "evidence": "<Lean goal/error plus contract evidence>",
+    "redraft_kind": "not_applicable|underdetermined_contract|answer_as_assumption|missing_uncertainty|branch_ambiguous|missing_foundational_bridge|wrong_or_weakened_target|other_modeling_defect"
+  }},
   "attempts": [{{"attempt": 1, "strategy": "review", "code_tried": "",
     "lean_error": "", "goal_before": "", "goal_after": "",
     "result": "success|partial|failed", "insight": "<specific evidence>"}}],
@@ -155,8 +210,21 @@ Write exactly one JSON object line to {milestone}. Required shape:
   "next_steps": "<empty iff solved; otherwise exact repair>"
 }}
 
-Use status=solved only when all five checks pass. Missing or ambiguous evidence
-must fail closed as partial/blocked. Also write a <=12-line summary to {summary}.
+Classify root cause, not just the last Lean error:
+- route=retry_proof only when the contract is faithful and derivable and the
+  remaining issue is tactics, lemma search, arithmetic, elaboration, or budget;
+- route=needs_redraft for an underdetermined/wrong/weakened contract,
+  answer-as-assumption, missing requested output, uncertainty/branch omission,
+  opaque relation without an eliminator, or missing foundational bridge;
+- route=blocked_infrastructure only when an unavailable external capability is
+  indispensable and neither a local helper nor contract redraft can repair it.
+A missing mathematical bridge normally routes to needs_redraft. Use
+redraft_kind=not_applicable for every route except needs_redraft.
+
+Use status=solved only when all five checks pass and route=solved. Use
+status=blocked for needs_redraft or blocked_infrastructure, and partial/blocked
+for retry_proof. Missing or ambiguous evidence must fail closed. Also write a
+<=12-line summary to {summary}.
 Return only after both files are durable on disk.
 """
 
