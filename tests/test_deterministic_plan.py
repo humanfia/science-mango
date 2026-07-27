@@ -12,6 +12,7 @@ from archon.commands.loop.deterministic_plan import (
     write_deterministic_candidate_pack,
     write_deterministic_objectives,
 )
+from archon.commands.loop.formalization_review_gate import STATE_VERSION
 from archon.state import parse_objective_files, read_stage
 
 
@@ -59,6 +60,7 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             for rel, body in files.items():
                 self._target(root, chapters, rel, body)
             formal = {
+                "version": STATE_VERSION,
                 "targets": {
                     rel: {"status": "failed" if rel == "DFailedFormal.lean" else "passed"}
                     for rel in files
@@ -102,9 +104,14 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             for rel in ("A.lean", "B.lean", "C.lean"):
                 self._target(root, chapters, rel, "theorem t : True := by sorry\n")
             (state / "formalization-review-gate.json").write_text(
-                json.dumps({"targets": {
-                    rel: {"status": "passed"} for rel in ("A.lean", "B.lean", "C.lean")
-                }}), encoding="utf-8"
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "targets": {
+                        rel: {"status": "passed"}
+                        for rel in ("A.lean", "B.lean", "C.lean")
+                    },
+                }),
+                encoding="utf-8",
             )
             selected = select_deterministic_candidates(
                 project_path=root, state_dir=state, stage="prover", limit=2,
@@ -134,7 +141,10 @@ class DeterministicPlanSelectionTest(unittest.TestCase):
             state, chapters = self._project(root)
             self._target(root, chapters, "A.lean", "theorem a : True := by sorry\n")
             (state / "formalization-review-gate.json").write_text(
-                json.dumps({"targets": {"A.lean": {"status": "passed"}}}),
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "targets": {"A.lean": {"status": "passed"}},
+                }),
                 encoding="utf-8",
             )
             candidates = select_deterministic_candidates(

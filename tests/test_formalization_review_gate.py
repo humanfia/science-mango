@@ -38,13 +38,55 @@ class FormalizationReviewGateTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def _review(self, iteration, status, reason="review verdict"):
+    @staticmethod
+    def _passing_certificate(reason="review verdict"):
+        checks = {
+            name: {"status": "passed", "evidence": f"{name} evidence"}
+            for name in (
+                "source_faithfulness",
+                "derivability",
+                "abstraction_sufficiency",
+                "countermodel_resistance",
+            )
+        }
+        checks["uncertainty_propagation"] = {
+            "status": "not_applicable",
+            "evidence": "source has no uncertainty",
+        }
+        checks["branch_orientation"] = {
+            "status": "not_applicable",
+            "evidence": "target is unsigned",
+        }
+        return {
+            "status": "passed",
+            "reason": reason,
+            "checks": checks,
+            "bridge_obligations": [{
+                "claim": "source assumptions entail p",
+                "carrier": "target contract",
+                "status": "covered",
+                "evidence": "the carrier states the required relation",
+            }],
+        }
+
+    def _review(
+        self,
+        iteration,
+        status,
+        reason="review verdict",
+        formalization_review=None,
+    ):
         session = self.state / "proof-journal" / "sessions" / f"session_{iteration}"
         session.mkdir(parents=True)
+        if formalization_review is None:
+            if status == "passed":
+                formalization_review = self._passing_certificate(reason)
+            else:
+                formalization_review = {"status": status, "reason": reason}
         milestone = {
             "status": "blocked" if status == "failed" else "solved",
             "target": {"file": "Problems/p.lean", "theorem": "p"},
-            "formalization_review": {"status": status, "reason": reason},
+            "formalization_review": formalization_review,
         }
         (session / "milestones.jsonl").write_text(
             json.dumps(milestone) + "\n", encoding="utf-8"
@@ -83,6 +125,66 @@ class FormalizationReviewGateTests(unittest.TestCase):
         )
         self.assertEqual(kept, [self.target])
         self.assertEqual(dropped, [])
+
+    def test_bare_pass_without_structured_checks_fails_closed(self):
+        result = self._review(
+            1,
+            "passed",
+            formalization_review={"status": "passed", "reason": "looks faithful"},
+        )
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        state = load_gate_state(self.state)
+        reason = state["targets"]["Problems/p.lean"]["reason"]
+        self.assertIn("missing structured formalization Review checks", reason)
+
+    def test_failed_derivability_check_overrides_top_level_pass(self):
+        review = self._passing_certificate()
+        review["checks"]["derivability"] = {
+            "status": "failed",
+            "evidence": "opaque tangent predicate has no eliminator",
+        }
+
+        result = self._review(1, "passed", formalization_review=review)
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        state = load_gate_state(self.state)
+        reason = state["targets"]["Problems/p.lean"]["reason"]
+        self.assertIn("derivability", reason)
+
+    def test_empty_bridge_inventory_fails_closed(self):
+        review = self._passing_certificate()
+        review["bridge_obligations"] = []
+
+        result = self._review(1, "passed", formalization_review=review)
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        state = load_gate_state(self.state)
+        reason = state["targets"]["Problems/p.lean"]["reason"]
+        self.assertIn("must contain a source-to-target bridge", reason)
+
+    def test_blocked_bridge_obligation_overrides_top_level_pass(self):
+        review = self._passing_certificate()
+        review["bridge_obligations"][0]["status"] = "blocked"
+        review["bridge_obligations"][0]["evidence"] = "missing asymptotic lemma"
+
+        result = self._review(1, "passed", formalization_review=review)
+
+        self.assertEqual(result.retry, ("Problems/p.lean",))
+        state = load_gate_state(self.state)
+        reason = state["targets"]["Problems/p.lean"]["reason"]
+        self.assertIn("bridge obligation 1", reason)
+
+    def test_old_gate_state_is_not_a_valid_certificate(self):
+        (self.state / "formalization-review-gate.json").write_text(
+            json.dumps({
+                "version": 1,
+                "targets": {"Problems/p.lean": {"status": "passed"}},
+            }),
+            encoding="utf-8",
+        )
+
+        self.assertIsNone(load_gate_state(self.state))
 
     def test_from_review_skips_all_pre_review_auxiliary_phases(self):
         self.assertEqual(

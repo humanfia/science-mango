@@ -1900,6 +1900,31 @@ def _physics_review_block(project_path: Path, state_dir: Path, iter_num: int) ->
           premises, or local definitions that the theorem merely unfolds.
           If this happens, report `BLOCKED ON MODELING` and route the next
           iteration to redraft/formalize rather than continue proving.
+        - Run a derivability audit, independently of whether the file compiles.
+          Enumerate the nontrivial bridges from the allowed assumptions to the
+          requested output and identify the Lean theorem, structure field, or
+          local law that carries each bridge. A missing bridge is a BLOCKER.
+        - Audit abstract `Prop`-valued interfaces for usable mathematical
+          consequences. An opaque tangency, limiting-path, asymptotic,
+          extremal, or validity predicate that is only witnessed but has no
+          equation, inequality, derivative, limit, incidence condition, or
+          elimination theorem leaves the contract underdetermined and is a
+          BLOCKER.
+        - Attempt an adversarial countermodel sanity check: ask whether local
+          functions and predicates can be interpreted arbitrarily while every
+          hypothesis remains true and the target becomes false. If so, report
+          `BLOCKED ON MODELING`; compilation and source-like naming do not
+          compensate for lack of derivability.
+        - Audit uncertainty/error propagation. If the source or a previous-part
+          result reports `value ± uncertainty`, require the uncertainty to
+          occur in the target contract and in a propagation law or interval
+          argument. Merely proving a central value lies inside a fixed output
+          band is not sufficient.
+        - Audit signed branches and orientation. Incoming/outgoing,
+          future/past, clockwise/counterclockwise, tangent choice, and
+          asymptotic direction needed by the requested answer must be fixed by
+          assumptions or derived bridge lemmas, not chosen only in the
+          conclusion.
         - For local approximations, first-order expansions, and linearization,
           reject global exact equalities unless the statement uses a real local
           calculus/asymptotics contract such as `HasDerivAt`, `HasFDerivAt`,
@@ -2013,17 +2038,55 @@ def build_review_prompt(
             ```json
             "formalization_review": {
               "status": "passed|failed",
-              "reason": "specific semantic/grounding verdict"
+              "reason": "specific semantic/grounding verdict",
+              "checks": {
+                "source_faithfulness": {
+                  "status": "passed|failed",
+                  "evidence": "source/figure/unit correspondence"
+                },
+                "derivability": {
+                  "status": "passed|failed",
+                  "evidence": "why the hypotheses can entail the target"
+                },
+                "abstraction_sufficiency": {
+                  "status": "passed|failed",
+                  "evidence": "elimination laws for local abstract relations"
+                },
+                "uncertainty_propagation": {
+                  "status": "passed|failed|not_applicable",
+                  "evidence": "interval/error carrier or reason N/A"
+                },
+                "branch_orientation": {
+                  "status": "passed|failed|not_applicable",
+                  "evidence": "incoming/outgoing and sign carrier or reason N/A"
+                },
+                "countermodel_resistance": {
+                  "status": "passed|failed",
+                  "evidence": "adversarial underdetermination check"
+                }
+              },
+              "bridge_obligations": [
+                {
+                  "claim": "nontrivial source reasoning step",
+                  "carrier": "Lean theorem/field/law",
+                  "status": "covered|blocked",
+                  "evidence": "why this carrier supplies the step"
+                }
+              ]
             }
             ```
 
             Judge the formal statement independently of proof completion.
             `passed` requires faithful source/figure/units/laws, truthful
             grounding, no answer-as-assumption or globalized approximation,
-            and no live modeling/grounding doctor blocker. Missing evidence is
-            `failed`, never an implicit pass. The orchestrator retries failed
-            targets and permanently blocks them from prover dispatch after the
-            configured maximum Review attempts.
+            no live modeling/grounding doctor blocker, all mandatory structured
+            checks passing (or explicitly not applicable where allowed), at
+            least one covered bridge obligation, and no blocked bridge. Missing
+            checks, missing evidence, an empty bridge inventory, or
+            a legacy bare `passed` verdict is `failed`, never an implicit pass.
+            The orchestrator retries failed targets and permanently blocks
+            them from prover dispatch after the configured maximum Review
+            attempts.
         """)
 
     return dedent(f"""\

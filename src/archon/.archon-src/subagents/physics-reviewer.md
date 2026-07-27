@@ -123,6 +123,19 @@ blueprint/src/chapters/<chapter>.tex
    - assumptions and conclusions match the blueprint's physical statement,
    - proof-stage edits did not weaken signatures or delete hypotheses,
    - remaining `sorry`s have concrete blockers rather than generic notes.
+8. Check derivability and abstraction sufficiency:
+   - enumerate every nontrivial source-to-target bridge and name its Lean
+     carrier,
+   - reject opaque `Prop`-valued relations that are only witnessed and expose
+     no equation, inequality, derivative, limit, geometric incidence
+     condition, or reusable elimination theorem,
+   - attempt a countermodel sanity check by interpreting local functions and
+     predicates arbitrarily; if assumptions can remain true while the target
+     is false, the contract is underdetermined,
+   - require source uncertainty to occur in an error/interval propagation
+     contract, not merely as an unused field,
+   - require signed branch and orientation choices to be fixed by assumptions
+     or derived bridge lemmas.
 
 You may use read-only tools such as `archon-lean-lsp` and LeanExplore MCP.
 When using LeanExplore MCP, pass `packages: ["Mathlib", "PhysLean"]` when
@@ -178,6 +191,15 @@ Write your report to `.archon/task_results/physics-reviewer-<slug>.md`.
 - **Answer-as-assumption blockers**:
   - <declaration or "none"> — <hypothesis/field/predicate/definition that already contains the current target conclusion>
 
+## Derivability and bridge obligations
+- **Derivability**: pass / fail
+- **Abstraction sufficiency**: pass / fail
+- **Countermodel resistance**: pass / fail
+- **Uncertainty propagation**: pass / fail / N/A
+- **Branch/orientation coverage**: pass / fail / N/A
+- **Bridge obligations**:
+  - <source claim> — carrier: <Lean theorem/field/law> — covered / blocked — <evidence>
+
 ## Lean ↔ physics blueprint alignment
 - **Declarations covered**: <N>/<M>
 - **Statements faithful**: yes / partial / no
@@ -226,6 +248,13 @@ Classify as **must-fix-this-iter**:
   by the blueprint or later proof route,
 - proof-stage edits that weaken the formalized statement,
 - local abstractions whose physical meaning is not stated anywhere.
+- opaque physical relations that are witnessed but provide no mathematical
+  consequence usable to derive the target,
+- any missing source-to-target bridge or a successful countermodel showing the
+  assumptions do not determine the requested answer,
+- source uncertainty recorded but not propagated to the requested output,
+- a signed, asymptotic, incoming/outgoing, or tangent branch selected only in
+  the conclusion rather than constrained or derived.
 
 Classify as **major** when the issue is real but repairable without changing
 the formalization contract. Use **minor** for naming drift or documentation

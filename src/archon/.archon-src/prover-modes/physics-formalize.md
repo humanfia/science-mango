@@ -37,15 +37,24 @@ by-sorry formalization, not a proof attempt.
    Current target conclusions must not appear as hypotheses, premise fields,
    `Laws` fields, `Valid...Physics` fields, `Satisfies...` predicates, or
    local definitions that make the theorem true by unfolding.
-5. Use LeanExplore before inventing APIs:
+5. Build a derivability/bridge-obligation inventory before writing Lean.
+   For every nontrivial step from the source assumptions to the requested
+   output, name:
+   - the source claim,
+   - the Lean declaration, structure field, or library theorem that carries it,
+   - whether that carrier is grounded, encoded locally, or still blocked.
+   A compiling statement is not proof-ready when one of these bridges is
+   missing. Every substantive target must record at least one bridge; a direct
+   source-to-contract mapping should name the main theorem contract as carrier.
+6. Use LeanExplore before inventing APIs:
    - Start with `mcp__lean-explore__search_summary` or `search_summary`.
    - Query both natural-language concepts and likely Lean names.
    - Always pass `packages: ["Mathlib", "Physlib"]` when the tool schema
      supports package filters.
    - Fetch source/module/docstring for only the candidates you intend to use.
-6. Verify Lean syntax and available names with `archon-lean-lsp` diagnostics,
+7. Verify Lean syntax and available names with `archon-lean-lsp` diagnostics,
    hover, local search, or small snippets.
-7. Write declarations with `sorry` bodies. The file must compile with only
+8. Write declarations with `sorry` bodies. The file must compile with only
    expected `sorry` warnings when you stop.
 
 ## Physics Modeling Rules
@@ -76,6 +85,24 @@ by-sorry formalization, not a proof attempt.
 - If a needed physical law is not available in Mathlib/PhysLean, introduce a
   faithful governing-law predicate or hypothesis. Do not replace it with the
   final formula that the current subquestion asks to prove.
+- Every abstract `Prop`-valued relation that carries a substantive physical
+  step must expose mathematical consequences usable by a proof: equations,
+  inequalities, incidence/tangency conditions, derivatives, limits, or a
+  reusable elimination theorem. Merely asserting that an opaque relation has
+  a witness does not constrain the model and is not an adequate formalization.
+- Run a countermodel sanity check on every local abstraction: if its fields can
+  be interpreted arbitrarily while all assumptions remain true and the current
+  conclusion becomes false, the contract is underdetermined and must be
+  redrafted.
+- Preserve uncertainty and error information from the source. When the source
+  reports `value ± uncertainty`, the uncertainty must occur in the theorem
+  contract and be propagated to the requested output, or the task result must
+  justify why it is not applicable. A fixed tolerance around a central value
+  is not uncertainty propagation by itself.
+- Preserve branch and orientation information needed for signed answers:
+  incoming/outgoing, future/past, clockwise/counterclockwise, tangent branch,
+  and asymptotic direction must be represented by hypotheses or derived
+  bridge lemmas rather than selected only in the final conclusion.
 - `rfl` or definition-unfolding may prove naming/helper expansions only. It
   must not close the current subquestion's substantive answer by defining that
   answer as the target relation itself.
@@ -108,6 +135,14 @@ Write `task_results/<your_file>.md` with:
   figure/data readouts, and current target conclusions,
 - `## Goal-faithfulness audit` explaining why no current target conclusion was
   smuggled into hypotheses, premise structures, or local definitions,
+- `## Derivability and bridge obligations` with one entry per nontrivial
+  source-to-Lean reasoning bridge, its Lean carrier, evidence, and
+  `covered`/`blocked` status,
+- `## Abstraction sufficiency and countermodel audit` listing every local
+  `Prop`-valued interface and the equations/inequalities/elimination theorem
+  that make it constraining,
+- `## Uncertainty and branch coverage` recording whether each is
+  `covered`, `blocked`, or genuinely `not applicable`,
 - declarations created and corresponding blueprint labels,
 - LeanExplore queries/candidates actually used,
 - PhysLean/Mathlib names grounded,

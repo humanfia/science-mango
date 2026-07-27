@@ -32,6 +32,10 @@ notice them every iter:
    of the structural checks above: the model may still compile, but the
    review phase needs evidence that Mathlib/PhysLean grounding was attempted.
 
+6. **Physics contract gaps** — conservative checks for load-bearing opaque
+   predicates that are only existentially witnessed, and paired experimental
+   uncertainties omitted from a central-value error-band theorem contract.
+
 The doctor is *informational*. It writes a Markdown report to
 ``.archon/logs/iter-NNN/blueprint-doctor.md`` and a structured JSON to
 ``.archon/logs/iter-NNN/blueprint-doctor.json``. The loop's phase wrapper
@@ -152,6 +156,46 @@ _PHYSICS_GROUNDING_REQUIRED_TERMS = (
     ("grounded-name section", ("grounded", "grounded names", "physlean/mathlib")),
     ("local-abstraction section", ("local abstraction", "local abstractions")),
     ("grounding-gap section", ("grounding gap", "grounding gaps")),
+)
+_PHYSICS_PROP_FIELD_RE = re.compile(
+    r"^[ \t]+([a-z][A-Za-z0-9_']*)[ \t]*:[^\n]*(?:→|->)[ \t]*Prop[ \t]*$",
+    re.MULTILINE,
+)
+_PHYSICS_STRUCTURE_FIELD_RE = re.compile(
+    r"^[ \t]{2}[A-Za-z_][A-Za-z0-9_']*[ \t]*:",
+    re.MULTILINE,
+)
+_PHYSICS_LOAD_BEARING_PREDICATE_PARTS = (
+    "asymptotic",
+    "boundary",
+    "collision",
+    "constraint",
+    "critical",
+    "equilibrium",
+    "extremal",
+    "incidence",
+    "limiting",
+    "optimal",
+    "reflection",
+    "tangent",
+    "turning",
+)
+_PHYSICS_REAL_FIELD_RE = re.compile(
+    r"^[ \t]+([A-Za-z_][A-Za-z0-9_']*)"
+    r"[ \t]*:[ \t]*(?:ℝ|Real)[ \t]*$",
+    re.MULTILINE,
+)
+_LEAN_THEOREM_HEADER_RE = re.compile(
+    r"^[ \t]*(?:theorem|lemma)[ \t]+[A-Za-z_][A-Za-z0-9_.']*.*?:=[ \t]*by",
+    re.MULTILINE | re.DOTALL,
+)
+_LEAN_STRUCTURE_HEADER_RE = re.compile(
+    r"^structure[ \t]+[A-Za-z_][A-Za-z0-9_.']*[^\n]*\bwhere[ \t]*$",
+    re.MULTILINE,
+)
+_LEAN_TOP_LEVEL_DECL_RE = re.compile(
+    r"^(?:abbrev|class|def|end|inductive|lemma|namespace|structure|theorem)\b",
+    re.MULTILINE,
 )
 # Directories pruned wholesale from the axiom scan — these mirror
 # `sorry_analyzer.py`'s _NEVER_DESCEND plus the dep cache.
@@ -302,7 +346,8 @@ class DoctorReport:
     # that doesn't exist, or a file claimed by more than one chapter.
     physics_modeling_problems: list[tuple[Path, str, str]] = field(default_factory=list)
     # (lean_file, kind, reason) — physics-aware projects must not silently
-    # collapse load-bearing physical quantities to bare Real/ℝ.
+    # collapse quantities to bare Real/ℝ or leave key contract relations
+    # underdetermined.
     physics_grounding_problems: list[tuple[Path, str, str]] = field(default_factory=list)
     # (lean_file, kind, reason) — physics-aware Lean targets must leave a
     # task_results report with LeanExplore/PhysLean grounding evidence.
@@ -723,12 +768,119 @@ def _looks_like_physical_quantity_name(name: str) -> bool:
     return any(part in tail for part in _PHYSICS_QUANTITY_NAME_PARTS)
 
 
+def _identifier_occurrences(text: str, name: str) -> list[re.Match[str]]:
+    pattern = re.compile(
+        rf"(?<![A-Za-z0-9_']){re.escape(name)}(?![A-Za-z0-9_'])"
+    )
+    return list(pattern.finditer(text))
+
+
+def _used_only_in_existential_field(
+    text: str,
+    *,
+    declaration_end: int,
+    use_start: int,
+) -> bool:
+    field_headers = list(
+        _PHYSICS_STRUCTURE_FIELD_RE.finditer(text, declaration_end, use_start)
+    )
+    if not field_headers:
+        return False
+    block_start = field_headers[-1].start()
+    next_header = _PHYSICS_STRUCTURE_FIELD_RE.search(text, use_start + 1)
+    block_end = next_header.start() if next_header else len(text)
+    block = text[block_start:block_end]
+    return "∃" in block or re.search(r"\bExists\b", block) is not None
+
+
+def _scan_opaque_physics_relations(
+    lean: Path,
+    stripped: str,
+) -> list[tuple[Path, str, str]]:
+    """Flag existential-only load-bearing predicates with no eliminator law."""
+    out: list[tuple[Path, str, str]] = []
+    for declaration in _PHYSICS_PROP_FIELD_RE.finditer(stripped):
+        name = declaration.group(1)
+        lowered = name.lower()
+        if not any(part in lowered for part in _PHYSICS_LOAD_BEARING_PREDICATE_PARTS):
+            continue
+        occurrences = _identifier_occurrences(stripped, name)
+        if len(occurrences) != 2:
+            continue
+        use = occurrences[1]
+        if not _used_only_in_existential_field(
+            stripped,
+            declaration_end=declaration.end(),
+            use_start=use.start(),
+        ):
+            continue
+        out.append((
+            lean,
+            "opaque-existential-physics-relation",
+            f"{name} is a load-bearing Prop-valued relation used only inside "
+            "an existential witness; add an equation, inequality, geometric "
+            "condition, limit/derivative law, or reusable eliminator that "
+            "connects it to the target.",
+        ))
+    return out
+
+
+def _scan_unpropagated_uncertainty(
+    lean: Path,
+    stripped: str,
+) -> list[tuple[Path, str, str]]:
+    """Flag central-value error bands that omit a paired uncertainty field."""
+    theorem_headers = [
+        match.group(0) for match in _LEAN_THEOREM_HEADER_RE.finditer(stripped)
+    ]
+    out: list[tuple[Path, str, str]] = []
+    for structure in _LEAN_STRUCTURE_HEADER_RE.finditer(stripped):
+        next_declaration = _LEAN_TOP_LEVEL_DECL_RE.search(stripped, structure.end())
+        block_end = next_declaration.start() if next_declaration else len(stripped)
+        block = stripped[structure.end():block_end]
+        real_fields = list(_PHYSICS_REAL_FIELD_RE.finditer(block))
+        central_names = {
+            match.group(1) for match in real_fields
+            if "central" in match.group(1).lower()
+        }
+        if not central_names:
+            continue
+        for declaration in real_fields:
+            name = declaration.group(1)
+            lowered = name.lower()
+            if "uncertainty" not in lowered and "error" not in lowered:
+                continue
+            # A definition/propagation law adds another occurrence. Three or
+            # fewer means the field is typically only declared, constrained
+            # nonnegative, and assigned by a previous-part result.
+            if len(_identifier_occurrences(stripped, name)) > 3:
+                continue
+            for header in theorem_headers:
+                has_error_band = re.search(
+                    r"\|.*?\|[ \t\n]*≤", header, re.DOTALL
+                )
+                uses_central_value = any(
+                    central in header for central in central_names
+                )
+                if has_error_band and uses_central_value and name not in header:
+                    out.append((
+                        lean,
+                        "unpropagated-uncertainty",
+                        f"{name} is modeled but absent from a theorem contract "
+                        "that bounds its paired central-value error band; "
+                        "propagate the uncertainty explicitly or justify why "
+                        "it is not applicable.",
+                    ))
+                    break
+    return out
+
+
 def _scan_physics_modeling_problems(
     project_path: Path,
     *,
     enabled: bool,
 ) -> list[tuple[Path, str, str]]:
-    """Flag unsupported bare-scalar fallbacks in physics-aware projects."""
+    """Flag conservative modeling/contract defects in physics projects."""
     if not enabled or not project_path.is_dir():
         return []
 
@@ -762,6 +914,8 @@ def _scan_physics_modeling_problems(
                     "typed physical model with explicit units/dimensions, "
                     "or document a named scalar projection in the blueprint.",
                 ))
+            out.extend(_scan_opaque_physics_relations(lean, stripped))
+            out.extend(_scan_unpropagated_uncertainty(lean, stripped))
     return out
 
 

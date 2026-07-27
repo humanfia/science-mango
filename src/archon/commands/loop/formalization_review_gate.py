@@ -24,12 +24,31 @@ from .sorry_count import file_open_sorry_count
 
 STATE_FILENAME = "formalization-review-gate.json"
 REPORT_FILENAME = "FORMALIZATION_REVIEW_GATE.md"
-STATE_VERSION = 1
+STATE_VERSION = 2
+REVIEW_SCHEMA_VERSION = 2
 
 _PASS_WORDS = {"pass", "passed", "approved", "review-passing", "review_passing"}
 _FAIL_WORDS = {
     "fail", "failed", "blocked", "partial", "needs_redraft", "needs redraft",
     "not_started", "not started", "failed_retry", "rejected",
+}
+_NOT_APPLICABLE_WORDS = {
+    "not_applicable", "not applicable", "n/a", "na",
+}
+_REQUIRED_REVIEW_CHECKS = (
+    "source_faithfulness",
+    "derivability",
+    "abstraction_sufficiency",
+    "uncertainty_propagation",
+    "branch_orientation",
+    "countermodel_resistance",
+)
+_NOT_APPLICABLE_CHECKS = {
+    "uncertainty_propagation",
+    "branch_orientation",
+}
+_BRIDGE_PASS_WORDS = {
+    "covered", "grounded", "encoded", "proved", "pass", "passed",
 }
 
 
@@ -53,6 +72,8 @@ def load_gate_state(state_dir: Path) -> dict[str, Any] | None:
         return None
     if not isinstance(data, dict) or not isinstance(data.get("targets", {}), dict):
         return None
+    if data.get("version") != STATE_VERSION:
+        return None
     return data
 
 
@@ -75,8 +96,82 @@ def _relative_file(raw: str, project_path: Path) -> str:
     return normalized
 
 
-def _decision_from_milestone(item: dict[str, Any]) -> tuple[str, str]:
-    """Return ``(passed|failed, reason)``; missing verdict fails closed."""
+def _status_and_evidence(raw: Any) -> tuple[str, str]:
+    if not isinstance(raw, dict):
+        return "", ""
+    status = str(raw.get("status") or raw.get("verdict") or "").strip().lower()
+    evidence = str(raw.get("evidence") or raw.get("reason") or "").strip()
+    return status, evidence
+
+
+def _validate_structured_review(
+    raw: dict[str, Any],
+) -> tuple[bool, str, dict[str, Any]]:
+    """Validate and normalize the machine-checkable Review certificate."""
+    failures: list[str] = []
+    normalized_checks: dict[str, dict[str, str]] = {}
+    checks = raw.get("checks")
+    if not isinstance(checks, dict):
+        failures.append("missing structured formalization Review checks")
+        checks = {}
+
+    for name in _REQUIRED_REVIEW_CHECKS:
+        status, evidence = _status_and_evidence(checks.get(name))
+        allowed = status in _PASS_WORDS
+        if name in _NOT_APPLICABLE_CHECKS:
+            allowed = allowed or status in _NOT_APPLICABLE_WORDS
+        if not allowed:
+            failures.append(f"{name} is missing or not passing")
+        if not evidence:
+            failures.append(f"{name} is missing evidence")
+        normalized_checks[name] = {"status": status, "evidence": evidence}
+
+    normalized_bridges: list[dict[str, str]] = []
+    bridges = raw.get("bridge_obligations")
+    if not isinstance(bridges, list):
+        failures.append("missing bridge_obligations list")
+        bridges = []
+    elif not bridges:
+        failures.append("bridge_obligations must contain a source-to-target bridge")
+    for index, bridge in enumerate(bridges, start=1):
+        if not isinstance(bridge, dict):
+            failures.append(f"bridge obligation {index} is not an object")
+            continue
+        claim = str(bridge.get("claim") or bridge.get("source_claim") or "").strip()
+        carrier = str(bridge.get("carrier") or bridge.get("lean_carrier") or "").strip()
+        status = str(bridge.get("status") or "").strip().lower()
+        evidence = str(bridge.get("evidence") or bridge.get("reason") or "").strip()
+        if not claim:
+            failures.append(f"bridge obligation {index} is missing claim")
+        if not carrier:
+            failures.append(f"bridge obligation {index} is missing carrier")
+        if status not in _BRIDGE_PASS_WORDS:
+            failures.append(
+                f"bridge obligation {index} is blocked or has invalid status"
+            )
+        if not evidence:
+            failures.append(f"bridge obligation {index} is missing evidence")
+        normalized_bridges.append({
+            "claim": claim,
+            "carrier": carrier,
+            "status": status,
+            "evidence": evidence,
+        })
+
+    certificate = {
+        "schema_version": REVIEW_SCHEMA_VERSION,
+        "checks": normalized_checks,
+        "bridge_obligations": normalized_bridges,
+    }
+    if failures:
+        return False, "; ".join(dict.fromkeys(failures))[:2000], certificate
+    return True, "structured formalization Review certificate passed", certificate
+
+
+def _decision_from_milestone(
+    item: dict[str, Any],
+) -> tuple[str, str, dict[str, Any]]:
+    """Return ``(passed|failed, reason, certificate)``; fail closed."""
     raw: Any = item.get("formalization_review")
     if raw is None:
         findings = item.get("findings")
@@ -92,29 +187,31 @@ def _decision_from_milestone(item: dict[str, Any]) -> tuple[str, str]:
         status = str(raw).strip().lower()
 
     if status in _PASS_WORDS:
-        return "passed", reason or "formalization Review passed"
+        if not isinstance(raw, dict):
+            return "failed", "bare formalization Review pass lacks structured checks", {}
+        valid, validation_reason, certificate = _validate_structured_review(raw)
+        if not valid:
+            return "failed", validation_reason, certificate
+        return "passed", reason or validation_reason, certificate
     if status in _FAIL_WORDS:
-        return "failed", reason or "formalization Review failed"
+        return "failed", reason or "formalization Review failed", {}
 
-    # Backward-compatible, deliberately strict fallback for old journals.
-    # A legacy ``solved`` milestone is the only status strong enough to act as
-    # a semantic certificate; every other/missing status stays out of proving.
     legacy = str(item.get("status") or "").strip().lower()
     findings = item.get("findings")
     blocker = ""
     if isinstance(findings, dict):
         blocker = str(findings.get("blocker") or "").strip()
     if legacy == "solved":
-        return "passed", "legacy solved milestone (no explicit formalization_review field)"
-    return "failed", blocker or "missing explicit formalization Review pass verdict"
+        return "failed", "legacy solved milestone lacks structured Review certificate", {}
+    return "failed", blocker or "missing explicit formalization Review pass verdict", {}
 
 
 def _load_milestone_decisions(
     session_dir: Path,
     project_path: Path,
-) -> dict[str, tuple[str, str]]:
+) -> dict[str, tuple[str, str, dict[str, Any]]]:
     path = session_dir / "milestones.jsonl"
-    decisions: dict[str, list[tuple[str, str]]] = {}
+    decisions: dict[str, list[tuple[str, str, dict[str, Any]]]] = {}
     try:
         lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
     except OSError:
@@ -136,13 +233,24 @@ def _load_milestone_decisions(
             continue
         decisions.setdefault(rel, []).append(_decision_from_milestone(item))
 
-    aggregated: dict[str, tuple[str, str]] = {}
+    aggregated: dict[str, tuple[str, str, dict[str, Any]]] = {}
     for rel, verdicts in decisions.items():
-        failures = [reason for status, reason in verdicts if status != "passed"]
+        failures = [
+            reason for status, reason, _certificate in verdicts
+            if status != "passed"
+        ]
+        certificate = {
+            "schema_version": REVIEW_SCHEMA_VERSION,
+            "milestones": [item_certificate for _, _, item_certificate in verdicts],
+        }
         if failures:
-            aggregated[rel] = ("failed", "; ".join(dict.fromkeys(failures))[:2000])
+            aggregated[rel] = (
+                "failed", "; ".join(dict.fromkeys(failures))[:2000], certificate,
+            )
         else:
-            aggregated[rel] = ("passed", "all formalization Review entries passed")
+            aggregated[rel] = (
+                "passed", "all formalization Review entries passed", certificate,
+            )
     return aggregated
 
 
@@ -263,8 +371,8 @@ def apply_formalization_review(
     per_file_blockers, global_blocker = _doctor_failures(blockers, project_path)
 
     for rel in sorted(review_scope):
-        decision, reason = decisions.get(
-            rel, ("failed", "review output omitted this dispatched target")
+        decision, reason, certificate = decisions.get(
+            rel, ("failed", "review output omitted this dispatched target", {})
         )
         if rel in per_file_blockers:
             decision = "failed"
@@ -289,6 +397,8 @@ def apply_formalization_review(
             "last_review_iter": iter_num,
             "reason": reason,
             "updated_at": _utcnow(),
+            "review_schema_version": REVIEW_SCHEMA_VERSION,
+            "certificate": certificate,
         }
 
     data["last_review_iter"] = iter_num

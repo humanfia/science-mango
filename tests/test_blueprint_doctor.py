@@ -385,6 +385,113 @@ class RunBlueprintDoctorTest(unittest.TestCase):
         self.assertTrue(any("Radius" in reason for reason in reasons), reasons)
         self.assertTrue(r.has_findings)
 
+    def test_physics_mode_flags_existential_only_load_bearing_predicate(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n% archon:covers Phys.lean\n",
+        )
+        (self.root / "Phys.lean").write_text(
+            "import Mathlib\n"
+            "import Physlib\n"
+            "structure Setup where\n"
+            "  radiusAtIncidence : ℝ → ℝ\n"
+            "  isTangentToContainer : Nat → ℝ → Prop\n"
+            "structure Laws (setup : Setup) : Prop where\n"
+            "  limiting_path_exists :\n"
+            "    ∀ theta, ∃ path, setup.isTangentToContainer path "
+            "(setup.radiusAtIncidence theta)\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        findings = [
+            reason for _, kind, reason in r.physics_modeling_problems
+            if kind == "opaque-existential-physics-relation"
+        ]
+        self.assertEqual(len(findings), 1)
+        self.assertIn("isTangentToContainer", findings[0])
+
+    def test_physics_mode_accepts_opaque_relation_with_eliminator_law(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n% archon:covers Phys.lean\n",
+        )
+        (self.root / "Phys.lean").write_text(
+            "import Mathlib\n"
+            "import Physlib\n"
+            "structure Setup where\n"
+            "  radiusAtIncidence : ℝ → ℝ\n"
+            "  isTangentToContainer : Nat → ℝ → Prop\n"
+            "structure Laws (setup : Setup) : Prop where\n"
+            "  limiting_path_exists :\n"
+            "    ∀ theta, ∃ path, setup.isTangentToContainer path "
+            "(setup.radiusAtIncidence theta)\n"
+            "  tangent_radius_equation :\n"
+            "    ∀ path radius, setup.isTangentToContainer path radius → "
+            "radius = 1\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        kinds = {kind for _, kind, _ in r.physics_modeling_problems}
+        self.assertNotIn("opaque-existential-physics-relation", kinds)
+
+    def test_physics_mode_flags_unpropagated_uncertainty(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n% archon:covers Phys.lean\n",
+        )
+        (self.root / "Phys.lean").write_text(
+            "import Mathlib\n"
+            "import Physlib\n"
+            "structure Estimate where\n"
+            "  centralValue : ℝ\n"
+            "  uncertaintyValue : ℝ\n"
+            "  uncertainty_nonnegative : 0 ≤ uncertaintyValue\n"
+            "structure Previous (estimate : Estimate) : Prop where\n"
+            "  uncertainty_readout : estimate.uncertaintyValue = 2\n"
+            "theorem target (estimate : Estimate) (_previous : Previous estimate) :\n"
+            "    |estimate.centralValue - 10| ≤ 2 := by\n"
+            "  sorry\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        findings = [
+            reason for _, kind, reason in r.physics_modeling_problems
+            if kind == "unpropagated-uncertainty"
+        ]
+        self.assertEqual(len(findings), 1)
+        self.assertIn("uncertaintyValue", findings[0])
+
+    def test_physics_mode_accepts_uncertainty_in_target_contract(self):
+        self.bp.write_chapter(
+            "Good",
+            "% archon:physics\n% archon:covers Phys.lean\n",
+        )
+        (self.root / "Phys.lean").write_text(
+            "import Mathlib\n"
+            "import Physlib\n"
+            "structure Estimate where\n"
+            "  centralValue : ℝ\n"
+            "  uncertaintyValue : ℝ\n"
+            "  uncertainty_nonnegative : 0 ≤ uncertaintyValue\n"
+            "structure Previous (estimate : Estimate) : Prop where\n"
+            "  uncertainty_readout : estimate.uncertaintyValue = 2\n"
+            "theorem target (estimate : Estimate) (_previous : Previous estimate) :\n"
+            "    |estimate.centralValue - 10| ≤ estimate.uncertaintyValue := by\n"
+            "  sorry\n",
+            encoding="utf-8",
+        )
+
+        r = run_blueprint_doctor(self.root)
+
+        kinds = {kind for _, kind, _ in r.physics_modeling_problems}
+        self.assertNotIn("unpropagated-uncertainty", kinds)
+
     def test_physics_mode_flags_missing_grounding_log_for_existing_target(self):
         self.bp.write_chapter(
             "Good",

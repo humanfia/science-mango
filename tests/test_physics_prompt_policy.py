@@ -47,6 +47,14 @@ def test_physics_formalize_mode_preserves_physical_modeling_not_scalar_placehold
         "smallest abstract type, structure, or hypothesis interface",
         "Capture problem/figure parameters",
         "Prefer assumptions that state the physical law",
+        "derivability/bridge-obligation inventory",
+        "Every abstract `Prop`-valued relation",
+        "countermodel sanity check",
+        "Preserve uncertainty and error information",
+        "Preserve branch and orientation information",
+        "Derivability and bridge obligations",
+        "Abstraction sufficiency and countermodel audit",
+        "Uncertainty and branch coverage",
         "Grounding gaps",
     ]
     for contract in required_contracts:
@@ -94,6 +102,11 @@ def test_physics_reviewer_blocks_fake_statement_structures_and_missing_grounding
         "IsBigO",
         "`∃ _, True`",
         "disconnected calculus claim",
+        "derivability and abstraction sufficiency",
+        "countermodel sanity check",
+        "Uncertainty propagation",
+        "Branch/orientation coverage",
+        "Bridge obligations",
         "BLOCKED ON MODELING",
         "BLOCKED ON GROUNDING",
     ]

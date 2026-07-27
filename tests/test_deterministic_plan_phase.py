@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from archon.commands.loop.formalization_review_gate import STATE_VERSION
 from archon.commands.loop.phases.plan import PlanPhase
 from archon.state import parse_objective_files, read_stage
 
@@ -50,10 +51,13 @@ class DeterministicPlanPhaseTest(unittest.TestCase):
                     encoding="utf-8",
                 )
             (state / "formalization-review-gate.json").write_text(
-                json.dumps({"targets": {
-                    f"{name}.lean": {"status": "passed"}
-                    for name in ("A", "B", "C")
-                }}),
+                json.dumps({
+                    "version": STATE_VERSION,
+                    "targets": {
+                        f"{name}.lean": {"status": "passed"}
+                        for name in ("A", "B", "C")
+                    },
+                }),
                 encoding="utf-8",
             )
             (state / "config.json").write_text(

@@ -387,7 +387,35 @@ class BuildReviewPromptPhysicsTest(unittest.TestCase):
         self.assertIn("current target conclusion", prompt)
         self.assertIn("Valid...Physics", prompt)
         self.assertIn("Satisfies...", prompt)
+        self.assertIn("derivability audit", prompt)
+        self.assertIn("countermodel sanity check", prompt)
+        self.assertIn("uncertainty/error propagation", prompt)
+        self.assertIn("signed branches and orientation", prompt)
         self.assertIn("BLOCKED ON MODELING", prompt)
+
+    def test_formalization_gate_requires_structured_semantic_certificate(self):
+        prompt = build_review_prompt(
+            project_name="physics_proj",
+            project_path=self.root,
+            state_dir=self.state,
+            stage="autoformalize",
+            session_num=1,
+            session_dir=self.state / "proof-journal" / "sessions" / "session_001",
+            attempts_file=self.state / "attempts.json",
+            combined_prover_log=self.state / "logs" / "iter-001" / "prover.jsonl",
+            iter_num=1,
+            formalization_review_gate=True,
+        )
+
+        self.assertIn("Mandatory per-target formalization Review verdict", prompt)
+        self.assertIn('"source_faithfulness"', prompt)
+        self.assertIn('"derivability"', prompt)
+        self.assertIn('"abstraction_sufficiency"', prompt)
+        self.assertIn('"uncertainty_propagation"', prompt)
+        self.assertIn('"branch_orientation"', prompt)
+        self.assertIn('"countermodel_resistance"', prompt)
+        self.assertIn('"bridge_obligations"', prompt)
+        self.assertIn("legacy bare `passed` verdict", prompt)
 
     def test_non_physics_project_does_not_inject_review_checklist(self):
         (self.root / "blueprint" / "src" / "chapters" / "Phys.tex").write_text(
