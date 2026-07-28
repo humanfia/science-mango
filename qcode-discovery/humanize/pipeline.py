@@ -39,6 +39,20 @@ STAGE_ORDER = (
     "stage5_strict_gate",
 )
 TERMINAL_STATUSES = {"COMPLETED_WIN", "COMPLETED_NO_WIN"}
+REQUIRED_STRICT_REPLAY_CHECKS = frozenset(
+    {
+        "schema",
+        "certificate_sha256",
+        "known_answer_sha256",
+        "matrix_sha256",
+        "direction_count",
+        "stored_direction_evidence",
+        "milp_rerun",
+        "distance_recomputed",
+        "final_gate",
+        "certificate_passed_flag",
+    }
+)
 
 
 def utc_now() -> str:
@@ -1820,15 +1834,29 @@ class FiveStagePipeline:
             certificate = _read_json_object(path)
             certificate_sha = certificate.get("certificate_sha256")
             milp = certificate.get("milp")
+            claim = certificate.get("claim")
+            directions = milp.get("directions") if isinstance(milp, Mapping) else None
             try:
                 exact = bool(
                     isinstance(milp, Mapping)
+                    and isinstance(claim, Mapping)
+                    and not isinstance(claim.get("k"), bool)
+                    and isinstance(claim.get("k"), int)
+                    and claim["k"] > 0
+                    and not isinstance(claim.get("d"), bool)
+                    and isinstance(claim.get("d"), int)
+                    and claim["d"] > 0
                     and milp.get("exact") is True
                     and not isinstance(milp.get("completed_directions"), bool)
                     and not isinstance(milp.get("expected_directions"), bool)
                     and int(milp["expected_directions"]) > 0
                     and int(milp["completed_directions"])
                     == int(milp["expected_directions"])
+                    and int(milp["expected_directions"]) == 2 * claim["k"]
+                    and milp.get("distance") == claim["d"]
+                    and isinstance(directions, list)
+                    and len(directions) == 2 * claim["k"]
+                    and all(isinstance(item, Mapping) for item in directions)
                 )
             except (KeyError, TypeError, ValueError):
                 exact = False
@@ -1948,7 +1976,10 @@ class FiveStagePipeline:
         ]
 
     @staticmethod
-    def _validate_final_gate(path: Path) -> dict[str, Any]:
+    def _validate_final_gate(
+        path: Path,
+        certificates_path: Path,
+    ) -> dict[str, Any]:
         value = _read_json_object(path)
         integrity = value.get("known_answer_integrity")
         evaluations = value.get("evaluations")
@@ -1959,6 +1990,7 @@ class FiveStagePipeline:
             or not isinstance(integrity, Mapping)
             or integrity.get("mode") != "strict"
             or integrity.get("passed") is not True
+            or integrity.get("failures") != []
             or not isinstance(evaluations, list)
             or not evaluations
             or not all(
@@ -1995,6 +2027,109 @@ class FiveStagePipeline:
                 "Stage 5 strict summary does not accept every evaluation",
                 stage="stage5_strict_gate",
             )
+        try:
+            certificates = [
+                json.loads(line)
+                for line in certificates_path.read_text().splitlines()
+                if line.strip()
+            ]
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                f"Stage 5 certificate input is unavailable or invalid: {exc}",
+                stage="stage5_strict_gate",
+            ) from exc
+        if not certificates or not all(
+            isinstance(certificate, Mapping) for certificate in certificates
+        ):
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                "Stage 5 certificate input must contain JSON objects",
+                stage="stage5_strict_gate",
+            )
+        if len(certificates) != len(evaluations):
+            raise PipelineError(
+                "STRICT_GATE_REJECTED",
+                "Stage 5 evaluations do not cover every Stage 4 certificate",
+                stage="stage5_strict_gate",
+            )
+        seen_hashes: set[str] = set()
+        for index, (certificate, evaluation) in enumerate(
+            zip(certificates, evaluations, strict=True)
+        ):
+            assert isinstance(certificate, Mapping)
+            assert isinstance(evaluation, Mapping)
+            certificate_sha = certificate.get("certificate_sha256")
+            result = evaluation.get("result")
+            source_index = evaluation.get("source_index")
+            certificate_claim = certificate.get("claim")
+            certificate_gate = certificate.get("final_gate")
+            result_gate = (
+                result.get("final_gate") if isinstance(result, Mapping) else None
+            )
+            checks = result.get("checks") if isinstance(result, Mapping) else None
+            k = (
+                certificate_claim.get("k")
+                if isinstance(certificate_claim, Mapping)
+                else None
+            )
+            d = (
+                certificate_claim.get("d")
+                if isinstance(certificate_claim, Mapping)
+                else None
+            )
+            directions_verified = (
+                result.get("directions_verified")
+                if isinstance(result, Mapping)
+                else None
+            )
+            directions_total = (
+                result.get("directions_total") if isinstance(result, Mapping) else None
+            )
+            if (
+                not isinstance(certificate_sha, str)
+                or re.fullmatch(r"[0-9a-f]{64}", certificate_sha) is None
+                or certificate_sha in seen_hashes
+                or certificate_sha != _certificate_sha256(certificate)
+                or certificate.get("passed") is not True
+                or isinstance(source_index, bool)
+                or not isinstance(source_index, int)
+                or source_index != index
+                or evaluation.get("certificate_sha256") != certificate_sha
+                or evaluation.get("claim") != certificate.get("claim")
+                or not isinstance(result, Mapping)
+                or result.get("passed") is not True
+                or not isinstance(result.get("final_gate"), Mapping)
+                or result["final_gate"].get("accepted") is not True
+                or not isinstance(checks, Mapping)
+                or not REQUIRED_STRICT_REPLAY_CHECKS.issubset(checks)
+                or any(check is not True for check in checks.values())
+                or result.get("failures") != []
+                or isinstance(k, bool)
+                or not isinstance(k, int)
+                or k <= 0
+                or isinstance(d, bool)
+                or not isinstance(d, int)
+                or d <= 0
+                or isinstance(result.get("distance"), bool)
+                or result.get("distance") != d
+                or isinstance(directions_verified, bool)
+                or not isinstance(directions_verified, int)
+                or directions_verified != 2 * k
+                or isinstance(directions_total, bool)
+                or not isinstance(directions_total, int)
+                or directions_total != 2 * k
+                or not isinstance(certificate_gate, Mapping)
+                or not isinstance(result_gate, Mapping)
+                or result_gate.get("accepted") is not True
+                or _canonical_sha256(result_gate) != _canonical_sha256(certificate_gate)
+            ):
+                raise PipelineError(
+                    "STRICT_GATE_REJECTED",
+                    f"Stage 5 evaluation[{index}] is not bound to its certificate",
+                    stage="stage5_strict_gate",
+                )
+            seen_hashes.add(certificate_sha)
         return value
 
     def _record_failure(self, error: PipelineError) -> dict[str, Any]:
@@ -2227,7 +2362,10 @@ class FiveStagePipeline:
                         strict_command,
                         self.paths.logs / "stage5-strict-gate.log",
                     ),
-                    validator=lambda: self._validate_final_gate(self.paths.stage5_gate),
+                    validator=lambda: self._validate_final_gate(
+                        self.paths.stage5_gate,
+                        self.paths.stage4_certificates,
+                    ),
                 )
                 terminal_status = "COMPLETED_WIN"
             else:

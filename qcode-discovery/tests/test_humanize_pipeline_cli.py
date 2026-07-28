@@ -6,9 +6,10 @@ import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
-import humanize.pipeline_cli as pipeline_cli
-import humanize.pipeline_process as process_control
 import pytest
+
+import humanize.pipeline_process as process_control
+from humanize import pipeline_cli
 
 
 def _repo(tmp_path: Path) -> Path:
@@ -379,3 +380,75 @@ def test_control_root_symlink_cannot_escape_repository(tmp_path):
     with pytest.raises(ValueError, match="escapes repository"):
         process_control.control_paths(repo, "escape", create=True)
     assert not (outside / "humanize").exists()
+
+
+def test_export_release_command_uses_resolved_repo_and_safe_run_id(
+    tmp_path, monkeypatch
+):
+    repo = _repo(tmp_path).resolve()
+    captured = {}
+    output = {
+        "status": "exported",
+        "run_id": "release-run",
+        "manifest": str(repo / "results/runs/release-run/challenge_manifest.json"),
+    }
+
+    monkeypatch.setattr(pipeline_cli, "resolve_repo_dir", lambda _path: repo)
+
+    def fake_export_release(*, repo_dir, run_id):
+        captured.update(repo_dir=repo_dir, run_id=run_id)
+        return output
+
+    printed = []
+    monkeypatch.setattr(pipeline_cli, "export_release", fake_export_release)
+    monkeypatch.setattr(
+        pipeline_cli,
+        "_print_json",
+        lambda value, **_kwargs: printed.append(value),
+    )
+
+    assert (
+        pipeline_cli._export_release_command(
+            SimpleNamespace(repo_dir=repo, run_id="release-run")
+        )
+        == 0
+    )
+    assert captured == {"repo_dir": repo, "run_id": "release-run"}
+    assert printed == [output]
+
+
+def test_export_release_cli_distinguishes_no_win_from_invalid_export(
+    tmp_path, monkeypatch, capsys
+):
+    repo = _repo(tmp_path).resolve()
+    monkeypatch.setattr(pipeline_cli, "resolve_repo_dir", lambda _path: repo)
+
+    def no_win(**_kwargs):
+        raise pipeline_cli.ReleaseNotExportableError(
+            "NO_CERTIFIED_WIN", "no certified win"
+        )
+
+    monkeypatch.setattr(pipeline_cli, "export_release", no_win)
+    assert (
+        pipeline_cli.main(
+            ["export-release", "--repo-dir", str(repo), "--run-id", "no-win"]
+        )
+        == 1
+    )
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["status"] == "not-exportable"
+    assert payload["classification"] == "NO_CERTIFIED_WIN"
+
+    def invalid(**_kwargs):
+        raise pipeline_cli.ReleaseExportError("STATE_HASH_MISMATCH", "tampered")
+
+    monkeypatch.setattr(pipeline_cli, "export_release", invalid)
+    assert (
+        pipeline_cli.main(
+            ["export-release", "--repo-dir", str(repo), "--run-id", "invalid"]
+        )
+        == 2
+    )
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["status"] == "error"
+    assert payload["classification"] == "STATE_HASH_MISMATCH"

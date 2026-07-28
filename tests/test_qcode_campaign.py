@@ -39,11 +39,11 @@ def _record_subprocess(monkeypatch):
     return calls
 
 
-def test_qcode_campaign_help_registers_four_commands():
+def test_qcode_campaign_help_registers_five_commands():
     result = runner.invoke(app, ["qcode-campaign", "--help"])
 
     assert result.exit_code == 0, result.output
-    for command in ("run", "start", "status", "cancel"):
+    for command in ("run", "start", "status", "export-release", "cancel"):
         assert command in result.output
 
 
@@ -178,6 +178,34 @@ def test_status_and_cancel_forward_control_arguments(tmp_path, monkeypatch):
         "run-two",
         "--grace-seconds",
         "4.5",
+    ]
+
+
+def test_export_release_forwards_fixed_run_and_repo(tmp_path, monkeypatch):
+    project, repo, python, _config = _campaign_tree(tmp_path)
+    calls = _record_subprocess(monkeypatch)
+
+    result = runner.invoke(
+        app,
+        [
+            "qcode-campaign",
+            "export-release",
+            str(project),
+            "--run-id",
+            "release-run",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert calls[0][0] == [
+        str(python),
+        "-m",
+        "humanize.pipeline_cli",
+        "export-release",
+        "--repo-dir",
+        str(repo),
+        "--run-id",
+        "release-run",
     ]
 
 

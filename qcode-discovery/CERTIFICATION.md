@@ -181,14 +181,53 @@ archon qcode-campaign start . \
 
 archon qcode-campaign status . --run-id qcode-five-stage-example
 archon qcode-campaign cancel . --run-id qcode-five-stage-example
+
+# Only a completed strict WIN can be exported. The destination is fixed at
+# qcode-discovery/results/runs/<run-id>/challenge_manifest.json.
+archon qcode-campaign export-release . --run-id qcode-five-stage-example
+
+# A production consumer independently reruns strict provenance and every
+# certificate before formalization or publication.
+qcode-discovery/.venv/bin/python \
+  qcode-discovery/scripts/verify_release.py \
+  qcode-discovery/results/runs/qcode-five-stage-example/challenge_manifest.json \
+  --run-id qcode-five-stage-example --known-answer-mode strict
 ```
 
-`run`, `start`, `status`, and `cancel` all accept `--repo-dir` when
+`run`, `start`, `status`, `cancel`, and `export-release` all accept `--repo-dir` when
 `qcode-discovery` is not at its default project-relative location. `run` and
 `start` also accept `--run-id`, `--stage-review/--no-stage-review`,
 `--reviewer-model`, and `--reviewer-effort` overrides. `cancel` verifies the
 stored PID start time, uid, command hash, process group, and session before it
 sends a signal; it refuses a stale or reused PID.
+
+`export-release` accepts only the run id and the optional fixed repository
+location. It snapshots the completed Stage 4 certificate set and the matching
+Stage 5 strict replay while holding the pipeline lock, rejects any count,
+claim, certificate-hash, output-hash, or strict-provenance mismatch, and emits
+only safe relative certificate paths. Publication is atomic and immutable: an
+identical second export is a no-op, while an existing different release is
+rejected instead of overwritten. The generated legacy release layout is
+directly consumable by `check_release_manifest.py`, `verify_release.py`, and
+the universal Lean bridge.
+
+The ordinary exporter tests use synthetic, internally consistent artifacts to
+exercise layout, binding, immutability, and fail-closed behavior. They do not
+claim a mathematical challenge win. Once a real five-stage run reaches
+`COMPLETED_WIN`, run the opt-in production acceptance test:
+
+```bash
+cd qcode-discovery
+QCODE_PRODUCTION_WIN_RUN_ID=<run-id> \
+  .venv/bin/python -m pytest -q \
+  tests/test_production_release_acceptance.py -s
+```
+
+Without that environment variable the test is skipped. A pass means the test
+exported that exact run, freshly replayed all three known-answer baselines, and
+independently reran every certificate's `2k` MILP directions through
+`verify_release.py`. Merely passing the synthetic exporter tests is not
+production acceptance.
 
 To use a generated Humanize search instead of an existing pool, remove
 `candidate_inputs` and add a `stage1` object. For example:

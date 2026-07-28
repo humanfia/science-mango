@@ -167,6 +167,29 @@ def campaign_status(
     )
 
 
+@app.command("export-release")
+def export_campaign_release(
+    project_path: str = typer.Argument(".", help="science-mango project path."),
+    repo_dir: Optional[Path] = typer.Option(
+        None, "--repo-dir", help="Vendored or standalone qcode-discovery path."
+    ),
+    run_id: str = typer.Option(..., "--run-id"),
+) -> None:
+    """Export one completed WIN into the immutable release layout."""
+
+    repo = _resolve_repo(project_path, repo_dir)
+    _invoke_pipeline_cli(
+        repo,
+        [
+            "export-release",
+            "--repo-dir",
+            str(repo),
+            "--run-id",
+            run_id,
+        ],
+    )
+
+
 @app.command("cancel")
 def cancel_campaign(
     project_path: str = typer.Argument(".", help="science-mango project path."),

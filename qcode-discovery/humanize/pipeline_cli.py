@@ -7,8 +7,9 @@ import json
 import signal
 import sys
 import traceback
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from .pipeline_process import (
     AlreadyRunningError,
@@ -23,6 +24,11 @@ from .pipeline_process import (
     start_background,
     status_for_run,
     validate_run_id,
+)
+from .release_export import (
+    ReleaseExportError,
+    ReleaseNotExportableError,
+    export_release,
 )
 
 
@@ -97,6 +103,13 @@ def build_parser() -> argparse.ArgumentParser:
     _add_repo_argument(cancel)
     cancel.add_argument("--run-id", required=True)
     cancel.add_argument("--grace-seconds", type=float, default=30.0)
+
+    export = subparsers.add_parser(
+        "export-release",
+        help="publish a completed strict WIN as an immutable release snapshot",
+    )
+    _add_repo_argument(export)
+    export.add_argument("--run-id", required=True)
 
     # Private entry point used only by ``start``.  Archon may call the public
     # helpers directly and is not required to route through this CLI.
@@ -189,6 +202,15 @@ def _cancel_command(args: argparse.Namespace) -> int:
     return 0 if result["stopped"] else 1
 
 
+def _export_release_command(args: argparse.Namespace) -> int:
+    result = export_release(
+        repo_dir=resolve_repo_dir(args.repo_dir),
+        run_id=validate_run_id(args.run_id),
+    )
+    _print_json(result)
+    return 0
+
+
 def _worker_command(args: argparse.Namespace) -> int:
     # start_new_session prevents a terminal hangup from reaching the worker;
     # explicitly ignoring SIGHUP also gives nohup-equivalent behaviour.
@@ -229,6 +251,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _status_command(args)
         if args.command == "cancel":
             return _cancel_command(args)
+        if args.command == "export-release":
+            return _export_release_command(args)
         if args.command == "_worker":
             return _worker_command(args)
         raise AssertionError(f"unhandled command: {args.command}")
@@ -238,9 +262,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             stream=sys.stderr,
         )
         return 2
-    except (ProcessControlError, OSError, ValueError) as exc:
+    except ReleaseNotExportableError as exc:
         _print_json(
-            {"status": "error", "error": f"{type(exc).__name__}: {exc}"},
+            {
+                "status": "not-exportable",
+                "classification": exc.classification,
+                "error": str(exc),
+            },
+            stream=sys.stderr,
+        )
+        return 1
+    except (ProcessControlError, ReleaseExportError, OSError, ValueError) as exc:
+        _print_json(
+            {
+                "status": "error",
+                "classification": getattr(exc, "classification", None),
+                "error": f"{type(exc).__name__}: {exc}",
+            },
             stream=sys.stderr,
         )
         return 2

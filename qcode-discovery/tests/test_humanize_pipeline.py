@@ -8,6 +8,8 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+
+from evaluation.final_gate import classify_win
 from humanize.pipeline import (
     STAGE_ORDER,
     FiveStagePipeline,
@@ -15,6 +17,7 @@ from humanize.pipeline import (
     PipelineError,
     PipelinePaths,
 )
+from humanize.release_export import export_release
 
 
 def _argument(command: list[str], name: str) -> Path:
@@ -130,22 +133,64 @@ class ScenarioRunner:
                 _write_jsonl(_argument(command, "--stage4-manifest"), [])
             _write_json(_argument(command, "--summary-output"), summary)
         elif plan["write_outputs"] and stage == "strict":
+            certificates = [
+                json.loads(line)
+                for line in Path(command[2]).read_text().splitlines()
+                if line.strip()
+            ]
+            trust = json.loads(_argument(command, "--known-answer-trust").read_text())
+            passed = plan["gate_passed"]
+            evaluations = [
+                {
+                    "source_index": index,
+                    "claim": certificate.get("claim"),
+                    "certificate_sha256": certificate.get("certificate_sha256"),
+                    "result": {
+                        "passed": passed,
+                        "checks": {
+                            "schema": passed,
+                            "certificate_sha256": passed,
+                            "known_answer_sha256": passed,
+                            "matrix_sha256": passed,
+                            "direction_count": passed,
+                            "stored_direction_evidence": passed,
+                            "milp_rerun": passed,
+                            "distance_recomputed": passed,
+                            "final_gate": passed,
+                            "certificate_passed_flag": passed,
+                        },
+                        "failures": [] if passed else ["final_gate"],
+                        "distance": certificate["claim"]["d"],
+                        "directions_verified": 2 * certificate["claim"]["k"],
+                        "directions_total": 2 * certificate["claim"]["k"],
+                        "final_gate": (
+                            certificate["final_gate"] if passed else {"accepted": False}
+                        ),
+                    },
+                }
+                for index, certificate in enumerate(certificates)
+            ]
             _write_json(
                 _argument(command, "--output"),
                 {
                     "schema_version": 1,
                     "gate": expected_gate,
-                    "passed": plan["gate_passed"],
+                    "passed": passed,
                     "known_answer_integrity": {
                         "mode": "strict",
-                        "passed": plan["gate_passed"],
+                        "passed": passed,
+                        "artifact_sha256": trust["artifact_sha256"],
+                        "semantic_sha256": trust["semantic_sha256"],
+                        "rerun_semantic_sha256": trust["semantic_sha256"],
+                        "environment": trust["environment"],
+                        "failures": [] if passed else ["strict replay failed"],
                     },
                     "summary": {
-                        "accepted": int(plan["gate_passed"]),
-                        "rejected": int(not plan["gate_passed"]),
-                        "total": 1,
+                        "accepted": len(evaluations) if passed else 0,
+                        "rejected": 0 if passed else len(evaluations),
+                        "total": len(evaluations),
                     },
-                    "evaluations": [{"result": {"passed": plan["gate_passed"]}}],
+                    "evaluations": evaluations,
                 },
             )
         return subprocess.CompletedProcess(
@@ -204,8 +249,21 @@ def _repo(tmp_path: Path) -> tuple[Path, Path]:
     (evaluation / "verifier.py").write_text("# fake imported verifier\n")
     results = repo / "results"
     results.mkdir()
-    (results / "known_answer_gate.json").write_text('{"passed": true}\n')
-    (results / "known_answer_trust.json").write_text('{"schema_version": 1}\n')
+    known_answer = results / "known_answer_gate.json"
+    known_answer.write_text('{"passed": true}\n')
+    (results / "known_answer_trust.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "artifact_sha256": hashlib.sha256(
+                    known_answer.read_bytes()
+                ).hexdigest(),
+                "semantic_sha256": "a" * 64,
+                "environment": {"python": "test"},
+            }
+        )
+        + "\n"
+    )
     candidates = repo / "candidate-pool.jsonl"
     candidates.write_text('{"candidate": 1}\n')
     return repo, candidates
@@ -236,20 +294,42 @@ def _certificate(
     paths = PipelinePaths(config.root)
     certificate_path = paths.solver_state / "certificates" / f"{digest}.json"
     verification_path = paths.solver_state / "verifications" / f"{digest}.json"
+    known_answer_sha = hashlib.sha256(
+        Path(config.known_answer_artifact).read_bytes()
+    ).hexdigest()
+    n, k, d = 72, 16, 8
+    fom = k * d * d / n
+    claim = {
+        "canonical_digest": digest,
+        "n": n,
+        "k": k,
+        "d": d,
+        "fom": fom,
+    }
+    win = classify_win(n, k, d)
+    assert win["passed"] is True
     certificate = {
         "schema_version": 1,
         "certificate_type": "qldpc-css-bb-exact",
         "passed": artifact_passed,
-        "claim": {
-            "canonical_digest": digest,
-            "n": 72,
-            "k": 12,
-            "d": 7,
-        },
+        "known_answer": {"artifact_sha256": known_answer_sha},
+        "claim": claim,
         "milp": {
             "exact": True,
-            "expected_directions": 2,
-            "completed_directions": 2,
+            "expected_directions": 2 * k,
+            "completed_directions": 2 * k,
+            "distance": d,
+            "directions": [{"objective": d} for _ in range(2 * k)],
+        },
+        "final_gate": {
+            "accepted": True,
+            "checks": {
+                "challenge_win": True,
+                "reported_fom_matches": True,
+            },
+            "failures": [],
+            "candidate": {"n": n, "k": k, "d": d, "fom": fom},
+            "win": win,
         },
     }
     certificate_sha = hashlib.sha256(
@@ -263,9 +343,6 @@ def _certificate(
     ).hexdigest()
     certificate["certificate_sha256"] = certificate_sha
     _write_json(certificate_path, certificate)
-    known_answer_sha = hashlib.sha256(
-        Path(config.known_answer_artifact).read_bytes()
-    ).hexdigest()
     payload_sha = hashlib.sha256(
         json.dumps(
             certificate,
@@ -327,6 +404,46 @@ def test_stage2_proof_bypasses_stage3_solver_and_reaches_strict_gate(tmp_path):
         ]
         == 1
     )
+
+
+def test_completed_win_writer_is_exporter_compatible(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    run_id = "writer-export-contract"
+    config = _config(repo, candidates, run_id=run_id)
+    proven, _ = _certificate(config, run_id)
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=ScenarioRunner(stage2=[_plan([proven])]),
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "COMPLETED_WIN"
+    assert (
+        json.loads((config.root / "artifacts" / "stage4-summary.json").read_text())[
+            "routing"
+        ]
+        == "STRICT_GATE"
+    )
+    assert (
+        json.loads((config.root / "artifacts" / "stage5-final-gate.json").read_text())[
+            "passed"
+        ]
+        is True
+    )
+
+    destination = repo / "results" / "runs" / run_id
+    destination.mkdir(parents=True)
+    evaluations = destination / "evaluations.jsonl"
+    evaluations.write_text('{"source":"humanize"}\n')
+
+    result = export_release(repo_dir=repo, run_id=run_id)
+
+    assert result["status"] == "exported"
+    assert result["certificates"] == 1
+    assert Path(result["manifest"]).is_file()
+    assert evaluations.read_text() == '{"source":"humanize"}\n'
+    assert export_release(repo_dir=repo, run_id=run_id)["status"] == "already-exported"
 
 
 def test_unresolved_stage2_routes_through_stage3_then_joins_stage4(tmp_path):
@@ -821,6 +938,66 @@ def test_strict_gate_rejects_passed_flag_without_strict_evaluations(tmp_path):
     state = FiveStagePipeline(
         config,
         command_runner=weak_strict_runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "STRICT_GATE_REJECTED"
+    assert state["failure"]["stage"] == "stage5_strict_gate"
+
+
+def test_strict_gate_rejects_evaluation_bound_to_wrong_certificate(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(repo, candidates, run_id="strict-certificate-mismatch")
+    proven, _ = _certificate(config, "strict-certificate-mismatch")
+    underlying = ScenarioRunner(stage2=[_plan([proven])])
+
+    def mismatched_strict_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        result = underlying(command, cwd=cwd)
+        if Path(command[1]).name == "finalize_challenge.py":
+            output = _argument(command, "--output")
+            artifact = json.loads(output.read_text())
+            artifact["evaluations"][0]["certificate_sha256"] = "0" * 64
+            _write_json(output, artifact)
+        return result
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=mismatched_strict_runner,
+        reviewer=RecordingReviewer(),
+    ).run()
+
+    assert state["status"] == "FAILED"
+    assert state["failure"]["classification"] == "STRICT_GATE_REJECTED"
+    assert state["failure"]["stage"] == "stage5_strict_gate"
+
+
+def test_strict_gate_rejects_incomplete_replay_checks(tmp_path):
+    repo, candidates = _repo(tmp_path)
+    config = _config(
+        repo,
+        candidates,
+        run_id="strict-incomplete-replay-checks",
+    )
+    proven, _ = _certificate(config, "strict-incomplete-replay-checks")
+    underlying = ScenarioRunner(stage2=[_plan([proven])])
+
+    def incomplete_strict_runner(
+        command: list[str], *, cwd: Path
+    ) -> subprocess.CompletedProcess[str]:
+        result = underlying(command, cwd=cwd)
+        if Path(command[1]).name == "finalize_challenge.py":
+            output = _argument(command, "--output")
+            artifact = json.loads(output.read_text())
+            artifact["evaluations"][0]["result"]["checks"].pop("milp_rerun")
+            _write_json(output, artifact)
+        return result
+
+    state = FiveStagePipeline(
+        config,
+        command_runner=incomplete_strict_runner,
         reviewer=RecordingReviewer(),
     ).run()
 
